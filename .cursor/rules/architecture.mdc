@@ -1,0 +1,38 @@
+---
+description: Architecture guidelines for the Signature Work software
+alwaysApply: true
+---
+
+# Architecture Guidelines
+
+Maintain clear boundaries between:
+
+- document ingestion
+- retrieval
+- Agentic RAG orchestration
+- evaluation
+- failure diagnosis
+- recovery
+- verification
+- experiment infrastructure
+- frontend/UI
+
+Do not tightly couple core RAG logic to the frontend.
+
+Prefer typed interfaces and structured outputs between components.
+
+Core AI components should be callable independently from the UI.
+
+Before introducing a major framework, dependency, database, vector store, or architectural abstraction:
+
+- explain why it is needed
+- explain the simpler alternative
+- explain the tradeoff
+
+Avoid premature abstractions.
+
+For Signature Work V1, prefer a small number of reliable failure/recovery mechanisms over a large number of incomplete ones.
+
+All experiments should be reproducible from configuration where practical.
+
+Do not overwrite historical benchmark results.

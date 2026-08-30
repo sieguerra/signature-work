@@ -1,0 +1,23 @@
+# Secrets
+.env
+.env.*
+*.pem
+*.key
+credentials.json
+secrets.json
+
+# Large/generated data
+datasets/raw/
+experiments/output/
+
+# Build outputs
+node_modules/
+.next/
+dist/
+
+# Python environments
+.venv/
+venv/
+
+# Large logs
+*.log
