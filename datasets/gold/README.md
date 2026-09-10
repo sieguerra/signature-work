@@ -41,10 +41,11 @@ long...". A question that does not name its entity has no single gold answer,
 and will show up as a failure that is really a bug in the question.
 
 **Write unanswerable questions deliberately.** They are not filler — the
-corpus-gap failure class does not exist without them, and the recovery for that
-class is abstention. Aim for questions that *sound* answerable from the corpus
-but are not, such as asking about a service the documents mention only to deny,
-or asking a near-neighbour's fact about the wrong entity.
+evidence-insufficiency class (ADR 005) includes corpus-gap, and that slice
+does not exist without them. The recovery for that class is abstention. Aim
+for questions that *sound* answerable from the corpus but are not, such as
+asking about a service the documents mention only to deny, or asking a
+near-neighbour's fact about the wrong entity.
 
 **Target the classes you want to measure.** A question whose answer sits in one
 obvious chunk tests generation. A question whose answer needs an easily-missed
