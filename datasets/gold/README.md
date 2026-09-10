@@ -53,9 +53,15 @@ detail tests retrieval. Note which you intended in `notes`.
 
 ## Current state
 
-`questions.jsonl` holds **seed examples only** — enough to exercise the loader
-and scorer, not enough to evaluate anything. Issue #5 tracks writing the real
-set (target roughly 40-60 questions, with a deliberate answerable/unanswerable
-split).
+`questions.jsonl` is the V1 gold set (issue #5): 32 questions, 22 answerable
+and 10 unanswerable. Every corpus document is the supporting document for at
+least one answerable question. Contrast pairs cover the near-neighbour
+entities from ADR 004 (two libraries, two labs, two canteens, two archive
+units, current vs superseded library hours, term vs recess shuttle).
 
-Verify the seed rows against the corpus before trusting them.
+Original `seed-*` ids are kept so earlier traces stay joinable. New items use
+`gold-*` ids.
+
+Every row must be checked by hand against `datasets/corpus/` before any scored
+experiment. Do not edit a question after results exist for it; add a new id
+instead.
