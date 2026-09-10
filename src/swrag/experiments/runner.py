@@ -18,6 +18,7 @@ from typing import Callable
 
 from swrag.config import load_provider_config
 from swrag.evaluation.gold import load_gold_set
+from swrag.evaluation.judge import GroundingJudge
 from swrag.evaluation.scoring import score_answer
 from swrag.pipeline.baseline import run_query
 from swrag.retrieval.embedder import Embedder
@@ -91,11 +92,14 @@ def run_experiment(
     generate: bool = True,
     answer_fn: Callable[[GoldQuestion], tuple[str, str, tuple[str, ...], str | None]] | None = None,
     run_label: str | None = None,
+    judge: GroundingJudge | None = None,
 ) -> ExperimentSummary:
     """Score every gold question and write results to a fresh directory.
 
     ``answer_fn`` exists so tests can supply canned answers without an API key.
-    When omitted, the baseline pipeline runs for real.
+    When omitted, the baseline pipeline runs for real. ``judge`` is attached to
+    each pipeline trace; it is never given gold labels. Canned ``answer_fn``
+    paths skip the judge because they do not produce a retrieval object.
     """
     questions = load_gold_set(gold_path)
     label = run_label or datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S")
@@ -118,6 +122,7 @@ def run_experiment(
                 embedder=embedder,
                 generate=generate,
                 question_id=question.question_id,
+                judge=judge,
             )
             answer = result.answer
             run_id = result.run_id

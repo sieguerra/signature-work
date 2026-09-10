@@ -2,7 +2,10 @@
 
 Software for **evaluation-guided Agentic RAG**: the system answers a question, evaluates the result, diagnoses a failure, recovers, and verifies whether recovery helped.
 
-Built so far: **baseline RAG with JSON traces**, and the **offline evaluation foundation** (gold set, scoring, batch experiment harness). Runtime evaluation, diagnosis, recovery, and verification are Phase 1; the UI is later.
+Built so far: **baseline RAG with JSON traces**, the **offline evaluation
+foundation** (gold set, scoring, batch experiment harness), and **runtime
+grounding signals** (evidence sufficiency and answer support) behind a
+swappable judge. Diagnosis, recovery, and verification are next; the UI is later.
 
 The measured contribution is **verification quality** — whether the system's own verdict that "recovery worked" is correct. See [ADR 002](docs/decisions/002-contribution-and-scope.md).
 
@@ -34,7 +37,11 @@ python scripts/run_baseline.py --question "When is the Harbor Institute Library 
 
 Both commands print retrieved chunk ids and write a new JSON trace under `experiments/output/` (gitignored). Existing traces are not overwritten.
 
-Optional flags: `--corpus`, `--output-dir`, `--top-k`.
+Optional flags: `--corpus`, `--output-dir`, `--top-k`, `--evaluate`.
+
+`--evaluate` runs the LLM grounding judge (ADR 003) and writes
+`evidence_sufficient` / `answer_supported` onto the trace. It never reads the
+gold set. Needs `OPENAI_API_KEY`.
 
 ## Score the gold set
 
@@ -44,6 +51,7 @@ result directory that is never overwritten:
 ```bash
 python scripts/run_experiment.py --retrieve-only          # no API key
 python scripts/run_experiment.py                          # needs OPENAI_API_KEY
+python scripts/run_experiment.py --evaluate               # also writes runtime judge flags on each trace
 ```
 
 Results are reported **per class** — answerable and unanswerable questions have
@@ -76,7 +84,7 @@ Tests use the same fake embedder, so chunking, ranking, and tracing do not call 
 | `src/swrag/tracing/` | Per-run JSON traces |
 | `src/swrag/pipeline/` | Baseline `run_query` |
 | `src/swrag/config.py` | Which model backend to call, recorded in every trace |
-| `src/swrag/evaluation/` | Gold-set loader and offline EM/F1 scoring |
+| `src/swrag/evaluation/` | Gold-set loader, offline EM/F1, runtime grounding judge |
 | `src/swrag/experiments/` | Batch harness with per-class aggregation |
 | `datasets/corpus/` | Toy documents (original, fictional), including deliberate distractors |
 | `datasets/gold/` | Hand-written questions and their ground truth |
