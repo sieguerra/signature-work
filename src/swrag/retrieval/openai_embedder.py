@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-import os
 from typing import Sequence
 
 from openai import OpenAI
 
-DEFAULT_EMBEDDING_MODEL = "text-embedding-3-small"
+from swrag.config import ProviderConfig, load_provider_config
 
 
 class OpenAIEmbedder:
@@ -16,11 +15,12 @@ class OpenAIEmbedder:
         *,
         model: str | None = None,
         client: OpenAI | None = None,
+        config: ProviderConfig | None = None,
     ) -> None:
-        self.model_name = model or os.environ.get(
-            "OPENAI_EMBEDDING_MODEL", DEFAULT_EMBEDDING_MODEL
-        )
-        self._client = client or OpenAI()
+        resolved = config or load_provider_config()
+        self.model_name = model or resolved.embedding_model
+        self.base_url = resolved.base_url
+        self._client = client or OpenAI(base_url=resolved.base_url)
 
     def embed(self, texts: Sequence[str]) -> list[list[float]]:
         if not texts:

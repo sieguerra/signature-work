@@ -2,7 +2,9 @@
 
 Software for **evaluation-guided Agentic RAG**: the system answers a question, evaluates the result, diagnoses a failure, recovers, and verifies whether recovery helped.
 
-The first working slice is **baseline RAG + JSON traces** only. Evaluation, diagnosis, recovery, and the UI are later issues.
+Built so far: **baseline RAG with JSON traces**, and the **offline evaluation foundation** (gold set, scoring, batch experiment harness). Runtime evaluation, diagnosis, recovery, and verification are Phase 1; the UI is later.
+
+The measured contribution is **verification quality** — whether the system's own verdict that "recovery worked" is correct. See [ADR 002](docs/decisions/002-contribution-and-scope.md).
 
 ## Setup
 
@@ -34,6 +36,28 @@ Both commands print retrieved chunk ids and write a new JSON trace under `experi
 
 Optional flags: `--corpus`, `--output-dir`, `--top-k`.
 
+## Score the gold set
+
+Runs every question in `datasets/gold/questions.jsonl` and writes a timestamped
+result directory that is never overwritten:
+
+```bash
+python scripts/run_experiment.py --retrieve-only          # no API key
+python scripts/run_experiment.py                          # needs OPENAI_API_KEY
+```
+
+Results are reported **per class** — answerable and unanswerable questions have
+opposite success criteria, so a pooled average is misleading. Both are written
+to `summary.json` along with which model backend produced them.
+
+## Point at a different backend
+
+Any OpenAI-compatible endpoint works. Set `OPENAI_BASE_URL` in `.env`.
+
+The endpoint is recorded in every trace and summary, because a proxy can serve
+a model named `gpt-4o-mini` without it being that model. Benchmark results are
+only reproducible if the backend that produced them is known.
+
 ## Tests (no API key)
 
 ```bash
@@ -51,9 +75,13 @@ Tests use the same fake embedder, so chunking, ranking, and tracing do not call 
 | `src/swrag/generation/` | OpenAI generation from evidence |
 | `src/swrag/tracing/` | Per-run JSON traces |
 | `src/swrag/pipeline/` | Baseline `run_query` |
+| `src/swrag/config.py` | Which model backend to call, recorded in every trace |
+| `src/swrag/evaluation/` | Gold-set loader and offline EM/F1 scoring |
+| `src/swrag/experiments/` | Batch harness with per-class aggregation |
 | `datasets/corpus/` | Toy documents (original, fictional) |
+| `datasets/gold/` | Hand-written questions and their ground truth |
 | `docs/decisions/` | Architecture decision records |
 
-Stub packages exist for evaluation, diagnosis, recovery, verification, and orchestration so later work does not reshape the tree.
+Stub packages exist for diagnosis, recovery, verification, and orchestration so later work does not reshape the tree.
 
-Stack choice for this slice: [docs/decisions/001-first-slice-stack.md](docs/decisions/001-first-slice-stack.md).
+Decisions: [001 stack](docs/decisions/001-first-slice-stack.md), [002 contribution and scope](docs/decisions/002-contribution-and-scope.md), [003 evaluation method](docs/decisions/003-evaluation-method.md).

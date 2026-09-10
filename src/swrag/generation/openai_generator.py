@@ -2,13 +2,10 @@
 
 from __future__ import annotations
 
-import os
-
 from openai import OpenAI
 
+from swrag.config import ProviderConfig, load_provider_config
 from swrag.types import GenerationResult, RetrievalResult
-
-DEFAULT_CHAT_MODEL = "gpt-4o-mini"
 
 _SYSTEM_PROMPT = """You are a baseline RAG assistant.
 Answer the user using only the provided evidence chunks.
@@ -23,9 +20,12 @@ class OpenAIGenerator:
         *,
         model: str | None = None,
         client: OpenAI | None = None,
+        config: ProviderConfig | None = None,
     ) -> None:
-        self.model_name = model or os.environ.get("OPENAI_CHAT_MODEL", DEFAULT_CHAT_MODEL)
-        self._client = client or OpenAI()
+        resolved = config or load_provider_config()
+        self.model_name = model or resolved.chat_model
+        self.base_url = resolved.base_url
+        self._client = client or OpenAI(base_url=resolved.base_url)
 
     def generate(self, query: str, retrieval: RetrievalResult) -> GenerationResult:
         evidence = _format_evidence(retrieval)
