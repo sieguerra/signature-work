@@ -5,7 +5,8 @@ Software for **evaluation-guided Agentic RAG**: the system answers a question, e
 Built so far: **baseline RAG with JSON traces**, the **offline evaluation
 foundation** (gold set, scoring, batch experiment harness), and **runtime
 grounding signals** (evidence sufficiency and answer support) behind a
-swappable judge. Diagnosis, recovery, and verification are next; the UI is later.
+swappable judge, and **first-pass diagnosis** of unsupported generation.
+Recovery and verification are next; the UI is later.
 
 The measured contribution is **verification quality** — whether the system's own verdict that "recovery worked" is correct. See [ADR 002](docs/decisions/002-contribution-and-scope.md).
 
@@ -83,6 +84,7 @@ Tests use the same fake embedder, so chunking, ranking, and tracing do not call 
 | `src/swrag/generation/` | OpenAI generation from evidence |
 | `src/swrag/tracing/` | Per-run JSON traces |
 | `src/swrag/pipeline/` | Baseline `run_query` |
+| `src/swrag/diagnosis/` | First-pass label: unsupported generation |
 | `src/swrag/config.py` | Which model backend to call, recorded in every trace |
 | `src/swrag/evaluation/` | Gold-set loader, offline EM/F1, runtime grounding judge |
 | `src/swrag/experiments/` | Batch harness with per-class aggregation |
@@ -90,6 +92,6 @@ Tests use the same fake embedder, so chunking, ranking, and tracing do not call 
 | `datasets/gold/` | Hand-written questions and their ground truth |
 | `docs/decisions/` | Architecture decision records |
 
-Stub packages exist for diagnosis, recovery, verification, and orchestration so later work does not reshape the tree.
+Stub packages remain for recovery, verification, and orchestration.
 
 Decisions: [001 stack](docs/decisions/001-first-slice-stack.md), [002 contribution and scope](docs/decisions/002-contribution-and-scope.md), [003 evaluation method](docs/decisions/003-evaluation-method.md).
