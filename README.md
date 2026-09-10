@@ -78,7 +78,7 @@ Tests use the same fake embedder, so chunking, ranking, and tracing do not call 
 | `src/swrag/config.py` | Which model backend to call, recorded in every trace |
 | `src/swrag/evaluation/` | Gold-set loader and offline EM/F1 scoring |
 | `src/swrag/experiments/` | Batch harness with per-class aggregation |
-| `datasets/corpus/` | Toy documents (original, fictional) |
+| `datasets/corpus/` | Toy documents (original, fictional), including deliberate distractors |
 | `datasets/gold/` | Hand-written questions and their ground truth |
 | `docs/decisions/` | Architecture decision records |
 

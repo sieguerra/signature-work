@@ -33,10 +33,18 @@ ignored, so the file can be grouped with comments.
 both in `answers`. Under-listing aliases shows up as a false failure and will
 pollute the failure taxonomy.
 
+**Name the entity explicitly.** The corpus contains deliberate near-neighbours
+(ADR 004): two libraries, two teaching labs, two canteens, two archive units.
+"How long is a booking held before it is cancelled?" was unambiguous when there
+was one lab and is ambiguous now. Write "At the North Jetty Teaching Lab, how
+long...". A question that does not name its entity has no single gold answer,
+and will show up as a failure that is really a bug in the question.
+
 **Write unanswerable questions deliberately.** They are not filler — the
 corpus-gap failure class does not exist without them, and the recovery for that
 class is abstention. Aim for questions that *sound* answerable from the corpus
-but are not, such as asking about a service the documents mention only to deny.
+but are not, such as asking about a service the documents mention only to deny,
+or asking a near-neighbour's fact about the wrong entity.
 
 **Target the classes you want to measure.** A question whose answer sits in one
 obvious chunk tests generation. A question whose answer needs an easily-missed

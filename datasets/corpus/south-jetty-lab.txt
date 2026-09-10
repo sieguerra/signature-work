@@ -1,0 +1,7 @@
+South Jetty Teaching Lab booking rules
+
+The lab code is SJ-07. Undergraduate project groups may book up to two 2-hour slots per day. Slots start at 10:00, 14:00, and 18:00, and the lab does open on Saturdays.
+
+A booking is cancelled if no member taps in with a student card within 10 minutes of the start time. Safety glasses are required at all times inside the wet bench area, powered or not.
+
+The lab manager is Dev Okonkwo (dev.okonkwo@harbor-institute.example). There is no overnight access at South Jetty under any circumstances; the building is locked at 21:00.
