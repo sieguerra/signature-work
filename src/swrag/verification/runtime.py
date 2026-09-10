@@ -20,9 +20,22 @@ def verify_runtime(
     before: RuntimeEvaluation,
     after: RuntimeEvaluation,
 ) -> Verification:
-    """Compare pre/post answer-support. Sufficiency is expected to stay put
-    for regenerate (same evidence).
+    """Compare pre/post flags.
+
+    Sufficiency False→True counts as improved (query-rewrite repaired retrieval).
+    Answer-support is the signal for constrained regenerate (same evidence).
     """
+    if after.evidence_sufficient and not before.evidence_sufficient:
+        return Verification(
+            outcome=IMPROVED,
+            rationale="evidence_sufficient became true after recovery",
+        )
+    if before.evidence_sufficient and not after.evidence_sufficient:
+        return Verification(
+            outcome=DEGRADED,
+            rationale="evidence_sufficient became false after recovery",
+        )
+
     before_ok = before.answer_supported is True
     after_ok = after.answer_supported is True
 
@@ -36,12 +49,12 @@ def verify_runtime(
             outcome=DEGRADED,
             rationale="answer_supported became false after recovery",
         )
-    if after.answer_supported is False:
+    if after.answer_supported is False or not after.evidence_sufficient:
         return Verification(
             outcome=STILL_FAILING,
-            rationale="answer remained unsupported after recovery",
+            rationale="recovery did not produce a supported, sufficient result",
         )
     return Verification(
         outcome=UNCHANGED,
-        rationale="runtime support flags did not change",
+        rationale="runtime support and sufficiency flags did not change",
     )
