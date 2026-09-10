@@ -18,14 +18,14 @@ def _write(tmp_path: Path, *rows: str) -> Path:
     return path
 
 
-def test_loads_the_seed_gold_set() -> None:
+def test_loads_the_gold_set() -> None:
     questions = load_gold_set(GOLD)
-    assert len(questions) >= 6
+    assert len(questions) >= 24
     assert any(question.answerable for question in questions)
     assert any(not question.answerable for question in questions)
 
 
-def test_seed_set_answers_obey_the_answerable_flag() -> None:
+def test_gold_set_answers_obey_the_answerable_flag() -> None:
     for question in load_gold_set(GOLD):
         assert bool(question.answers) == question.answerable
 
@@ -86,3 +86,24 @@ def test_unanswerable_with_answers_raises(tmp_path: Path) -> None:
     )
     with pytest.raises(ValueError, match="empty"):
         load_gold_set(path)
+
+
+def test_answerable_questions_cite_real_corpus_documents() -> None:
+    corpus_ids = {path.stem for path in GOLD.parents[1].joinpath("corpus").glob("*.txt")}
+    questions = load_gold_set(GOLD)
+    cited: set[str] = set()
+    for question in questions:
+        if question.answerable:
+            assert question.supporting_doc_ids, question.question_id
+            missing = set(question.supporting_doc_ids) - corpus_ids
+            assert not missing, (question.question_id, missing)
+            cited.update(question.supporting_doc_ids)
+        else:
+            assert question.supporting_doc_ids == ()
+    assert corpus_ids <= cited, f"corpus docs never used as gold support: {corpus_ids - cited}"
+
+
+def test_gold_answers_are_short_enough_for_exact_match() -> None:
+    for question in load_gold_set(GOLD):
+        for answer in question.answers:
+            assert len(answer) <= 40, (question.question_id, answer)
