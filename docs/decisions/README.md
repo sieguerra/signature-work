@@ -19,9 +19,10 @@ Recorded:
 - [003-evaluation-method.md](003-evaluation-method.md) — LLM judge at runtime, EM/F1 offline, own corpus, swappable provider (2026-09-10)
 - [004-corpus-difficulty.md](004-corpus-difficulty.md) — distractor documents, written before any results (2026-09-10)
 - [005-failure-taxonomy.md](005-failure-taxonomy.md) — three V1 classes: retrieval miss, evidence insufficiency, unsupported generation (2026-09-10)
+- [006-recovery-policy.md](006-recovery-policy.md) — regenerate first for unsupported generation; accept/abstain as outcomes (2026-09-10)
 
 Later examples (not yet written):
 
-- 006-recovery-policy.md
 - 007-vector-database.md
 - 008-agent-framework.md
+

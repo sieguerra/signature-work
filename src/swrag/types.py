@@ -122,6 +122,28 @@ class Diagnosis:
 
 
 @dataclass(frozen=True)
+class RecoveryDecision:
+    """Controller output. ``regenerate`` is the only applied recovery in this slice."""
+
+    action: str
+    reason: str
+
+    def as_trace_payload(self) -> dict[str, object]:
+        return {"action": self.action, "reason": self.reason}
+
+
+@dataclass(frozen=True)
+class Verification:
+    """Runtime check of whether recovery helped, using judge flags only (not gold)."""
+
+    outcome: str
+    rationale: str
+
+    def as_trace_payload(self) -> dict[str, object]:
+        return {"outcome": self.outcome, "rationale": self.rationale}
+
+
+@dataclass(frozen=True)
 class TraceRecord:
     run_id: str
     timestamp: str
@@ -135,6 +157,9 @@ class TraceRecord:
     question_id: str | None = field(default=None)
     runtime_evaluation: dict[str, Any] | None = field(default=None)
     diagnosis: dict[str, Any] | None = field(default=None)
+    recovery: dict[str, Any] | None = field(default=None)
+    verification: dict[str, Any] | None = field(default=None)
+    previous_answer: str | None = field(default=None)
 
 
 @dataclass(frozen=True)
@@ -148,3 +173,6 @@ class BaselineRunResult:
     trace_path: Path | None = field(default=None)
     runtime_evaluation: RuntimeEvaluation | None = field(default=None)
     diagnosis: Diagnosis | None = field(default=None)
+    recovery: RecoveryDecision | None = field(default=None)
+    verification: Verification | None = field(default=None)
+    previous_answer: str | None = field(default=None)
