@@ -1,0 +1,3 @@
+Metering note
+
+Interval meters on Feeder 12 report every 15 minutes. Saddle ranch meters are monthly reads only.

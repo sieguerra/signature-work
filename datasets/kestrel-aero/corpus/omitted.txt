@@ -1,0 +1,3 @@
+What this corpus does not contain
+
+Unit prices, the owner's name, and ITAR exemption numbers are omitted so those questions are unanswerable from local evidence.

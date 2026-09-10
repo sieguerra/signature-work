@@ -1,0 +1,3 @@
+What this corpus does not contain
+
+Stevedore wages, bunker prices, and the port director's name are omitted on purpose.

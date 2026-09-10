@@ -16,6 +16,14 @@ from pydantic import BaseModel, Field
 
 from swrag.api.store import delete_all_traces, delete_trace, list_traces, load_trace
 from swrag.config import load_provider_config
+from swrag.corpus_registry import (
+    CorpusEntry,
+    assert_corpus_readable,
+    default_corpus_id,
+    get_corpus,
+    load_registry,
+    traces_dir_for,
+)
 from swrag.orchestration.loop import run_with_recovery
 from swrag.pipeline.baseline import build_corpus_index, run_query
 from swrag.retrieval.fake_embedder import FakeEmbedder
@@ -30,6 +38,10 @@ class RunRequest(BaseModel):
     top_k: int = Field(default=4, ge=1, le=20)
 
 
+class CorpusSelectRequest(BaseModel):
+    id: str = Field(min_length=1)
+
+
 def repo_root() -> Path:
     return Path(__file__).resolve().parents[3]
 
@@ -42,19 +54,33 @@ def create_app(
     *,
     corpus_dir: str | Path | None = None,
     traces_dir: str | Path | None = None,
+    traces_root: str | Path | None = None,
+    corpus_id: str | None = None,
 ) -> FastAPI:
     """Build the UI server. The RAG packages stay importable without FastAPI."""
     load_dotenv(repo_root() / ".env")
-    resolved_corpus = Path(corpus_dir) if corpus_dir else repo_root() / "datasets" / "dku" / "corpus"
-    resolved_traces = Path(traces_dir) if traces_dir else repo_root() / "experiments" / "output"
+    root = repo_root()
+    resolved_traces_root = Path(traces_root) if traces_root else root / "experiments" / "output"
+
+    if corpus_dir is not None:
+        entry = _entry_for_explicit_dir(Path(corpus_dir), root)
+        traces_locked = True
+        resolved_traces = Path(traces_dir) if traces_dir else traces_dir_for(entry.id, resolved_traces_root)
+    else:
+        entry = get_corpus(corpus_id or default_corpus_id(root=root), root=root)
+        traces_locked = traces_dir is not None
+        resolved_traces = Path(traces_dir) if traces_dir else traces_dir_for(entry.id, resolved_traces_root)
+
     static = web_dir()
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
-        app.state.corpus_dir = resolved_corpus
-        app.state.traces_dir = resolved_traces
+        app.state.repo_root = root
+        app.state.traces_root = resolved_traces_root
+        app.state.traces_locked = traces_locked
         app.state.indexes = {}
-        app.state.index_lock = threading.Lock()
+        app.state.index_lock = threading.RLock()
+        _activate(app, entry, resolved_traces)
         yield
 
     application = FastAPI(title="swrag trace explorer", lifespan=lifespan)
@@ -65,7 +91,42 @@ def create_app(
         payload = config.as_trace_payload()
         payload["corpus_dir"] = str(application.state.corpus_dir)
         payload["traces_dir"] = str(application.state.traces_dir)
+        payload["corpus_id"] = application.state.corpus_id
+        payload["corpus_label"] = application.state.corpus_label
+        payload["corpus_industry"] = application.state.corpus_industry
+        payload["examples"] = list(application.state.examples)
+        payload["doc_count"] = application.state.doc_count
         return payload
+
+    @application.get("/api/corpora")
+    def corpora() -> dict[str, Any]:
+        return {
+            "active_id": application.state.corpus_id,
+            "corpora": [item.as_payload() for item in load_registry(root=application.state.repo_root)],
+        }
+
+    @application.post("/api/corpus")
+    def select_corpus(body: CorpusSelectRequest) -> dict[str, Any]:
+        try:
+            selected = get_corpus(body.id.strip(), root=application.state.repo_root)
+        except KeyError as error:
+            raise HTTPException(status_code=404, detail=f"unknown corpus {body.id!r}") from error
+        try:
+            assert_corpus_readable(selected)
+        except (FileNotFoundError, ValueError) as error:
+            raise HTTPException(status_code=400, detail=str(error)) from error
+        next_traces = (
+            application.state.traces_dir
+            if application.state.traces_locked
+            else traces_dir_for(selected.id, application.state.traces_root)
+        )
+        with application.state.index_lock:
+            _activate(application, selected, next_traces)
+        return {
+            "active_id": application.state.corpus_id,
+            "corpus": selected.as_payload(),
+            "traces_dir": str(application.state.traces_dir),
+        }
 
     @application.get("/api/traces")
     def traces() -> dict[str, Any]:
@@ -102,7 +163,8 @@ def create_app(
                 detail="OPENAI_API_KEY is not set. Use retrieve-only mode, or add a key to .env.",
             )
         try:
-            result = _execute_run(application, question, body.mode, body.top_k)
+            with application.state.index_lock:
+                result = _execute_run(application, question, body.mode, body.top_k)
         except FileExistsError as error:
             raise HTTPException(status_code=409, detail=str(error)) from error
         except Exception as error:
@@ -128,6 +190,35 @@ def create_app(
     return application
 
 
+def _activate(application: FastAPI, entry: CorpusEntry, traces: Path) -> None:
+    traces.mkdir(parents=True, exist_ok=True)
+    application.state.corpus_id = entry.id
+    application.state.corpus_label = entry.label
+    application.state.corpus_industry = entry.industry
+    application.state.corpus_dir = entry.corpus_dir
+    application.state.examples = entry.examples
+    application.state.doc_count = entry.doc_count
+    application.state.traces_dir = Path(traces)
+    application.state.indexes = {}
+
+
+def _entry_for_explicit_dir(corpus_dir: Path, root: Path) -> CorpusEntry:
+    resolved = corpus_dir.resolve()
+    for entry in load_registry(root=root):
+        if entry.corpus_dir.resolve() == resolved:
+            return entry
+    return CorpusEntry(
+        id="custom",
+        label="Custom corpus",
+        industry="",
+        group="Custom",
+        corpus_dir=resolved,
+        gold_path=None,
+        examples=(),
+        fictional=True,
+    )
+
+
 def _execute_run(application: FastAPI, question: str, mode: str, top_k: int):
     retrieve_only = mode == "retrieve_only"
     index = _index_for(application, retrieve_only=retrieve_only)
@@ -148,7 +239,7 @@ def _execute_run(application: FastAPI, question: str, mode: str, top_k: int):
 
 
 def _index_for(application: FastAPI, *, retrieve_only: bool):
-    key = "fake" if retrieve_only else "openai"
+    key = (application.state.corpus_id, "fake" if retrieve_only else "openai")
     with application.state.index_lock:
         cached = application.state.indexes.get(key)
         if cached is not None:

@@ -1,0 +1,3 @@
+What this corpus does not contain
+
+Cents per kWh, the board chair's name, and the count of members are omitted on purpose.

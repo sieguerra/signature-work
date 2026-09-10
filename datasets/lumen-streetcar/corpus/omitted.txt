@@ -1,0 +1,3 @@
+What this corpus does not contain
+
+Fares, union wage tables, and ridership counts are omitted on purpose.

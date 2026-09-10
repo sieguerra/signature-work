@@ -1,0 +1,145 @@
+{
+  "default": "dku",
+  "corpora": [
+    {
+      "id": "harbor",
+      "label": "Harbor Institute",
+      "industry": "Fictional research campus",
+      "group": "Campus",
+      "corpus_dir": "datasets/corpus",
+      "gold_path": "datasets/gold/questions.jsonl",
+      "fictional": true,
+      "examples": [
+        "When is the Harbor Institute Library open on Saturday?",
+        "What is the late-return fine at the Harbor Institute Library?",
+        "How much does a meal cost at Tide Canteen?"
+      ]
+    },
+    {
+      "id": "dku",
+      "label": "Duke Kunshan University",
+      "industry": "University campus (public facts)",
+      "group": "Campus",
+      "corpus_dir": "datasets/dku/corpus",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "fictional": false,
+      "examples": [
+        "According to the current DKU Library Locations and Hours page, what are the 1st floor information desk hours on Saturday?",
+        "What are breakfast hours at University Dining in the Academic Building?",
+        "What time does breakfast end at Halal Dining at the Conference Center?"
+      ]
+    },
+    {
+      "id": "northhaven-water",
+      "label": "Northhaven Water District",
+      "industry": "Municipal water utility",
+      "group": "Utilities",
+      "corpus_dir": "datasets/northhaven-water/corpus",
+      "gold_path": "datasets/northhaven-water/gold/questions.jsonl",
+      "fictional": true,
+      "examples": [
+        "What are Saturday walk-in hours at the Cedar Street billing desk according to the current notice?",
+        "What fluoride residual does the March 2026 water quality sheet list?",
+        "Who is the general manager of Northhaven Water District?"
+      ]
+    },
+    {
+      "id": "kestrel-aero",
+      "label": "Kestrel Aero Components",
+      "industry": "Aerospace machining",
+      "group": "Manufacturing",
+      "corpus_dir": "datasets/kestrel-aero/corpus",
+      "gold_path": "datasets/kestrel-aero/gold/questions.jsonl",
+      "fictional": true,
+      "examples": [
+        "Which building at Kestrel Aero machines titanium bulkheads?",
+        "What AMS specification letter does the 2025 traveler require for titanium plate?",
+        "What is the unit price of a Kestrel bulkhead?"
+      ]
+    },
+    {
+      "id": "orion-grid",
+      "label": "Orion Grid Cooperative",
+      "industry": "Rural electric cooperative",
+      "group": "Utilities",
+      "corpus_dir": "datasets/orion-grid/corpus",
+      "gold_path": "datasets/orion-grid/gold/questions.jsonl",
+      "fictional": true,
+      "examples": [
+        "What voltage is Magpie Substation?",
+        "When does the 2026 night rate start according to the current tariff card?",
+        "What does Orion charge per kWh on the night rate?"
+      ]
+    },
+    {
+      "id": "porthaven-port",
+      "label": "Porthaven Port Authority",
+      "industry": "Seaport / marine terminals",
+      "group": "Transport",
+      "corpus_dir": "datasets/porthaven-port/corpus",
+      "gold_path": "datasets/porthaven-port/gold/questions.jsonl",
+      "fictional": true,
+      "examples": [
+        "Which Porthaven berth handles containers?",
+        "What is the current flood-tide pilot window at Porthaven?",
+        "What do Porthaven stevedores earn per hour?"
+      ]
+    },
+    {
+      "id": "nimbus-seed",
+      "label": "Nimbus Seed Bank",
+      "industry": "Plant genetic resources",
+      "group": "Agriculture",
+      "corpus_dir": "datasets/nimbus-seed/corpus",
+      "gold_path": "datasets/nimbus-seed/gold/questions.jsonl",
+      "fictional": true,
+      "examples": [
+        "Which crop is accession NB-1882?",
+        "What viability did the 2025 test report for NB-1882?",
+        "How much does a commercial packet of NB-1882 cost?"
+      ]
+    },
+    {
+      "id": "lumen-streetcar",
+      "label": "Lumen Streetcar Authority",
+      "industry": "Urban streetcar / transit",
+      "group": "Transport",
+      "corpus_dir": "datasets/lumen-streetcar/corpus",
+      "gold_path": "datasets/lumen-streetcar/gold/questions.jsonl",
+      "fictional": true,
+      "examples": [
+        "What is the weekday headway on Line Amber?",
+        "According to the 2021 booklet, what was the Sunday headway on Line Amber?",
+        "What is the 2026 adult fare on Lumen streetcars?"
+      ]
+    },
+    {
+      "id": "marlow-clinic",
+      "label": "Marlow Clinic Network",
+      "industry": "Outpatient clinic",
+      "group": "Health",
+      "corpus_dir": "datasets/marlow-clinic/corpus",
+      "gold_path": "datasets/marlow-clinic/gold/questions.jsonl",
+      "fictional": true,
+      "examples": [
+        "What are weekday hours at the River Campus retail pharmacy?",
+        "Does Ridge Campus have a retail pharmacy?",
+        "What is the copay for an infusion at Ridge Campus?"
+      ]
+    },
+    {
+      "id": "saltwind-coop",
+      "label": "Saltwind Fisheries Co-op",
+      "industry": "Commercial fishing cooperative",
+      "group": "Agriculture",
+      "corpus_dir": "datasets/saltwind-coop/corpus",
+      "gold_path": "datasets/saltwind-coop/gold/questions.jsonl",
+      "fictional": true,
+      "examples": [
+        "On what date does the current Dungeness opener start at Saltwind?",
+        "Which Saltwind vessel is named Storm Petrel?",
+        "What is the ex-vessel price for Dungeness at Saltwind?"
+      ]
+    }
+  ]
+}

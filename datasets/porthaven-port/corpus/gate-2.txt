@@ -1,0 +1,3 @@
+Gate 2 truck hours
+
+Gate 2: 05:00-21:00 daily. Reefer plugs are in Yard C, not at Gate 2. After 21:00 trucks wait at the holding pad.

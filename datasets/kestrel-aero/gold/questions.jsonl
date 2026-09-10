@@ -1,0 +1,19 @@
+# Gold over datasets/kestrel-aero/corpus/. Fictional world; verify every row against the .txt files.
+# Prefix ka-. Harbor and DKU gold files are unchanged.
+
+{"question_id": "ka-001", "question": "Which building at Kestrel Aero machines titanium bulkheads?", "answerable": true, "answers": ["Hangar 2"], "supporting_doc_ids": ["about", "hangar-2"], "notes": "Shop 6 is aluminum."}
+{"question_id": "ka-002", "question": "What is the active titanium lot on mill M-40?", "answerable": true, "answers": ["KX-441"], "supporting_doc_ids": ["hangar-2"], "notes": "AL-902 is aluminum."}
+{"question_id": "ka-003", "question": "What AMS specification letter does the 2025 traveler require for titanium plate?", "answerable": true, "answers": ["AMS 4911R", "4911R"], "supporting_doc_ids": ["traveler-2025"], "notes": "2018 was 4911N."}
+{"question_id": "ka-004", "question": "What AMS specification did the 2018 titanium traveler call for?", "answerable": true, "answers": ["AMS 4911N", "4911N"], "supporting_doc_ids": ["traveler-2018"], "notes": "Dated contrast."}
+{"question_id": "ka-005", "question": "What are Shift A hours at Kestrel Aero?", "answerable": true, "answers": ["06:00-14:30"], "supporting_doc_ids": ["shifts"], "notes": "Not Shift B."}
+{"question_id": "ka-006", "question": "Which quality standard is Kestrel registered to?", "answerable": true, "answers": ["AS9100D"], "supporting_doc_ids": ["quality"], "notes": "Not ISO 13485."}
+{"question_id": "ka-007", "question": "When is micrometer set T-7 due for calibration?", "answerable": true, "answers": ["1 November 2026", "November 1, 2026"], "supporting_doc_ids": ["calibration"], "notes": "Not CMM C-2."}
+{"question_id": "ka-008", "question": "Which dock do finished titanium parts leave from?", "answerable": true, "answers": ["Dock West"], "supporting_doc_ids": ["shipping"], "notes": "Aluminum is Dock East."}
+{"question_id": "ka-009", "question": "Which lot is named on open NCR-88?", "answerable": true, "answers": ["AL-902"], "supporting_doc_ids": ["ncr-log"], "notes": "Not KX-441."}
+{"question_id": "ka-010", "question": "What is the traveler desk phone number?", "answerable": true, "answers": ["555-2201"], "supporting_doc_ids": ["contacts"], "notes": "Not quality 555-2202."}
+{"question_id": "ka-011", "question": "Does Shop 6 cut titanium?", "answerable": true, "answers": ["no", "does not cut titanium"], "supporting_doc_ids": ["shop-6"], "notes": "Near-neighbour."}
+{"question_id": "ka-012", "question": "Where do aluminum end mills live?", "answerable": true, "answers": ["Shop 6, drawer 4", "drawer 4"], "supporting_doc_ids": ["tool-crib"], "notes": "Not Hangar 2."}
+{"question_id": "ka-013", "question": "What is the unit price of a Kestrel bulkhead?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "Prices omitted."}
+{"question_id": "ka-014", "question": "Who owns Kestrel Aero Components?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "Names omitted."}
+{"question_id": "ka-015", "question": "What ITAR exemption number does Kestrel hold?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "Omitted."}
+{"question_id": "ka-016", "question": "What does Fay Aerospace charge per hour?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "Sister shop, no rates."}

@@ -1,0 +1,3 @@
+Outage code list
+
+GREY-7 means vegetation on Feeder 12. BLUE-2 means a Magpie breaker misoperation. There is no code for Saddle vegetation.

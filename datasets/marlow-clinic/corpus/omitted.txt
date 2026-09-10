@@ -1,0 +1,3 @@
+What this corpus does not contain
+
+Copays, insurance contracts, and clinician names are omitted on purpose.

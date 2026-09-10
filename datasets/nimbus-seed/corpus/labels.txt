@@ -1,0 +1,3 @@
+Label color key
+
+Blue = barley (NB-). Yellow = wheat (NW-). Red is unused. Do not relabel NW-4401 as blue.

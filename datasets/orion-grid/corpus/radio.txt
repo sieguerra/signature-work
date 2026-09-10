@@ -1,0 +1,3 @@
+Radio channel card
+
+Dispatch uses channel Orion-A. Tree crews on Feeder 12 use Orion-C. Willow Power radios are not listed.
