@@ -1,0 +1,17 @@
+{
+  "name": "v1_baseline_vs_loop",
+  "gold_path": "/Users/siegfreidbugarin/Desktop/Signature Work/datasets/gold/questions.jsonl",
+  "corpus_dir": "/Users/siegfreidbugarin/Desktop/Signature Work/datasets/corpus",
+  "top_k": 4,
+  "max_recoveries": 1,
+  "conditions": [
+    {
+      "id": "baseline",
+      "mode": "baseline"
+    },
+    {
+      "id": "eval_guided",
+      "mode": "loop"
+    }
+  ]
+}

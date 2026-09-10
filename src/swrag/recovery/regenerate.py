@@ -7,6 +7,7 @@ from openai import OpenAI
 from swrag.config import ProviderConfig, load_provider_config
 from swrag.generation.openai_generator import _format_evidence
 from swrag.types import GenerationResult, RetrievalResult
+from swrag.usage import record_chat
 
 _REGENERATE_PROMPT = """You are repairing an unsupported RAG answer.
 Answer the question using only the provided evidence chunks.
@@ -53,5 +54,6 @@ class ConstrainedRegenerator:
             ],
             temperature=0,
         )
+        record_chat(response)
         message = response.choices[0].message.content or ""
         return GenerationResult(answer=message.strip(), model=self.model_name)

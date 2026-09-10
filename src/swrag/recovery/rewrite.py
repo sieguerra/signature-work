@@ -7,6 +7,7 @@ from openai import OpenAI
 from swrag.config import ProviderConfig, load_provider_config
 from swrag.generation.openai_generator import _format_evidence
 from swrag.types import RetrievalResult
+from swrag.usage import record_chat
 
 _REWRITE_PROMPT = """You rewrite search queries for a retriever.
 The current retrieved evidence may be the wrong documents.
@@ -45,6 +46,7 @@ class LLMQueryRewriter:
             ],
             temperature=0,
         )
+        record_chat(response)
         raw = (response.choices[0].message.content or "").strip().strip('"').strip("'")
         return raw or question
 
