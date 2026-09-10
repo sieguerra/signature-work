@@ -76,6 +76,7 @@ def test_run_query_attaches_runtime_evaluation_to_the_trace(tmp_path: Path) -> N
     assert payload["runtime_evaluation"]["answer_supported"] is None
     assert "exact_match" not in payload
     assert "answers" not in payload
+    assert payload["diagnosis"]["failure_class"] is None
 
 
 def test_run_query_without_a_judge_records_null_runtime_evaluation(tmp_path: Path) -> None:
@@ -89,6 +90,7 @@ def test_run_query_without_a_judge_records_null_runtime_evaluation(tmp_path: Pat
     assert result.runtime_evaluation is None
     payload = json.loads(result.trace_path.read_text(encoding="utf-8"))
     assert payload["runtime_evaluation"] is None
+    assert payload["diagnosis"] is None
 
 
 def test_judge_prompt_contains_question_evidence_and_answer_not_gold() -> None:

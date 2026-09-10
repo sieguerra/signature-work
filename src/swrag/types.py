@@ -106,6 +106,22 @@ class RuntimeEvaluation:
 
 
 @dataclass(frozen=True)
+class Diagnosis:
+    """First-pass failure label. ``failure_class`` is None when none is claimed."""
+
+    failure_class: str | None
+    rationale: str
+    detector: str = "first-pass-runtime"
+
+    def as_trace_payload(self) -> dict[str, object]:
+        return {
+            "failure_class": self.failure_class,
+            "rationale": self.rationale,
+            "detector": self.detector,
+        }
+
+
+@dataclass(frozen=True)
 class TraceRecord:
     run_id: str
     timestamp: str
@@ -118,6 +134,7 @@ class TraceRecord:
     provider: dict[str, Any] | None = field(default=None)
     question_id: str | None = field(default=None)
     runtime_evaluation: dict[str, Any] | None = field(default=None)
+    diagnosis: dict[str, Any] | None = field(default=None)
 
 
 @dataclass(frozen=True)
@@ -130,3 +147,4 @@ class BaselineRunResult:
     embedding_model: str
     trace_path: Path | None = field(default=None)
     runtime_evaluation: RuntimeEvaluation | None = field(default=None)
+    diagnosis: Diagnosis | None = field(default=None)

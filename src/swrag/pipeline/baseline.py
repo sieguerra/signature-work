@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from swrag.config import load_provider_config
+from swrag.diagnosis.diagnose import diagnose_runtime
 from swrag.evaluation.judge import GroundingJudge
 from swrag.generation.openai_generator import OpenAIGenerator
 from swrag.ingestion.chunker import chunk_documents
@@ -50,12 +51,14 @@ def run_query(
         generation = GenerationResult(answer="", model="none")
 
     runtime_eval = None
+    diagnosis = None
     if judge is not None:
         runtime_eval = judge.judge(
             question=query,
             answer=generation.answer,
             retrieval=retrieval,
         )
+        diagnosis = diagnose_runtime(runtime_eval)
 
     run_id = _new_run_id()
     timestamp = datetime.now(timezone.utc).isoformat()
@@ -74,6 +77,7 @@ def run_query(
             runtime_evaluation=(
                 runtime_eval.as_trace_payload() if runtime_eval is not None else None
             ),
+            diagnosis=diagnosis.as_trace_payload() if diagnosis is not None else None,
         ),
         output_dir,
     )
@@ -86,6 +90,7 @@ def run_query(
         embedding_model=retrieval.embedding_model,
         trace_path=trace_path,
         runtime_evaluation=runtime_eval,
+        diagnosis=diagnosis,
     )
 
 
