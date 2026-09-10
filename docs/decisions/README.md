@@ -20,9 +20,10 @@ Recorded:
 - [004-corpus-difficulty.md](004-corpus-difficulty.md) — distractor documents, written before any results (2026-09-10)
 - [005-failure-taxonomy.md](005-failure-taxonomy.md) — three V1 classes: retrieval miss, evidence insufficiency, unsupported generation (2026-09-10)
 - [006-recovery-policy.md](006-recovery-policy.md) — regenerate first for unsupported generation; accept/abstain as outcomes (2026-09-10)
+- [007-query-rewrite.md](007-query-rewrite.md) — rewrite+retrieve to split retrieval miss from corpus-gap (2026-09-10)
 
 Later examples (not yet written):
 
-- 007-vector-database.md
-- 008-agent-framework.md
+- 008-vector-database.md
+- 009-agent-framework.md
 

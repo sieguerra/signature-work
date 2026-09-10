@@ -2,10 +2,10 @@
 
 Software for **evaluation-guided Agentic RAG**: the system answers a question, evaluates the result, diagnoses a failure, recovers, and verifies whether recovery helped.
 
-Built so far: baseline RAG, offline scoring, runtime grounding judge, first-pass
-diagnosis, **one recovery** (constrained regenerate), runtime verification, and
-the evaluate → diagnose → recover → verify loop. Query-rewrite recovery and the
-UI are later.
+Built so far: baseline RAG, offline scoring, runtime grounding judge, diagnosis,
+constrained regenerate, **query rewrite + second retrieve**, runtime
+verification, and the evaluate → diagnose → recover → verify loop. The UI is
+later.
 
 The measured contribution is **verification quality** — whether the system's own verdict that "recovery worked" is correct. See [ADR 002](docs/decisions/002-contribution-and-scope.md).
 
@@ -87,8 +87,8 @@ Tests use the same fake embedder, so chunking, ranking, and tracing do not call 
 | `src/swrag/generation/` | OpenAI generation from evidence |
 | `src/swrag/tracing/` | Per-run JSON traces |
 | `src/swrag/pipeline/` | Baseline `run_query` |
-| `src/swrag/diagnosis/` | First-pass label: unsupported generation |
-| `src/swrag/recovery/` | Controller + constrained regenerate |
+| `src/swrag/diagnosis/` | First-pass + rewrite-outcome labels |
+| `src/swrag/recovery/` | Regenerate, query rewrite, accept/abstain |
 | `src/swrag/verification/` | Runtime improved / degraded / still_failing |
 | `src/swrag/orchestration/` | Evaluate → diagnose → recover → verify loop |
 | `src/swrag/config.py` | Which model backend to call, recorded in every trace |
@@ -100,4 +100,4 @@ Tests use the same fake embedder, so chunking, ranking, and tracing do not call 
 
 Stub packages are gone for the Phase 1 core. The UI is still later.
 
-Decisions: [001 stack](docs/decisions/001-first-slice-stack.md), [002 contribution and scope](docs/decisions/002-contribution-and-scope.md), [003 evaluation method](docs/decisions/003-evaluation-method.md), [004 corpus difficulty](docs/decisions/004-corpus-difficulty.md), [005 failure taxonomy](docs/decisions/005-failure-taxonomy.md), [006 recovery policy](docs/decisions/006-recovery-policy.md).
+Decisions: [001 stack](docs/decisions/001-first-slice-stack.md), [002 contribution and scope](docs/decisions/002-contribution-and-scope.md), [003 evaluation method](docs/decisions/003-evaluation-method.md), [004 corpus difficulty](docs/decisions/004-corpus-difficulty.md), [005 failure taxonomy](docs/decisions/005-failure-taxonomy.md), [006 recovery policy](docs/decisions/006-recovery-policy.md), [007 query rewrite](docs/decisions/007-query-rewrite.md).

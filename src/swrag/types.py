@@ -123,13 +123,18 @@ class Diagnosis:
 
 @dataclass(frozen=True)
 class RecoveryDecision:
-    """Controller output. ``regenerate`` is the only applied recovery in this slice."""
+    """Controller output. Applied recoveries: regenerate, rewrite."""
 
     action: str
     reason: str
+    attributed_class: str | None = None
 
     def as_trace_payload(self) -> dict[str, object]:
-        return {"action": self.action, "reason": self.reason}
+        return {
+            "action": self.action,
+            "reason": self.reason,
+            "attributed_class": self.attributed_class,
+        }
 
 
 @dataclass(frozen=True)
@@ -160,6 +165,7 @@ class TraceRecord:
     recovery: dict[str, Any] | None = field(default=None)
     verification: dict[str, Any] | None = field(default=None)
     previous_answer: str | None = field(default=None)
+    rewritten_query: str | None = field(default=None)
 
 
 @dataclass(frozen=True)
@@ -176,3 +182,4 @@ class BaselineRunResult:
     recovery: RecoveryDecision | None = field(default=None)
     verification: Verification | None = field(default=None)
     previous_answer: str | None = field(default=None)
+    rewritten_query: str | None = field(default=None)

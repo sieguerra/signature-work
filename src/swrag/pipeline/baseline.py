@@ -49,13 +49,18 @@ def execute_query(
     generate: bool = True,
     generator: OpenAIGenerator | None = None,
     judge: GroundingJudge | None = None,
+    search_query: str | None = None,
 ) -> QueryState:
-    """Ingest, retrieve, optionally generate and judge. Does not write a trace."""
+    """Ingest, retrieve, optionally generate and judge. Does not write a trace.
+
+    ``search_query`` is what the index sees. Generation and the judge always
+    receive ``query`` (the original question).
+    """
     documents = load_documents(corpus_dir)
     chunks = chunk_documents(documents)
     index = InMemoryIndex(embedder or OpenAIEmbedder())
     index.add(chunks)
-    retrieval = index.search(query, top_k=top_k)
+    retrieval = index.search(search_query or query, top_k=top_k)
 
     if generate:
         generation = (generator or OpenAIGenerator()).generate(query, retrieval)
@@ -121,6 +126,7 @@ def write_run(
     recovery: RecoveryDecision | None = None,
     verification: Verification | None = None,
     previous_answer: str | None = None,
+    rewritten_query: str | None = None,
 ) -> BaselineRunResult:
     """Write a trace for ``state``. Never overwrites an existing file."""
     run_id = _new_run_id()
@@ -150,6 +156,7 @@ def write_run(
                 verification.as_trace_payload() if verification is not None else None
             ),
             previous_answer=previous_answer,
+            rewritten_query=rewritten_query,
         ),
         output_dir,
     )
@@ -166,6 +173,7 @@ def write_run(
         recovery=recovery,
         verification=verification,
         previous_answer=previous_answer,
+        rewritten_query=rewritten_query,
     )
 
 

@@ -6,8 +6,11 @@ import json
 from pathlib import Path
 
 from swrag.diagnosis.diagnose import (
+    EVIDENCE_INSUFFICIENCY,
+    RETRIEVAL_MISS,
     UNSUPPORTED_GENERATION,
     V1_FAILURE_CLASSES,
+    diagnose_after_rewrite,
     diagnose_runtime,
 )
 from swrag.evaluation.scripted_judge import ScriptedJudge
@@ -50,6 +53,14 @@ def test_no_class_when_evidence_is_insufficient() -> None:
 def test_no_class_when_there_is_no_answer() -> None:
     diagnosis = diagnose_runtime(_evaluation(sufficient=True, supported=None))
     assert diagnosis.failure_class is None
+
+
+def test_rewrite_outcome_attributes_miss_vs_insufficiency() -> None:
+    before = _evaluation(sufficient=False, supported=False)
+    miss = diagnose_after_rewrite(before, _evaluation(sufficient=True, supported=True))
+    assert miss.failure_class == RETRIEVAL_MISS
+    gap = diagnose_after_rewrite(before, _evaluation(sufficient=False, supported=None))
+    assert gap.failure_class == EVIDENCE_INSUFFICIENCY
 
 
 def test_first_pass_never_emits_deferred_classes() -> None:

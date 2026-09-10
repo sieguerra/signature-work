@@ -5,9 +5,15 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from swrag.diagnosis.diagnose import diagnose_runtime
-from swrag.orchestration.loop import run_with_recovery
-from swrag.recovery.policy import ABSTAIN, ACCEPT, REGENERATE, select_recovery
+from swrag.diagnosis.diagnose import (
+    EVIDENCE_INSUFFICIENCY,
+    RETRIEVAL_MISS,
+    diagnose_after_rewrite,
+    diagnose_runtime,
+)
+from swrag.recovery.policy import ABSTAIN, ACCEPT, REGENERATE, REWRITE, select_recovery
+from swrag.recovery.rewrite import ScriptedRewriter
+from swrag.orchestration.loop import ABSTAIN_ANSWER, run_with_recovery
 from swrag.retrieval.fake_embedder import FakeEmbedder
 from swrag.types import GenerationResult, RetrievalResult, RuntimeEvaluation
 from swrag.verification.runtime import DEGRADED, IMPROVED, STILL_FAILING, UNCHANGED, verify_runtime
@@ -32,9 +38,19 @@ def test_selects_regenerate_for_unsupported_generation() -> None:
     assert decision.action == REGENERATE
 
 
-def test_selects_abstain_when_evidence_is_insufficient() -> None:
+def test_selects_rewrite_when_evidence_is_insufficient() -> None:
     diagnosis = diagnose_runtime(_eval(sufficient=False, supported=False))
     decision = select_recovery(diagnosis, _eval(sufficient=False, supported=False))
+    assert decision.action == REWRITE
+
+
+def test_selects_abstain_after_evidence_insufficiency_is_attributed() -> None:
+    diagnosis = diagnose_after_rewrite(
+        _eval(sufficient=False, supported=False),
+        _eval(sufficient=False, supported=None),
+    )
+    assert diagnosis.failure_class == EVIDENCE_INSUFFICIENCY
+    decision = select_recovery(diagnosis, _eval(sufficient=False, supported=None))
     assert decision.action == ABSTAIN
 
 
@@ -51,6 +67,13 @@ def test_verify_improved_degraded_and_still_failing() -> None:
     assert verify_runtime(supported, unsupported).outcome == DEGRADED
     assert verify_runtime(unsupported, unsupported).outcome == STILL_FAILING
     assert verify_runtime(supported, supported).outcome == UNCHANGED
+    assert (
+        verify_runtime(
+            _eval(sufficient=False, supported=False),
+            _eval(sufficient=True, supported=True),
+        ).outcome
+        == IMPROVED
+    )
 
 
 class _SequenceJudge:
@@ -104,6 +127,50 @@ def test_loop_regenerates_and_records_improved_verification(tmp_path: Path) -> N
     assert payload["diagnosis"]["failure_class"] is None
 
 
+def test_loop_rewrites_and_attributes_retrieval_miss(tmp_path: Path) -> None:
+    result = run_with_recovery(
+        "When is the Harbor Institute Library open on Saturday?",
+        corpus_dir=CORPUS,
+        output_dir=tmp_path,
+        embedder=FakeEmbedder(),
+        generator=_CannedGenerator(),  # type: ignore[arg-type]
+        rewriter=ScriptedRewriter("Harbor Institute Library Saturday hours term time"),
+        judge=_SequenceJudge(
+            _eval(sufficient=False, supported=False),
+            _eval(sufficient=True, supported=None),
+            _eval(sufficient=True, supported=True),
+        ),
+    )
+    payload = json.loads(result.trace_path.read_text(encoding="utf-8"))
+    assert payload["recovery"]["action"] == REWRITE
+    assert payload["recovery"]["attributed_class"] == RETRIEVAL_MISS
+    assert payload["rewritten_query"] == "Harbor Institute Library Saturday hours term time"
+    assert payload["verification"]["outcome"] == IMPROVED
+    assert payload["previous_answer"] == "The library is on the moon."
+    assert result.answer == "The library is on the moon."
+
+
+def test_loop_rewrites_then_abstains_on_corpus_gap(tmp_path: Path) -> None:
+    result = run_with_recovery(
+        "When is the Harbor Institute Library open on Saturday?",
+        corpus_dir=CORPUS,
+        output_dir=tmp_path,
+        embedder=FakeEmbedder(),
+        generator=_CannedGenerator(),  # type: ignore[arg-type]
+        rewriter=ScriptedRewriter("Harbor Institute Library Saturday hours"),
+        judge=_SequenceJudge(
+            _eval(sufficient=False, supported=False),
+            _eval(sufficient=False, supported=None),
+        ),
+    )
+    payload = json.loads(result.trace_path.read_text(encoding="utf-8"))
+    assert payload["recovery"]["action"] == REWRITE
+    assert payload["recovery"]["attributed_class"] == EVIDENCE_INSUFFICIENCY
+    assert payload["diagnosis"]["failure_class"] == EVIDENCE_INSUFFICIENCY
+    assert payload["verification"]["outcome"] == STILL_FAILING
+    assert result.answer == ABSTAIN_ANSWER
+
+
 def test_loop_accepts_without_calling_regenerator(tmp_path: Path) -> None:
     result = run_with_recovery(
         "When is the Harbor Institute Library open on Saturday?",
@@ -119,19 +186,3 @@ def test_loop_accepts_without_calling_regenerator(tmp_path: Path) -> None:
     assert payload["recovery"]["action"] == ACCEPT
     assert payload["verification"] is None
     assert payload["previous_answer"] is None
-
-
-def test_loop_abstains_without_regenerating(tmp_path: Path) -> None:
-    result = run_with_recovery(
-        "When is the Harbor Institute Library open on Saturday?",
-        corpus_dir=CORPUS,
-        output_dir=tmp_path,
-        embedder=FakeEmbedder(),
-        generator=_CannedGenerator(),  # type: ignore[arg-type]
-        regenerator=_CannedRegenerator(),
-        judge=_SequenceJudge(_eval(sufficient=False, supported=False)),
-    )
-    assert result.answer == "The library is on the moon."
-    payload = json.loads(result.trace_path.read_text(encoding="utf-8"))
-    assert payload["recovery"]["action"] == ABSTAIN
-    assert payload["verification"] is None
