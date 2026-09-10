@@ -22,18 +22,15 @@ The system should investigate whether evaluation can identify selected failures,
 - working application UI
 - benchmark evaluation
 
-## Initial Failure Classes
+## V1 Failure Classes
 
-Candidate V1 classes:
+Confirmed in [ADR 005](decisions/005-failure-taxonomy.md):
 
-- retrieval relevance failure
-- evidence sufficiency/coverage failure
-- ranking failure
-- unsupported generation
-- citation failure
-- corpus-gap / unanswerable query
+- retrieval miss (`retrieval_miss`)
+- evidence insufficiency (`evidence_insufficiency`), including corpus-gap
+- unsupported generation (`unsupported_generation`)
 
-Final taxonomy must be explicitly approved by the student.
+Deferred, not V1: ranking failure, citation failure, a separate corpus-gap class.
 
 ## Candidate Recovery Actions
 
