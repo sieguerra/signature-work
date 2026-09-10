@@ -22,9 +22,10 @@ Recorded:
 - [006-recovery-policy.md](006-recovery-policy.md) — regenerate first for unsupported generation; accept/abstain as outcomes (2026-09-10)
 - [007-query-rewrite.md](007-query-rewrite.md) — rewrite+retrieve to split retrieval miss from corpus-gap (2026-09-10)
 - [008-ui-adapter.md](008-ui-adapter.md) — FastAPI + static LangSmith-style trace explorer (2026-09-10)
+- [009-dku-corpus.md](009-dku-corpus.md) — DKU public-facts corpus; Harbor kept (2026-09-10)
 
 Later examples (not yet written):
 
-- 009-vector-database.md
-- 010-agent-framework.md
+- 010-vector-database.md
+- 011-agent-framework.md
 

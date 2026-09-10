@@ -1,7 +1,7 @@
 const EXAMPLES = [
-  "When is the Harbor Institute Library open on Saturday?",
-  "How many harbor credits is a standard meal at the Tide Canteen?",
-  "Who is the lab manager of the East Archive wing?",
+  "According to the current DKU Library Locations and Hours page, what are the 1st floor information desk hours on Saturday?",
+  "What are breakfast hours at University Dining in the Academic Building?",
+  "What time does breakfast end at Halal Dining at the Conference Center?",
 ];
 
 const state = {

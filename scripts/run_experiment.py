@@ -25,13 +25,13 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--gold",
         type=Path,
-        default=root / "datasets" / "gold" / "questions.jsonl",
+        default=root / "datasets" / "dku" / "gold" / "questions.jsonl",
         help="Gold set in JSON Lines format",
     )
     parser.add_argument(
         "--corpus",
         type=Path,
-        default=root / "datasets" / "corpus",
+        default=root / "datasets" / "dku" / "corpus",
         help="Directory of .txt files",
     )
     parser.add_argument(

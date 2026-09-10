@@ -22,7 +22,7 @@ def test_cli_retrieve_only_writes_trace_without_api_key(tmp_path: Path) -> None:
             str(BASELINE),
             "--retrieve-only",
             "--question",
-            "When is the Harbor Institute Library open on Saturday?",
+            "What are the DKU Library building hours Monday through Sunday, according to the current Locations and Hours page?",
             "--output-dir",
             str(tmp_path),
         ],
@@ -35,7 +35,7 @@ def test_cli_retrieve_only_writes_trace_without_api_key(tmp_path: Path) -> None:
     assert completed.returncode == 0, completed.stderr
     traces = list(tmp_path.glob("*.json"))
     assert len(traces) == 1
-    assert "harbor-library" in completed.stdout
+    assert "dku-library-hours" in completed.stdout
     assert "--retrieve-only" in completed.stdout
 
 
