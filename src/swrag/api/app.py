@@ -45,7 +45,7 @@ def create_app(
 ) -> FastAPI:
     """Build the UI server. The RAG packages stay importable without FastAPI."""
     load_dotenv(repo_root() / ".env")
-    resolved_corpus = Path(corpus_dir) if corpus_dir else repo_root() / "datasets" / "corpus"
+    resolved_corpus = Path(corpus_dir) if corpus_dir else repo_root() / "datasets" / "dku" / "corpus"
     resolved_traces = Path(traces_dir) if traces_dir else repo_root() / "experiments" / "output"
     static = web_dir()
 

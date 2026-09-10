@@ -90,3 +90,29 @@ How I verified the result:
 `pytest` for the adapter and page assets; curl against a local server. No
 browser automation was available in this environment.
 
+---
+
+Date: 2026-09-10
+
+Tool: Cursor
+
+Purpose: Add a Duke Kunshan University corpus and gold set.
+
+What AI assisted with:
+Fetched public DKU pages and drafted original short notes plus gold questions
+with contrast pairs (library hours vs 2025 brochure vs 2021 handbook; Academic
+Building dining vs Conference Center Halal; Kunshan vs Durham).
+
+Important suggestions produced:
+Keep the Harbor corpus and the #12 snapshot. Do not paste full webpages into
+the repo. Record pretraining leakage as a limitation of using a real university.
+
+What I independently decided or changed:
+Asked for DKU-related data after Harbor results existed. Harbor stays the V1
+historical set. New questions use `dku-*` ids.
+
+How I verified the result:
+`pytest` gold-loader tests; retrieve-only experiment on the DKU gold set.
+Every gold row still needs a hand check against the `.txt` files.
+
+

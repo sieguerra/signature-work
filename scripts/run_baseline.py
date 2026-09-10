@@ -20,12 +20,12 @@ def repo_root() -> Path:
 
 def build_parser() -> argparse.ArgumentParser:
     root = repo_root()
-    parser = argparse.ArgumentParser(description="Baseline RAG over the local toy corpus.")
+    parser = argparse.ArgumentParser(description="Baseline RAG over the local DKU corpus.")
     parser.add_argument("--question", required=True, help="Question to answer")
     parser.add_argument(
         "--corpus",
         type=Path,
-        default=root / "datasets" / "corpus",
+        default=root / "datasets" / "dku" / "corpus",
         help="Directory of .txt files",
     )
     parser.add_argument(

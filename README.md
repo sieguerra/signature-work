@@ -21,10 +21,10 @@ pip install -e ".[dev]"
 
 ## Run without an API key (foundation)
 
-Ingest the toy corpus, retrieve chunks, and write a JSON trace. Ranking uses a fake hashing embedder, not OpenAI:
+Ingest the DKU corpus, retrieve chunks, and write a JSON trace. Ranking uses a fake hashing embedder, not OpenAI:
 
 ```bash
-python scripts/run_baseline.py --retrieve-only --question "When is the Harbor Institute Library open on Saturday?"
+python scripts/run_baseline.py --retrieve-only --question "What are breakfast hours at University Dining in the Academic Building?"
 ```
 
 ## Run full baseline RAG (needs OPENAI_API_KEY)
@@ -32,7 +32,7 @@ python scripts/run_baseline.py --retrieve-only --question "When is the Harbor In
 ```bash
 cp .env.example .env
 # edit .env and set OPENAI_API_KEY
-python scripts/run_baseline.py --question "When is the Harbor Institute Library open on Saturday?"
+python scripts/run_baseline.py --question "What are breakfast hours at University Dining in the Academic Building?"
 ```
 
 Both commands print retrieved chunk ids and write a new JSON trace under `experiments/output/` (gitignored). Existing traces are not overwritten.
@@ -49,8 +49,9 @@ still_failing.
 
 ## Score the gold set
 
-Runs every question in `datasets/gold/questions.jsonl` and writes a timestamped
-result directory that is never overwritten:
+Runs every question in `datasets/dku/gold/questions.jsonl` (default) and writes a
+timestamped result directory that is never overwritten. The Harbor gold set is
+still at `datasets/gold/questions.jsonl`.
 
 ```bash
 python scripts/run_experiment.py --retrieve-only          # no API key
@@ -64,8 +65,10 @@ to `summary.json` along with which model backend produced them.
 
 ## Benchmark baseline vs evaluation-guided recovery (issue #12)
 
-Same gold set, two conditions, one shared corpus index. Config:
-`experiments/configs/v1_baseline_vs_loop.json`.
+Same gold set, two conditions, one shared corpus index. Default config is the
+DKU set: `experiments/configs/v2_dku_baseline_vs_loop.json`. Reproduce the
+Harbor snapshot with `--config experiments/configs/v1_baseline_vs_loop.json`
+(do not overwrite `experiments/results/20260910T070623/`).
 
 ```bash
 python scripts/run_benchmark.py --retrieve-only   # harness check, no API key
@@ -132,10 +135,11 @@ Tests use the same fake embedder, so chunking, ranking, and tracing do not call 
 | `web/` | Static trace explorer (run list, waterfall, inspector) |
 | `experiments/configs/` | Reproducible experiment JSON |
 | `experiments/results/` | Committed comparison snapshots (never overwritten) |
-| `datasets/corpus/` | Toy documents (original, fictional), including deliberate distractors |
-| `datasets/gold/` | Hand-written questions and their ground truth |
+| `datasets/dku/` | DKU public-facts corpus and gold (UI / V2 default) |
+| `datasets/corpus/` | Harbor Institute fictional corpus (V1 snapshot) |
+| `datasets/gold/` | Harbor gold set |
 | `docs/decisions/` | Architecture decision records |
 
 Stub packages are gone for the Phase 1 core.
 
-Decisions: [001 stack](docs/decisions/001-first-slice-stack.md), [002 contribution and scope](docs/decisions/002-contribution-and-scope.md), [003 evaluation method](docs/decisions/003-evaluation-method.md), [004 corpus difficulty](docs/decisions/004-corpus-difficulty.md), [005 failure taxonomy](docs/decisions/005-failure-taxonomy.md), [006 recovery policy](docs/decisions/006-recovery-policy.md), [007 query rewrite](docs/decisions/007-query-rewrite.md), [008 UI adapter](docs/decisions/008-ui-adapter.md).
+Decisions: [001 stack](docs/decisions/001-first-slice-stack.md), [002 contribution and scope](docs/decisions/002-contribution-and-scope.md), [003 evaluation method](docs/decisions/003-evaluation-method.md), [004 corpus difficulty](docs/decisions/004-corpus-difficulty.md), [005 failure taxonomy](docs/decisions/005-failure-taxonomy.md), [006 recovery policy](docs/decisions/006-recovery-policy.md), [007 query rewrite](docs/decisions/007-query-rewrite.md), [008 UI adapter](docs/decisions/008-ui-adapter.md), [009 DKU corpus](docs/decisions/009-dku-corpus.md).

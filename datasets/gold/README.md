@@ -1,6 +1,7 @@
 # Gold set
 
-Hand-written evaluation questions over `datasets/corpus/`, per ADR 003.
+Hand-written evaluation questions over `datasets/corpus/` (Harbor Institute),
+per ADR 003. The DKU set lives at `datasets/dku/` (ADR 009).
 
 These answers are the **offline ground truth** for the whole project. Every
 number in the final report traces back to this file, so it is student-authored

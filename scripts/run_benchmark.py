@@ -28,7 +28,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--config",
         type=Path,
-        default=root / "experiments" / "configs" / "v1_baseline_vs_loop.json",
+        default=root / "experiments" / "configs" / "v2_dku_baseline_vs_loop.json",
         help="JSON experiment config",
     )
     parser.add_argument(
