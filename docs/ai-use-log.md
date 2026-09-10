@@ -65,3 +65,28 @@ token usage, and a verification-vs-gold F1 table without interpreting them.
 How I verified the result:
 `pytest` with fake embedder / scripted judge, then a live `run_benchmark.py`
 run whose snapshot is under `experiments/results/`.
+
+---
+
+Date: 2026-09-10
+
+Tool: Cursor
+
+Purpose: Thin LangSmith-style UI over the callable core (issue #13).
+
+What AI assisted with:
+FastAPI adapter boilerplate, waterfall-step mapping from the existing JSON
+trace, and static HTML/CSS/JS for the three-pane explorer.
+
+Important suggestions produced:
+Keep the UI as an HTTP adapter plus static files rather than Streamlit or a
+React SPA, so the RAG core stays importable without the frontend.
+
+What I independently decided or changed:
+Requested a LangSmith-like run list / waterfall / inspector. Confirmed FastAPI
+plus static files. No billing or auth.
+
+How I verified the result:
+`pytest` for the adapter and page assets; curl against a local server. No
+browser automation was available in this environment.
+

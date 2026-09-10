@@ -4,8 +4,8 @@ Software for **evaluation-guided Agentic RAG**: the system answers a question, e
 
 Built so far: baseline RAG, offline scoring, runtime grounding judge, diagnosis,
 constrained regenerate, **query rewrite + second retrieve**, runtime
-verification, and the evaluate → diagnose → recover → verify loop. The UI is
-later.
+verification, the evaluate → diagnose → recover → verify loop, a **trace
+explorer UI**, and the baseline-vs-loop benchmark.
 
 The measured contribution is **verification quality** — whether the system's own verdict that "recovery worked" is correct. See [ADR 002](docs/decisions/002-contribution-and-scope.md).
 
@@ -82,6 +82,19 @@ when the API returns it, and a contingency table of runtime verification
 outcomes against gold F1 delta (ADR 002). The command prints numbers. It does
 not interpret them.
 
+## Trace explorer UI
+
+A LangSmith-style three-pane explorer over the same core (ADR 008). It does not
+own retrieval, judging, or recovery.
+
+```bash
+python scripts/run_ui.py
+# open http://127.0.0.1:8000
+```
+
+Ask a question in the playground, or inspect traces already under
+`experiments/output/`. Loop and baseline need `OPENAI_API_KEY`. Retrieve-only
+does not.
 
 ## Point at a different backend
 
@@ -115,12 +128,14 @@ Tests use the same fake embedder, so chunking, ranking, and tracing do not call 
 | `src/swrag/config.py` | Which model backend to call, recorded in every trace |
 | `src/swrag/evaluation/` | Gold-set loader, offline EM/F1, runtime grounding judge |
 | `src/swrag/experiments/` | Batch harness, baseline-vs-loop comparison, per-class aggregation |
+| `src/swrag/api/` | FastAPI adapter; does not own RAG logic |
+| `web/` | Static trace explorer (run list, waterfall, inspector) |
 | `experiments/configs/` | Reproducible experiment JSON |
 | `experiments/results/` | Committed comparison snapshots (never overwritten) |
 | `datasets/corpus/` | Toy documents (original, fictional), including deliberate distractors |
 | `datasets/gold/` | Hand-written questions and their ground truth |
 | `docs/decisions/` | Architecture decision records |
 
-Stub packages are gone for the Phase 1 core. The UI is still later.
+Stub packages are gone for the Phase 1 core.
 
-Decisions: [001 stack](docs/decisions/001-first-slice-stack.md), [002 contribution and scope](docs/decisions/002-contribution-and-scope.md), [003 evaluation method](docs/decisions/003-evaluation-method.md), [004 corpus difficulty](docs/decisions/004-corpus-difficulty.md), [005 failure taxonomy](docs/decisions/005-failure-taxonomy.md), [006 recovery policy](docs/decisions/006-recovery-policy.md), [007 query rewrite](docs/decisions/007-query-rewrite.md).
+Decisions: [001 stack](docs/decisions/001-first-slice-stack.md), [002 contribution and scope](docs/decisions/002-contribution-and-scope.md), [003 evaluation method](docs/decisions/003-evaluation-method.md), [004 corpus difficulty](docs/decisions/004-corpus-difficulty.md), [005 failure taxonomy](docs/decisions/005-failure-taxonomy.md), [006 recovery policy](docs/decisions/006-recovery-policy.md), [007 query rewrite](docs/decisions/007-query-rewrite.md), [008 UI adapter](docs/decisions/008-ui-adapter.md).
