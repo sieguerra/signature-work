@@ -6,6 +6,7 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
+from swrag.config import load_provider_config
 from swrag.generation.openai_generator import OpenAIGenerator
 from swrag.ingestion.chunker import chunk_documents
 from swrag.ingestion.loader import load_documents
@@ -25,11 +26,13 @@ def run_query(
     embedder: Embedder | None = None,
     generate: bool = True,
     generator: OpenAIGenerator | None = None,
+    question_id: str | None = None,
 ) -> BaselineRunResult:
     """Run baseline RAG on ``query`` and write a JSON trace.
 
     ``embedder`` can be injected (tests use ``FakeEmbedder``). Generation can be
-    skipped so ranking tests do not need an API key.
+    skipped so ranking tests do not need an API key. ``question_id`` links the
+    run back to a gold question when called from the experiment runner.
     """
     documents = load_documents(corpus_dir)
     chunks = chunk_documents(documents)
@@ -54,6 +57,8 @@ def run_query(
             model=generation.model,
             embedding_model=retrieval.embedding_model,
             top_k=retrieval.top_k,
+            provider=load_provider_config().as_trace_payload(),
+            question_id=question_id,
         ),
         output_dir,
     )
