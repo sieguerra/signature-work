@@ -31,5 +31,10 @@ def test_run_query_retrieve_only_writes_trace(tmp_path: Path) -> None:
     assert result.trace_path.exists()
     assert result.generation_model == "none"
     assert result.answer == ""
-    assert result.retrieval.chunks
-    assert any(scored.chunk.doc_id == "harbor-library" for scored in result.retrieval.chunks)
+
+    # Asserts plumbing, not retrieval quality. The corpus now contains
+    # deliberate near-neighbours (ADR 004), so which document ranks top-3 is
+    # expected to change and is measured by the experiment runner instead.
+    assert len(result.retrieval.chunks) == 3
+    corpus_doc_ids = {doc.doc_id for doc in load_documents(CORPUS)}
+    assert all(scored.chunk.doc_id in corpus_doc_ids for scored in result.retrieval.chunks)
