@@ -68,9 +68,8 @@ class AnswerScore:
     Three metrics are recorded because they disagree in ways that matter.
     ``exact_match`` is strict and near-zero on free-form generated prose.
     ``contains_answer`` is the lenient Contain-Acc variant used in the RAG
-    literature. ``f1`` sits in between. Which one is primary is an open
-    methodology decision (issue #6), so all three are stored rather than
-    collapsing them early.
+    literature. ``f1`` sits in between. ADR 003 stores all three rather than
+    collapsing them; offline scoring never feeds the runtime controller.
     """
 
     exact_match: bool
@@ -78,6 +77,32 @@ class AnswerScore:
     f1: float
     abstained: bool
     answerable: bool
+
+
+@dataclass(frozen=True)
+class RuntimeEvaluation:
+    """Runtime grounding signals. Must not be computed from gold labels.
+
+    ADR 003: an LLM judge (or a later NLI replacement) produces these. Offline
+    EM/F1 lives on ``AnswerScore`` and is a different mechanism.
+    """
+
+    evidence_sufficient: bool
+    answer_supported: bool | None
+    sufficiency_rationale: str
+    support_rationale: str
+    judge: str
+    model: str
+
+    def as_trace_payload(self) -> dict[str, object]:
+        return {
+            "evidence_sufficient": self.evidence_sufficient,
+            "answer_supported": self.answer_supported,
+            "sufficiency_rationale": self.sufficiency_rationale,
+            "support_rationale": self.support_rationale,
+            "judge": self.judge,
+            "model": self.model,
+        }
 
 
 @dataclass(frozen=True)
@@ -92,6 +117,7 @@ class TraceRecord:
     top_k: int
     provider: dict[str, Any] | None = field(default=None)
     question_id: str | None = field(default=None)
+    runtime_evaluation: dict[str, Any] | None = field(default=None)
 
 
 @dataclass(frozen=True)
@@ -103,3 +129,4 @@ class BaselineRunResult:
     generation_model: str
     embedding_model: str
     trace_path: Path | None = field(default=None)
+    runtime_evaluation: RuntimeEvaluation | None = field(default=None)

@@ -40,19 +40,32 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Skip OpenAI: rank with the fake embedder and write a trace (no generated answer)",
     )
+    parser.add_argument(
+        "--evaluate",
+        action="store_true",
+        help="Run the LLM grounding judge and attach sufficiency/support flags to the trace",
+    )
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     load_dotenv(repo_root() / ".env")
     args = build_parser().parse_args(argv)
-    if not args.retrieve_only and not os.environ.get("OPENAI_API_KEY"):
+    needs_api = (not args.retrieve_only) or args.evaluate
+    if needs_api and not os.environ.get("OPENAI_API_KEY"):
         print(
             "OPENAI_API_KEY is not set. Copy .env.example to .env and add your key,\n"
-            "or run with --retrieve-only to test ingestion, ranking, and traces without OpenAI.",
+            "or run with --retrieve-only (and without --evaluate) to test ingestion,\n"
+            "ranking, and traces without OpenAI.",
             file=sys.stderr,
         )
         return 1
+
+    judge = None
+    if args.evaluate:
+        from swrag.evaluation.llm_judge import LLMJudge
+
+        judge = LLMJudge()
 
     result = run_query(
         args.question,
@@ -61,6 +74,7 @@ def main(argv: list[str] | None = None) -> int:
         top_k=args.top_k,
         embedder=FakeEmbedder() if args.retrieve_only else None,
         generate=not args.retrieve_only,
+        judge=judge,
     )
     print(f"run_id: {result.run_id}")
     print(f"trace:  {result.trace_path}")
@@ -77,6 +91,12 @@ def main(argv: list[str] | None = None) -> int:
     else:
         print("Answer:")
         print(result.answer)
+    if result.runtime_evaluation is not None:
+        evaluation = result.runtime_evaluation
+        print()
+        print("Runtime evaluation:")
+        print(f"  evidence_sufficient: {evaluation.evidence_sufficient}")
+        print(f"  answer_supported:    {evaluation.answer_supported}")
     return 0
 
 

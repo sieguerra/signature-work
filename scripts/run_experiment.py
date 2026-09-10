@@ -47,6 +47,11 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Skip OpenAI: rank with the fake embedder and score empty answers",
     )
+    parser.add_argument(
+        "--evaluate",
+        action="store_true",
+        help="Run the LLM grounding judge on each question and attach flags to traces",
+    )
     return parser
 
 
@@ -54,13 +59,21 @@ def main(argv: list[str] | None = None) -> int:
     load_dotenv(repo_root() / ".env")
     args = build_parser().parse_args(argv)
 
-    if not args.retrieve_only and not os.environ.get("OPENAI_API_KEY"):
+    needs_api = (not args.retrieve_only) or args.evaluate
+    if needs_api and not os.environ.get("OPENAI_API_KEY"):
         print(
             "OPENAI_API_KEY is not set. Copy .env.example to .env and add your key,\n"
-            "or run with --retrieve-only to exercise retrieval and scoring without OpenAI.",
+            "or run with --retrieve-only (and without --evaluate) to exercise retrieval\n"
+            "and scoring without OpenAI.",
             file=sys.stderr,
         )
         return 1
+
+    judge = None
+    if args.evaluate:
+        from swrag.evaluation.llm_judge import LLMJudge
+
+        judge = LLMJudge()
 
     summary = run_experiment(
         gold_path=args.gold,
@@ -70,6 +83,7 @@ def main(argv: list[str] | None = None) -> int:
         embedder=FakeEmbedder() if args.retrieve_only else None,
         generate=not args.retrieve_only,
         run_label=args.label,
+        judge=judge,
     )
     _report(summary, retrieve_only=args.retrieve_only)
     return 0

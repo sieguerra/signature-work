@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 
 from swrag.experiments.runner import run_experiment
+from swrag.evaluation.scripted_judge import ScriptedJudge
 from swrag.retrieval.fake_embedder import FakeEmbedder
 from swrag.types import GoldQuestion
 
@@ -117,3 +118,22 @@ def test_real_pipeline_runs_retrieval_only(tmp_path: Path) -> None:
     trace = json.loads(traces[0].read_text(encoding="utf-8"))
     assert trace["question_id"] is not None
     assert trace["provider"]["base_url"]
+
+
+def test_pipeline_traces_include_runtime_evaluation_when_a_judge_is_passed(tmp_path: Path) -> None:
+    summary = run_experiment(
+        gold_path=GOLD,
+        corpus_dir=CORPUS,
+        output_root=tmp_path,
+        top_k=3,
+        embedder=FakeEmbedder(),
+        generate=False,
+        run_label="judged",
+        judge=ScriptedJudge(evidence_sufficient=False),
+    )
+    traces = list((tmp_path / "judged" / "traces").glob("*.json"))
+    assert len(traces) == summary.total
+    payload = json.loads(traces[0].read_text(encoding="utf-8"))
+    assert payload["runtime_evaluation"]["evidence_sufficient"] is False
+    assert payload["runtime_evaluation"]["answer_supported"] is None
+    assert "answers" not in payload

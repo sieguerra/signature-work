@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from swrag.config import load_provider_config
+from swrag.evaluation.judge import GroundingJudge
 from swrag.generation.openai_generator import OpenAIGenerator
 from swrag.ingestion.chunker import chunk_documents
 from swrag.ingestion.loader import load_documents
@@ -27,12 +28,15 @@ def run_query(
     generate: bool = True,
     generator: OpenAIGenerator | None = None,
     question_id: str | None = None,
+    judge: GroundingJudge | None = None,
 ) -> BaselineRunResult:
     """Run baseline RAG on ``query`` and write a JSON trace.
 
     ``embedder`` can be injected (tests use ``FakeEmbedder``). Generation can be
     skipped so ranking tests do not need an API key. ``question_id`` links the
     run back to a gold question when called from the experiment runner.
+    ``judge`` is the runtime grounding evaluator (ADR 003). It must not be
+    given gold labels; this function never loads the gold set.
     """
     documents = load_documents(corpus_dir)
     chunks = chunk_documents(documents)
@@ -44,6 +48,14 @@ def run_query(
         generation = (generator or OpenAIGenerator()).generate(query, retrieval)
     else:
         generation = GenerationResult(answer="", model="none")
+
+    runtime_eval = None
+    if judge is not None:
+        runtime_eval = judge.judge(
+            question=query,
+            answer=generation.answer,
+            retrieval=retrieval,
+        )
 
     run_id = _new_run_id()
     timestamp = datetime.now(timezone.utc).isoformat()
@@ -59,6 +71,9 @@ def run_query(
             top_k=retrieval.top_k,
             provider=load_provider_config().as_trace_payload(),
             question_id=question_id,
+            runtime_evaluation=(
+                runtime_eval.as_trace_payload() if runtime_eval is not None else None
+            ),
         ),
         output_dir,
     )
@@ -70,6 +85,7 @@ def run_query(
         generation_model=generation.model,
         embedding_model=retrieval.embedding_model,
         trace_path=trace_path,
+        runtime_evaluation=runtime_eval,
     )
 
 
