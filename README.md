@@ -62,6 +62,27 @@ Results are reported **per class** — answerable and unanswerable questions hav
 opposite success criteria, so a pooled average is misleading. Both are written
 to `summary.json` along with which model backend produced them.
 
+## Benchmark baseline vs evaluation-guided recovery (issue #12)
+
+Same gold set, two conditions, one shared corpus index. Config:
+`experiments/configs/v1_baseline_vs_loop.json`.
+
+```bash
+python scripts/run_benchmark.py --retrieve-only   # harness check, no API key
+python scripts/run_benchmark.py                   # needs OPENAI_API_KEY
+```
+
+Each batch writes:
+
+- traces under `experiments/output/<label>/` (gitignored)
+- a comparison snapshot under `experiments/results/<label>/` (committed; never overwritten)
+
+The snapshot records per-class quality, wall-clock latency, OpenAI token usage
+when the API returns it, and a contingency table of runtime verification
+outcomes against gold F1 delta (ADR 002). The command prints numbers. It does
+not interpret them.
+
+
 ## Point at a different backend
 
 Any OpenAI-compatible endpoint works. Set `OPENAI_BASE_URL` in `.env`.
@@ -93,7 +114,9 @@ Tests use the same fake embedder, so chunking, ranking, and tracing do not call 
 | `src/swrag/orchestration/` | Evaluate → diagnose → recover → verify loop |
 | `src/swrag/config.py` | Which model backend to call, recorded in every trace |
 | `src/swrag/evaluation/` | Gold-set loader, offline EM/F1, runtime grounding judge |
-| `src/swrag/experiments/` | Batch harness with per-class aggregation |
+| `src/swrag/experiments/` | Batch harness, baseline-vs-loop comparison, per-class aggregation |
+| `experiments/configs/` | Reproducible experiment JSON |
+| `experiments/results/` | Committed comparison snapshots (never overwritten) |
 | `datasets/corpus/` | Toy documents (original, fictional), including deliberate distractors |
 | `datasets/gold/` | Hand-written questions and their ground truth |
 | `docs/decisions/` | Architecture decision records |

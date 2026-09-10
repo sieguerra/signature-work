@@ -15,6 +15,7 @@ from openai import OpenAI
 
 from swrag.config import ProviderConfig, load_provider_config
 from swrag.types import RetrievalResult, RuntimeEvaluation, ScoredChunk
+from swrag.usage import record_chat
 
 _FENCE = re.compile(r"^```(?:json)?\s*|\s*```$", re.IGNORECASE)
 
@@ -69,6 +70,7 @@ class LLMJudge:
             temperature=0,
             response_format={"type": "json_object"},
         )
+        record_chat(response)
         raw = response.choices[0].message.content or ""
         payload = _parse_judge_payload(raw)
         has_answer = bool(answer.strip())

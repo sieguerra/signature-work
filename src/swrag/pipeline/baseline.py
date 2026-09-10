@@ -40,6 +40,18 @@ class QueryState:
     diagnosis: Diagnosis | None
 
 
+def build_corpus_index(
+    corpus_dir: str | Path,
+    embedder: Embedder | None = None,
+) -> InMemoryIndex:
+    """Load, chunk, and embed the corpus once. Reuse across questions and recoveries."""
+    documents = load_documents(corpus_dir)
+    chunks = chunk_documents(documents)
+    index = InMemoryIndex(embedder or OpenAIEmbedder())
+    index.add(chunks)
+    return index
+
+
 def execute_query(
     query: str,
     *,
@@ -50,17 +62,16 @@ def execute_query(
     generator: OpenAIGenerator | None = None,
     judge: GroundingJudge | None = None,
     search_query: str | None = None,
+    index: InMemoryIndex | None = None,
 ) -> QueryState:
     """Ingest, retrieve, optionally generate and judge. Does not write a trace.
 
     ``search_query`` is what the index sees. Generation and the judge always
-    receive ``query`` (the original question).
+    receive ``query`` (the original question). Pass ``index`` to skip re-embedding
+    the corpus (the experiment runner and query-rewrite recovery both do this).
     """
-    documents = load_documents(corpus_dir)
-    chunks = chunk_documents(documents)
-    index = InMemoryIndex(embedder or OpenAIEmbedder())
-    index.add(chunks)
-    retrieval = index.search(search_query or query, top_k=top_k)
+    resolved = index if index is not None else build_corpus_index(corpus_dir, embedder)
+    retrieval = resolved.search(search_query or query, top_k=top_k)
 
     if generate:
         generation = (generator or OpenAIGenerator()).generate(query, retrieval)
@@ -97,6 +108,7 @@ def run_query(
     generator: OpenAIGenerator | None = None,
     question_id: str | None = None,
     judge: GroundingJudge | None = None,
+    index: InMemoryIndex | None = None,
 ) -> BaselineRunResult:
     """Run baseline RAG on ``query`` and write a JSON trace.
 
@@ -114,6 +126,7 @@ def run_query(
         generate=generate,
         generator=generator,
         judge=judge,
+        index=index,
     )
     return write_run(state, output_dir=output_dir, question_id=question_id)
 

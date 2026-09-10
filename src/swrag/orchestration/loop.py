@@ -17,7 +17,8 @@ from swrag.diagnosis.diagnose import (
 )
 from swrag.evaluation.judge import GroundingJudge
 from swrag.generation.openai_generator import OpenAIGenerator
-from swrag.pipeline.baseline import QueryState, execute_query, write_run
+from swrag.pipeline.baseline import QueryState, build_corpus_index, execute_query, write_run
+from swrag.retrieval.memory_index import InMemoryIndex
 from swrag.recovery.policy import REGENERATE, REWRITE, select_recovery
 from swrag.recovery.regenerate import ConstrainedRegenerator
 from swrag.recovery.rewrite import LLMQueryRewriter
@@ -64,8 +65,10 @@ def run_with_recovery(
     rewriter: Rewriter | None = None,
     question_id: str | None = None,
     max_recoveries: int = 1,
+    index: InMemoryIndex | None = None,
 ) -> BaselineRunResult:
     """Run the loop and write one trace. Historical traces are never overwritten."""
+    resolved_index = index if index is not None else build_corpus_index(corpus_dir, embedder)
     state = execute_query(
         query,
         corpus_dir=corpus_dir,
@@ -74,6 +77,7 @@ def run_with_recovery(
         generate=generate,
         generator=generator,
         judge=judge,
+        index=resolved_index,
     )
     decision = select_recovery(state.diagnosis, state.runtime_evaluation)
     previous_answer = None
@@ -119,6 +123,7 @@ def run_with_recovery(
             generate=False,
             judge=judge,
             search_query=rewritten_query,
+            index=resolved_index,
         )
         before = state.runtime_evaluation
         after = probe.runtime_evaluation
