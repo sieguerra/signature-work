@@ -11,6 +11,7 @@ venv/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+*.egg-info/
 
 # Node
 node_modules/
@@ -30,7 +31,8 @@ coverage/
 *.sqlite3
 
 # Generated experiment artifacts if large
-experiments/output/
+experiments/output/*
+!experiments/output/.gitkeep
 datasets/generated/
 
 # Secrets

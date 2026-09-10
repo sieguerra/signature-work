@@ -1,0 +1,7 @@
+North Jetty Teaching Lab booking rules
+
+The lab code is NJ-12. Undergraduate project groups may book at most one 3-hour slot per day. Slots start at 09:00, 13:00, and 16:30 on weekdays only.
+
+A booking is cancelled if no member taps in with a student card within 15 minutes of the start time. Safety glasses are required whenever the soldering bench is powered.
+
+The lab manager is Priya Chen (priya.chen@harbor-institute.example). After 18:00, access requires a signed overnight form from the department office.
