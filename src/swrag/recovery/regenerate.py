@@ -1,0 +1,57 @@
+"""Constrained regeneration: the one applied V1 recovery (ADR 006)."""
+
+from __future__ import annotations
+
+from openai import OpenAI
+
+from swrag.config import ProviderConfig, load_provider_config
+from swrag.generation.openai_generator import _format_evidence
+from swrag.types import GenerationResult, RetrievalResult
+
+_REGENERATE_PROMPT = """You are repairing an unsupported RAG answer.
+Answer the question using only the provided evidence chunks.
+The previous answer was judged not grounded in that evidence. Do not repeat
+claims that are not in the evidence. If the evidence is not enough, say you
+do not know based on the retrieved documents.
+When you use a chunk, mention its chunk_id in brackets."""
+
+
+class ConstrainedRegenerator:
+    """Same retrieval, new answer, tighter grounding instruction."""
+
+    def __init__(
+        self,
+        *,
+        model: str | None = None,
+        client: OpenAI | None = None,
+        config: ProviderConfig | None = None,
+    ) -> None:
+        resolved = config or load_provider_config()
+        self.model_name = model or resolved.chat_model
+        self._client = client or OpenAI(base_url=resolved.base_url)
+
+    def regenerate(
+        self,
+        *,
+        question: str,
+        retrieval: RetrievalResult,
+        previous_answer: str,
+    ) -> GenerationResult:
+        evidence = _format_evidence(retrieval)
+        response = self._client.chat.completions.create(
+            model=self.model_name,
+            messages=[
+                {"role": "system", "content": _REGENERATE_PROMPT},
+                {
+                    "role": "user",
+                    "content": (
+                        f"Question:\n{question}\n\n"
+                        f"Evidence:\n{evidence}\n\n"
+                        f"Previous unsupported answer:\n{previous_answer}"
+                    ),
+                },
+            ],
+            temperature=0,
+        )
+        message = response.choices[0].message.content or ""
+        return GenerationResult(answer=message.strip(), model=self.model_name)

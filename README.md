@@ -2,11 +2,10 @@
 
 Software for **evaluation-guided Agentic RAG**: the system answers a question, evaluates the result, diagnoses a failure, recovers, and verifies whether recovery helped.
 
-Built so far: **baseline RAG with JSON traces**, the **offline evaluation
-foundation** (gold set, scoring, batch experiment harness), and **runtime
-grounding signals** (evidence sufficiency and answer support) behind a
-swappable judge, and **first-pass diagnosis** of unsupported generation.
-Recovery and verification are next; the UI is later.
+Built so far: baseline RAG, offline scoring, runtime grounding judge, first-pass
+diagnosis, **one recovery** (constrained regenerate), runtime verification, and
+the evaluate → diagnose → recover → verify loop. Query-rewrite recovery and the
+UI are later.
 
 The measured contribution is **verification quality** — whether the system's own verdict that "recovery worked" is correct. See [ADR 002](docs/decisions/002-contribution-and-scope.md).
 
@@ -38,11 +37,15 @@ python scripts/run_baseline.py --question "When is the Harbor Institute Library 
 
 Both commands print retrieved chunk ids and write a new JSON trace under `experiments/output/` (gitignored). Existing traces are not overwritten.
 
-Optional flags: `--corpus`, `--output-dir`, `--top-k`, `--evaluate`.
+Optional flags: `--corpus`, `--output-dir`, `--top-k`, `--evaluate`, `--recover`.
 
 `--evaluate` runs the LLM grounding judge (ADR 003) and writes
 `evidence_sufficient` / `answer_supported` onto the trace. It never reads the
 gold set. Needs `OPENAI_API_KEY`.
+
+`--recover` runs the evaluation-guided loop (implies `--evaluate`): diagnose,
+maybe constrained-regenerate, then verify improved / unchanged / degraded /
+still_failing.
 
 ## Score the gold set
 
@@ -85,6 +88,9 @@ Tests use the same fake embedder, so chunking, ranking, and tracing do not call 
 | `src/swrag/tracing/` | Per-run JSON traces |
 | `src/swrag/pipeline/` | Baseline `run_query` |
 | `src/swrag/diagnosis/` | First-pass label: unsupported generation |
+| `src/swrag/recovery/` | Controller + constrained regenerate |
+| `src/swrag/verification/` | Runtime improved / degraded / still_failing |
+| `src/swrag/orchestration/` | Evaluate → diagnose → recover → verify loop |
 | `src/swrag/config.py` | Which model backend to call, recorded in every trace |
 | `src/swrag/evaluation/` | Gold-set loader, offline EM/F1, runtime grounding judge |
 | `src/swrag/experiments/` | Batch harness with per-class aggregation |
@@ -92,6 +98,6 @@ Tests use the same fake embedder, so chunking, ranking, and tracing do not call 
 | `datasets/gold/` | Hand-written questions and their ground truth |
 | `docs/decisions/` | Architecture decision records |
 
-Stub packages remain for recovery, verification, and orchestration.
+Stub packages are gone for the Phase 1 core. The UI is still later.
 
-Decisions: [001 stack](docs/decisions/001-first-slice-stack.md), [002 contribution and scope](docs/decisions/002-contribution-and-scope.md), [003 evaluation method](docs/decisions/003-evaluation-method.md), [004 corpus difficulty](docs/decisions/004-corpus-difficulty.md), [005 failure taxonomy](docs/decisions/005-failure-taxonomy.md).
+Decisions: [001 stack](docs/decisions/001-first-slice-stack.md), [002 contribution and scope](docs/decisions/002-contribution-and-scope.md), [003 evaluation method](docs/decisions/003-evaluation-method.md), [004 corpus difficulty](docs/decisions/004-corpus-difficulty.md), [005 failure taxonomy](docs/decisions/005-failure-taxonomy.md), [006 recovery policy](docs/decisions/006-recovery-policy.md).
