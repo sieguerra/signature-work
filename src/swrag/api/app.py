@@ -14,7 +14,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from swrag.api.store import list_traces, load_trace
+from swrag.api.store import delete_all_traces, delete_trace, list_traces, load_trace
 from swrag.config import load_provider_config
 from swrag.orchestration.loop import run_with_recovery
 from swrag.pipeline.baseline import build_corpus_index, run_query
@@ -71,12 +71,22 @@ def create_app(
     def traces() -> dict[str, Any]:
         return {"traces": list_traces(application.state.traces_dir)}
 
+    @application.delete("/api/traces")
+    def remove_all_traces() -> dict[str, Any]:
+        return {"deleted": delete_all_traces(application.state.traces_dir)}
+
     @application.get("/api/traces/{run_id}")
     def get_trace(run_id: str) -> dict[str, Any]:
         payload = load_trace(application.state.traces_dir, run_id)
         if payload is None:
             raise HTTPException(status_code=404, detail="trace not found")
         return {"trace": payload, "steps": trace_to_steps(payload)}
+
+    @application.delete("/api/traces/{run_id}")
+    def remove_trace(run_id: str) -> dict[str, Any]:
+        if not delete_trace(application.state.traces_dir, run_id):
+            raise HTTPException(status_code=404, detail="trace not found")
+        return {"deleted": run_id}
 
     @application.post("/api/runs")
     def create_run(body: RunRequest) -> dict[str, Any]:
