@@ -15,6 +15,9 @@ def trace_to_steps(payload: dict[str, Any]) -> list[dict[str, Any]]:
     steps: list[dict[str, Any]] = []
     query = str(payload.get("query") or "")
     rewritten = payload.get("rewritten_query")
+    previous_answer = payload.get("previous_answer")
+    previous_chunks = payload.get("previous_retrieved_chunks")
+    chunks = list(payload.get("retrieved_chunks") or ())
     steps.append(
         _step(
             "query",
@@ -30,39 +33,104 @@ def trace_to_steps(payload: dict[str, Any]) -> list[dict[str, Any]]:
         )
     )
 
-    chunks = list(payload.get("retrieved_chunks") or ())
-    steps.append(
-        _step(
-            "retrieve",
-            "retrieve",
-            "Retrieve",
-            f"{len(chunks)} chunk" if len(chunks) == 1 else f"{len(chunks)} chunks",
-            "ok" if chunks else "empty",
-            {
-                "top_k": payload.get("top_k"),
-                "embedding_model": payload.get("embedding_model"),
-                "chunks": chunks,
-            },
+    if previous_chunks:
+        first = list(previous_chunks)
+        steps.append(
+            _step(
+                "retrieve-first",
+                "retrieve",
+                "Retrieve (first pass)",
+                _chunk_summary(first),
+                "ok" if first else "empty",
+                {
+                    "top_k": payload.get("top_k"),
+                    "embedding_model": payload.get("embedding_model"),
+                    "chunks": first,
+                    "pass": "first",
+                },
+            )
         )
-    )
+        steps.append(
+            _step(
+                "retrieve",
+                "retrieve",
+                "Retrieve (after recovery)",
+                _chunk_summary(chunks),
+                "ok" if chunks else "empty",
+                {
+                    "top_k": payload.get("top_k"),
+                    "embedding_model": payload.get("embedding_model"),
+                    "chunks": chunks,
+                    "pass": "after_recovery",
+                },
+            )
+        )
+    else:
+        retrieve_payload: dict[str, Any] = {
+            "top_k": payload.get("top_k"),
+            "embedding_model": payload.get("embedding_model"),
+            "chunks": chunks,
+        }
+        if rewritten:
+            retrieve_payload["note"] = "chunks are post-recovery; first-pass chunks were not stored"
+        steps.append(
+            _step(
+                "retrieve",
+                "retrieve",
+                "Retrieve",
+                _chunk_summary(chunks),
+                "ok" if chunks else "empty",
+                retrieve_payload,
+            )
+        )
 
     answer = str(payload.get("answer") or "")
     model = str(payload.get("model") or "")
     generate_skipped = model == "none" and not answer.strip()
-    steps.append(
-        _step(
-            "generate",
-            "generate",
-            "Generate",
-            "skipped" if generate_skipped else (answer.splitlines()[0][:96] if answer else "(empty)"),
-            "skipped" if generate_skipped else ("ok" if answer.strip() else "empty"),
-            {
-                "answer": answer,
-                "model": model,
-                "previous_answer": payload.get("previous_answer"),
-            },
+    if previous_answer:
+        first_text = str(previous_answer)
+        steps.append(
+            _step(
+                "generate-first",
+                "generate",
+                "Generate (first pass)",
+                first_text.splitlines()[0][:96] if first_text else "(empty)",
+                "ok" if first_text.strip() else "empty",
+                {
+                    "answer": first_text,
+                    "model": model,
+                    "pass": "first",
+                },
+            )
         )
-    )
+        steps.append(
+            _step(
+                "generate",
+                "generate",
+                "Generate (after recovery)",
+                "skipped" if generate_skipped else (answer.splitlines()[0][:96] if answer else "(empty)"),
+                "skipped" if generate_skipped else ("ok" if answer.strip() else "empty"),
+                {
+                    "answer": answer,
+                    "model": model,
+                    "pass": "after_recovery",
+                },
+            )
+        )
+    else:
+        steps.append(
+            _step(
+                "generate",
+                "generate",
+                "Generate",
+                "skipped" if generate_skipped else (answer.splitlines()[0][:96] if answer else "(empty)"),
+                "skipped" if generate_skipped else ("ok" if answer.strip() else "empty"),
+                {
+                    "answer": answer,
+                    "model": model,
+                },
+            )
+        )
 
     evaluation = payload.get("runtime_evaluation")
     if isinstance(evaluation, dict):
@@ -102,7 +170,7 @@ def trace_to_steps(payload: dict[str, Any]) -> list[dict[str, Any]]:
                 {
                     **recovery,
                     "rewritten_query": rewritten,
-                    "previous_answer": payload.get("previous_answer"),
+                    "previous_answer": previous_answer,
                 },
             )
         )
@@ -114,6 +182,10 @@ def trace_to_steps(payload: dict[str, Any]) -> list[dict[str, Any]]:
         steps.append(_step("verify", "verify", "Verify", outcome, status, verification))
 
     return steps
+
+
+def _chunk_summary(chunks: list[Any]) -> str:
+    return f"{len(chunks)} chunk" if len(chunks) == 1 else f"{len(chunks)} chunks"
 
 
 def _step(

@@ -90,14 +90,54 @@ def test_loop_trace_adds_evaluate_diagnose_recover_verify() -> None:
     assert kinds == [
         "query",
         "retrieve",
+        "generate-first",
         "generate",
         "evaluate",
         "diagnose",
         "recover",
         "verify",
     ]
+    retrieve = next(step for step in steps if step["id"] == "retrieve")
+    assert "post-recovery" in retrieve["payload"]["note"]
+    first_gen = next(step for step in steps if step["id"] == "generate-first")
+    assert first_gen["payload"]["answer"] == "The library is on the moon."
+    after_gen = next(step for step in steps if step["id"] == "generate")
+    assert after_gen["payload"]["answer"].startswith("Saturday")
     recover = next(step for step in steps if step["id"] == "recover")
     assert recover["payload"]["rewritten_query"].startswith("Harbor")
     assert recover["payload"]["previous_answer"]
     verify = next(step for step in steps if step["id"] == "verify")
     assert verify["status"] == "error"
+
+
+def test_accept_trace_has_a_single_generate_step() -> None:
+    kinds = [step["id"] for step in trace_to_steps(_base())]
+    assert kinds == ["query", "retrieve", "generate"]
+    generate = next(step for step in trace_to_steps(_base()) if step["id"] == "generate")
+    assert generate["title"] == "Generate"
+    assert "previous_answer" not in generate["payload"]
+
+
+def test_stored_first_pass_chunks_become_two_retrieve_steps() -> None:
+    steps = trace_to_steps(
+        _base(
+            previous_answer="wrong building",
+            rewritten_query="Hangar 2 titanium traveler",
+            previous_retrieved_chunks=[
+                {
+                    "chunk_id": "traveler-2018::c000",
+                    "doc_id": "traveler-2018",
+                    "title": "2018 traveler",
+                    "score": 0.8,
+                    "text": "AMS 4911N",
+                }
+            ],
+        )
+    )
+    kinds = [step["id"] for step in steps]
+    assert kinds[:4] == ["query", "retrieve-first", "retrieve", "generate-first"]
+    first = next(step for step in steps if step["id"] == "retrieve-first")
+    after = next(step for step in steps if step["id"] == "retrieve")
+    assert first["payload"]["chunks"][0]["doc_id"] == "traveler-2018"
+    assert after["payload"]["chunks"][0]["doc_id"] == "harbor-library"
+    assert "note" not in after["payload"]

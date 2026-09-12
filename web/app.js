@@ -168,8 +168,29 @@ function renderAnswer() {
   }
   bar.classList.remove("hidden");
   $("answer-run-id").textContent = state.trace.run_id || "";
-  const answer = (state.trace.answer || "").trim();
-  $("answer-text").textContent = answer || "(no generated answer)";
+  const after = (state.trace.answer || "").trim() || "(no generated answer)";
+  const before = (state.trace.previous_answer || "").trim();
+  const rewritten = (state.trace.rewritten_query || "").trim();
+  const action = state.trace.recovery && state.trace.recovery.action;
+  if (!before) {
+    $("answer-text").innerHTML = `<div class="answer-block">${escapeHtml(after)}</div>`;
+    return;
+  }
+  const rewriteLine = rewritten
+    ? `<div class="answer-meta">Rewritten query: ${escapeHtml(rewritten)}</div>`
+    : "";
+  const actionLine = action ? `<div class="answer-meta">Recovery: ${escapeHtml(action)}</div>` : "";
+  $("answer-text").innerHTML = `${actionLine}${rewriteLine}
+    <div class="answer-split">
+      <div>
+        <div class="answer-label">Before</div>
+        <div class="answer-block">${escapeHtml(before)}</div>
+      </div>
+      <div>
+        <div class="answer-label">After</div>
+        <div class="answer-block">${escapeHtml(after)}</div>
+      </div>
+    </div>`;
 }
 
 function renderWaterfall() {
@@ -255,6 +276,8 @@ function renderInspector() {
       kv([
         ["top_k", data.top_k],
         ["embedding model", data.embedding_model],
+        ["pass", data.pass],
+        ["note", data.note],
       ]) + renderChunks(data.chunks);
     return;
   }

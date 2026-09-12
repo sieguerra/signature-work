@@ -147,6 +147,7 @@ def test_loop_rewrites_and_attributes_retrieval_miss(tmp_path: Path) -> None:
     assert payload["rewritten_query"] == "Harbor Institute Library Saturday hours term time"
     assert payload["verification"]["outcome"] == IMPROVED
     assert payload["previous_answer"] == "The library is on the moon."
+    assert payload["previous_retrieved_chunks"]
     assert result.answer == "The library is on the moon."
 
 

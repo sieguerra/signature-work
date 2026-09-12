@@ -140,6 +140,7 @@ def write_run(
     verification: Verification | None = None,
     previous_answer: str | None = None,
     rewritten_query: str | None = None,
+    previous_retrieved_chunks: tuple[dict, ...] | None = None,
 ) -> BaselineRunResult:
     """Write a trace for ``state``. Never overwrites an existing file."""
     run_id = _new_run_id()
@@ -170,6 +171,7 @@ def write_run(
             ),
             previous_answer=previous_answer,
             rewritten_query=rewritten_query,
+            previous_retrieved_chunks=previous_retrieved_chunks,
         ),
         output_dir,
     )
@@ -190,7 +192,7 @@ def write_run(
     )
 
 
-def _chunks_payload(retrieval: RetrievalResult) -> tuple[dict, ...]:
+def chunks_payload(retrieval: RetrievalResult) -> tuple[dict, ...]:
     payload: list[dict] = []
     for scored in retrieval.chunks:
         chunk = scored.chunk
@@ -204,6 +206,10 @@ def _chunks_payload(retrieval: RetrievalResult) -> tuple[dict, ...]:
             }
         )
     return tuple(payload)
+
+
+def _chunks_payload(retrieval: RetrievalResult) -> tuple[dict, ...]:
+    return chunks_payload(retrieval)
 
 
 def _new_run_id() -> str:
