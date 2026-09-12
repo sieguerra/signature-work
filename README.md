@@ -101,6 +101,8 @@ one world at a time so retrieval never mixes DKU notes with a water utility.
 Each run can be deleted, or **Delete all** clears traces for the active corpus
 only. Loop and baseline need `OPENAI_API_KEY`. Retrieve-only does not.
 
+When the software is ready for a mentor demo, use [docs/software-done.md](docs/software-done.md).
+
 ## Point at a different backend
 
 Any OpenAI-compatible endpoint works. Set `OPENAI_BASE_URL` in `.env`.
