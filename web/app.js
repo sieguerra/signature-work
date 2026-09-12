@@ -74,6 +74,10 @@ function pill(kind, label) {
 }
 
 function renderRunList() {
+  const deleteAll = $("delete-all-runs");
+  if (deleteAll) {
+    deleteAll.disabled = !state.traces.length;
+  }
   const root = $("run-list");
   if (!state.traces.length) {
     root.innerHTML =
@@ -84,14 +88,17 @@ function renderRunList() {
     .map((item) => {
       const active = item.run_id === state.selectedId ? " active" : "";
       const when = (item.timestamp || "").replace("T", " ").slice(0, 19);
-      return `<button type="button" class="run-item${active}" data-id="${escapeHtml(item.run_id)}">
-        <div class="q">${escapeHtml(item.query || "(no query)")}</div>
-        <div class="meta">
-          ${pill(item.action, item.action)}
-          ${pill(item.verification, item.verification)}
-          <span>${escapeHtml(when)}</span>
-        </div>
-      </button>`;
+      return `<div class="run-item${active}" data-id="${escapeHtml(item.run_id)}">
+        <button type="button" class="run-select">
+          <div class="q">${escapeHtml(item.query || "(no query)")}</div>
+          <div class="meta">
+            ${pill(item.action, item.action)}
+            ${pill(item.verification, item.verification)}
+            <span>${escapeHtml(when)}</span>
+          </div>
+        </button>
+        <button type="button" class="run-delete" data-id="${escapeHtml(item.run_id)}" aria-label="Delete run" title="Delete run">×</button>
+      </div>`;
     })
     .join("");
 }
@@ -259,6 +266,44 @@ async function selectRun(runId) {
   render();
 }
 
+function clearSelection() {
+  state.selectedId = null;
+  state.trace = null;
+  state.steps = [];
+  state.selectedStep = null;
+}
+
+async function deleteRun(runId) {
+  const ok = window.confirm(`Delete this run from disk?\n${runId}`);
+  if (!ok) return;
+  showError("");
+  await api(`/api/traces/${encodeURIComponent(runId)}`, { method: "DELETE" });
+  const wasSelected = state.selectedId === runId;
+  if (wasSelected) {
+    clearSelection();
+  }
+  await loadTraces();
+  if (wasSelected && state.traces.length) {
+    await selectRun(state.traces[0].run_id);
+    return;
+  }
+  render();
+}
+
+async function deleteAllRuns() {
+  const n = state.traces.length;
+  if (!n) return;
+  const ok = window.confirm(
+    `Delete all ${n} run${n === 1 ? "" : "s"} from disk?\nThis cannot be undone.`
+  );
+  if (!ok) return;
+  showError("");
+  await api("/api/traces", { method: "DELETE" });
+  clearSelection();
+  await loadTraces();
+  render();
+}
+
 async function runQuestion() {
   const question = $("question").value.trim();
   if (!question) {
@@ -298,6 +343,7 @@ async function runQuestion() {
 function bind() {
   $("run-btn").addEventListener("click", runQuestion);
   $("refresh-runs").addEventListener("click", () => loadTraces().catch((error) => showError(error.message)));
+  $("delete-all-runs").addEventListener("click", () => deleteAllRuns().catch((error) => showError(error.message)));
   $("question").addEventListener("keydown", (event) => {
     if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
       event.preventDefault();
@@ -311,9 +357,16 @@ function bind() {
     $("question").focus();
   });
   $("run-list").addEventListener("click", (event) => {
-    const button = event.target.closest(".run-item");
-    if (!button) return;
-    selectRun(button.dataset.id).catch((error) => showError(error.message));
+    const del = event.target.closest(".run-delete");
+    if (del) {
+      event.preventDefault();
+      event.stopPropagation();
+      deleteRun(del.dataset.id).catch((error) => showError(error.message));
+      return;
+    }
+    const item = event.target.closest(".run-item");
+    if (!item) return;
+    selectRun(item.dataset.id).catch((error) => showError(error.message));
   });
   $("waterfall").addEventListener("click", (event) => {
     const button = event.target.closest(".step-btn");

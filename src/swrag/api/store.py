@@ -9,20 +9,47 @@ from typing import Any
 SKIP_NAMES = frozenset({"summary.json", "comparison.json", "config.json"})
 
 
+def _safe_run_id(run_id: str) -> bool:
+    """Reject empty ids, path separators, ``..``, and reserved summary names."""
+    if not run_id or run_id in {name.removesuffix(".json") for name in SKIP_NAMES}:
+        return False
+    if "/" in run_id or "\\" in run_id or ".." in run_id:
+        return False
+    return True
+
+
+def _is_trace_payload(payload: object) -> bool:
+    return isinstance(payload, dict) and "run_id" in payload and "query" in payload
+
+
+def _iter_trace_paths(traces_dir: str | Path):
+    """Yield JSON files under ``traces_dir`` that look like run traces."""
+    root = Path(traces_dir)
+    if not root.exists():
+        return
+    root_resolved = root.resolve()
+    for path in root.rglob("*.json"):
+        if path.name in SKIP_NAMES:
+            continue
+        try:
+            path.resolve().relative_to(root_resolved)
+        except ValueError:
+            continue
+        yield path
+
+
 def list_traces(traces_dir: str | Path) -> list[dict[str, Any]]:
     """Newest-first summaries of every trace file under ``traces_dir``."""
     root = Path(traces_dir)
     if not root.exists():
         return []
     items: list[dict[str, Any]] = []
-    for path in root.rglob("*.json"):
-        if path.name in SKIP_NAMES:
-            continue
+    for path in _iter_trace_paths(root):
         try:
             payload = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
             continue
-        if not isinstance(payload, dict) or "run_id" not in payload or "query" not in payload:
+        if not _is_trace_payload(payload):
             continue
         answer = str(payload.get("answer") or "")
         recovery = payload.get("recovery") if isinstance(payload.get("recovery"), dict) else {}
@@ -49,7 +76,7 @@ def list_traces(traces_dir: str | Path) -> list[dict[str, Any]]:
 def load_trace(traces_dir: str | Path, run_id: str) -> dict[str, Any] | None:
     """Return the trace JSON for ``run_id``, or None if it is not on disk."""
     root = Path(traces_dir)
-    if not root.exists() or "/" in run_id or "\\" in run_id:
+    if not root.exists() or not _safe_run_id(run_id):
         return None
     matches = list(root.rglob(f"{run_id}.json"))
     if not matches:
@@ -58,6 +85,46 @@ def load_trace(traces_dir: str | Path, run_id: str) -> dict[str, Any] | None:
         payload = json.loads(matches[0].read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         return None
-    if not isinstance(payload, dict):
+    if not _is_trace_payload(payload):
         return None
     return payload
+
+
+def delete_trace(traces_dir: str | Path, run_id: str) -> bool:
+    """Delete ``{run_id}.json`` under ``traces_dir``. Returns False if missing."""
+    root = Path(traces_dir)
+    if not root.exists() or not _safe_run_id(run_id):
+        return False
+    root_resolved = root.resolve()
+    deleted = False
+    for path in root.rglob(f"{run_id}.json"):
+        if path.name in SKIP_NAMES:
+            continue
+        try:
+            path.resolve().relative_to(root_resolved)
+        except ValueError:
+            continue
+        try:
+            path.unlink()
+        except OSError:
+            continue
+        deleted = True
+    return deleted
+
+
+def delete_all_traces(traces_dir: str | Path) -> int:
+    """Delete every run trace under ``traces_dir``. Leaves summary files alone."""
+    deleted = 0
+    for path in list(_iter_trace_paths(traces_dir)):
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        if not _is_trace_payload(payload):
+            continue
+        try:
+            path.unlink()
+        except OSError:
+            continue
+        deleted += 1
+    return deleted

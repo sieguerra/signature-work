@@ -96,8 +96,9 @@ python scripts/run_ui.py
 ```
 
 Ask a question in the playground, or inspect traces already under
-`experiments/output/`. Loop and baseline need `OPENAI_API_KEY`. Retrieve-only
-does not.
+`experiments/output/`. Each run can be deleted, or **Delete all** clears every
+trace JSON under that folder. Loop and baseline need `OPENAI_API_KEY`.
+Retrieve-only does not.
 
 ## Point at a different backend
 
