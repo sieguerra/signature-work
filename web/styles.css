@@ -602,6 +602,28 @@ button.ghost:disabled {
   background: var(--bg-elev-2);
 }
 
+.chunk.selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent-dim);
+}
+
+.cite {
+  display: inline;
+  padding: 0 2px;
+  margin: 0;
+  border: 0;
+  border-radius: 4px;
+  background: var(--accent-dim);
+  color: var(--accent);
+  font: inherit;
+  font-family: var(--mono);
+  cursor: pointer;
+}
+
+.cite:hover {
+  text-decoration: underline;
+}
+
 .chunk-head {
   display: flex;
   justify-content: space-between;

@@ -210,6 +210,8 @@ def test_index_page_and_assets_are_served(tmp_path: Path) -> None:
         assert "switchCorpus" in js.text
         assert 'id="corpus"' in page.text
         assert "answer-split" in js.text
+        assert "formatAnswerHtml" in js.text
+        assert "function escapeHtml" in js.text
         assert "Generate (first pass)" not in page.text
 
 

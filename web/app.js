@@ -6,6 +6,7 @@ const state = {
   trace: null,
   steps: [],
   selectedStep: null,
+  selectedChunkId: null,
   loading: false,
 };
 
@@ -160,6 +161,44 @@ function renderRunList() {
     .join("");
 }
 
+function knownChunkIds() {
+  const ids = new Set();
+  const trace = state.trace || {};
+  (trace.retrieved_chunks || []).forEach((chunk) => {
+    if (chunk && chunk.chunk_id) ids.add(chunk.chunk_id);
+  });
+  (trace.previous_retrieved_chunks || []).forEach((chunk) => {
+    if (chunk && chunk.chunk_id) ids.add(chunk.chunk_id);
+  });
+  return ids;
+}
+
+function formatAnswerHtml(text) {
+  const value = text || "";
+  if (!value) return "";
+  const ids = knownChunkIds();
+  const token = /\[([^\[\]]+)\]/g;
+  let cursor = 0;
+  let html = "";
+  let match;
+  while ((match = token.exec(value))) {
+    if (match.index > cursor) {
+      html += escapeHtml(value.slice(cursor, match.index));
+    }
+    const chunkId = match[1];
+    if (ids.has(chunkId)) {
+      html += `<button type="button" class="cite" data-chunk-id="${escapeHtml(chunkId)}">${escapeHtml(match[0])}</button>`;
+    } else {
+      html += escapeHtml(match[0]);
+    }
+    cursor = match.index + match[0].length;
+  }
+  if (cursor < value.length) {
+    html += escapeHtml(value.slice(cursor));
+  }
+  return html;
+}
+
 function renderAnswer() {
   const bar = $("answer-bar");
   if (!state.trace) {
@@ -173,7 +212,7 @@ function renderAnswer() {
   const rewritten = (state.trace.rewritten_query || "").trim();
   const action = state.trace.recovery && state.trace.recovery.action;
   if (!before) {
-    $("answer-text").innerHTML = `<div class="answer-block">${escapeHtml(after)}</div>`;
+    $("answer-text").innerHTML = `<div class="answer-block">${formatAnswerHtml(after)}</div>`;
     return;
   }
   const rewriteLine = rewritten
@@ -184,11 +223,11 @@ function renderAnswer() {
     <div class="answer-split">
       <div>
         <div class="answer-label">Before</div>
-        <div class="answer-block">${escapeHtml(before)}</div>
+        <div class="answer-block">${formatAnswerHtml(before)}</div>
       </div>
       <div>
         <div class="answer-label">After</div>
-        <div class="answer-block">${escapeHtml(after)}</div>
+        <div class="answer-block">${formatAnswerHtml(after)}</div>
       </div>
     </div>`;
 }
@@ -240,7 +279,8 @@ function renderChunks(chunks) {
   return chunks
     .map((chunk) => {
       const width = Math.max(4, Math.min(100, Math.round((chunk.score || 0) * 100)));
-      return `<article class="chunk">
+      const active = chunk.chunk_id && chunk.chunk_id === state.selectedChunkId ? " selected" : "";
+      return `<article class="chunk${active}" data-chunk-id="${escapeHtml(chunk.chunk_id || "")}">
         <div class="chunk-head">
           <span>${escapeHtml(chunk.chunk_id || "")}</span>
           <span>${Number(chunk.score || 0).toFixed(3)}</span>
@@ -295,10 +335,7 @@ function renderInspector() {
   if (step.kind === "generate") {
     root.innerHTML =
       kv([["model", data.model]]) +
-      `<div class="block">${escapeHtml(data.answer || "(empty)")}</div>` +
-      (data.previous_answer
-        ? `<p class="pane-label">Previous answer</p><div class="block">${escapeHtml(data.previous_answer)}</div>`
-        : "");
+      `<div class="block">${formatAnswerHtml(data.answer || "(empty)")}</div>`;
     return;
   }
   if (step.kind === "recover") {
@@ -343,6 +380,7 @@ async function selectRun(runId) {
   state.trace = payload.trace;
   state.steps = payload.steps || [];
   state.selectedStep = state.steps[0] || null;
+  state.selectedChunkId = null;
   render();
 }
 
@@ -351,6 +389,7 @@ function clearSelection() {
   state.trace = null;
   state.steps = [];
   state.selectedStep = null;
+  state.selectedChunkId = null;
 }
 
 async function deleteRun(runId) {
@@ -420,6 +459,20 @@ async function runQuestion() {
   }
 }
 
+function selectCitation(chunkId) {
+  if (!chunkId) return;
+  state.selectedChunkId = chunkId;
+  const match = (state.steps || []).find((step) => {
+    if (step.kind !== "retrieve") return false;
+    const chunks = (step.payload && step.payload.chunks) || [];
+    return chunks.some((chunk) => chunk.chunk_id === chunkId);
+  });
+  if (match) state.selectedStep = match;
+  render();
+  const selected = document.querySelector(".chunk.selected");
+  if (selected) selected.scrollIntoView({ block: "nearest" });
+}
+
 function bind() {
   $("run-btn").addEventListener("click", runQuestion);
   $("refresh-runs").addEventListener("click", () => loadTraces().catch((error) => showError(error.message)));
@@ -456,6 +509,16 @@ function bind() {
     if (!button) return;
     state.selectedStep = state.steps.find((step) => step.id === button.dataset.step) || null;
     render();
+  });
+  $("answer-text").addEventListener("click", (event) => {
+    const cite = event.target.closest(".cite");
+    if (!cite) return;
+    selectCitation(cite.dataset.chunkId);
+  });
+  $("inspector").addEventListener("click", (event) => {
+    const cite = event.target.closest(".cite");
+    if (!cite) return;
+    selectCitation(cite.dataset.chunkId);
   });
 }
 
