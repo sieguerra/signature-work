@@ -310,7 +310,23 @@ function render() {
 async function loadTraces() {
   const payload = await api("/api/traces");
   state.traces = payload.traces || [];
+  await loadEval();
   renderRunList();
+}
+
+async function loadEval() {
+  const strip = $("eval-strip");
+  if (!strip) return;
+  const payload = await api("/api/eval");
+  const actions = Object.entries(payload.by_action || {})
+    .map(([name, count]) => `${name}=${count}`)
+    .join(" · ");
+  const verifies = Object.entries(payload.by_verification || {})
+    .map(([name, count]) => `${name}=${count}`)
+    .join(" · ");
+  const latency =
+    payload.mean_latency_ms == null ? "" : ` · mean latency ${Math.round(payload.mean_latency_ms)}ms`;
+  strip.textContent = `n=${payload.n} · abstain=${payload.abstain}${actions ? ` · ${actions}` : ""}${verifies ? ` · ${verifies}` : ""}${latency}`;
 }
 
 async function selectRun(runId) {

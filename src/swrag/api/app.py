@@ -14,7 +14,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from swrag.api.store import delete_all_traces, delete_trace, list_traces, load_trace
+from swrag.api.store import delete_all_traces, delete_trace, eval_counts, list_traces, load_trace
 from swrag.config import load_provider_config
 from swrag.corpus_registry import (
     CorpusEntry,
@@ -127,6 +127,10 @@ def create_app(
             "corpus": selected.as_payload(),
             "traces_dir": str(application.state.traces_dir),
         }
+
+    @application.get("/api/eval")
+    def eval_panel() -> dict[str, Any]:
+        return eval_counts(application.state.traces_dir)
 
     @application.get("/api/traces")
     def traces() -> dict[str, Any]:

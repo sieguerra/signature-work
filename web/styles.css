@@ -134,6 +134,15 @@ body {
   border-bottom: 1px solid var(--line);
 }
 
+.eval-strip {
+  padding: 8px 14px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.4;
+  border-bottom: 1px solid var(--line);
+  white-space: normal;
+}
+
 .sidebar-actions {
   display: flex;
   gap: 2px;
