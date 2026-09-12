@@ -26,6 +26,11 @@ officer names).
 Do not edit a gold row after it has results; add a new id. Harbor snapshot
 `experiments/results/20260910T070623/` still scores Harbor only.
 
+Each registered gold set has `gold/audit.jsonl` listing every `question_id`.
+Those rows are a **substring search**, not a student sign-off. Quote scores
+only for ids you have personally confirmed (issue #37). Harbor
+`datasets/gold/questions.jsonl` is unchanged.
+
 Regenerate industry folders (does not touch Harbor or DKU notes):
 
 ```bash

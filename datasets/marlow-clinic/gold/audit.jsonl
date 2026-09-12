@@ -1,0 +1,17 @@
+# Substring search against supporting .txt files. Not a student sign-off.
+{"question_id": "mc-001", "answerable": true, "span_found": "yes", "file": "pharmacy-hours", "notes": "substring '08:00-18:00' in pharmacy-hours.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "mc-002", "answerable": true, "span_found": "yes", "file": "ridge-campus", "notes": "substring 'no' in ridge-campus.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "mc-003", "answerable": true, "span_found": "yes", "file": "ridge-campus", "notes": "substring '07:00-15:30' in ridge-campus.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "mc-004", "answerable": true, "span_found": "yes", "file": "formulary-2026", "notes": "substring 'dropped theophylline' in formulary-2026.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "mc-005", "answerable": true, "span_found": "no", "file": "", "notes": "no gold alias found as substring in corpus txt files", "auditor": "substring-search"}
+{"question_id": "mc-006", "answerable": true, "span_found": "yes", "file": "cedar-urgent", "notes": "substring '10:00-22:00' in cedar-urgent.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "mc-007", "answerable": true, "span_found": "yes", "file": "records", "notes": "substring 'Tuesday and Thursday 10:00-14:00' in records.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "mc-008", "answerable": true, "span_found": "yes", "file": "contacts", "notes": "substring '555-7702' in contacts.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "mc-009", "answerable": true, "span_found": "yes", "file": "infusion", "notes": "substring 'Fridge R-2' in infusion.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "mc-010", "answerable": true, "span_found": "no", "file": "", "notes": "no gold alias found as substring in corpus txt files", "auditor": "substring-search"}
+{"question_id": "mc-011", "answerable": true, "span_found": "yes", "file": "river-campus", "notes": "substring '8 River Walk' in river-campus.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "mc-012", "answerable": true, "span_found": "yes", "file": "parking", "notes": "substring 'Lot G' in parking.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "mc-013", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+{"question_id": "mc-014", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+{"question_id": "mc-015", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+{"question_id": "mc-016", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}

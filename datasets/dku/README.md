@@ -47,6 +47,10 @@ abstention can be tested when the model may still “know” the fact.
 answerable row must be checked by hand against the cited `.txt` files. Do not
 edit a question after it has results; add a new id.
 
+`gold/audit.jsonl` lists every `dku-*` id. Those rows are a substring search,
+not a student sign-off. Do not quote DKU scores until you have personally
+confirmed the spans.
+
 ## Run
 
 ```bash

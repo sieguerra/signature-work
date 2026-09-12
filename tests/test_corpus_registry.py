@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from swrag.corpus_registry import assert_corpus_readable, load_registry
@@ -43,3 +44,22 @@ def test_every_registered_corpus_loads_and_gold_cites_real_files() -> None:
 def test_industry_folders_are_pairwise_distinct() -> None:
     paths = [entry.corpus_dir.resolve() for entry in load_registry(root=ROOT)]
     assert len(paths) == len(set(paths))
+
+
+def test_every_gold_id_has_an_audit_row() -> None:
+    for entry in load_registry(root=ROOT):
+        if entry.gold_path is None:
+            continue
+        audit_path = entry.gold_path.parent / "audit.jsonl"
+        assert audit_path.is_file(), audit_path
+        audited: set[str] = set()
+        for raw in audit_path.read_text(encoding="utf-8").splitlines():
+            line = raw.strip()
+            if not line or line.startswith("#"):
+                continue
+            payload = json.loads(line)
+            audited.add(str(payload["question_id"]))
+            assert payload["span_found"] in {"yes", "no", "n/a"}
+        gold_ids = {question.question_id for question in load_gold_set(entry.gold_path)}
+        missing = gold_ids - audited
+        assert not missing, (entry.id, missing)

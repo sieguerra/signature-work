@@ -1,0 +1,17 @@
+# Substring search against supporting .txt files. Not a student sign-off.
+{"question_id": "og-001", "answerable": true, "span_found": "yes", "file": "magpie-sub", "notes": "substring '69 kV' in magpie-sub.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "og-002", "answerable": true, "span_found": "yes", "file": "saddle-sub", "notes": "substring '12.47 kV' in saddle-sub.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "og-003", "answerable": true, "span_found": "yes", "file": "tariff-2026", "notes": "substring '21:00' in tariff-2026.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "og-004", "answerable": true, "span_found": "yes", "file": "tariff-2023", "notes": "substring '22:00' in tariff-2023.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "og-005", "answerable": true, "span_found": "yes", "file": "outage-codes", "notes": "substring 'vegetation on Feeder 12' in outage-codes.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "og-006", "answerable": true, "span_found": "yes", "file": "dispatch", "notes": "substring '555-3300' in dispatch.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "og-007", "answerable": true, "span_found": "yes", "file": "tree-cycle", "notes": "substring 'August 2027' in tree-cycle.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "og-008", "answerable": true, "span_found": "yes", "file": "willow-power", "notes": "substring '20:00' in willow-power.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "og-009", "answerable": true, "span_found": "yes", "file": "member-office", "notes": "substring 'no' in member-office.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "og-010", "answerable": true, "span_found": "yes", "file": "storm-plan", "notes": "substring 'Feeder 12 grain elevators' in storm-plan.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "og-011", "answerable": true, "span_found": "yes", "file": "metering", "notes": "substring 'every 15 minutes' in metering.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "og-012", "answerable": true, "span_found": "yes", "file": "radio", "notes": "substring 'Orion-C' in radio.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "og-013", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+{"question_id": "og-014", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+{"question_id": "og-015", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+{"question_id": "og-016", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}

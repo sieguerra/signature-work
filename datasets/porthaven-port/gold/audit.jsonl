@@ -1,0 +1,17 @@
+# Substring search against supporting .txt files. Not a student sign-off.
+{"question_id": "pp-001", "answerable": true, "span_found": "yes", "file": "about", "notes": "substring 'Berth 4' in about.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "pp-002", "answerable": true, "span_found": "yes", "file": "about", "notes": "substring 'Berth 9' in about.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "pp-003", "answerable": true, "span_found": "yes", "file": "pilot-current", "notes": "substring 'tide +45 minutes' in pilot-current.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "pp-004", "answerable": true, "span_found": "yes", "file": "pilot-2019", "notes": "substring 'tide +20 minutes' in pilot-2019.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "pp-005", "answerable": true, "span_found": "yes", "file": "gate-2", "notes": "substring '05:00-21:00' in gate-2.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "pp-006", "answerable": true, "span_found": "yes", "file": "berth-4", "notes": "substring 'G-1 and G-2' in berth-4.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "pp-007", "answerable": true, "span_found": "yes", "file": "weather-limit", "notes": "substring '22 m/s' in weather-limit.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "pp-008", "answerable": true, "span_found": "yes", "file": "contacts", "notes": "substring '555-4400' in contacts.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "pp-009", "answerable": true, "span_found": "yes", "file": "lark-terminal", "notes": "substring '07:00-19:00' in lark-terminal.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "pp-010", "answerable": true, "span_found": "yes", "file": "rail", "notes": "substring 'Track 9' in rail.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "pp-011", "answerable": true, "span_found": "yes", "file": "gate-2", "notes": "substring 'Yard C' in gate-2.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "pp-012", "answerable": true, "span_found": "yes", "file": "tide-board", "notes": "substring '03.2 meters at 14:10' in tide-board.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "pp-013", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+{"question_id": "pp-014", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+{"question_id": "pp-015", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+{"question_id": "pp-016", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
