@@ -43,9 +43,12 @@ abstention can be tested when the model may still “know” the fact.
 
 ## Gold
 
-`gold/questions.jsonl` — 40 questions (30 answerable, 10 unanswerable). Every
-answerable row must be checked by hand against the cited `.txt` files. Do not
-edit a question after it has results; add a new id.
+`gold/questions.jsonl` — 44 questions (34 answerable, 10 unanswerable). `dku-041`
+through `dku-044` are recovery-oriented: the fact lives in one note, and the
+question does not name that note (issue #32). Treat those ids as a proposed
+split until student-confirmed. Every answerable row must be checked by hand
+against the cited `.txt` files. Do not edit a question after it has results;
+add a new id.
 
 ## Run
 

@@ -378,7 +378,7 @@ async function runQuestion() {
       body: JSON.stringify({
         question,
         mode: $("mode").value,
-        top_k: 4,
+        top_k: Number($("top-k").value) || 4,
       }),
     });
     state.loading = false;

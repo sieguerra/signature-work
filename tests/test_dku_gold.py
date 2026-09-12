@@ -13,9 +13,10 @@ CORPUS = ROOT / "datasets" / "dku" / "corpus"
 
 def test_dku_gold_has_both_classes() -> None:
     questions = load_gold_set(GOLD)
-    assert len(questions) == 40
-    assert sum(item.answerable for item in questions) == 30
+    assert len(questions) == 44
+    assert sum(item.answerable for item in questions) == 34
     assert sum(not item.answerable for item in questions) == 10
+    assert {item.question_id for item in questions} >= {"dku-041", "dku-042", "dku-043", "dku-044"}
 
 
 def test_dku_answers_obey_the_answerable_flag() -> None:

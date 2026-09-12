@@ -24,7 +24,7 @@
       "gold_path": "datasets/dku/gold/questions.jsonl",
       "fictional": false,
       "examples": [
-        "According to the current DKU Library Locations and Hours page, what are the 1st floor information desk hours on Saturday?",
+        "How many reader seats does the library have?",
         "What are breakfast hours at University Dining in the Academic Building?",
         "What time does breakfast end at Halal Dining at the Conference Center?"
       ]
@@ -53,7 +53,7 @@
       "fictional": true,
       "examples": [
         "Which building at Kestrel Aero machines titanium bulkheads?",
-        "What AMS specification letter does the 2025 traveler require for titanium plate?",
+        "What AMS specification letter is required for titanium plate on current Hangar 2 jobs?",
         "What is the unit price of a Kestrel bulkhead?"
       ]
     },

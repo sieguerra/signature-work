@@ -24,14 +24,19 @@ You will see a question, retrieved evidence, and optionally a generated answer.
 You have no gold answer and must not use knowledge outside the evidence.
 
 Return a JSON object with exactly these keys:
-- evidence_sufficient: boolean. True only if the retrieved evidence contains
-  enough information to answer the question correctly. Decide this from the
-  question and evidence alone. Ignore the generated answer.
+- evidence_sufficient: boolean. True only if the retrieved evidence text
+  itself contains the information needed to answer the question correctly.
+  Decide this from the question and evidence alone. Ignore the generated
+  answer. A near-neighbour fact (wrong year, wrong building, obsolete
+  revision, different campus) is not enough. If the question asks about
+  current / today / now, a superseded or dated document is insufficient.
 - answer_supported: boolean or null. Null if no answer was generated. True
-  only if every factual claim in the generated answer is supported by the
-  evidence. An explicit abstention ("I do not know") asserts no facts, so it
-  is supported. A correct-looking answer that is not in the evidence is not
-  supported.
+  only if every factual claim in the generated answer is supported by a
+  span in the evidence text, or is a faithful paraphrase of such a span.
+  Names, numbers, dates, hours, identifiers, and places must appear in the
+  evidence. A claim that is missing from the evidence is unsupported even
+  if it "sounds right" or matches world knowledge. An explicit abstention
+  ("I do not know") asserts no facts, so it is supported.
 - sufficiency_rationale: short string (one or two sentences).
 - support_rationale: short string (one or two sentences), or empty if
   answer_supported is null.
