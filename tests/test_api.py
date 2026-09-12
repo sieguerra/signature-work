@@ -27,6 +27,7 @@ def test_meta_does_not_include_an_api_key(tmp_path: Path) -> None:
         assert "api_key" not in payload
         assert "api_key_present" in payload
         assert payload["traces_dir"] == str(tmp_path)
+        assert payload["corpus_id"] == "harbor"
 
 
 def test_empty_trace_list(tmp_path: Path) -> None:
@@ -206,3 +207,37 @@ def test_index_page_and_assets_are_served(tmp_path: Path) -> None:
         assert "example-chips" in js.text
         assert "run-delete" in js.text
         assert "deleteAllRuns" in js.text
+        assert "switchCorpus" in js.text
+        assert 'id="corpus"' in page.text
+
+
+def test_lists_corpora_and_switches_without_mixing_indexes(tmp_path: Path) -> None:
+    app = create_app(traces_root=tmp_path)
+    with TestClient(app) as client:
+        listing = client.get("/api/corpora").json()
+        ids = [item["id"] for item in listing["corpora"]]
+        assert listing["active_id"] == "dku"
+        assert "harbor" in ids
+        assert "kestrel-aero" in ids
+        unknown = client.post("/api/corpus", json={"id": "not-a-world"})
+        assert unknown.status_code == 404
+        switched = client.post("/api/corpus", json={"id": "harbor"})
+        assert switched.status_code == 200, switched.text
+        body = switched.json()
+        assert body["active_id"] == "harbor"
+        assert body["traces_dir"].endswith("harbor")
+        meta = client.get("/api/meta").json()
+        assert meta["corpus_id"] == "harbor"
+        assert meta["examples"]
+        response = client.post(
+            "/api/runs",
+            json={
+                "question": "When is the Harbor Institute Library open on Saturday?",
+                "mode": "retrieve_only",
+            },
+        )
+        assert response.status_code == 200, response.text
+        docs = [chunk["doc_id"] for chunk in response.json()["trace"]["retrieved_chunks"]]
+        assert "harbor-library" in docs
+        dku_docs = {"academic-building-dining", "dku-library-hours", "dku-about"}
+        assert not (set(docs) & dku_docs)

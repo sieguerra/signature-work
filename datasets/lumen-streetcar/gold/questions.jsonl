@@ -1,0 +1,19 @@
+# Gold over datasets/lumen-streetcar/corpus/. Fictional world; verify every row against the .txt files.
+# Prefix ls-. Harbor and DKU gold files are unchanged.
+
+{"question_id": "ls-001", "question": "What is the weekday headway on Line Amber?", "answerable": true, "answers": ["12 minutes"], "supporting_doc_ids": ["line-amber"], "notes": "Slate is 15."}
+{"question_id": "ls-002", "question": "What is the Sunday headway on Line Amber according to the current fact sheet?", "answerable": true, "answers": ["20 minutes"], "supporting_doc_ids": ["line-amber"], "notes": "2021 was 30."}
+{"question_id": "ls-003", "question": "According to the 2021 booklet, what was the Sunday headway on Line Amber?", "answerable": true, "answers": ["30 minutes"], "supporting_doc_ids": ["headway-2021"], "notes": "Dated."}
+{"question_id": "ls-004", "question": "What is Line Slate's weekday headway?", "answerable": true, "answers": ["15 minutes"], "supporting_doc_ids": ["line-slate"], "notes": "Near-neighbour."}
+{"question_id": "ls-005", "question": "Where does Block 14 lay over?", "answerable": true, "answers": ["Quay"], "supporting_doc_ids": ["line-amber", "block-14"], "notes": "Not Slate."}
+{"question_id": "ls-006", "question": "What time is the first Amber car?", "answerable": true, "answers": ["05:40"], "supporting_doc_ids": ["hours"], "notes": "Slate is 06:00."}
+{"question_id": "ls-007", "question": "Which Slate stops remain high-floor until 2027?", "answerable": true, "answers": ["Pine Cut and Old Quarry", "Pine Cut", "Old Quarry"], "supporting_doc_ids": ["accessibility"], "notes": "Amber is all level."}
+{"question_id": "ls-008", "question": "What is the control phone number?", "answerable": true, "answers": ["555-6600"], "supporting_doc_ids": ["contacts"], "notes": "Not 555-6601."}
+{"question_id": "ls-009", "question": "What is Ridge Bus Sunday headway?", "answerable": true, "answers": ["40 minutes"], "supporting_doc_ids": ["ridge-bus"], "notes": "Sister."}
+{"question_id": "ls-010", "question": "Which inspection pit is Amber-only?", "answerable": true, "answers": ["P-2"], "supporting_doc_ids": ["yard"], "notes": "Slate is P-5."}
+{"question_id": "ls-011", "question": "How much time does the November bulletin add to the Amber Quay layover?", "answerable": true, "answers": ["2 minutes"], "supporting_doc_ids": ["weather"], "notes": "Slate adds none."}
+{"question_id": "ls-012", "question": "What posted transfer time is at Exchange?", "answerable": true, "answers": ["3 minutes"], "supporting_doc_ids": ["exchange"], "notes": "Literal."}
+{"question_id": "ls-013", "question": "What is the 2026 adult fare on Lumen streetcars?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "Fares omitted."}
+{"question_id": "ls-014", "question": "Who is the general manager of Lumen Streetcar Authority?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "Name omitted."}
+{"question_id": "ls-015", "question": "How many riders did Amber carry last year?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "Ridership omitted."}
+{"question_id": "ls-016", "question": "What does an Amber charter cost?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "No price."}

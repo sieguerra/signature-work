@@ -1,11 +1,6 @@
-const EXAMPLES = [
-  "According to the current DKU Library Locations and Hours page, what are the 1st floor information desk hours on Saturday?",
-  "What are breakfast hours at University Dining in the Academic Building?",
-  "What time does breakfast end at Halal Dining at the Conference Center?",
-];
-
 const state = {
   meta: null,
+  corpora: [],
   traces: [],
   selectedId: null,
   trace: null,
@@ -55,17 +50,79 @@ async function loadMeta() {
   state.meta = await api("/api/meta");
   const official = state.meta.official_openai ? "OpenAI" : "custom backend";
   const key = state.meta.api_key_present ? "key on" : "no key";
+  const docs = state.meta.doc_count != null ? `${state.meta.doc_count} docs` : "";
+  const industry = state.meta.corpus_industry ? `${state.meta.corpus_industry} · ` : "";
   $("top-meta").textContent =
-    `${state.meta.configured_chat_model} · ${official} · ${key}`;
+    `${industry}${docs} · ${state.meta.configured_chat_model} · ${official} · ${key}`.replace(
+      /^ · /,
+      ""
+    );
   if (!state.meta.api_key_present) {
     $("mode").value = "retrieve_only";
   }
+  renderExamples();
+}
+
+async function loadCorpora() {
+  const payload = await api("/api/corpora");
+  state.corpora = payload.corpora || [];
+  const select = $("corpus");
+  const active = payload.active_id || (state.meta && state.meta.corpus_id) || "";
+  const groups = [];
+  const seen = new Set();
+  state.corpora.forEach((item) => {
+    const group = item.group || "Other";
+    if (!seen.has(group)) {
+      seen.add(group);
+      groups.push(group);
+    }
+  });
+  select.innerHTML = groups
+    .map((group) => {
+      const options = state.corpora
+        .filter((item) => (item.group || "Other") === group)
+        .map((item) => {
+          const selected = item.id === active ? " selected" : "";
+          return `<option value="${escapeHtml(item.id)}"${selected}>${escapeHtml(item.label)}</option>`;
+        })
+        .join("");
+      return `<optgroup label="${escapeHtml(group)}">${options}</optgroup>`;
+    })
+    .join("");
 }
 
 function renderExamples() {
-  $("example-chips").innerHTML = EXAMPLES.map(
-    (question) => `<button type="button" class="chip" data-q="${escapeHtml(question)}">${escapeHtml(question)}</button>`
-  ).join("");
+  const examples = (state.meta && state.meta.examples) || [];
+  $("example-chips").innerHTML = examples
+    .map(
+      (question) =>
+        `<button type="button" class="chip" data-q="${escapeHtml(question)}">${escapeHtml(question)}</button>`
+    )
+    .join("");
+}
+
+async function switchCorpus(corpusId) {
+  if (!corpusId || (state.meta && corpusId === state.meta.corpus_id)) return;
+  showError("");
+  $("corpus").disabled = true;
+  try {
+    await api("/api/corpus", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: corpusId }),
+    });
+    clearSelection();
+    await loadMeta();
+    await loadCorpora();
+    await loadTraces();
+    if (state.traces.length) {
+      await selectRun(state.traces[0].run_id);
+    } else {
+      render();
+    }
+  } finally {
+    $("corpus").disabled = false;
+  }
 }
 
 function pill(kind, label) {
@@ -344,6 +401,9 @@ function bind() {
   $("run-btn").addEventListener("click", runQuestion);
   $("refresh-runs").addEventListener("click", () => loadTraces().catch((error) => showError(error.message)));
   $("delete-all-runs").addEventListener("click", () => deleteAllRuns().catch((error) => showError(error.message)));
+  $("corpus").addEventListener("change", (event) => {
+    switchCorpus(event.target.value).catch((error) => showError(error.message));
+  });
   $("question").addEventListener("keydown", (event) => {
     if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
       event.preventDefault();
@@ -382,6 +442,7 @@ async function boot() {
   render();
   try {
     await loadMeta();
+    await loadCorpora();
     await loadTraces();
     if (state.traces.length) {
       await selectRun(state.traces[0].run_id);

@@ -1,0 +1,5 @@
+Brine Wellfield operations
+
+Brine Wellfield has twelve wells. Well 7 is the duty well on weekdays. Well 12 is standby only and is not used unless Well 7 is offline.
+
+Wellfield water is groundwater. It is not Cedar River water and does not pass through Plover Plant filters.

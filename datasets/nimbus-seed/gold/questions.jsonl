@@ -1,0 +1,19 @@
+# Gold over datasets/nimbus-seed/corpus/. Fictional world; verify every row against the .txt files.
+# Prefix ns-. Harbor and DKU gold files are unchanged.
+
+{"question_id": "ns-001", "question": "Which crop is accession NB-1882?", "answerable": true, "answers": ["barley", "six-row barley"], "supporting_doc_ids": ["about", "nb-1882"], "notes": "NW-4401 is wheat."}
+{"question_id": "ns-002", "question": "Which crop is accession NW-4401?", "answerable": true, "answers": ["wheat", "hard red wheat"], "supporting_doc_ids": ["nw-4401"], "notes": "Near-neighbour."}
+{"question_id": "ns-003", "question": "What viability did the 2025 test report for NB-1882?", "answerable": true, "answers": ["94%"], "supporting_doc_ids": ["viability-2025"], "notes": "2022 was 81%."}
+{"question_id": "ns-004", "question": "What viability did the 2022 test list for NB-1882?", "answerable": true, "answers": ["81%"], "supporting_doc_ids": ["viability-2022"], "notes": "Dated."}
+{"question_id": "ns-005", "question": "What temperature is the Nimbus long-term cold room?", "answerable": true, "answers": ["4 C", "4°C"], "supporting_doc_ids": ["cold-room"], "notes": "Not a freeze vault."}
+{"question_id": "ns-006", "question": "On which day do NB-1882 research samples ship?", "answerable": true, "answers": ["Tuesdays", "Tuesday"], "supporting_doc_ids": ["distribution"], "notes": "Wheat is Thursday."}
+{"question_id": "ns-007", "question": "Which field block holds NB-1882 regeneration plots?", "answerable": true, "answers": ["Block A"], "supporting_doc_ids": ["field-book"], "notes": "Wheat is Block C."}
+{"question_id": "ns-008", "question": "How many NB-1882 seeds are in the cold room according to the inventory snapshot?", "answerable": true, "answers": ["12400", "12,400"], "supporting_doc_ids": ["inventory"], "notes": "Not NW-4401."}
+{"question_id": "ns-009", "question": "What label color is barley at Nimbus?", "answerable": true, "answers": ["blue"], "supporting_doc_ids": ["labels", "nb-1882"], "notes": "Wheat is yellow."}
+{"question_id": "ns-010", "question": "What is the cold room alarm number?", "answerable": true, "answers": ["555-5500"], "supporting_doc_ids": ["contacts"], "notes": "Distribution is 555-5501."}
+{"question_id": "ns-011", "question": "Does Prairie Gene Trust hold NB-1882?", "answerable": true, "answers": ["no"], "supporting_doc_ids": ["prairie-gene"], "notes": "Sister maize bank."}
+{"question_id": "ns-012", "question": "What isolation distance is listed for barley regeneration?", "answerable": true, "answers": ["10 meters", "10 m"], "supporting_doc_ids": ["field-book"], "notes": "Literal."}
+{"question_id": "ns-013", "question": "How much does a commercial packet of NB-1882 cost?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "No price."}
+{"question_id": "ns-014", "question": "Who is the curator of Nimbus Seed Bank?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "Name omitted."}
+{"question_id": "ns-015", "question": "What are the GPS coordinates of the station?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "Omitted."}
+{"question_id": "ns-016", "question": "What is the phytosanitary test fee?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "No fee."}

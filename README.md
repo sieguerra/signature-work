@@ -96,9 +96,10 @@ python scripts/run_ui.py
 ```
 
 Ask a question in the playground, or inspect traces already under
-`experiments/output/`. Each run can be deleted, or **Delete all** clears every
-trace JSON under that folder. Loop and baseline need `OPENAI_API_KEY`.
-Retrieve-only does not.
+`experiments/output/<corpus-id>/`. The **Corpus** control in the top bar picks
+one world at a time so retrieval never mixes DKU notes with a water utility.
+Each run can be deleted, or **Delete all** clears traces for the active corpus
+only. Loop and baseline need `OPENAI_API_KEY`. Retrieve-only does not.
 
 ## Point at a different backend
 
@@ -136,6 +137,7 @@ Tests use the same fake embedder, so chunking, ranking, and tracing do not call 
 | `web/` | Static trace explorer (run list, waterfall, inspector) |
 | `experiments/configs/` | Reproducible experiment JSON |
 | `experiments/results/` | Committed comparison snapshots (never overwritten) |
+| `datasets/registry.json` | Named corpora for the UI toggle (one index at a time) |
 | `datasets/dku/` | DKU public-facts corpus and gold (UI / V2 default) |
 | `datasets/corpus/` | Harbor Institute fictional corpus (V1 snapshot) |
 | `datasets/gold/` | Harbor gold set |
@@ -143,4 +145,4 @@ Tests use the same fake embedder, so chunking, ranking, and tracing do not call 
 
 Stub packages are gone for the Phase 1 core.
 
-Decisions: [001 stack](docs/decisions/001-first-slice-stack.md), [002 contribution and scope](docs/decisions/002-contribution-and-scope.md), [003 evaluation method](docs/decisions/003-evaluation-method.md), [004 corpus difficulty](docs/decisions/004-corpus-difficulty.md), [005 failure taxonomy](docs/decisions/005-failure-taxonomy.md), [006 recovery policy](docs/decisions/006-recovery-policy.md), [007 query rewrite](docs/decisions/007-query-rewrite.md), [008 UI adapter](docs/decisions/008-ui-adapter.md), [009 DKU corpus](docs/decisions/009-dku-corpus.md).
+Decisions: [001 stack](docs/decisions/001-first-slice-stack.md), [002 contribution and scope](docs/decisions/002-contribution-and-scope.md), [003 evaluation method](docs/decisions/003-evaluation-method.md), [004 corpus difficulty](docs/decisions/004-corpus-difficulty.md), [005 failure taxonomy](docs/decisions/005-failure-taxonomy.md), [006 recovery policy](docs/decisions/006-recovery-policy.md), [007 query rewrite](docs/decisions/007-query-rewrite.md), [008 UI adapter](docs/decisions/008-ui-adapter.md), [009 DKU corpus](docs/decisions/009-dku-corpus.md), [010 isolated industry corpora](docs/decisions/010-isolated-industry-corpora.md).

@@ -1,0 +1,3 @@
+Ice plant hours
+
+Ice plant: 04:00-14:00 daily during season. After 14:00, ice is locked. The plant does not quote a price per ton.

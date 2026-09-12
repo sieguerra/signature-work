@@ -1,0 +1,19 @@
+# Gold over datasets/marlow-clinic/corpus/. Fictional world; verify every row against the .txt files.
+# Prefix mc-. Harbor and DKU gold files are unchanged.
+
+{"question_id": "mc-001", "question": "What are weekday hours at the River Campus retail pharmacy?", "answerable": true, "answers": ["08:00-18:00"], "supporting_doc_ids": ["pharmacy-hours"], "notes": "Ridge has no pharmacy."}
+{"question_id": "mc-002", "question": "Does Ridge Campus have a retail pharmacy?", "answerable": true, "answers": ["no"], "supporting_doc_ids": ["ridge-campus", "pharmacy-hours"], "notes": "Near-neighbour."}
+{"question_id": "mc-003", "question": "What are Ridge infusion hours on weekdays?", "answerable": true, "answers": ["07:00-15:30"], "supporting_doc_ids": ["ridge-campus", "infusion"], "notes": "Not River."}
+{"question_id": "mc-004", "question": "Is theophylline on the 2026 outpatient formulary?", "answerable": true, "answers": ["no", "dropped theophylline"], "supporting_doc_ids": ["formulary-2026"], "notes": "2024 still listed it."}
+{"question_id": "mc-005", "question": "Did the 2024 formulary list theophylline tablets?", "answerable": true, "answers": ["yes"], "supporting_doc_ids": ["formulary-2024"], "notes": "Dated."}
+{"question_id": "mc-006", "question": "What are Cedar Urgent hours?", "answerable": true, "answers": ["10:00-22:00"], "supporting_doc_ids": ["cedar-urgent"], "notes": "Sister."}
+{"question_id": "mc-007", "question": "When is the records window open at River?", "answerable": true, "answers": ["Tuesday and Thursday 10:00-14:00"], "supporting_doc_ids": ["records"], "notes": "Ridge does not release."}
+{"question_id": "mc-008", "question": "What is the Ridge infusion phone number?", "answerable": true, "answers": ["555-7702"], "supporting_doc_ids": ["contacts"], "notes": "River is 555-7701."}
+{"question_id": "mc-009", "question": "Which fridge stores infusion pre-meds?", "answerable": true, "answers": ["Fridge R-2", "R-2"], "supporting_doc_ids": ["infusion"], "notes": "Literal."}
+{"question_id": "mc-010", "question": "Are both campuses closed on 25 December 2026?", "answerable": true, "answers": ["yes"], "supporting_doc_ids": ["hours-holiday"], "notes": "Literal."}
+{"question_id": "mc-011", "question": "Where is River Campus?", "answerable": true, "answers": ["8 River Walk"], "supporting_doc_ids": ["river-campus"], "notes": "Address."}
+{"question_id": "mc-012", "question": "Which lot is Ridge infusion parking?", "answerable": true, "answers": ["Lot G"], "supporting_doc_ids": ["parking"], "notes": "Not River lots."}
+{"question_id": "mc-013", "question": "What is the copay for an infusion at Ridge Campus?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "Copays omitted."}
+{"question_id": "mc-014", "question": "Who is the chief of medicine at Marlow?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "Name omitted."}
+{"question_id": "mc-015", "question": "Is there a Saturday clinic on New Year's Day?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "Holiday card silent."}
+{"question_id": "mc-016", "question": "Which insurers does Marlow accept?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "Contracts omitted."}

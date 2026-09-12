@@ -1,0 +1,19 @@
+# Gold over datasets/orion-grid/corpus/. Fictional world; verify every row against the .txt files.
+# Prefix og-. Harbor and DKU gold files are unchanged.
+
+{"question_id": "og-001", "question": "What voltage is Magpie Substation?", "answerable": true, "answers": ["69 kV", "69"], "supporting_doc_ids": ["magpie-sub"], "notes": "Saddle is 12.47 kV."}
+{"question_id": "og-002", "question": "What voltage is Saddle Substation?", "answerable": true, "answers": ["12.47 kV", "12.47"], "supporting_doc_ids": ["saddle-sub"], "notes": "Near-neighbour."}
+{"question_id": "og-003", "question": "When does the 2026 night rate start according to the current tariff card?", "answerable": true, "answers": ["21:00"], "supporting_doc_ids": ["tariff-2026"], "notes": "2023 started 22:00."}
+{"question_id": "og-004", "question": "When did the 2023 night rate start?", "answerable": true, "answers": ["22:00"], "supporting_doc_ids": ["tariff-2023"], "notes": "Dated contrast."}
+{"question_id": "og-005", "question": "What does outage code GREY-7 mean?", "answerable": true, "answers": ["vegetation on Feeder 12"], "supporting_doc_ids": ["outage-codes", "magpie-sub"], "notes": "Not BLUE-2."}
+{"question_id": "og-006", "question": "What is the Orion after-hours dispatch number?", "answerable": true, "answers": ["555-3300"], "supporting_doc_ids": ["dispatch"], "notes": "Not 555-3301."}
+{"question_id": "og-007", "question": "When is Feeder 12 next due for a trim?", "answerable": true, "answers": ["August 2027"], "supporting_doc_ids": ["tree-cycle"], "notes": "Saddle is 2029."}
+{"question_id": "og-008", "question": "When does Willow Power District's night rate start?", "answerable": true, "answers": ["20:00"], "supporting_doc_ids": ["willow-power"], "notes": "Sister distractor."}
+{"question_id": "og-009", "question": "Are Saturday walk-ins open at the Orion member office?", "answerable": true, "answers": ["no", "Saturday closed"], "supporting_doc_ids": ["member-office"], "notes": "Literal."}
+{"question_id": "og-010", "question": "What is the second restore priority in the storm plan after Magpie Substation?", "answerable": true, "answers": ["Feeder 12 grain elevators"], "supporting_doc_ids": ["storm-plan"], "notes": "Then Saddle."}
+{"question_id": "og-011", "question": "How often do Feeder 12 interval meters report?", "answerable": true, "answers": ["every 15 minutes", "15 minutes"], "supporting_doc_ids": ["metering"], "notes": "Saddle is monthly."}
+{"question_id": "og-012", "question": "Which radio channel do Feeder 12 tree crews use?", "answerable": true, "answers": ["Orion-C"], "supporting_doc_ids": ["radio"], "notes": "Dispatch is Orion-A."}
+{"question_id": "og-013", "question": "What does Orion charge per kWh on the night rate?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "No cents printed."}
+{"question_id": "og-014", "question": "Who is the board chair of Orion Grid Cooperative?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "Name omitted."}
+{"question_id": "og-015", "question": "How many members does Orion have?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "Omitted."}
+{"question_id": "og-016", "question": "What is the generator rental price in the storm plan?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "No price."}

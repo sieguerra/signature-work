@@ -1,0 +1,3 @@
+Tool crib
+
+The crib issues 1/2-inch titanium end mills only on Shift A. After 14:30, mills are locked. Aluminum end mills live in Shop 6, drawer 4.

@@ -1,0 +1,5 @@
+What this corpus does not contain
+
+Residential volumetric rates, connection fees, and the general manager's name are omitted on purpose so those questions are unanswerable from local evidence.
+
+Do not invent a dollar per gallon figure.

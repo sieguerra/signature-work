@@ -1,0 +1,19 @@
+# Gold over datasets/northhaven-water/corpus/. Fictional world; verify every row against the .txt files.
+# Prefix nw-. Harbor and DKU gold files are unchanged.
+
+{"question_id": "nw-001", "question": "What are Saturday walk-in hours at the Cedar Street billing desk according to the current notice?", "answerable": true, "answers": ["09:00-13:00", "9:00-13:00"], "supporting_doc_ids": ["billing-desk-current"], "notes": "2023 notice is 10:00-12:00."}
+{"question_id": "nw-002", "question": "According to the 2023 Cedar Street billing notice, what were Saturday walk-in hours?", "answerable": true, "answers": ["10:00-12:00"], "supporting_doc_ids": ["billing-desk-2023"], "notes": "Dated contrast with nw-001."}
+{"question_id": "nw-003", "question": "What fluoride residual does the March 2026 water quality sheet list?", "answerable": true, "answers": ["0.7 mg/L", "0.7"], "supporting_doc_ids": ["water-quality-2026"], "notes": "2021 report is 1.2 mg/L."}
+{"question_id": "nw-004", "question": "What fluoride residual did the 2021 water quality report list?", "answerable": true, "answers": ["1.2 mg/L", "1.2"], "supporting_doc_ids": ["water-quality-2021"], "notes": "Dated contrast."}
+{"question_id": "nw-005", "question": "On what date was the Zone 4 boil water advisory lifted?", "answerable": true, "answers": ["12 March 2026", "March 12, 2026"], "supporting_doc_ids": ["boil-advisories"], "notes": "Zone 9 was not lifted."}
+{"question_id": "nw-006", "question": "What is the 24-hour operations line for Northhaven Water District?", "answerable": true, "answers": ["555-0140"], "supporting_doc_ids": ["contacts", "emergency-plan"], "notes": "Not the billing number 555-0141."}
+{"question_id": "nw-007", "question": "What is the design capacity of Plover Plant?", "answerable": true, "answers": ["8 million gallons per day", "8 million gallons"], "supporting_doc_ids": ["plover-plant"], "notes": "Not wellfield capacity."}
+{"question_id": "nw-008", "question": "Which well is the weekday duty well at Brine Wellfield?", "answerable": true, "answers": ["Well 7"], "supporting_doc_ids": ["brine-wellfield"], "notes": "Well 12 is standby."}
+{"question_id": "nw-009", "question": "Where is the Cedar Street billing office?", "answerable": true, "answers": ["14 Cedar Street"], "supporting_doc_ids": ["about"], "notes": "Literal address."}
+{"question_id": "nw-010", "question": "What are Saturday counter hours at Redcliff Water Alliance?", "answerable": true, "answers": ["08:00-11:00", "8:00-11:00"], "supporting_doc_ids": ["redcliff-alliance"], "notes": "Sister-utility distractor."}
+{"question_id": "nw-011", "question": "Is Zone 9 still under a boil water advisory as of 12 March 2026?", "answerable": true, "answers": ["yes", "remains under a boil water advisory"], "supporting_doc_ids": ["boil-advisories"], "notes": "Contrast with Zone 4."}
+{"question_id": "nw-012", "question": "Which truck stays at Brine Wellfield overnight?", "answerable": true, "answers": ["W-9", "wellfield truck W-9"], "supporting_doc_ids": ["fleet"], "notes": "Not V-2."}
+{"question_id": "nw-013", "question": "Who is the general manager of Northhaven Water District?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "Name omitted."}
+{"question_id": "nw-014", "question": "What is the residential price per gallon of water in Northhaven?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "Rates omitted."}
+{"question_id": "nw-015", "question": "When will the Zone 9 boil advisory be lifted?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "No lift date listed."}
+{"question_id": "nw-016", "question": "What fee does the district charge for a backflow test?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "Pamphlet has no fee."}

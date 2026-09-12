@@ -1,0 +1,19 @@
+# Gold over datasets/porthaven-port/corpus/. Fictional world; verify every row against the .txt files.
+# Prefix pp-. Harbor and DKU gold files are unchanged.
+
+{"question_id": "pp-001", "question": "Which Porthaven berth handles containers?", "answerable": true, "answers": ["Berth 4"], "supporting_doc_ids": ["about", "berth-4"], "notes": "Berth 9 is bulk."}
+{"question_id": "pp-002", "question": "Which berth handles dry bulk at Porthaven?", "answerable": true, "answers": ["Berth 9"], "supporting_doc_ids": ["about", "berth-9"], "notes": "Near-neighbour."}
+{"question_id": "pp-003", "question": "What is the current flood-tide inbound pilot window at Porthaven?", "answerable": true, "answers": ["tide +45 minutes", "+45 minutes"], "supporting_doc_ids": ["pilot-current"], "notes": "2019 was +20."}
+{"question_id": "pp-004", "question": "What flood-tide inbound window did the 2019 circular use?", "answerable": true, "answers": ["tide +20 minutes", "+20 minutes"], "supporting_doc_ids": ["pilot-2019"], "notes": "Dated."}
+{"question_id": "pp-005", "question": "What are Gate 2 truck hours?", "answerable": true, "answers": ["05:00-21:00"], "supporting_doc_ids": ["gate-2"], "notes": "Not Lark 07:00-19:00."}
+{"question_id": "pp-006", "question": "Which gantry cranes are assigned to Berth 4?", "answerable": true, "answers": ["G-1 and G-2", "G-1", "G-2"], "supporting_doc_ids": ["berth-4"], "notes": "Not S-3."}
+{"question_id": "pp-007", "question": "At what sustained wind do gantry operations stop?", "answerable": true, "answers": ["22 m/s"], "supporting_doc_ids": ["weather-limit"], "notes": "Shiploader is 18 m/s."}
+{"question_id": "pp-008", "question": "What is the harbor master phone number?", "answerable": true, "answers": ["555-4400"], "supporting_doc_ids": ["contacts"], "notes": "Not 555-4401."}
+{"question_id": "pp-009", "question": "What are Lark Private Terminal gate hours?", "answerable": true, "answers": ["07:00-19:00"], "supporting_doc_ids": ["lark-terminal"], "notes": "Sister."}
+{"question_id": "pp-010", "question": "Which rail track do unit grain trains use?", "answerable": true, "answers": ["Track 9"], "supporting_doc_ids": ["rail"], "notes": "Containers use Track 4."}
+{"question_id": "pp-011", "question": "Where are reefer plugs?", "answerable": true, "answers": ["Yard C"], "supporting_doc_ids": ["gate-2"], "notes": "Not Gate 2."}
+{"question_id": "pp-012", "question": "What example high water is posted on the tide board?", "answerable": true, "answers": ["03.2 meters at 14:10", "03.2 meters"], "supporting_doc_ids": ["tide-board"], "notes": "Example day."}
+{"question_id": "pp-013", "question": "What do Porthaven stevedores earn per hour?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "Wages omitted."}
+{"question_id": "pp-014", "question": "Who is the port director?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "Name omitted."}
+{"question_id": "pp-015", "question": "What is the bunker fuel price at Porthaven?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "Omitted."}
+{"question_id": "pp-016", "question": "What fog visibility limit is on the wind limit card?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "No fog number."}

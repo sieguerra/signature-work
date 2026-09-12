@@ -83,6 +83,30 @@ body {
   text-transform: uppercase;
 }
 
+.top-controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.corpus-select {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.corpus-select select {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 12px;
+  max-width: 260px;
+}
+
 .top-meta {
   color: var(--muted);
   font-size: 12px;

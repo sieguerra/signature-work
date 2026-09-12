@@ -1,0 +1,19 @@
+# Gold over datasets/saltwind-coop/corpus/. Fictional world; verify every row against the .txt files.
+# Prefix sw-. Harbor and DKU gold files are unchanged.
+
+{"question_id": "sw-001", "question": "On what date does the current Dungeness opener start at Saltwind?", "answerable": true, "answers": ["1 December", "December 1"], "supporting_doc_ids": ["opener-current"], "notes": "2024 was 15 November."}
+{"question_id": "sw-002", "question": "According to the 2024 season card, when did Dungeness open?", "answerable": true, "answers": ["15 November", "November 15"], "supporting_doc_ids": ["opener-2024"], "notes": "Dated."}
+{"question_id": "sw-003", "question": "What is the salmon troll opener date on the current card?", "answerable": true, "answers": ["1 May", "May 1"], "supporting_doc_ids": ["opener-current"], "notes": "Not crab."}
+{"question_id": "sw-004", "question": "Is Storm Petrel a crabber or a troller?", "answerable": true, "answers": ["crabber"], "supporting_doc_ids": ["storm-petrel", "about"], "notes": "Kelp Wren is troll."}
+{"question_id": "sw-005", "question": "What are ice plant hours during season?", "answerable": true, "answers": ["04:00-14:00"], "supporting_doc_ids": ["ice-plant"], "notes": "Gull is 06:00-12:00."}
+{"question_id": "sw-006", "question": "Which hoist do Storm Petrel offloads use?", "answerable": true, "answers": ["H-4"], "supporting_doc_ids": ["pier-2"], "notes": "Kelp Wren is Pier 1."}
+{"question_id": "sw-007", "question": "What is the ice plant phone number?", "answerable": true, "answers": ["555-8800"], "supporting_doc_ids": ["contacts"], "notes": "Office is 555-8801."}
+{"question_id": "sw-008", "question": "Where is crab weighed?", "answerable": true, "answers": ["Scale A on Pier 2", "Scale A"], "supporting_doc_ids": ["scale-house"], "notes": "Salmon is Scale B."}
+{"question_id": "sw-009", "question": "What is Gull Packers ice window?", "answerable": true, "answers": ["06:00-12:00"], "supporting_doc_ids": ["gull-packers"], "notes": "Sister."}
+{"question_id": "sw-010", "question": "Where are crab pots stored?", "answerable": true, "answers": ["Loft C"], "supporting_doc_ids": ["gear"], "notes": "Gurdies in Loft A."}
+{"question_id": "sw-011", "question": "When is the monthly member meeting?", "answerable": true, "answers": ["first Tuesday, 19:00"], "supporting_doc_ids": ["meetings"], "notes": "Literal."}
+{"question_id": "sw-012", "question": "What radio hail does Kelp Wren use?", "answerable": true, "answers": ["Saltwind-Wren"], "supporting_doc_ids": ["kelp-wren", "radio"], "notes": "Petrel is Saltwind-Petrel."}
+{"question_id": "sw-013", "question": "What is the ex-vessel price for Dungeness at Saltwind?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "Prices omitted."}
+{"question_id": "sw-014", "question": "Who is the president of Saltwind Fisheries Co-op?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "Name omitted."}
+{"question_id": "sw-015", "question": "How many quota pounds does Storm Petrel hold?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "Quota omitted."}
+{"question_id": "sw-016", "question": "What wave height grounds Storm Petrel?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "No number printed."}

@@ -1,0 +1,3 @@
+Tide board example day
+
+Example posted high water: 03.2 meters at 14:10 local. The board does not convert to a cargo tonnage forecast.

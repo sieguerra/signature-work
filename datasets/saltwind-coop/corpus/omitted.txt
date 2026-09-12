@@ -1,0 +1,3 @@
+What this corpus does not contain
+
+Ex-vessel prices, quota pounds, and officer names are omitted on purpose.

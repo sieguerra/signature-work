@@ -1,0 +1,3 @@
+Port rail note
+
+Unit grain trains use Track 9 behind Berth 9. Container rail uses Track 4. There is no passenger platform.
