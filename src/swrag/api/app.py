@@ -17,6 +17,7 @@ from pydantic import BaseModel, Field
 from swrag.api.store import (
     delete_all_traces,
     delete_trace,
+    eval_counts,
     find_child_run_id,
     list_traces,
     load_trace,
@@ -138,6 +139,10 @@ def create_app(
             "corpus": selected.as_payload(),
             "traces_dir": str(application.state.traces_dir),
         }
+
+    @application.get("/api/eval")
+    def eval_panel() -> dict[str, Any]:
+        return eval_counts(application.state.traces_dir)
 
     @application.get("/api/traces")
     def traces() -> dict[str, Any]:

@@ -6,6 +6,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+from swrag.orchestration.loop import ABSTAIN_ANSWER
+
 SKIP_NAMES = frozenset({"summary.json", "comparison.json", "config.json"})
 
 
@@ -157,3 +159,53 @@ def delete_all_traces(traces_dir: str | Path) -> int:
             continue
         deleted += 1
     return deleted
+
+
+def eval_counts(traces_dir: str | Path) -> dict[str, Any]:
+    """Counts for the active traces directory. Does not read gold or Harbor snapshots."""
+    by_action: dict[str, int] = {}
+    by_verification: dict[str, int] = {}
+    n = 0
+    abstain = 0
+    latencies: list[float] = []
+    for path in _iter_trace_paths(traces_dir):
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        if not _is_trace_payload(payload):
+            continue
+        n += 1
+        recovery = payload.get("recovery") if isinstance(payload.get("recovery"), dict) else {}
+        verification = (
+            payload.get("verification") if isinstance(payload.get("verification"), dict) else {}
+        )
+        action = str(recovery.get("action") or "none")
+        outcome = str(verification.get("outcome") or "none")
+        by_action[action] = by_action.get(action, 0) + 1
+        by_verification[outcome] = by_verification.get(outcome, 0) + 1
+        answer = str(payload.get("answer") or "")
+        model = str(payload.get("model") or "")
+        if answer.strip() == ABSTAIN_ANSWER or model == "abstain":
+            abstain += 1
+        latency = payload.get("latency_ms")
+        if isinstance(latency, (int, float)):
+            latencies.append(float(latency))
+    batch_summary = None
+    summary_path = Path(traces_dir) / "summary.json"
+    if summary_path.is_file():
+        try:
+            loaded = json.loads(summary_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            loaded = None
+        if isinstance(loaded, dict):
+            batch_summary = loaded
+    return {
+        "n": n,
+        "by_action": by_action,
+        "by_verification": by_verification,
+        "abstain": abstain,
+        "mean_latency_ms": (sum(latencies) / len(latencies) if latencies else None),
+        "batch_summary": batch_summary,
+        "traces_dir": str(Path(traces_dir)),
+    }

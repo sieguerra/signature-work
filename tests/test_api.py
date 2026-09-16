@@ -209,6 +209,8 @@ def test_index_page_and_assets_are_served(tmp_path: Path) -> None:
         assert "deleteAllRuns" in js.text
         assert "switchCorpus" in js.text
         assert 'id="corpus"' in page.text
+        assert 'id="eval-strip"' in page.text
+        assert "loadEval" in js.text
         assert "answer-split" in js.text
         assert "answer-pills" in js.text
         assert "Rewritten query" in js.text
@@ -227,6 +229,57 @@ def test_index_page_and_assets_are_served(tmp_path: Path) -> None:
         assert "Loop (auto recover)" in page.text
         assert 'value="loop_confirm" selected' in page.text
         assert "Generate (first pass)" not in page.text
+
+
+def test_eval_counts_active_traces_and_zeros_after_delete_all(tmp_path: Path) -> None:
+    write_trace(
+        TraceRecord(
+            run_id="eval_accept",
+            timestamp="2026-09-10T12:00:00+00:00",
+            query="When does the library close?",
+            retrieved_chunks=(),
+            answer="Saturday 10:00-16:00",
+            model="none",
+            embedding_model="fake-hash",
+            top_k=4,
+            recovery={"action": "accept", "reason": "ok", "attributed_class": None},
+        ),
+        tmp_path,
+    )
+    write_trace(
+        TraceRecord(
+            run_id="eval_rewrite",
+            timestamp="2026-09-10T12:01:00+00:00",
+            query="How many seats?",
+            retrieved_chunks=(),
+            answer="I do not know based on the retrieved documents.",
+            model="abstain",
+            embedding_model="fake-hash",
+            top_k=4,
+            recovery={
+                "action": "rewrite",
+                "reason": "insufficient",
+                "attributed_class": "evidence_insufficiency",
+            },
+            verification={"outcome": "still_failing", "rationale": "still thin"},
+        ),
+        tmp_path,
+    )
+    (tmp_path / "summary.json").write_text('{"label": "batch"}', encoding="utf-8")
+    with _client(tmp_path) as client:
+        payload = client.get("/api/eval").json()
+        assert payload["n"] == 2
+        assert payload["by_action"]["accept"] == 1
+        assert payload["by_action"]["rewrite"] == 1
+        assert payload["by_verification"]["still_failing"] == 1
+        assert payload["abstain"] == 1
+        assert payload["batch_summary"]["label"] == "batch"
+        assert "20260910T070623" not in payload["traces_dir"]
+        client.delete("/api/traces")
+        empty = client.get("/api/eval").json()
+        assert empty["n"] == 0
+        assert empty["abstain"] == 0
+        assert empty["by_action"] == {}
 
 
 def test_lists_corpora_and_switches_without_mixing_indexes(tmp_path: Path) -> None:
