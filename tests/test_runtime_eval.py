@@ -5,11 +5,19 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from swrag.evaluation.llm_judge import LLMJudge, build_judge_prompt
+from swrag.diagnosis.diagnose import diagnose_runtime
+from swrag.evaluation.llm_judge import (
+    LLMJudge,
+    build_judge_prompt,
+    constrain_support_to_evidence,
+    extract_checkable_facts,
+    facts_missing_from_evidence,
+)
 from swrag.evaluation.scripted_judge import ScriptedJudge
+from swrag.recovery.policy import REGENERATE, select_recovery
 from swrag.pipeline.baseline import run_query
 from swrag.retrieval.fake_embedder import FakeEmbedder
-from swrag.types import Chunk, RetrievalResult, ScoredChunk
+from swrag.types import Chunk, RetrievalResult, RuntimeEvaluation, ScoredChunk
 
 CORPUS = Path(__file__).resolve().parents[1] / "datasets" / "corpus"
 
@@ -170,6 +178,168 @@ def test_llm_judge_parses_json_and_does_not_see_gold() -> None:
     user_content = client.chat.completions.calls[0]["messages"][1]["content"]
     assert "Saturday hours?" in user_content
     assert "gold" not in user_content.lower()
+
+
+def test_llm_judge_system_prompt_rejects_plausible_ungrounded_claims() -> None:
+    client = _FakeClient(
+        json.dumps(
+            {
+                "evidence_sufficient": True,
+                "answer_supported": True,
+                "sufficiency_rationale": "hours are in the chunk",
+                "support_rationale": "sounds like a library",
+            }
+        )
+    )
+    judge = LLMJudge(model="gpt-4o-mini", client=client)
+    retrieval = RetrievalResult(
+        query="Saturday hours?",
+        chunks=(_chunk(),),
+        top_k=1,
+        embedding_model="fake-hash",
+    )
+    judge.judge(question="Saturday hours?", answer="10:00-16:00", retrieval=retrieval)
+    system = client.chat.completions.calls[0]["messages"][0]["content"]
+    assert "correct-looking" in system
+    assert "chunk text" in system
+    assert "does not contain a requested fact" in system
+
+
+def test_extract_checkable_facts_ignores_citation_brackets() -> None:
+    facts = extract_checkable_facts(
+        "Saturday 10:00-16:00 [harbor-library::c000]. Email desk@harbor.example."
+    )
+    assert "10:00" in facts
+    assert "16:00" in facts
+    assert "desk@harbor.example" in facts
+    assert not any("c000" in item for item in facts)
+
+
+def test_span_check_overrides_lenient_llm_support() -> None:
+    retrieval = RetrievalResult(
+        query="Saturday hours?",
+        chunks=(_chunk(),),
+        top_k=1,
+        embedding_model="fake-hash",
+    )
+    client = _FakeClient(
+        json.dumps(
+            {
+                "evidence_sufficient": True,
+                "answer_supported": True,
+                "sufficiency_rationale": "the chunk lists Saturday hours",
+                "support_rationale": "the hours sound right for a campus library",
+            }
+        )
+    )
+    judge = LLMJudge(model="gpt-4o-mini", client=client)
+    evaluation = judge.judge(
+        question="Saturday hours?",
+        answer="Open 10:00-16:00 and the library has 800 seats.",
+        retrieval=retrieval,
+    )
+    assert evaluation.evidence_sufficient is True
+    assert evaluation.answer_supported is False
+    assert "800" in evaluation.support_rationale
+    assert facts_missing_from_evidence(
+        "Open 10:00-16:00 and the library has 800 seats.",
+        retrieval,
+    ) == ("800",)
+
+
+def test_span_check_keeps_support_when_facts_are_in_the_chunk() -> None:
+    retrieval = RetrievalResult(
+        query="Saturday hours?",
+        chunks=(_chunk(),),
+        top_k=1,
+        embedding_model="fake-hash",
+    )
+    lenient = RuntimeEvaluation(
+        evidence_sufficient=True,
+        answer_supported=True,
+        sufficiency_rationale="hours present",
+        support_rationale="llm said yes",
+        judge="llm-judge",
+        model="fixture",
+    )
+    evaluation = constrain_support_to_evidence(
+        lenient,
+        answer="Saturday 10:00-16:00 [harbor-library::c000]",
+        retrieval=retrieval,
+    )
+    assert evaluation.answer_supported is True
+    assert evaluation.support_rationale == "llm said yes"
+
+
+def test_span_check_skips_abstention() -> None:
+    retrieval = RetrievalResult(
+        query="q",
+        chunks=(_chunk(),),
+        top_k=1,
+        embedding_model="fake-hash",
+    )
+    lenient = RuntimeEvaluation(
+        evidence_sufficient=False,
+        answer_supported=True,
+        sufficiency_rationale="none",
+        support_rationale="abstention",
+        judge="llm-judge",
+        model="fixture",
+    )
+    evaluation = constrain_support_to_evidence(
+        lenient,
+        answer="I do not know based on the retrieved documents.",
+        retrieval=retrieval,
+    )
+    assert evaluation.answer_supported is True
+
+
+def test_unsupported_fact_selects_regenerate() -> None:
+    retrieval = RetrievalResult(
+        query="Saturday hours?",
+        chunks=(_chunk(),),
+        top_k=1,
+        embedding_model="fake-hash",
+    )
+    evaluation = constrain_support_to_evidence(
+        RuntimeEvaluation(
+            evidence_sufficient=True,
+            answer_supported=True,
+            sufficiency_rationale="hours present",
+            support_rationale="lenient",
+            judge="llm-judge",
+            model="fixture",
+        ),
+        answer="Saturday 10:00-16:00 plus 800 extra seats.",
+        retrieval=retrieval,
+    )
+    diagnosis = diagnose_runtime(evaluation)
+    decision = select_recovery(diagnosis, evaluation)
+    assert evaluation.answer_supported is False
+    assert diagnosis.failure_class == "unsupported_generation"
+    assert decision.action == REGENERATE
+
+
+def test_span_check_accepts_unpadded_times_that_appear_padded() -> None:
+    retrieval = RetrievalResult(
+        query="Friday desk hours?",
+        chunks=(
+            ScoredChunk(
+                chunk=Chunk(
+                    chunk_id="dku-library-hours::c000",
+                    doc_id="dku-library-hours",
+                    title="DKU Library hours",
+                    text="Monday-Friday: 09:00-21:00",
+                    start_char=0,
+                    end_char=26,
+                ),
+                score=0.9,
+            ),
+        ),
+        top_k=1,
+        embedding_model="none",
+    )
+    assert facts_missing_from_evidence("Friday desk 9:00-21:00", retrieval) == ()
 
 
 def test_llm_judge_strips_markdown_fences() -> None:

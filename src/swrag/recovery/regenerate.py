@@ -10,10 +10,13 @@ from swrag.types import GenerationResult, RetrievalResult
 from swrag.usage import record_chat
 
 _REGENERATE_PROMPT = """You are repairing an unsupported RAG answer.
-Answer the question using only the provided evidence chunks.
-The previous answer was judged not grounded in that evidence. Do not repeat
-claims that are not in the evidence. If the evidence is not enough, say you
-do not know based on the retrieved documents.
+Write a NEW answer using only the provided evidence chunks. Do not copy the
+previous answer. Drop every claim that is not in the evidence, including
+numbers, times, and names that do not appear in the chunks.
+If the evidence answers only part of the question, answer that part and say
+you do not know the rest based on the retrieved documents. If the evidence
+is not enough for any part, say you do not know based on the retrieved
+documents.
 When you use a chunk, mention its chunk_id in brackets."""
 
 

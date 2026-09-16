@@ -43,13 +43,24 @@ abstention can be tested when the model may still “know” the fact.
 
 ## Gold
 
-`gold/questions.jsonl` — 40 questions (30 answerable, 10 unanswerable). Every
-answerable row must be checked by hand against the cited `.txt` files. Do not
-edit a question after it has results; add a new id.
+`gold/questions.jsonl` — 40 questions (`dku-001`–`dku-040`). Every answerable
+row must be checked by hand against the cited `.txt` files. Do not edit a
+question after it has results; add a new id.
 
-`gold/audit.jsonl` lists every `dku-*` id. Those rows are a substring search,
-not a student sign-off. Do not quote DKU scores until you have personally
-confirmed the spans.
+`gold/recovery.jsonl` — issue #32 split (`dku-041`–`dku-052`). Underspecified
+contrast questions over the same notes; they do **not** name the dated source.
+Hours and phone gold is the current Locations & Hours page. Unique brochure
+facts (seats, Tea House, Meditation Room) stay on the January 2025 guide.
+Three rows are unanswerable so abstention can still be tested. Harbor gold and
+`questions.jsonl` are unchanged.
+
+If these questions still first-pass accept at `top_k=4`, use `top_k=1`
+(`experiments/configs/v2_dku_recovery_vs_loop.json`) rather than editing old gold.
+
+`gold/audit.jsonl` lists every id in `questions.jsonl`. Those rows are a
+substring search, not a student sign-off. Do not quote DKU scores until you
+have personally confirmed the spans. Recovery ids in `recovery.jsonl` are a
+proposed split until you confirm them.
 
 ## Run
 
@@ -59,4 +70,5 @@ python scripts/run_experiment.py --retrieve-only \
   --corpus datasets/dku/corpus
 
 python scripts/run_benchmark.py --config experiments/configs/v2_dku_baseline_vs_loop.json
+python scripts/run_benchmark.py --config experiments/configs/v2_dku_recovery_vs_loop.json
 ```

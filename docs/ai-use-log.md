@@ -121,6 +121,35 @@ Date: 2026-09-16
 
 Tool: Cursor
 
+Purpose: Make recovery actually change the answer (issue #32).
+
+What AI assisted with:
+Stricter LLM-judge prompt, a deterministic span check that can override a
+lenient `answer_supported=true`, playground `top_k`, recovery gold JSONL, and
+tests that do not call the API.
+
+Important suggestions produced:
+Keep Harbor gold and `experiments/results/20260910T070623/` frozen. Put new
+questions in `recovery.jsonl` with new ids. Use `top_k=1` for the recovery
+config if `top_k=4` still first-pass accepts.
+
+What I independently decided or changed:
+Confirmed the three issue #32 levers. Gold for underspecified DKU hours/phone
+is the current Locations & Hours page; unique brochure facts stay on the
+January 2025 guide. Kestrel traveler gold is the 2025 spec letter. The span
+check only extracts times, emails, ordinals, spec letters, and 3+ digit
+numbers; it does not read gold.
+
+How I verified the result:
+`pytest` with fake embedder / fixture judge completions. A live loop run is
+extra and must not overwrite the Harbor snapshot.
+
+---
+
+Date: 2026-09-16
+
+Tool: Cursor
+
 Purpose: Show first-pass and post-recovery answers in the explorer (issue #33).
 
 What AI assisted with:
@@ -259,8 +288,6 @@ testable part.
 How I verified the result:
 Unit tests for the Dongkuk rewrite and a Harbor rewrite that already
 contains Institute.
-
-
 
 
 
