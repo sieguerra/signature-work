@@ -90,14 +90,124 @@ def test_loop_trace_adds_evaluate_diagnose_recover_verify() -> None:
     assert kinds == [
         "query",
         "retrieve",
+        "generate-first",
+        "recover",
         "generate",
         "evaluate",
         "diagnose",
-        "recover",
         "verify",
     ]
+    retrieve = next(step for step in steps if step["id"] == "retrieve")
+    assert "post-recovery" in retrieve["payload"]["note"]
+    first_gen = next(step for step in steps if step["id"] == "generate-first")
+    assert first_gen["payload"]["answer"] == "The library is on the moon."
+    after_gen = next(step for step in steps if step["id"] == "generate")
+    assert after_gen["payload"]["answer"].startswith("Saturday")
     recover = next(step for step in steps if step["id"] == "recover")
     assert recover["payload"]["rewritten_query"].startswith("Harbor")
     assert recover["payload"]["previous_answer"]
+    evaluate = next(step for step in steps if step["id"] == "evaluate")
+    assert evaluate["title"] == "Evaluate (after recovery)"
     verify = next(step for step in steps if step["id"] == "verify")
     assert verify["status"] == "error"
+
+
+def test_accept_trace_has_a_single_generate_step() -> None:
+    steps = trace_to_steps(
+        _base(
+            runtime_evaluation={
+                "evidence_sufficient": True,
+                "answer_supported": True,
+                "sufficiency_rationale": "enough",
+                "support_rationale": "supported",
+                "judge": "scripted",
+                "model": "none",
+            },
+            diagnosis={
+                "failure_class": None,
+                "rationale": "no failure",
+                "detector": "first-pass-runtime",
+            },
+            recovery={"action": "accept", "reason": "no first-pass failure", "attributed_class": None},
+        )
+    )
+    kinds = [step["id"] for step in steps]
+    assert kinds == ["query", "retrieve", "generate", "evaluate", "diagnose", "recover"]
+    generate = next(step for step in steps if step["id"] == "generate")
+    assert generate["title"] == "Generate"
+    assert "previous_answer" not in generate["payload"]
+    assert generate["payload"]["answer"].startswith("Saturday")
+
+
+def test_regenerate_trace_keeps_a_single_retrieve() -> None:
+    steps = trace_to_steps(
+        _base(
+            previous_answer="Saturday 10:00-16:00 and 800 seats.",
+            recovery={
+                "action": "regenerate",
+                "reason": "unsupported_generation",
+                "attributed_class": "unsupported_generation",
+            },
+            runtime_evaluation={
+                "evidence_sufficient": True,
+                "answer_supported": True,
+                "sufficiency_rationale": "enough",
+                "support_rationale": "constrained",
+                "judge": "scripted",
+                "model": "none",
+            },
+            verification={"outcome": "improved", "rationale": "unsupported fact removed"},
+        )
+    )
+    kinds = [step["id"] for step in steps]
+    assert kinds == [
+        "query",
+        "retrieve",
+        "generate-first",
+        "recover",
+        "generate",
+        "evaluate",
+        "verify",
+    ]
+    retrieve = next(step for step in steps if step["id"] == "retrieve")
+    assert "note" not in retrieve["payload"]
+    assert retrieve["title"] == "Retrieve"
+
+
+def test_stored_first_pass_chunks_become_two_retrieve_steps() -> None:
+    steps = trace_to_steps(
+        _base(
+            previous_answer="wrong building",
+            rewritten_query="Hangar 2 titanium traveler",
+            previous_retrieved_chunks=[
+                {
+                    "chunk_id": "traveler-2018::c000",
+                    "doc_id": "traveler-2018",
+                    "title": "2018 traveler",
+                    "score": 0.8,
+                    "text": "AMS 4911N",
+                }
+            ],
+            recovery={
+                "action": "rewrite",
+                "reason": "first-pass evidence insufficient",
+                "attributed_class": "retrieval_miss",
+            },
+            verification={"outcome": "improved", "rationale": "newer traveler"},
+        )
+    )
+    kinds = [step["id"] for step in steps]
+    assert kinds == [
+        "query",
+        "retrieve-first",
+        "generate-first",
+        "recover",
+        "retrieve",
+        "generate",
+        "verify",
+    ]
+    first = next(step for step in steps if step["id"] == "retrieve-first")
+    after = next(step for step in steps if step["id"] == "retrieve")
+    assert first["payload"]["chunks"][0]["doc_id"] == "traveler-2018"
+    assert after["payload"]["chunks"][0]["doc_id"] == "harbor-library"
+    assert "note" not in after["payload"]

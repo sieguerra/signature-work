@@ -209,6 +209,10 @@ def test_index_page_and_assets_are_served(tmp_path: Path) -> None:
         assert "deleteAllRuns" in js.text
         assert "switchCorpus" in js.text
         assert 'id="corpus"' in page.text
+        assert "answer-split" in js.text
+        assert "answer-pills" in js.text
+        assert "Rewritten query" in js.text
+        assert "Generate (first pass)" not in page.text
 
 
 def test_lists_corpora_and_switches_without_mixing_indexes(tmp_path: Path) -> None:

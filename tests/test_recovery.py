@@ -121,6 +121,7 @@ def test_loop_regenerates_and_records_improved_verification(tmp_path: Path) -> N
     payload = json.loads(result.trace_path.read_text(encoding="utf-8"))
     assert payload["recovery"]["action"] == REGENERATE
     assert payload["previous_answer"] == "The library is on the moon."
+    assert payload["previous_retrieved_chunks"] is None
     assert payload["verification"]["outcome"] == IMPROVED
     assert payload["runtime_evaluation"]["answer_supported"] is True
     assert "answers" not in payload
@@ -147,6 +148,7 @@ def test_loop_rewrites_and_attributes_retrieval_miss(tmp_path: Path) -> None:
     assert payload["rewritten_query"] == "Harbor Institute Library Saturday hours term time"
     assert payload["verification"]["outcome"] == IMPROVED
     assert payload["previous_answer"] == "The library is on the moon."
+    assert payload["previous_retrieved_chunks"]
     assert result.answer == "The library is on the moon."
 
 

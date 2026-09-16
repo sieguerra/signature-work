@@ -115,4 +115,30 @@ How I verified the result:
 `pytest` gold-loader tests; retrieve-only experiment on the DKU gold set.
 Every gold row still needs a hand check against the `.txt` files.
 
+---
+
+Date: 2026-09-16
+
+Tool: Cursor
+
+Purpose: Show first-pass and post-recovery answers in the explorer (issue #33).
+
+What AI assisted with:
+Waterfall mapping from the existing flat `TraceRecord`, storing first-pass
+chunks on rewrite, and Before/After rendering in the static explorer.
+
+Important suggestions produced:
+Do not invent a first-pass retrieve list. Put recover between the two generate
+steps so a demo reads first answer → action → second answer → verify. Stored
+evaluate flags after recovery are labeled as such; first-pass evaluate is not
+fabricated.
+
+What I independently decided or changed:
+Kept recover/verify as the same step kinds. Accept traces still show one
+answer. Query inspector shows original vs rewritten search string when present.
+
+How I verified the result:
+`pytest` step-mapping and API asset tests. Browser check of accept vs rewrite
+runs in the explorer.
+
 

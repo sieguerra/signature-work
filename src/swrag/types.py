@@ -166,6 +166,7 @@ class TraceRecord:
     verification: dict[str, Any] | None = field(default=None)
     previous_answer: str | None = field(default=None)
     rewritten_query: str | None = field(default=None)
+    previous_retrieved_chunks: tuple[dict[str, Any], ...] | None = field(default=None)
 
 
 @dataclass(frozen=True)

@@ -168,8 +168,30 @@ function renderAnswer() {
   }
   bar.classList.remove("hidden");
   $("answer-run-id").textContent = state.trace.run_id || "";
-  const answer = (state.trace.answer || "").trim();
-  $("answer-text").textContent = answer || "(no generated answer)";
+  const after = (state.trace.answer || "").trim() || "(no generated answer)";
+  const before = (state.trace.previous_answer || "").trim();
+  const rewritten = (state.trace.rewritten_query || "").trim();
+  const action = state.trace.recovery && state.trace.recovery.action;
+  const outcome = state.trace.verification && state.trace.verification.outcome;
+  if (!before) {
+    $("answer-text").innerHTML = `<div class="answer-block">${escapeHtml(after)}</div>`;
+    return;
+  }
+  const rewriteLine = rewritten
+    ? `<div class="answer-meta">Rewritten query: ${escapeHtml(rewritten)}</div>`
+    : "";
+  $("answer-text").innerHTML = `<div class="answer-pills">${pill(action, action)}${pill(outcome, outcome)}</div>
+    ${rewriteLine}
+    <div class="answer-split">
+      <div>
+        <div class="answer-label">Before</div>
+        <div class="answer-block">${escapeHtml(before)}</div>
+      </div>
+      <div>
+        <div class="answer-label">After</div>
+        <div class="answer-block">${escapeHtml(after)}</div>
+      </div>
+    </div>`;
 }
 
 function renderWaterfall() {
@@ -250,11 +272,23 @@ function renderInspector() {
   const step = state.selectedStep;
   label.textContent = step.title;
   const data = step.payload || {};
+  if (step.kind === "query") {
+    const rewritten = data.rewritten_query;
+    root.innerHTML =
+      kv([["question id", data.question_id]]) +
+      `<p class="pane-label">Question</p><div class="block">${escapeHtml(data.query || "(empty)")}</div>` +
+      (rewritten
+        ? `<p class="pane-label">Rewritten query</p><div class="block">${escapeHtml(rewritten)}</div>`
+        : "");
+    return;
+  }
   if (step.kind === "retrieve") {
     root.innerHTML =
       kv([
         ["top_k", data.top_k],
         ["embedding model", data.embedding_model],
+        ["pass", data.pass],
+        ["note", data.note],
       ]) + renderChunks(data.chunks);
     return;
   }
@@ -266,16 +300,16 @@ function renderInspector() {
         ["model", data.model],
         ["sufficiency", data.sufficiency_rationale],
         ["support", data.support_rationale],
+        ["note", data.note],
       ]);
     return;
   }
   if (step.kind === "generate") {
     root.innerHTML =
-      kv([["model", data.model]]) +
-      `<div class="block">${escapeHtml(data.answer || "(empty)")}</div>` +
-      (data.previous_answer
-        ? `<p class="pane-label">Previous answer</p><div class="block">${escapeHtml(data.previous_answer)}</div>`
-        : "");
+      kv([
+        ["model", data.model],
+        ["pass", data.pass],
+      ]) + `<div class="block">${escapeHtml(data.answer || "(empty)")}</div>`;
     return;
   }
   if (step.kind === "recover") {

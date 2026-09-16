@@ -17,7 +17,13 @@ from swrag.diagnosis.diagnose import (
 )
 from swrag.evaluation.judge import GroundingJudge
 from swrag.generation.openai_generator import OpenAIGenerator
-from swrag.pipeline.baseline import QueryState, build_corpus_index, execute_query, write_run
+from swrag.pipeline.baseline import (
+    QueryState,
+    build_corpus_index,
+    chunks_payload,
+    execute_query,
+    write_run,
+)
 from swrag.retrieval.memory_index import InMemoryIndex
 from swrag.recovery.policy import REGENERATE, REWRITE, select_recovery
 from swrag.recovery.regenerate import ConstrainedRegenerator
@@ -81,6 +87,7 @@ def run_with_recovery(
     )
     decision = select_recovery(state.diagnosis, state.runtime_evaluation)
     previous_answer = None
+    previous_retrieved_chunks = None
     verification = None
     rewritten_query = None
 
@@ -113,6 +120,7 @@ def run_with_recovery(
 
     elif decision.action == REWRITE and max_recoveries >= 1:
         previous_answer = state.generation.answer
+        previous_retrieved_chunks = chunks_payload(state.retrieval)
         actor = rewriter or LLMQueryRewriter()
         rewritten_query = actor.rewrite(question=query, retrieval=state.retrieval)
         probe = execute_query(
@@ -192,4 +200,5 @@ def run_with_recovery(
         verification=verification,
         previous_answer=previous_answer,
         rewritten_query=rewritten_query,
+        previous_retrieved_chunks=previous_retrieved_chunks,
     )

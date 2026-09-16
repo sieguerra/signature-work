@@ -387,6 +387,40 @@ button.ghost:disabled {
 
 #answer-text {
   margin: 0;
+  white-space: normal;
+}
+
+.answer-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.answer-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  white-space: normal;
+}
+
+.answer-label {
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.answer-block {
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+.answer-meta {
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 8px;
   white-space: pre-wrap;
 }
 
@@ -636,6 +670,10 @@ button.ghost:disabled {
   }
 
   .workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .answer-split {
     grid-template-columns: 1fr;
   }
 
