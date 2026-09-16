@@ -183,11 +183,34 @@ never overwritten. Record `recovery.source` as `policy` or `operator`.
 What I independently decided or changed:
 Operator override is allowed among regenerate / rewrite / abstain / accept.
 Accept on first pass is already finished (no button). Proposed traces are not
-treated as successful recoveries.
+treated as successful recoveries. Playground default is confirm recovery;
+automatic `loop` stays available and is still what benchmarks call.
 
 How I verified the result:
 `pytest` with fakes for first-pass vs apply, 409/400 API cases, and a
 browser check of the confirm mode and recovery buttons.
+
+---
+
+Date: 2026-09-17
+
+Tool: Cursor
+
+Purpose: Make confirm recovery the playground default.
+
+What AI assisted with:
+Dropdown order/default so the explorer starts in `loop_confirm`.
+
+Important suggestions produced:
+Do not change the experiment runner; automatic `run_with_recovery` remains
+the benchmark path.
+
+What I independently decided or changed:
+Manual confirm is the explorer default for now, because automatic rewrite
+often ends `still_failing` and the operator should see the proposal first.
+
+How I verified the result:
+API asset test for the selected `loop_confirm` option.
 
 
 

@@ -223,6 +223,8 @@ def test_index_page_and_assets_are_served(tmp_path: Path) -> None:
         assert 'id="recover-bar"' in page.text
         assert 'value="loop_confirm"' in page.text
         assert "Loop (confirm recovery)" in page.text
+        assert "Loop (auto recover)" in page.text
+        assert 'value="loop_confirm" selected' in page.text
         assert "Generate (first pass)" not in page.text
 
 
