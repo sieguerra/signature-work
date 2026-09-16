@@ -23,6 +23,7 @@ from swrag.orchestration.loop import (
     run_with_recovery,
 )
 from swrag.retrieval.fake_embedder import FakeEmbedder
+from swrag.tracing.steps import trace_to_steps
 from swrag.types import GenerationResult, RetrievalResult, RuntimeEvaluation
 from swrag.verification.runtime import DEGRADED, IMPROVED, STILL_FAILING, UNCHANGED, verify_runtime
 
@@ -183,6 +184,21 @@ def test_loop_rewrites_then_abstains_on_corpus_gap(tmp_path: Path) -> None:
     assert payload["diagnosis"]["failure_class"] == EVIDENCE_INSUFFICIENCY
     assert payload["verification"]["outcome"] == STILL_FAILING
     assert result.answer == ABSTAIN_ANSWER
+    assert payload["previous_answer"] == "The library is on the moon."
+    assert payload["previous_retrieved_chunks"]
+    assert payload["rewritten_query"] == "Harbor Institute Library Saturday hours"
+    kinds = [step["id"] for step in trace_to_steps(payload)]
+    assert kinds == [
+        "query",
+        "retrieve-first",
+        "generate-first",
+        "recover",
+        "retrieve",
+        "generate",
+        "evaluate",
+        "diagnose",
+        "verify",
+    ]
 
 
 def test_loop_accepts_without_calling_regenerator(tmp_path: Path) -> None:
