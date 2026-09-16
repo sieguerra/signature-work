@@ -235,6 +235,32 @@ still shows the rewritten query when Before is empty.
 How I verified the result:
 `pytest` waterfall and rewrite-then-abstain history assertions.
 
+---
+
+Date: 2026-09-17
+
+Tool: Cursor
+
+Purpose: Stop query rewrite from expanding DKU into the wrong university (issue #52).
+
+What AI assisted with:
+Prompt wording plus a deterministic guard that falls back to the original
+question if the rewrite adds university/college/institute tokens.
+
+Important suggestions produced:
+Do not look up gold labels. Do not pass corpus registry names into rewrite
+in this change (that was option 2).
+
+What I independently decided or changed:
+Chose option 1 from the issue: never expand abbreviations; keep DKU as
+written unless the expansion is already in the question. The guard is the
+testable part.
+
+How I verified the result:
+Unit tests for the Dongkuk rewrite and a Harbor rewrite that already
+contains Institute.
+
+
 
 
 
