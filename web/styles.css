@@ -387,7 +387,14 @@ button.ghost:disabled {
 
 #answer-text {
   margin: 0;
-  white-space: pre-wrap;
+  white-space: normal;
+}
+
+.answer-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
 .answer-split {
