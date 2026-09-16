@@ -178,10 +178,6 @@ def test_llm_judge_parses_json_and_does_not_see_gold() -> None:
     user_content = client.chat.completions.calls[0]["messages"][1]["content"]
     assert "Saturday hours?" in user_content
     assert "gold" not in user_content.lower()
-    system_content = client.chat.completions.calls[0]["messages"][0]["content"]
-    assert "sounds right" in system_content
-    assert "places must appear" in system_content
-    assert "superseded or dated document is insufficient" in system_content
 
 
 def test_llm_judge_system_prompt_rejects_plausible_ungrounded_claims() -> None:
