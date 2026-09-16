@@ -98,6 +98,7 @@ python scripts/run_ui.py
 Ask a question in the playground, or inspect traces already under
 `experiments/output/<corpus-id>/`. The **Corpus** control in the top bar picks
 one world at a time so retrieval never mixes DKU notes with a water utility.
+**top_k** (1–20, default 4) is sent with that run only; it is not remembered.
 Each run can be deleted, or **Delete all** clears traces for the active corpus
 only. Loop and baseline need `OPENAI_API_KEY`. Retrieve-only does not.
 

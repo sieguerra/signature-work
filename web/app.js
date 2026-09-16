@@ -361,10 +361,23 @@ async function deleteAllRuns() {
   render();
 }
 
+function readTopK() {
+  const raw = Number($("top-k").value);
+  if (!Number.isInteger(raw) || raw < 1 || raw > 20) {
+    return null;
+  }
+  return raw;
+}
+
 async function runQuestion() {
   const question = $("question").value.trim();
   if (!question) {
     showError("Enter a question.");
+    return;
+  }
+  const topK = readTopK();
+  if (topK === null) {
+    showError("top_k must be an integer from 1 to 20.");
     return;
   }
   showError("");
@@ -378,7 +391,7 @@ async function runQuestion() {
       body: JSON.stringify({
         question,
         mode: $("mode").value,
-        top_k: Number($("top-k").value) || 4,
+        top_k: topK,
       }),
     });
     state.loading = false;

@@ -1,0 +1,20 @@
+# Recovery-oriented gold (issue #32). New ids only; questions.jsonl is unchanged.
+# Questions do not name the dated source. Gold for hours/phone is the current
+# Locations & Hours page; unique brochure facts stay on the January 2025 guide.
+# Verify every row against the cited .txt before trusting scores.
+
+# --- Answerable: fact lives in one near-neighbour, question does not name it ---
+{"question_id": "dku-041", "question": "How many seats does the DKU Library list?", "answerable": true, "answers": ["560"], "supporting_doc_ids": ["dku-library-guide-202501"], "notes": "Seat count is only in the January 2025 guide. The current hours page does not list seats. Intended retrieval miss at top_k=1."}
+{"question_id": "dku-042", "question": "Which floor is the Tea House on?", "answerable": true, "answers": ["3rd floor", "3rd", "Level 3"], "supporting_doc_ids": ["dku-library-guide-202501"], "notes": "Tea House is only in the January 2025 guide."}
+{"question_id": "dku-043", "question": "What are Saturday information desk hours at the DKU Library?", "answerable": true, "answers": ["14:00-21:00", "14:00 – 21:00"], "supporting_doc_ids": ["dku-library-hours"], "notes": "Gold is the current page. The January 2025 brochure lists Saturday desk 14:00-18:00. Question does not name the source."}
+{"question_id": "dku-044", "question": "What are Friday information desk hours at the DKU Library?", "answerable": true, "answers": ["09:00-21:00", "9:00-21:00"], "supporting_doc_ids": ["dku-library-hours"], "notes": "Current page is Monday-Friday 09:00-21:00. Brochure Friday desk is 09:00-17:30."}
+{"question_id": "dku-045", "question": "What phone number is listed for the DKU Library?", "answerable": true, "answers": ["0512-36658756", "(+86) 0512-36658756", "36658756"], "supporting_doc_ids": ["dku-library-hours"], "notes": "Gold is the current desk number. The 2021 handbook lists (0512) 3665-7027."}
+{"question_id": "dku-046", "question": "What are DVD and equipment loan hours at the DKU Library?", "answerable": true, "answers": ["09:00-17:30", "9:00-17:30"], "supporting_doc_ids": ["dku-library-hours"], "notes": "Only on the current hours page. Brochure does not list DVD loan hours."}
+{"question_id": "dku-047", "question": "How many self and group study rooms does the DKU Library list?", "answerable": true, "answers": ["23"], "supporting_doc_ids": ["dku-library-guide-202501"], "notes": "Room count is only in the January 2025 guide."}
+{"question_id": "dku-048", "question": "Which floor is the Meditation Room on?", "answerable": true, "answers": ["4th floor", "4th", "LIB4-16"], "supporting_doc_ids": ["dku-library-guide-202501"], "notes": "Meditation Room is only in the January 2025 guide."}
+{"question_id": "dku-049", "question": "What are breakfast hours at University Dining?", "answerable": true, "answers": ["07:00-09:30", "7:00-9:30"], "supporting_doc_ids": ["academic-building-dining"], "notes": "Does not name the Academic Building. Halal Dining lists no breakfast, so a miss can retrieve the wrong venue."}
+
+# --- Unanswerable: corpus-gap must still abstain after rewrite ---
+{"question_id": "dku-050", "question": "What time does breakfast end at Halal Dining?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "Halal Dining lists lunch and dinner only. Same trap as dku-031 without naming the Conference Center."}
+{"question_id": "dku-051", "question": "How much is the DKU Library late-return fine?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "Hours and contacts are listed; fines are not."}
+{"question_id": "dku-052", "question": "Who is the director of the DKU Library?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "Officers omitted. Leakage trap; recovery should abstain, not invent a name."}

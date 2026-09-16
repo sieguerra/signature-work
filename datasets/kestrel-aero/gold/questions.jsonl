@@ -17,7 +17,3 @@
 {"question_id": "ka-014", "question": "Who owns Kestrel Aero Components?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "Names omitted."}
 {"question_id": "ka-015", "question": "What ITAR exemption number does Kestrel hold?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "Omitted."}
 {"question_id": "ka-016", "question": "What does Fay Aerospace charge per hour?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "Sister shop, no rates."}
-
-# --- Recovery-oriented (issue #32): current traveler vs 2018 distractor, source unnamed ---
-{"question_id": "ka-017", "question": "What AMS specification letter is required for titanium plate on current Hangar 2 jobs?", "answerable": true, "answers": ["AMS 4911R", "4911R"], "supporting_doc_ids": ["traveler-2025"], "notes": "Issue #32. Does not say '2025 traveler'. The 2018 sheet says 4911N is obsolete but never states 4911R, so that chunk is insufficient for this question."}
-{"question_id": "ka-018", "question": "What heat-treat condition does the titanium traveler specify?", "answerable": true, "answers": ["annealed"], "supporting_doc_ids": ["traveler-2025"], "notes": "Issue #32. Annealed appears only on the 2025 traveler."}

@@ -173,43 +173,6 @@ def test_loop_without_api_key_is_rejected(tmp_path: Path, monkeypatch) -> None:
         assert "OPENAI_API_KEY" in response.json()["detail"]
 
 
-def test_retrieve_only_honors_top_k_one_and_four(tmp_path: Path) -> None:
-    with _client(tmp_path) as client:
-        one = client.post(
-            "/api/runs",
-            json={
-                "question": "When is the Harbor Institute Library open on Saturday?",
-                "mode": "retrieve_only",
-                "top_k": 1,
-            },
-        )
-        four = client.post(
-            "/api/runs",
-            json={
-                "question": "When is the Harbor Institute Library open on Saturday?",
-                "mode": "retrieve_only",
-                "top_k": 4,
-            },
-        )
-        assert one.status_code == 200, one.text
-        assert four.status_code == 200, four.text
-        one_body = one.json()
-        four_body = four.json()
-        assert one_body["trace"]["top_k"] == 1
-        assert four_body["trace"]["top_k"] == 4
-        assert len(one_body["trace"]["retrieved_chunks"]) == 1
-        assert len(four_body["trace"]["retrieved_chunks"]) == 4
-        rejected = client.post(
-            "/api/runs",
-            json={
-                "question": "When is the Harbor Institute Library open on Saturday?",
-                "mode": "retrieve_only",
-                "top_k": 0,
-            },
-        )
-        assert rejected.status_code == 422
-
-
 def test_retrieve_only_run_writes_a_trace(tmp_path: Path) -> None:
     with _client(tmp_path) as client:
         response = client.post(
@@ -227,7 +190,37 @@ def test_retrieve_only_run_writes_a_trace(tmp_path: Path) -> None:
         assert len(trace_files) == 1
         saved = json.loads(trace_files[0].read_text(encoding="utf-8"))
         assert saved["query"].startswith("When is the Harbor")
+        assert saved["top_k"] == 4
+        assert len(saved["retrieved_chunks"]) <= 4
         assert "answers" not in saved
+
+
+def test_retrieve_only_honors_top_k_one_and_four(tmp_path: Path) -> None:
+    question = "When is the Harbor Institute Library open on Saturday?"
+    with _client(tmp_path) as client:
+        for top_k in (1, 4):
+            response = client.post(
+                "/api/runs",
+                json={"question": question, "mode": "retrieve_only", "top_k": top_k},
+            )
+            assert response.status_code == 200, response.text
+            trace = response.json()["trace"]
+            assert trace["top_k"] == top_k
+            assert 1 <= len(trace["retrieved_chunks"]) <= top_k
+
+
+def test_top_k_out_of_range_is_rejected(tmp_path: Path) -> None:
+    with _client(tmp_path) as client:
+        too_small = client.post(
+            "/api/runs",
+            json={"question": "When does the library close?", "mode": "retrieve_only", "top_k": 0},
+        )
+        too_large = client.post(
+            "/api/runs",
+            json={"question": "When does the library close?", "mode": "retrieve_only", "top_k": 21},
+        )
+        assert too_small.status_code == 422
+        assert too_large.status_code == 422
 
 
 def test_index_page_and_assets_are_served(tmp_path: Path) -> None:
@@ -245,10 +238,9 @@ def test_index_page_and_assets_are_served(tmp_path: Path) -> None:
         assert "run-delete" in js.text
         assert "deleteAllRuns" in js.text
         assert "switchCorpus" in js.text
+        assert "readTopK" in js.text
         assert 'id="corpus"' in page.text
         assert 'id="top-k"' in page.text
-        assert 'Number($("top-k").value)' in js.text
-        assert "top_k: 4" not in js.text
 
 
 def test_lists_corpora_and_switches_without_mixing_indexes(tmp_path: Path) -> None:

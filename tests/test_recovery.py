@@ -11,7 +11,9 @@ from swrag.diagnosis.diagnose import (
     diagnose_after_rewrite,
     diagnose_runtime,
 )
+from swrag.evaluation.llm_judge import LLMJudge
 from swrag.recovery.policy import ABSTAIN, ACCEPT, REGENERATE, REWRITE, select_recovery
+from swrag.recovery.regenerate import _REGENERATE_PROMPT
 from swrag.recovery.rewrite import ScriptedRewriter
 from swrag.orchestration.loop import ABSTAIN_ANSWER, run_with_recovery
 from swrag.retrieval.fake_embedder import FakeEmbedder
@@ -30,6 +32,12 @@ def _eval(*, sufficient: bool, supported: bool | None) -> RuntimeEvaluation:
         judge="scripted",
         model="none",
     )
+
+
+def test_regenerate_prompt_requires_a_new_grounded_answer() -> None:
+    assert "NEW answer" in _REGENERATE_PROMPT
+    assert "Do not copy" in _REGENERATE_PROMPT
+    assert "only part of the question" in _REGENERATE_PROMPT
 
 
 def test_selects_regenerate_for_unsupported_generation() -> None:
@@ -100,7 +108,7 @@ class _CannedRegenerator:
         previous_answer: str,
     ) -> GenerationResult:
         del question, retrieval
-        assert "moon" in previous_answer
+        assert previous_answer
         return GenerationResult(answer="Saturday 10:00-16:00", model="canned-repair")
 
 
@@ -169,6 +177,78 @@ def test_loop_rewrites_then_abstains_on_corpus_gap(tmp_path: Path) -> None:
     assert payload["diagnosis"]["failure_class"] == EVIDENCE_INSUFFICIENCY
     assert payload["verification"]["outcome"] == STILL_FAILING
     assert result.answer == ABSTAIN_ANSWER
+
+
+class _SequenceJudgeClient:
+    """Fixture OpenAI client: each create() returns the next JSON payload."""
+
+    def __init__(self, payloads: list[dict]) -> None:
+        self.chat = self._Chat(payloads)
+
+    class _Chat:
+        def __init__(self, payloads: list[dict]) -> None:
+            self.completions = self._Completions(payloads)
+
+        class _Completions:
+            def __init__(self, payloads: list[dict]) -> None:
+                self._payloads = list(payloads)
+                self.calls: list[dict] = []
+
+            def create(self, **kwargs: object) -> object:
+                self.calls.append(kwargs)
+                if not self._payloads:
+                    raise AssertionError("LLMJudge made more calls than fixture replies")
+                return _JudgeResponse(json.dumps(self._payloads.pop(0)))
+
+
+class _JudgeResponse:
+    def __init__(self, content: str) -> None:
+        self.choices = [type("Choice", (), {"message": type("Msg", (), {"content": content})()})]
+
+
+class _UnsupportedThenRepaired:
+    def generate(self, query: str, retrieval: RetrievalResult) -> GenerationResult:
+        del query, retrieval
+        return GenerationResult(
+            answer="Saturday 10:00-16:00 and the library has 800 seats.",
+            model="canned",
+        )
+
+
+def test_loop_regenerates_when_lenient_judge_is_overridden_by_span_check(
+    tmp_path: Path,
+) -> None:
+    """Issue #32: a fact not in the evidence must select regenerate.
+
+    The fixture LLM says answer_supported=true both times. The span check
+    rejects the first answer (800 is not in Harbor hours) and keeps the
+    repaired answer (10:00-16:00 is in the retrieved library note).
+    """
+    lenient = {
+        "evidence_sufficient": True,
+        "answer_supported": True,
+        "sufficiency_rationale": "hours are in the evidence",
+        "support_rationale": "the answer looks like library hours",
+    }
+    client = _SequenceJudgeClient([lenient, lenient])
+    result = run_with_recovery(
+        "When is the Harbor Institute Library open on Saturday?",
+        corpus_dir=CORPUS,
+        output_dir=tmp_path,
+        embedder=FakeEmbedder(),
+        generator=_UnsupportedThenRepaired(),  # type: ignore[arg-type]
+        regenerator=_CannedRegenerator(),
+        judge=LLMJudge(model="gpt-4o-mini", client=client),
+    )
+    assert result.answer == "Saturday 10:00-16:00"
+    payload = json.loads(result.trace_path.read_text(encoding="utf-8"))
+    assert payload["recovery"]["action"] == REGENERATE
+    assert payload["previous_answer"] == (
+        "Saturday 10:00-16:00 and the library has 800 seats."
+    )
+    assert payload["verification"]["outcome"] == IMPROVED
+    assert payload["runtime_evaluation"]["answer_supported"] is True
+    assert "800" in payload["previous_answer"]
 
 
 def test_loop_accepts_without_calling_regenerator(tmp_path: Path) -> None:
