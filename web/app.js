@@ -156,13 +156,16 @@ function renderRunList() {
   root.innerHTML = state.traces
     .map((item) => {
       const active = item.run_id === state.selectedId ? " active" : "";
+      const child = item.parent_run_id ? " child-run" : "";
       const when = (item.timestamp || "").replace("T", " ").slice(0, 19);
-      return `<div class="run-item${active}" data-id="${escapeHtml(item.run_id)}">
+      return `<div class="run-item${active}${child}" data-id="${escapeHtml(item.run_id)}">
         <button type="button" class="run-select">
           <div class="q">${escapeHtml(item.query || "(no query)")}</div>
           <div class="meta">
             ${pill(item.action, item.action)}
             ${item.recovery_status === "proposed" ? pill("warn", "proposed") : ""}
+            ${item.child_run_id ? pill("ok", "has recovery") : ""}
+            ${item.parent_run_id ? pill("ok", "after recovery") : ""}
             ${pill(item.verification, item.verification)}
             <span>${escapeHtml(when)}</span>
           </div>
@@ -297,8 +300,18 @@ function renderRecoverBar() {
   }
   root.classList.remove("hidden");
   const diagnosis = (state.trace && state.trace.diagnosis) || {};
-  const klass = diagnosis.failure_class || "no class claimed";
+  const klass = diagnosis.failure_class;
   const rationale = diagnosis.rationale || "";
+  let note = rationale;
+  if (klass) {
+    note = rationale ? `${klass} — ${rationale}` : klass;
+  } else if (action === "rewrite") {
+    note =
+      rationale ||
+      "First-pass evidence is insufficient. Rewrite splits retrieval miss from corpus gap.";
+  } else if (!note) {
+    note = "No failure class on this pass.";
+  }
   if (state.childRunId) {
     root.innerHTML = `<div class="recover-kicker">Recovery</div>
       <p class="recover-note">Already applied on ${escapeHtml(state.childRunId)}.</p>
@@ -317,7 +330,7 @@ function renderRecoverBar() {
     )
     .join("");
   root.innerHTML = `<div class="recover-kicker">Proposed recovery</div>
-    <p class="recover-note">${escapeHtml(klass)}${rationale ? ` — ${escapeHtml(rationale)}` : ""}</p>
+    <p class="recover-note">${escapeHtml(note)}</p>
     <div class="recover-actions">
       <button type="button" class="primary" data-recover="${escapeHtml(action)}" ${
         state.recovering ? "disabled" : ""
@@ -513,9 +526,10 @@ async function loadEval() {
   const verifies = Object.entries(payload.by_verification || {})
     .map(([name, count]) => `${name}=${count}`)
     .join(" · ");
+  const proposed = payload.proposed ? ` · proposed=${payload.proposed}` : "";
   const latency =
     payload.mean_latency_ms == null ? "" : ` · mean latency ${Math.round(payload.mean_latency_ms)}ms`;
-  strip.textContent = `n=${payload.n} · abstain=${payload.abstain}${actions ? ` · ${actions}` : ""}${verifies ? ` · ${verifies}` : ""}${latency}`;
+  strip.textContent = `n=${payload.n} · abstain=${payload.abstain}${proposed}${actions ? ` · ${actions}` : ""}${verifies ? ` · ${verifies}` : ""}${latency}`;
 }
 
 async function selectRun(runId) {
@@ -540,11 +554,17 @@ function clearSelection() {
 }
 
 async function deleteRun(runId) {
-  const ok = window.confirm(`Delete this run from disk?\n${runId}`);
+  const item = (state.traces || []).find((row) => row.run_id === runId);
+  const childId =
+    (item && item.child_run_id) || (state.selectedId === runId ? state.childRunId : null);
+  const message = childId
+    ? `Delete this run and its recovered child from disk?\n${runId}\n${childId}`
+    : `Delete this run from disk?\n${runId}`;
+  const ok = window.confirm(message);
   if (!ok) return;
   showError("");
   await api(`/api/traces/${encodeURIComponent(runId)}`, { method: "DELETE" });
-  const wasSelected = state.selectedId === runId;
+  const wasSelected = state.selectedId === runId || state.selectedId === childId;
   if (wasSelected) {
     clearSelection();
   }

@@ -171,6 +171,7 @@ class TraceRecord:
     previous_retrieved_chunks: tuple[dict[str, Any], ...] | None = field(default=None)
     recovery_status: str | None = field(default=None)
     parent_run_id: str | None = field(default=None)
+    latency_ms: float | None = field(default=None)
 
 
 @dataclass(frozen=True)

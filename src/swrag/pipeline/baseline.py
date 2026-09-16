@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import time
 import uuid
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -118,6 +119,7 @@ def run_query(
     ``judge`` is the runtime grounding evaluator (ADR 003). It must not be
     given gold labels; this function never loads the gold set.
     """
+    started = time.perf_counter()
     state = execute_query(
         query,
         corpus_dir=corpus_dir,
@@ -128,7 +130,12 @@ def run_query(
         judge=judge,
         index=index,
     )
-    return write_run(state, output_dir=output_dir, question_id=question_id)
+    return write_run(
+        state,
+        output_dir=output_dir,
+        question_id=question_id,
+        latency_ms=_elapsed_ms(started),
+    )
 
 
 def write_run(
@@ -143,6 +150,7 @@ def write_run(
     previous_retrieved_chunks: tuple[dict, ...] | None = None,
     recovery_status: str | None = None,
     parent_run_id: str | None = None,
+    latency_ms: float | None = None,
 ) -> BaselineRunResult:
     """Write a trace for ``state``. Never overwrites an existing file."""
     run_id = _new_run_id()
@@ -176,6 +184,7 @@ def write_run(
             previous_retrieved_chunks=previous_retrieved_chunks,
             recovery_status=recovery_status,
             parent_run_id=parent_run_id,
+            latency_ms=latency_ms,
         ),
         output_dir,
     )
@@ -210,6 +219,10 @@ def chunks_payload(retrieval: RetrievalResult) -> tuple[dict, ...]:
             }
         )
     return tuple(payload)
+
+
+def _elapsed_ms(started: float) -> float:
+    return (time.perf_counter() - started) * 1000.0
 
 
 def _new_run_id() -> str:
