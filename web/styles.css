@@ -424,6 +424,43 @@ button.ghost:disabled {
   white-space: pre-wrap;
 }
 
+.recover-bar {
+  margin: 10px 18px 0;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  background: var(--bg-elev);
+  border: 1px solid var(--warn);
+}
+
+.recover-kicker {
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.recover-note {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 0 0 10px;
+}
+
+.recover-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.recover-actions button.ghost {
+  padding: 8px 12px;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 13px;
+  color: var(--text);
+  border: 1px solid var(--line);
+}
+
 .workspace {
   flex: 1;
   min-height: 0;

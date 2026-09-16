@@ -14,7 +14,13 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from swrag.api.store import delete_all_traces, delete_trace, list_traces, load_trace
+from swrag.api.store import (
+    delete_all_traces,
+    delete_trace,
+    find_child_run_id,
+    list_traces,
+    load_trace,
+)
 from swrag.config import load_provider_config
 from swrag.corpus_registry import (
     CorpusEntry,
@@ -24,18 +30,23 @@ from swrag.corpus_registry import (
     load_registry,
     traces_dir_for,
 )
-from swrag.orchestration.loop import run_with_recovery
+from swrag.orchestration.loop import RecoveryNotApplicable, apply_recovery, run_first_pass, run_with_recovery
 from swrag.pipeline.baseline import build_corpus_index, run_query
+from swrag.recovery.policy import ACTIONS
 from swrag.retrieval.fake_embedder import FakeEmbedder
 from swrag.tracing.steps import trace_to_steps
 
-MODES = frozenset({"loop", "baseline", "retrieve_only"})
+MODES = frozenset({"loop", "loop_confirm", "baseline", "retrieve_only"})
 
 
 class RunRequest(BaseModel):
     question: str = Field(min_length=1)
     mode: str = "loop"
     top_k: int = Field(default=4, ge=1, le=20)
+
+
+class RecoverRequest(BaseModel):
+    action: str | None = None
 
 
 class CorpusSelectRequest(BaseModel):
@@ -141,7 +152,7 @@ def create_app(
         payload = load_trace(application.state.traces_dir, run_id)
         if payload is None:
             raise HTTPException(status_code=404, detail="trace not found")
-        return {"trace": payload, "steps": trace_to_steps(payload)}
+        return _run_payload(application.state.traces_dir, payload)
 
     @application.delete("/api/traces/{run_id}")
     def remove_trace(run_id: str) -> dict[str, Any]:
@@ -157,7 +168,8 @@ def create_app(
         if body.mode not in MODES:
             raise HTTPException(status_code=400, detail=f"mode must be one of {sorted(MODES)}")
         retrieve_only = body.mode == "retrieve_only"
-        if not retrieve_only and not os.environ.get("OPENAI_API_KEY"):
+        needs_key = body.mode in {"loop", "loop_confirm", "baseline"}
+        if needs_key and not retrieve_only and not os.environ.get("OPENAI_API_KEY"):
             raise HTTPException(
                 status_code=400,
                 detail="OPENAI_API_KEY is not set. Use retrieve-only mode, or add a key to .env.",
@@ -176,8 +188,52 @@ def create_app(
         return {
             "run_id": result.run_id,
             "answer": result.answer,
-            "trace": payload,
-            "steps": trace_to_steps(payload),
+            **_run_payload(application.state.traces_dir, payload),
+        }
+
+    @application.post("/api/runs/{run_id}/recover")
+    def recover_run(run_id: str, body: RecoverRequest | None = None) -> dict[str, Any]:
+        request = body or RecoverRequest()
+        if not os.environ.get("OPENAI_API_KEY"):
+            raise HTTPException(
+                status_code=400,
+                detail="OPENAI_API_KEY is not set. Use retrieve-only mode, or add a key to .env.",
+            )
+        parent = load_trace(application.state.traces_dir, run_id)
+        if parent is None:
+            raise HTTPException(status_code=404, detail="trace not found")
+        if parent.get("parent_run_id"):
+            raise HTTPException(status_code=409, detail="cannot apply recovery to a recovered child run")
+        if parent.get("recovery_status") != "proposed":
+            raise HTTPException(status_code=409, detail="recovery is not proposed on this run")
+        if find_child_run_id(application.state.traces_dir, run_id):
+            raise HTTPException(status_code=409, detail="recovery was already applied for this run")
+        recovery = parent.get("recovery") if isinstance(parent.get("recovery"), dict) else {}
+        if not recovery.get("action"):
+            raise HTTPException(status_code=409, detail="parent has no proposed recovery")
+        action = (request.action or "").strip() or None
+        if action is not None and action not in ACTIONS:
+            raise HTTPException(
+                status_code=400,
+                detail=f"action must be one of {sorted(ACTIONS)}",
+            )
+        try:
+            with application.state.index_lock:
+                result = _execute_recover(application, run_id, action)
+        except RecoveryNotApplicable as error:
+            raise HTTPException(status_code=409, detail=str(error)) from error
+        except FileExistsError as error:
+            raise HTTPException(status_code=409, detail=str(error)) from error
+        except Exception as error:
+            raise HTTPException(status_code=500, detail=str(error)) from error
+
+        payload = load_trace(application.state.traces_dir, result.run_id)
+        if payload is None:
+            raise HTTPException(status_code=500, detail="run finished but the trace was not readable")
+        return {
+            "run_id": result.run_id,
+            "answer": result.answer,
+            **_run_payload(application.state.traces_dir, payload),
         }
 
     if static.is_dir():
@@ -235,7 +291,35 @@ def _execute_run(application: FastAPI, question: str, mode: str, top_k: int):
 
         kwargs["judge"] = LLMJudge()
         return run_with_recovery(question, **kwargs)
+    if mode == "loop_confirm":
+        from swrag.evaluation.llm_judge import LLMJudge
+
+        kwargs["judge"] = LLMJudge()
+        return run_first_pass(question, **kwargs)
     return run_query(question, **kwargs)
+
+
+def _execute_recover(application: FastAPI, run_id: str, action: str | None):
+    from swrag.evaluation.llm_judge import LLMJudge
+
+    index = _index_for(application, retrieve_only=False)
+    return apply_recovery(
+        run_id,
+        output_dir=application.state.traces_dir,
+        corpus_dir=application.state.corpus_dir,
+        action=action,
+        index=index,
+        generate=True,
+        judge=LLMJudge(),
+    )
+
+
+def _run_payload(traces_dir: Path, payload: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "trace": payload,
+        "steps": trace_to_steps(payload),
+        "child_run_id": find_child_run_id(traces_dir, str(payload.get("run_id") or "")),
+    }
 
 
 def _index_for(application: FastAPI, *, retrieve_only: bool):

@@ -10,7 +10,7 @@ from fastapi.testclient import TestClient
 
 from swrag.api.app import create_app
 from swrag.tracing.tracer import write_trace
-from swrag.types import TraceRecord
+from swrag.types import BaselineRunResult, RetrievalResult, TraceRecord
 
 ROOT = Path(__file__).resolve().parents[1]
 CORPUS = ROOT / "datasets" / "corpus"
@@ -216,7 +216,15 @@ def test_index_page_and_assets_are_served(tmp_path: Path) -> None:
         assert "function escapeHtml" in js.text
         assert "cite-missing" in js.text
         assert "Not in this retrieve" in js.text
-        assert "looksLikeChunkId" in js.text
+        assert "applyRecovery" in js.text
+        assert "Regenerate from evidence" in js.text
+        assert "Rewrite query and retrieve" in js.text
+        assert "recover-bar" in js.text
+        assert 'id="recover-bar"' in page.text
+        assert 'value="loop_confirm"' in page.text
+        assert "Loop (confirm recovery)" in page.text
+        assert "Loop (auto recover)" in page.text
+        assert 'value="loop_confirm" selected' in page.text
         assert "Generate (first pass)" not in page.text
 
 
@@ -250,3 +258,208 @@ def test_lists_corpora_and_switches_without_mixing_indexes(tmp_path: Path) -> No
         assert "harbor-library" in docs
         dku_docs = {"academic-building-dining", "dku-library-hours", "dku-about"}
         assert not (set(docs) & dku_docs)
+
+
+def _empty_retrieval(query: str = "When does the library close?") -> RetrievalResult:
+    return RetrievalResult(
+        query=query,
+        chunks=(),
+        top_k=4,
+        embedding_model="fake-hash",
+    )
+
+
+def _proposed_record(run_id: str = "ui_proposed") -> TraceRecord:
+    return TraceRecord(
+        run_id=run_id,
+        timestamp="2026-09-16T12:00:00+00:00",
+        query="When does the library close?",
+        retrieved_chunks=(),
+        answer="The library is on the moon.",
+        model="none",
+        embedding_model="fake-hash",
+        top_k=4,
+        runtime_evaluation={
+            "evidence_sufficient": False,
+            "answer_supported": False,
+            "sufficiency_rationale": "thin",
+            "support_rationale": "",
+            "judge": "scripted",
+            "model": "none",
+        },
+        diagnosis={
+            "failure_class": None,
+            "rationale": "not split on first pass",
+            "detector": "first-pass-runtime",
+        },
+        recovery={
+            "action": "rewrite",
+            "reason": "first-pass evidence insufficient: rewrite query and retrieve again",
+            "attributed_class": None,
+            "source": "policy",
+        },
+        recovery_status="proposed",
+    )
+
+
+def test_loop_confirm_without_api_key_is_rejected(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("OPENAI_API_KEY", "")
+    with _client(tmp_path) as client:
+        response = client.post(
+            "/api/runs",
+            json={"question": "When does the library close?", "mode": "loop_confirm"},
+        )
+        assert response.status_code == 400
+        assert "OPENAI_API_KEY" in response.json()["detail"]
+
+
+def test_recover_without_api_key_is_rejected(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("OPENAI_API_KEY", "")
+    write_trace(_proposed_record(), tmp_path)
+    with _client(tmp_path) as client:
+        response = client.post("/api/runs/ui_proposed/recover", json={"action": "rewrite"})
+        assert response.status_code == 400
+        assert "OPENAI_API_KEY" in response.json()["detail"]
+
+
+def test_recover_missing_trace_is_404(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+    with _client(tmp_path) as client:
+        response = client.post("/api/runs/does-not-exist/recover", json={})
+        assert response.status_code == 404
+
+
+def test_recover_rejects_unknown_action_and_unproposed_runs(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+    write_trace(_proposed_record(), tmp_path)
+    write_trace(
+        TraceRecord(
+            run_id="ui_applied",
+            timestamp="2026-09-16T12:01:00+00:00",
+            query="When does the library close?",
+            retrieved_chunks=(),
+            answer="Saturday 10:00-16:00",
+            model="none",
+            embedding_model="fake-hash",
+            top_k=4,
+            recovery={"action": "accept", "reason": "no first-pass failure", "source": "policy"},
+            recovery_status="applied",
+        ),
+        tmp_path,
+    )
+    with _client(tmp_path) as client:
+        unknown = client.post("/api/runs/ui_proposed/recover", json={"action": "fix_it"})
+        assert unknown.status_code == 400
+        not_proposed = client.post("/api/runs/ui_applied/recover", json={"action": "rewrite"})
+        assert not_proposed.status_code == 409
+        listing = client.get("/api/traces").json()["traces"]
+        proposed = next(item for item in listing if item["run_id"] == "ui_proposed")
+        assert proposed["recovery_status"] == "proposed"
+        assert proposed["child_run_id"] is None
+
+
+def test_recover_twice_is_409(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+    write_trace(_proposed_record(), tmp_path)
+    write_trace(
+        TraceRecord(
+            run_id="ui_child",
+            timestamp="2026-09-16T12:02:00+00:00",
+            query="When does the library close?",
+            retrieved_chunks=(),
+            answer="Saturday 10:00-16:00",
+            model="none",
+            embedding_model="fake-hash",
+            top_k=4,
+            previous_answer="The library is on the moon.",
+            recovery={"action": "rewrite", "reason": "first-pass", "source": "policy"},
+            recovery_status="applied",
+            parent_run_id="ui_proposed",
+        ),
+        tmp_path,
+    )
+    with _client(tmp_path) as client:
+        loaded = client.get("/api/traces/ui_proposed")
+        assert loaded.status_code == 200
+        assert loaded.json()["child_run_id"] == "ui_child"
+        response = client.post("/api/runs/ui_proposed/recover", json={"action": "rewrite"})
+        assert response.status_code == 409
+
+
+def test_loop_confirm_then_recover_writes_a_child(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+
+    def fake_execute_run(application, question, mode, top_k):
+        del top_k
+        assert mode == "loop_confirm"
+        path = write_trace(_proposed_record("confirm_parent"), application.state.traces_dir)
+        return BaselineRunResult(
+            run_id="confirm_parent",
+            query=question,
+            answer="The library is on the moon.",
+            retrieval=_empty_retrieval(question),
+            generation_model="none",
+            embedding_model="fake-hash",
+            trace_path=path,
+        )
+
+    def fake_execute_recover(application, run_id, action):
+        assert run_id == "confirm_parent"
+        chosen = action or "rewrite"
+        path = write_trace(
+            TraceRecord(
+                run_id="confirm_child",
+                timestamp="2026-09-16T12:03:00+00:00",
+                query="When does the library close?",
+                retrieved_chunks=(),
+                answer="Saturday 10:00-16:00",
+                model="none",
+                embedding_model="fake-hash",
+                top_k=4,
+                previous_answer="The library is on the moon.",
+                recovery={
+                    "action": chosen,
+                    "reason": "first-pass evidence insufficient: rewrite query and retrieve again",
+                    "source": "policy",
+                },
+                verification={"outcome": "improved", "rationale": "test"},
+                recovery_status="applied",
+                parent_run_id=run_id,
+            ),
+            application.state.traces_dir,
+        )
+        return BaselineRunResult(
+            run_id="confirm_child",
+            query="When does the library close?",
+            answer="Saturday 10:00-16:00",
+            retrieval=_empty_retrieval(),
+            generation_model="none",
+            embedding_model="fake-hash",
+            trace_path=path,
+        )
+
+    monkeypatch.setattr("swrag.api.app._execute_run", fake_execute_run)
+    monkeypatch.setattr("swrag.api.app._execute_recover", fake_execute_recover)
+    with _client(tmp_path) as client:
+        first = client.post(
+            "/api/runs",
+            json={"question": "When does the library close?", "mode": "loop_confirm"},
+        )
+        assert first.status_code == 200, first.text
+        body = first.json()
+        assert body["trace"]["recovery_status"] == "proposed"
+        assert body["trace"]["previous_answer"] is None
+        recover = next(step for step in body["steps"] if step["id"] == "recover")
+        assert recover["summary"] == "proposed: rewrite"
+        parent_text = (tmp_path / "confirm_parent.json").read_text(encoding="utf-8")
+        applied = client.post("/api/runs/confirm_parent/recover", json={"action": "rewrite"})
+        assert applied.status_code == 200, applied.text
+        child = applied.json()
+        assert child["run_id"] == "confirm_child"
+        assert child["trace"]["parent_run_id"] == "confirm_parent"
+        assert child["trace"]["recovery_status"] == "applied"
+        assert child["trace"]["verification"]["outcome"] == "improved"
+        assert child["trace"]["previous_answer"] == "The library is on the moon."
+        assert (tmp_path / "confirm_parent.json").read_text(encoding="utf-8") == parent_text
+        again = client.post("/api/runs/confirm_parent/recover", json={"action": "rewrite"})
+        assert again.status_code == 409

@@ -164,8 +164,53 @@ Before-answer citations open the first-pass retrieve when those chunks were
 stored. After-answer citations open the post-recovery retrieve. Do not change
 the generator prompt.
 
+Date: 2026-09-16
+
+Tool: Cursor
+
+Purpose: Confirm recovery after diagnosis in the explorer (issue #48).
+
+What AI assisted with:
+Splitting the loop into `run_first_pass` and `apply_recovery`, HTTP
+`loop_confirm` plus `POST /api/runs/{id}/recover`, and explorer buttons
+labeled with V1 actions.
+
+Important suggestions produced:
+Keep automatic `loop` as the default so benchmarks stay one-shot. Persist
+proposals on a first-pass file and write a new child on apply so traces are
+never overwritten. Record `recovery.source` as `policy` or `operator`.
+
+What I independently decided or changed:
+Operator override is allowed among regenerate / rewrite / abstain / accept.
+Accept on first pass is already finished (no button). Proposed traces are not
+treated as successful recoveries. Playground default is confirm recovery;
+automatic `loop` stays available and is still what benchmarks call.
+
 How I verified the result:
-`pytest` parser and API asset tests. Browser click-through on fixture traces
-with known, missing, and HTML-injection answers.
+`pytest` with fakes for first-pass vs apply, 409/400 API cases, and a
+browser check of the confirm mode and recovery buttons.
+
+---
+
+Date: 2026-09-17
+
+Tool: Cursor
+
+Purpose: Make confirm recovery the playground default.
+
+What AI assisted with:
+Dropdown order/default so the explorer starts in `loop_confirm`.
+
+Important suggestions produced:
+Do not change the experiment runner; automatic `run_with_recovery` remains
+the benchmark path.
+
+What I independently decided or changed:
+Manual confirm is the explorer default for now, because automatic rewrite
+often ends `still_failing` and the operator should see the proposal first.
+
+How I verified the result:
+API asset test for the selected `loop_confirm` option.
+
 
 

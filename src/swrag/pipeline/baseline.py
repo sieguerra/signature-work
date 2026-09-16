@@ -141,6 +141,8 @@ def write_run(
     previous_answer: str | None = None,
     rewritten_query: str | None = None,
     previous_retrieved_chunks: tuple[dict, ...] | None = None,
+    recovery_status: str | None = None,
+    parent_run_id: str | None = None,
 ) -> BaselineRunResult:
     """Write a trace for ``state``. Never overwrites an existing file."""
     run_id = _new_run_id()
@@ -172,6 +174,8 @@ def write_run(
             previous_answer=previous_answer,
             rewritten_query=rewritten_query,
             previous_retrieved_chunks=previous_retrieved_chunks,
+            recovery_status=recovery_status,
+            parent_run_id=parent_run_id,
         ),
         output_dir,
     )

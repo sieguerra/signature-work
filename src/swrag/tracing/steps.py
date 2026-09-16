@@ -203,18 +203,21 @@ def _append_recover(
     if not isinstance(recovery, dict) or not recovery.get("action"):
         return
     action = str(recovery.get("action"))
+    status_label = payload.get("recovery_status")
+    summary = f"proposed: {action}" if status_label == "proposed" else action
     status = "ok" if action == "accept" else "warn" if action != "abstain" else "empty"
     steps.append(
         _step(
             "recover",
             "recover",
             "Recover",
-            action,
+            summary,
             status,
             {
                 **recovery,
                 "rewritten_query": rewritten,
                 "previous_answer": previous_answer,
+                "recovery_status": status_label,
             },
         )
     )

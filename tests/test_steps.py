@@ -211,3 +211,36 @@ def test_stored_first_pass_chunks_become_two_retrieve_steps() -> None:
     assert first["payload"]["chunks"][0]["doc_id"] == "traveler-2018"
     assert after["payload"]["chunks"][0]["doc_id"] == "harbor-library"
     assert "note" not in after["payload"]
+
+
+def test_proposed_rewrite_is_labeled_on_the_recover_step() -> None:
+    steps = trace_to_steps(
+        _base(
+            runtime_evaluation={
+                "evidence_sufficient": False,
+                "answer_supported": False,
+                "sufficiency_rationale": "thin",
+                "support_rationale": "",
+                "judge": "scripted",
+                "model": "none",
+            },
+            diagnosis={
+                "failure_class": None,
+                "rationale": "not split on first pass",
+                "detector": "first-pass-runtime",
+            },
+            recovery={
+                "action": "rewrite",
+                "reason": "first-pass evidence insufficient",
+                "attributed_class": None,
+                "source": "policy",
+            },
+            recovery_status="proposed",
+        )
+    )
+    kinds = [step["id"] for step in steps]
+    assert kinds == ["query", "retrieve", "generate", "evaluate", "diagnose", "recover"]
+    recover = next(step for step in steps if step["id"] == "recover")
+    assert recover["summary"] == "proposed: rewrite"
+    assert recover["payload"]["source"] == "policy"
+    assert recover["payload"]["recovery_status"] == "proposed"
