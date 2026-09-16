@@ -43,12 +43,9 @@ abstention can be tested when the model may still “know” the fact.
 
 ## Gold
 
-`gold/questions.jsonl` — 44 questions (34 answerable, 10 unanswerable). `dku-041`
-through `dku-044` are recovery-oriented: the fact lives in one note, and the
-question does not name that note (issue #32). Treat those ids as a proposed
-split until student-confirmed. Every answerable row must be checked by hand
-against the cited `.txt` files. Do not edit a question after it has results;
-add a new id.
+`gold/questions.jsonl` — 40 questions (`dku-001`–`dku-040`). Every answerable
+row must be checked by hand against the cited `.txt` files. Do not edit a
+question after it has results; add a new id.
 
 `gold/recovery.jsonl` — issue #32 split (`dku-041`–`dku-052`). Underspecified
 contrast questions over the same notes; they do **not** name the dated source.
@@ -59,6 +56,11 @@ Three rows are unanswerable so abstention can still be tested. Harbor gold and
 
 If these questions still first-pass accept at `top_k=4`, use `top_k=1`
 (`experiments/configs/v2_dku_recovery_vs_loop.json`) rather than editing old gold.
+
+`gold/audit.jsonl` lists every id in `questions.jsonl`. Those rows are a
+substring search, not a student sign-off. Do not quote DKU scores until you
+have personally confirmed the spans. Recovery ids in `recovery.jsonl` are a
+proposed split until you confirm them.
 
 ## Run
 

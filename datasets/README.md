@@ -29,6 +29,11 @@ Do not edit a gold row after it has results; add a new id. Harbor snapshot
 Recovery-oriented splits (issue #32) live beside the main gold as
 `gold/recovery.jsonl` on DKU and Kestrel. They do not replace the main sets.
 
+Each registered gold set has `gold/audit.jsonl` listing every `question_id`.
+Those rows are a **substring search**, not a student sign-off. Quote scores
+only for ids you have personally confirmed (issue #37). Harbor
+`datasets/gold/questions.jsonl` is unchanged.
+
 Regenerate industry folders (does not touch Harbor or DKU notes, and does not
 overwrite an existing `gold/recovery.jsonl`):
 

@@ -1,0 +1,33 @@
+# Substring search against supporting .txt files. Not a student sign-off.
+{"question_id": "seed-001", "answerable": true, "span_found": "yes", "file": "north-jetty-lab", "notes": "substring 'NJ-12' in north-jetty-lab.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "seed-002", "answerable": true, "span_found": "yes", "file": "harbor-library", "notes": "substring 'Level 3' in harbor-library.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "seed-003", "answerable": true, "span_found": "yes", "file": "tideline-shuttle", "notes": "substring 'Tideline' in tideline-shuttle.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "gold-013", "answerable": true, "span_found": "yes", "file": "south-jetty-lab", "notes": "substring 'SJ-07' in south-jetty-lab.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "gold-015", "answerable": true, "span_found": "yes", "file": "south-jetty-lab", "notes": "substring 'Dev Okonkwo' in south-jetty-lab.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "gold-024", "answerable": true, "span_found": "yes", "file": "north-jetty-lab", "notes": "substring 'Priya Chen' in north-jetty-lab.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "gold-032", "answerable": true, "span_found": "yes", "file": "coastal-memory-group", "notes": "substring 'Room 214' in coastal-memory-group.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "seed-004", "answerable": true, "span_found": "yes", "file": "north-jetty-lab", "notes": "substring '15 minutes' in north-jetty-lab.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "seed-005", "answerable": true, "span_found": "yes", "file": "coastal-memory-group", "notes": "substring '31 hours' in coastal-memory-group.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "seed-006", "answerable": true, "span_found": "yes", "file": "tide-canteen", "notes": "substring '19:00' in tide-canteen.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "gold-014", "answerable": true, "span_found": "yes", "file": "south-jetty-lab", "notes": "substring '10 minutes' in south-jetty-lab.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "gold-016", "answerable": true, "span_found": "yes", "file": "east-canteen", "notes": "substring '3' in east-canteen.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "gold-017", "answerable": true, "span_found": "yes", "file": "east-canteen", "notes": "substring '20:00' in east-canteen.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "gold-018", "answerable": true, "span_found": "yes", "file": "storm-ledger-unit", "notes": "substring '214' in storm-ledger-unit.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "gold-019", "answerable": true, "span_found": "yes", "file": "storm-ledger-unit", "notes": "substring '19 hours' in storm-ledger-unit.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "gold-020", "answerable": true, "span_found": "yes", "file": "tideline-winter-recess", "notes": "substring '30 minutes' in tideline-winter-recess.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "gold-021", "answerable": true, "span_found": "yes", "file": "harbor-library", "notes": "substring '2 harbor credits' in harbor-library.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "gold-022", "answerable": true, "span_found": "yes", "file": "saltmarsh-annex-library", "notes": "substring '1 harbor credit' in saltmarsh-annex-library.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "gold-023", "answerable": true, "span_found": "yes", "file": "saltmarsh-annex-library", "notes": "substring 'Level 2' in saltmarsh-annex-library.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "seed-011", "answerable": true, "span_found": "yes", "file": "saltmarsh-annex-library", "notes": "substring '12:00–18:00' in saltmarsh-annex-library.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "seed-012", "answerable": true, "span_found": "yes", "file": "harbor-library", "notes": "substring '10:00–16:00' in harbor-library.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "gold-025", "answerable": true, "span_found": "yes", "file": "harbor-library-2019-notice", "notes": "substring '12:00–15:00' in harbor-library-2019-notice.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "seed-007", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+{"question_id": "seed-008", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+{"question_id": "seed-009", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+{"question_id": "seed-010", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+{"question_id": "gold-026", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+{"question_id": "gold-027", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+{"question_id": "gold-028", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+{"question_id": "gold-029", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+{"question_id": "gold-030", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+{"question_id": "gold-031", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}

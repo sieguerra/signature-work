@@ -1,0 +1,17 @@
+# Substring search against supporting .txt files. Not a student sign-off.
+{"question_id": "sw-001", "answerable": true, "span_found": "yes", "file": "opener-current", "notes": "substring '1 December' in opener-current.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "sw-002", "answerable": true, "span_found": "yes", "file": "opener-2024", "notes": "substring '15 November' in opener-2024.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "sw-003", "answerable": true, "span_found": "yes", "file": "opener-current", "notes": "substring '1 May' in opener-current.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "sw-004", "answerable": true, "span_found": "yes", "file": "storm-petrel", "notes": "substring 'crabber' in storm-petrel.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "sw-005", "answerable": true, "span_found": "yes", "file": "ice-plant", "notes": "substring '04:00-14:00' in ice-plant.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "sw-006", "answerable": true, "span_found": "yes", "file": "pier-2", "notes": "substring 'H-4' in pier-2.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "sw-007", "answerable": true, "span_found": "yes", "file": "contacts", "notes": "substring '555-8800' in contacts.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "sw-008", "answerable": true, "span_found": "yes", "file": "scale-house", "notes": "substring 'Scale A on Pier 2' in scale-house.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "sw-009", "answerable": true, "span_found": "yes", "file": "gull-packers", "notes": "substring '06:00-12:00' in gull-packers.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "sw-010", "answerable": true, "span_found": "yes", "file": "gear", "notes": "substring 'Loft C' in gear.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "sw-011", "answerable": true, "span_found": "yes", "file": "meetings", "notes": "substring 'first Tuesday, 19:00' in meetings.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "sw-012", "answerable": true, "span_found": "yes", "file": "kelp-wren", "notes": "substring 'Saltwind-Wren' in kelp-wren.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "sw-013", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+{"question_id": "sw-014", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+{"question_id": "sw-015", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+{"question_id": "sw-016", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}

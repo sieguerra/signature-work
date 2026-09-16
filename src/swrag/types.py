@@ -123,17 +123,19 @@ class Diagnosis:
 
 @dataclass(frozen=True)
 class RecoveryDecision:
-    """Controller output. Applied recoveries: regenerate, rewrite."""
+    """Controller output. Applied recoveries: regenerate, rewrite, abstain, accept."""
 
     action: str
     reason: str
     attributed_class: str | None = None
+    source: str = "policy"
 
     def as_trace_payload(self) -> dict[str, object]:
         return {
             "action": self.action,
             "reason": self.reason,
             "attributed_class": self.attributed_class,
+            "source": self.source,
         }
 
 
@@ -166,6 +168,9 @@ class TraceRecord:
     verification: dict[str, Any] | None = field(default=None)
     previous_answer: str | None = field(default=None)
     rewritten_query: str | None = field(default=None)
+    previous_retrieved_chunks: tuple[dict[str, Any], ...] | None = field(default=None)
+    recovery_status: str | None = field(default=None)
+    parent_run_id: str | None = field(default=None)
 
 
 @dataclass(frozen=True)

@@ -1,0 +1,2 @@
+# Copy this file, fill human_* without looking at gold, keep n >= 30.
+{"run_id": "", "question": "", "human_sufficient": null, "human_supported": null, "judge_sufficient": null, "judge_supported": null, "agree_sufficient": null, "agree_supported": null, "notes": ""}

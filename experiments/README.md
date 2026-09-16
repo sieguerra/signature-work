@@ -27,5 +27,6 @@ Issue #32 recovery gold (underspecified questions, `top_k=1`):
 python scripts/run_benchmark.py --config experiments/configs/v2_dku_recovery_vs_loop.json
 ```
 
-Do not overwrite `results/20260910T070623/`.
+Judge-agreement labels (issue #38) live under `judge-audit/`. See that
+README. Do not overwrite `results/20260910T070623/`.
 

@@ -6,8 +6,20 @@ const state = {
   trace: null,
   steps: [],
   selectedStep: null,
+  selectedChunkId: null,
+  childRunId: null,
   loading: false,
+  recovering: false,
 };
+
+const ACTION_LABELS = {
+  regenerate: "Regenerate from evidence",
+  rewrite: "Rewrite query and retrieve",
+  abstain: "Abstain",
+  accept: "Keep first-pass answer",
+};
+
+const V1_ACTIONS = ["regenerate", "rewrite", "abstain", "accept"];
 
 const $ = (id) => document.getElementById(id);
 
@@ -150,6 +162,7 @@ function renderRunList() {
           <div class="q">${escapeHtml(item.query || "(no query)")}</div>
           <div class="meta">
             ${pill(item.action, item.action)}
+            ${item.recovery_status === "proposed" ? pill("warn", "proposed") : ""}
             ${pill(item.verification, item.verification)}
             <span>${escapeHtml(when)}</span>
           </div>
@@ -160,6 +173,68 @@ function renderRunList() {
     .join("");
 }
 
+function knownChunkIds() {
+  const ids = new Set();
+  const trace = state.trace || {};
+  (trace.retrieved_chunks || []).forEach((chunk) => {
+    if (chunk && chunk.chunk_id) ids.add(chunk.chunk_id);
+  });
+  (trace.previous_retrieved_chunks || []).forEach((chunk) => {
+    if (chunk && chunk.chunk_id) ids.add(chunk.chunk_id);
+  });
+  return ids;
+}
+
+function looksLikeChunkId(token) {
+  return /^\S+::c\d+$/.test(token);
+}
+
+function formatAnswerHtml(text, preferredPass) {
+  const value = text || "";
+  if (!value) return { html: "", missing: [] };
+  const ids = knownChunkIds();
+  const token = /\[([^\[\]]+)\]/g;
+  let cursor = 0;
+  let html = "";
+  const missing = [];
+  let match;
+  while ((match = token.exec(value))) {
+    if (match.index > cursor) {
+      html += escapeHtml(value.slice(cursor, match.index));
+    }
+    const chunkId = match[1];
+    const raw = match[0];
+    if (ids.has(chunkId)) {
+      const active = chunkId === state.selectedChunkId ? " active" : "";
+      const passAttr = preferredPass
+        ? ` data-cite-pass="${escapeHtml(preferredPass)}"`
+        : "";
+      html += `<button type="button" class="cite${active}" data-chunk-id="${escapeHtml(chunkId)}"${passAttr} aria-label="Open chunk ${escapeHtml(chunkId)}">${escapeHtml(raw)}</button>`;
+    } else if (looksLikeChunkId(chunkId)) {
+      html += `<span class="cite-missing" title="not in this retrieve">${escapeHtml(raw)}</span>`;
+      if (!missing.includes(chunkId)) missing.push(chunkId);
+    } else {
+      html += escapeHtml(raw);
+    }
+    cursor = match.index + match[0].length;
+  }
+  if (cursor < value.length) {
+    html += escapeHtml(value.slice(cursor));
+  }
+  return { html, missing };
+}
+
+function missingCitationNote(missing) {
+  if (!missing.length) return "";
+  const labels = missing.map((id) => `[${id}]`).join(", ");
+  return `<div class="answer-meta">Not in this retrieve: ${escapeHtml(labels)}</div>`;
+}
+
+function answerBlock(text, preferredPass) {
+  const parsed = formatAnswerHtml(text, preferredPass);
+  return `<div class="answer-block">${parsed.html}</div>${missingCitationNote(parsed.missing)}`;
+}
+
 function renderAnswer() {
   const bar = $("answer-bar");
   if (!state.trace) {
@@ -168,8 +243,87 @@ function renderAnswer() {
   }
   bar.classList.remove("hidden");
   $("answer-run-id").textContent = state.trace.run_id || "";
-  const answer = (state.trace.answer || "").trim();
-  $("answer-text").textContent = answer || "(no generated answer)";
+  const after = (state.trace.answer || "").trim() || "(no generated answer)";
+  const before = (state.trace.previous_answer || "").trim();
+  const rewritten = (state.trace.rewritten_query || "").trim();
+  const firstChunks = (state.trace.previous_retrieved_chunks || []).length;
+  const action = state.trace.recovery && state.trace.recovery.action;
+  const outcome = state.trace.verification && state.trace.verification.outcome;
+  const recovered = Boolean(before || rewritten || firstChunks);
+  if (!recovered) {
+    $("answer-text").innerHTML = answerBlock(after);
+    return;
+  }
+  const rewriteLine = rewritten
+    ? `<div class="answer-meta">Rewritten query: ${escapeHtml(rewritten)}</div>`
+    : "";
+  const sameNote =
+    before && after === before
+      ? `<div class="answer-meta">Before and after are the same text. Recovery did not change the answer.</div>`
+      : "";
+  const beforeColumn = before
+    ? `<div>
+        <div class="answer-label">Before</div>
+        ${answerBlock(before, "first")}
+      </div>`
+    : "";
+  $("answer-text").innerHTML = `<div class="answer-pills">${pill(action, action)}${pill(outcome, outcome)}</div>
+    ${rewriteLine}
+    ${sameNote}
+    <div class="answer-split">
+      ${beforeColumn}
+      <div>
+        <div class="answer-label">${before ? "After" : "Answer"}</div>
+        ${answerBlock(after, before ? "after_recovery" : null)}
+      </div>
+    </div>`;
+}
+
+function proposedAction() {
+  const recovery = (state.trace && state.trace.recovery) || {};
+  return recovery.action || "";
+}
+
+function renderRecoverBar() {
+  const root = $("recover-bar");
+  if (!root) return;
+  const status = state.trace && state.trace.recovery_status;
+  const action = proposedAction();
+  const canPropose = Boolean(state.trace && status === "proposed" && action && action !== "accept");
+  if (!canPropose) {
+    root.classList.add("hidden");
+    root.innerHTML = "";
+    return;
+  }
+  root.classList.remove("hidden");
+  const diagnosis = (state.trace && state.trace.diagnosis) || {};
+  const klass = diagnosis.failure_class || "no class claimed";
+  const rationale = diagnosis.rationale || "";
+  if (state.childRunId) {
+    root.innerHTML = `<div class="recover-kicker">Recovery</div>
+      <p class="recover-note">Already applied on ${escapeHtml(state.childRunId)}.</p>
+      <div class="recover-actions">
+        <button type="button" class="primary" data-open-child="${escapeHtml(state.childRunId)}">Open recovered run</button>
+      </div>`;
+    return;
+  }
+  const others = V1_ACTIONS.filter((item) => item !== action);
+  const secondary = others
+    .map(
+      (item) =>
+        `<button type="button" class="ghost" data-recover="${escapeHtml(item)}" ${
+          state.recovering ? "disabled" : ""
+        }>${escapeHtml(ACTION_LABELS[item] || item)}</button>`
+    )
+    .join("");
+  root.innerHTML = `<div class="recover-kicker">Proposed recovery</div>
+    <p class="recover-note">${escapeHtml(klass)}${rationale ? ` — ${escapeHtml(rationale)}` : ""}</p>
+    <div class="recover-actions">
+      <button type="button" class="primary" data-recover="${escapeHtml(action)}" ${
+        state.recovering ? "disabled" : ""
+      }>${escapeHtml(ACTION_LABELS[action] || action)}</button>
+      ${secondary}
+    </div>`;
 }
 
 function renderWaterfall() {
@@ -219,11 +373,18 @@ function renderChunks(chunks) {
   return chunks
     .map((chunk) => {
       const width = Math.max(4, Math.min(100, Math.round((chunk.score || 0) * 100)));
-      return `<article class="chunk">
+      const selected = chunk.chunk_id && chunk.chunk_id === state.selectedChunkId;
+      const active = selected ? " selected" : "";
+      const cited = selected ? `<span class="pill ok">cited</span>` : "";
+      const title = chunk.title
+        ? `<div class="chunk-title">${escapeHtml(chunk.title)}</div>`
+        : "";
+      return `<article class="chunk${active}" data-chunk-id="${escapeHtml(chunk.chunk_id || "")}">
         <div class="chunk-head">
           <span>${escapeHtml(chunk.chunk_id || "")}</span>
-          <span>${Number(chunk.score || 0).toFixed(3)}</span>
+          <span>${cited}${Number(chunk.score || 0).toFixed(3)}</span>
         </div>
+        ${title}
         <div class="score"><span style="width:${width}%"></span></div>
         <div class="chunk-text">${escapeHtml(chunk.text || "")}</div>
       </article>`;
@@ -250,11 +411,30 @@ function renderInspector() {
   const step = state.selectedStep;
   label.textContent = step.title;
   const data = step.payload || {};
+  if (step.kind === "query") {
+    const rewritten = data.rewritten_query;
+    root.innerHTML =
+      kv([["question id", data.question_id]]) +
+      `<p class="pane-label">Question</p><div class="block">${escapeHtml(data.query || "(empty)")}</div>` +
+      (rewritten
+        ? `<p class="pane-label">Rewritten query</p><div class="block">${escapeHtml(rewritten)}</div>`
+        : "");
+    return;
+  }
   if (step.kind === "retrieve") {
+    const cited = state.selectedChunkId;
+    const citedNote = cited
+      ? retrieveHasChunk(step, cited)
+        ? cited
+        : `${cited} (not in this retrieve)`
+      : "";
     root.innerHTML =
       kv([
         ["top_k", data.top_k],
         ["embedding model", data.embedding_model],
+        ["pass", data.pass],
+        ["note", data.note],
+        ["cited", citedNote],
       ]) + renderChunks(data.chunks);
     return;
   }
@@ -266,28 +446,36 @@ function renderInspector() {
         ["model", data.model],
         ["sufficiency", data.sufficiency_rationale],
         ["support", data.support_rationale],
+        ["note", data.note],
       ]);
     return;
   }
   if (step.kind === "generate") {
+    const parsed = formatAnswerHtml(data.answer || "(empty)", data.pass);
     root.innerHTML =
-      kv([["model", data.model]]) +
-      `<div class="block">${escapeHtml(data.answer || "(empty)")}</div>` +
-      (data.previous_answer
-        ? `<p class="pane-label">Previous answer</p><div class="block">${escapeHtml(data.previous_answer)}</div>`
-        : "");
+      kv([
+        ["model", data.model],
+        ["pass", data.pass],
+      ]) +
+      `<div class="block">${parsed.html}</div>` +
+      missingCitationNote(parsed.missing);
     return;
   }
   if (step.kind === "recover") {
+    const previous = data.previous_answer
+      ? formatAnswerHtml(data.previous_answer, "first")
+      : null;
     root.innerHTML =
       kv([
         ["action", data.action],
+        ["source", data.source],
+        ["recovery status", data.recovery_status],
         ["attributed class", data.attributed_class],
         ["reason", data.reason],
         ["rewritten query", data.rewritten_query],
       ]) +
-      (data.previous_answer
-        ? `<p class="pane-label">Previous answer</p><div class="block">${escapeHtml(data.previous_answer)}</div>`
+      (previous
+        ? `<p class="pane-label">Previous answer</p><div class="block">${previous.html}</div>${missingCitationNote(previous.missing)}`
         : "");
     return;
   }
@@ -303,6 +491,7 @@ function stringify(value) {
 function render() {
   renderRunList();
   renderAnswer();
+  renderRecoverBar();
   renderWaterfall();
   renderInspector();
 }
@@ -310,7 +499,23 @@ function render() {
 async function loadTraces() {
   const payload = await api("/api/traces");
   state.traces = payload.traces || [];
+  await loadEval();
   renderRunList();
+}
+
+async function loadEval() {
+  const strip = $("eval-strip");
+  if (!strip) return;
+  const payload = await api("/api/eval");
+  const actions = Object.entries(payload.by_action || {})
+    .map(([name, count]) => `${name}=${count}`)
+    .join(" · ");
+  const verifies = Object.entries(payload.by_verification || {})
+    .map(([name, count]) => `${name}=${count}`)
+    .join(" · ");
+  const latency =
+    payload.mean_latency_ms == null ? "" : ` · mean latency ${Math.round(payload.mean_latency_ms)}ms`;
+  strip.textContent = `n=${payload.n} · abstain=${payload.abstain}${actions ? ` · ${actions}` : ""}${verifies ? ` · ${verifies}` : ""}${latency}`;
 }
 
 async function selectRun(runId) {
@@ -320,6 +525,8 @@ async function selectRun(runId) {
   state.trace = payload.trace;
   state.steps = payload.steps || [];
   state.selectedStep = state.steps[0] || null;
+  state.selectedChunkId = null;
+  state.childRunId = payload.child_run_id || null;
   render();
 }
 
@@ -328,6 +535,8 @@ function clearSelection() {
   state.trace = null;
   state.steps = [];
   state.selectedStep = null;
+  state.selectedChunkId = null;
+  state.childRunId = null;
 }
 
 async function deleteRun(runId) {
@@ -369,6 +578,32 @@ function readTopK() {
   return raw;
 }
 
+async function applyRecovery(action) {
+  if (!state.selectedId || !action || state.recovering) return;
+  showError("");
+  state.recovering = true;
+  renderRecoverBar();
+  try {
+    const payload = await api(`/api/runs/${encodeURIComponent(state.selectedId)}/recover`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action }),
+    });
+    state.recovering = false;
+    state.selectedId = payload.run_id;
+    state.trace = payload.trace;
+    state.steps = payload.steps || [];
+    state.selectedStep = state.steps.find((step) => step.id === "recover") || state.steps[0] || null;
+    state.childRunId = payload.child_run_id || null;
+    await loadTraces();
+    render();
+  } catch (error) {
+    state.recovering = false;
+    renderRecoverBar();
+    showError(error.message || String(error));
+  }
+}
+
 async function runQuestion() {
   const question = $("question").value.trim();
   if (!question) {
@@ -399,6 +634,7 @@ async function runQuestion() {
     state.trace = payload.trace;
     state.steps = payload.steps || [];
     state.selectedStep = state.steps.find((step) => step.id === "recover") || state.steps[0] || null;
+    state.childRunId = payload.child_run_id || null;
     await loadTraces();
     render();
   } catch (error) {
@@ -408,6 +644,27 @@ async function runQuestion() {
   } finally {
     $("run-btn").disabled = false;
   }
+}
+
+function retrieveHasChunk(step, chunkId) {
+  if (!step || step.kind !== "retrieve") return false;
+  const chunks = (step.payload && step.payload.chunks) || [];
+  return chunks.some((chunk) => chunk.chunk_id === chunkId);
+}
+
+function selectCitation(chunkId, preferredPass) {
+  if (!chunkId || !knownChunkIds().has(chunkId)) return;
+  state.selectedChunkId = chunkId;
+  const matches = (state.steps || []).filter((step) => retrieveHasChunk(step, chunkId));
+  if (matches.length) {
+    const preferred = preferredPass
+      ? matches.find((step) => step.payload && step.payload.pass === preferredPass)
+      : null;
+    state.selectedStep = preferred || matches[matches.length - 1];
+  }
+  render();
+  const selected = document.querySelector(".chunk.selected");
+  if (selected) selected.scrollIntoView({ block: "nearest" });
 }
 
 function bind() {
@@ -446,6 +703,26 @@ function bind() {
     if (!button) return;
     state.selectedStep = state.steps.find((step) => step.id === button.dataset.step) || null;
     render();
+  });
+  $("recover-bar").addEventListener("click", (event) => {
+    const openChild = event.target.closest("[data-open-child]");
+    if (openChild) {
+      selectRun(openChild.dataset.openChild).catch((error) => showError(error.message));
+      return;
+    }
+    const recover = event.target.closest("[data-recover]");
+    if (!recover) return;
+    applyRecovery(recover.dataset.recover).catch((error) => showError(error.message));
+  });
+  $("answer-text").addEventListener("click", (event) => {
+    const cite = event.target.closest("button.cite");
+    if (!cite) return;
+    selectCitation(cite.dataset.chunkId, cite.dataset.citePass || null);
+  });
+  $("inspector").addEventListener("click", (event) => {
+    const cite = event.target.closest("button.cite");
+    if (!cite) return;
+    selectCitation(cite.dataset.chunkId, cite.dataset.citePass || null);
   });
 }
 

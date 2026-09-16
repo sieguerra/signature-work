@@ -33,6 +33,7 @@
             <button type="button" class="ghost danger" id="delete-all-runs">Delete all</button>
           </div>
         </div>
+        <div class="eval-strip" id="eval-strip">n=0</div>
         <div class="run-list" id="run-list"></div>
       </aside>
 
@@ -50,7 +51,8 @@
               <label class="mode">
                 Mode
                 <select id="mode">
-                  <option value="loop">Loop (evaluate → recover)</option>
+                  <option value="loop_confirm" selected>Loop (confirm recovery)</option>
+                  <option value="loop">Loop (auto recover)</option>
                   <option value="baseline">Baseline RAG</option>
                   <option value="retrieve_only">Retrieve only</option>
                 </select>
@@ -78,8 +80,10 @@
             <span>Output</span>
             <span class="run-id" id="answer-run-id"></span>
           </div>
-          <p id="answer-text"></p>
+          <div id="answer-text"></div>
         </section>
+
+        <section class="recover-bar hidden" id="recover-bar"></section>
 
         <section class="workspace" id="workspace">
           <div class="waterfall-pane">
