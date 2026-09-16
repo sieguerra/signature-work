@@ -115,4 +115,57 @@ How I verified the result:
 `pytest` gold-loader tests; retrieve-only experiment on the DKU gold set.
 Every gold row still needs a hand check against the `.txt` files.
 
+---
+
+Date: 2026-09-16
+
+Tool: Cursor
+
+Purpose: Show first-pass and post-recovery answers in the explorer (issue #33).
+
+What AI assisted with:
+Waterfall mapping from the existing flat `TraceRecord`, storing first-pass
+chunks on rewrite, and Before/After rendering in the static explorer.
+
+Important suggestions produced:
+Do not invent a first-pass retrieve list. Put recover between the two generate
+steps so a demo reads first answer → action → second answer → verify. Stored
+evaluate flags after recovery are labeled as such; first-pass evaluate is not
+fabricated.
+
+What I independently decided or changed:
+Kept recover/verify as the same step kinds. Accept traces still show one
+answer. Query inspector shows original vs rewritten search string when present.
+
+How I verified the result:
+`pytest` step-mapping and API asset tests. Browser check of accept vs rewrite
+runs in the explorer.
+
+---
+
+Date: 2026-09-16
+
+Tool: Cursor
+
+Purpose: Make chunk citations clickable in the explorer (issue #35).
+
+What AI assisted with:
+A small citation parser shared in spirit between `swrag.tracing.citations`
+and `web/app.js`, plus answer-bar buttons that select the matching retrieve
+chunk.
+
+Important suggestions produced:
+Link only ids that are in this trace's retrieve lists. Tokens that look like
+`{doc_id}::c{nnn}` but are missing get a "not in this retrieve" note instead
+of binding to another chunk. Escape all non-citation text.
+
+What I independently decided or changed:
+Before-answer citations open the first-pass retrieve when those chunks were
+stored. After-answer citations open the post-recovery retrieve. Do not change
+the generator prompt.
+
+How I verified the result:
+`pytest` parser and API asset tests. Browser click-through on fixture traces
+with known, missing, and HTML-injection answers.
+
 

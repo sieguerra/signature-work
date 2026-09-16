@@ -154,7 +154,7 @@ def write_run(
             run_id=run_id,
             timestamp=timestamp,
             query=state.query,
-            retrieved_chunks=_chunks_payload(retrieval),
+            retrieved_chunks=chunks_payload(retrieval),
             answer=generation.answer,
             model=generation.model,
             embedding_model=retrieval.embedding_model,
@@ -206,10 +206,6 @@ def chunks_payload(retrieval: RetrievalResult) -> tuple[dict, ...]:
             }
         )
     return tuple(payload)
-
-
-def _chunks_payload(retrieval: RetrievalResult) -> tuple[dict, ...]:
-    return chunks_payload(retrieval)
 
 
 def _new_run_id() -> str:
