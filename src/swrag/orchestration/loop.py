@@ -2,12 +2,18 @@
 
 One recovery attempt, then stop. Does not reimplement retrieval, judging, or
 diagnosis. Does not read gold labels.
+
+``run_with_recovery`` still auto-applies the policy (benchmarks). Confirm mode
+uses ``run_first_pass`` then ``apply_recovery`` so the explorer can show a
+button before the V1 action runs.
 """
 
 from __future__ import annotations
 
+import json
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Protocol
+from typing import Any, Protocol
 
 from swrag.diagnosis.diagnose import (
     EVIDENCE_INSUFFICIENCY,
@@ -17,22 +23,56 @@ from swrag.diagnosis.diagnose import (
 )
 from swrag.evaluation.judge import GroundingJudge
 from swrag.generation.openai_generator import OpenAIGenerator
-from swrag.pipeline.baseline import QueryState, build_corpus_index, execute_query, write_run
+from swrag.pipeline.baseline import (
+    QueryState,
+    build_corpus_index,
+    chunks_payload,
+    execute_query,
+    write_run,
+)
 from swrag.retrieval.memory_index import InMemoryIndex
-from swrag.recovery.policy import REGENERATE, REWRITE, select_recovery
+from swrag.recovery.policy import (
+    ABSTAIN,
+    ACCEPT,
+    ACTIONS,
+    REGENERATE,
+    REWRITE,
+    select_recovery,
+)
 from swrag.recovery.regenerate import ConstrainedRegenerator
 from swrag.recovery.rewrite import LLMQueryRewriter
 from swrag.retrieval.embedder import Embedder
 from swrag.types import (
     BaselineRunResult,
+    Chunk,
     Diagnosis,
     GenerationResult,
     RecoveryDecision,
     RetrievalResult,
+    RuntimeEvaluation,
+    ScoredChunk,
 )
 from swrag.verification.runtime import verify_runtime
 
 ABSTAIN_ANSWER = "I do not know based on the retrieved documents."
+RECOVERY_PROPOSED = "proposed"
+RECOVERY_APPLIED = "applied"
+SOURCE_POLICY = "policy"
+SOURCE_OPERATOR = "operator"
+
+
+class RecoveryNotApplicable(ValueError):
+    """Apply was refused: missing parent, not proposed, or unknown action."""
+
+
+@dataclass(frozen=True)
+class _Applied:
+    state: QueryState
+    decision: RecoveryDecision
+    verification: Any
+    previous_answer: str | None
+    rewritten_query: str | None
+    previous_retrieved_chunks: tuple[dict, ...] | None
 
 
 class Regenerator(Protocol):
@@ -67,9 +107,9 @@ def run_with_recovery(
     max_recoveries: int = 1,
     index: InMemoryIndex | None = None,
 ) -> BaselineRunResult:
-    """Run the loop and write one trace. Historical traces are never overwritten."""
+    """Run the automatic loop and write one trace. Never overwrites history."""
     resolved_index = index if index is not None else build_corpus_index(corpus_dir, embedder)
-    state = execute_query(
+    state, decision = _first_pass_state(
         query,
         corpus_dir=corpus_dir,
         top_k=top_k,
@@ -79,12 +119,224 @@ def run_with_recovery(
         judge=judge,
         index=resolved_index,
     )
-    decision = select_recovery(state.diagnosis, state.runtime_evaluation)
-    previous_answer = None
-    verification = None
-    rewritten_query = None
+    if max_recoveries >= 1 and decision.action in {REGENERATE, REWRITE}:
+        applied = _apply_action(
+            state,
+            decision,
+            query=query,
+            corpus_dir=corpus_dir,
+            top_k=top_k,
+            embedder=embedder,
+            generate=generate,
+            generator=generator,
+            judge=judge,
+            regenerator=regenerator,
+            rewriter=rewriter,
+            index=resolved_index,
+        )
+        return write_run(
+            applied.state,
+            output_dir=output_dir,
+            question_id=question_id,
+            recovery=applied.decision,
+            verification=applied.verification,
+            previous_answer=applied.previous_answer,
+            rewritten_query=applied.rewritten_query,
+            previous_retrieved_chunks=applied.previous_retrieved_chunks,
+            recovery_status=RECOVERY_APPLIED,
+        )
+    return write_run(
+        state,
+        output_dir=output_dir,
+        question_id=question_id,
+        recovery=decision,
+        recovery_status=RECOVERY_APPLIED,
+    )
 
-    if decision.action == REGENERATE and max_recoveries >= 1 and generate:
+
+def run_first_pass(
+    query: str,
+    *,
+    corpus_dir: str | Path,
+    output_dir: str | Path,
+    top_k: int = 4,
+    embedder: Embedder | None = None,
+    generate: bool = True,
+    generator: OpenAIGenerator | None = None,
+    judge: GroundingJudge | None = None,
+    question_id: str | None = None,
+    index: InMemoryIndex | None = None,
+) -> BaselineRunResult:
+    """Evaluate and select a recovery without applying it."""
+    resolved_index = index if index is not None else build_corpus_index(corpus_dir, embedder)
+    state, decision = _first_pass_state(
+        query,
+        corpus_dir=corpus_dir,
+        top_k=top_k,
+        embedder=embedder,
+        generate=generate,
+        generator=generator,
+        judge=judge,
+        index=resolved_index,
+    )
+    status = RECOVERY_APPLIED if decision.action == ACCEPT else RECOVERY_PROPOSED
+    return write_run(
+        state,
+        output_dir=output_dir,
+        question_id=question_id,
+        recovery=decision,
+        recovery_status=status,
+    )
+
+
+def apply_recovery(
+    parent_run_id: str,
+    *,
+    output_dir: str | Path,
+    corpus_dir: str | Path,
+    action: str | None = None,
+    embedder: Embedder | None = None,
+    generate: bool = True,
+    generator: OpenAIGenerator | None = None,
+    judge: GroundingJudge | None = None,
+    regenerator: Regenerator | None = None,
+    rewriter: Rewriter | None = None,
+    question_id: str | None = None,
+    index: InMemoryIndex | None = None,
+) -> BaselineRunResult:
+    """Apply one V1 action to a proposed first-pass trace. Writes a new file."""
+    parent = _load_parent(output_dir, parent_run_id)
+    if parent.get("parent_run_id"):
+        raise RecoveryNotApplicable("cannot apply recovery to a recovered child run")
+    if parent.get("recovery_status") != RECOVERY_PROPOSED:
+        raise RecoveryNotApplicable("recovery is not proposed on this run")
+    if _child_exists(output_dir, parent_run_id):
+        raise RecoveryNotApplicable("recovery was already applied for this run")
+    proposed = _decision_from_payload(parent.get("recovery"))
+    if proposed is None or not proposed.action:
+        raise RecoveryNotApplicable("parent has no proposed recovery")
+    chosen = (action or proposed.action).strip()
+    if chosen not in ACTIONS:
+        raise RecoveryNotApplicable(f"unknown recovery action: {chosen}")
+    decision = _decision_to_apply(proposed, chosen)
+    state = _query_state_from_trace(parent)
+    resolved_index = index if index is not None else build_corpus_index(corpus_dir, embedder)
+    applied = _apply_action(
+        state,
+        decision,
+        query=str(parent.get("query") or ""),
+        corpus_dir=corpus_dir,
+        top_k=int(parent.get("top_k") or 4),
+        embedder=embedder,
+        generate=generate,
+        generator=generator,
+        judge=judge,
+        regenerator=regenerator,
+        rewriter=rewriter,
+        index=resolved_index,
+    )
+    return write_run(
+        applied.state,
+        output_dir=output_dir,
+        question_id=question_id or parent.get("question_id"),
+        recovery=applied.decision,
+        verification=applied.verification,
+        previous_answer=applied.previous_answer,
+        rewritten_query=applied.rewritten_query,
+        previous_retrieved_chunks=applied.previous_retrieved_chunks,
+        recovery_status=RECOVERY_APPLIED,
+        parent_run_id=parent_run_id,
+    )
+
+
+def _first_pass_state(
+    query: str,
+    *,
+    corpus_dir: str | Path,
+    top_k: int,
+    embedder: Embedder | None,
+    generate: bool,
+    generator: OpenAIGenerator | None,
+    judge: GroundingJudge | None,
+    index: InMemoryIndex,
+) -> tuple[QueryState, RecoveryDecision]:
+    state = execute_query(
+        query,
+        corpus_dir=corpus_dir,
+        top_k=top_k,
+        embedder=embedder,
+        generate=generate,
+        generator=generator,
+        judge=judge,
+        index=index,
+    )
+    return state, select_recovery(state.diagnosis, state.runtime_evaluation)
+
+
+def _decision_to_apply(proposed: RecoveryDecision, chosen: str) -> RecoveryDecision:
+    source = SOURCE_POLICY if chosen == proposed.action else SOURCE_OPERATOR
+    return RecoveryDecision(
+        action=chosen,
+        reason=proposed.reason,
+        attributed_class=proposed.attributed_class,
+        source=source,
+    )
+
+
+def _apply_action(
+    state: QueryState,
+    decision: RecoveryDecision,
+    *,
+    query: str,
+    corpus_dir: str | Path,
+    top_k: int,
+    embedder: Embedder | None,
+    generate: bool,
+    generator: OpenAIGenerator | None,
+    judge: GroundingJudge | None,
+    regenerator: Regenerator | None,
+    rewriter: Rewriter | None,
+    index: InMemoryIndex,
+) -> _Applied:
+    if decision.action == ACCEPT:
+        return _Applied(state, decision, None, None, None, None)
+    if decision.action == ABSTAIN:
+        abstained = QueryState(
+            query=state.query,
+            retrieval=state.retrieval,
+            generation=GenerationResult(answer=ABSTAIN_ANSWER, model="abstain"),
+            runtime_evaluation=state.runtime_evaluation,
+            diagnosis=state.diagnosis,
+        )
+        verification = None
+        post_eval = state.runtime_evaluation
+        if judge is not None:
+            post_eval = judge.judge(
+                question=query,
+                answer=ABSTAIN_ANSWER,
+                retrieval=state.retrieval,
+            )
+            post_diag = diagnose_runtime(post_eval)
+            if state.runtime_evaluation is not None:
+                verification = verify_runtime(state.runtime_evaluation, post_eval)
+            abstained = QueryState(
+                query=state.query,
+                retrieval=state.retrieval,
+                generation=GenerationResult(answer=ABSTAIN_ANSWER, model="abstain"),
+                runtime_evaluation=post_eval,
+                diagnosis=post_diag,
+            )
+        return _Applied(
+            abstained,
+            decision,
+            verification,
+            state.generation.answer,
+            None,
+            None,
+        )
+    if decision.action == REGENERATE:
+        if not generate:
+            return _Applied(state, decision, None, None, None, None)
         actor = regenerator or ConstrainedRegenerator()
         previous_answer = state.generation.answer
         repaired = actor.regenerate(
@@ -94,6 +346,7 @@ def run_with_recovery(
         )
         post_eval = None
         post_diag = None
+        verification = None
         if judge is not None:
             post_eval = judge.judge(
                 question=query,
@@ -103,93 +356,232 @@ def run_with_recovery(
             post_diag = diagnose_runtime(post_eval)
             if state.runtime_evaluation is not None:
                 verification = verify_runtime(state.runtime_evaluation, post_eval)
-        state = QueryState(
+        next_state = QueryState(
             query=state.query,
             retrieval=state.retrieval,
             generation=repaired,
             runtime_evaluation=post_eval if post_eval is not None else state.runtime_evaluation,
             diagnosis=post_diag if post_diag is not None else state.diagnosis,
         )
+        return _Applied(next_state, decision, verification, previous_answer, None, None)
 
-    elif decision.action == REWRITE and max_recoveries >= 1:
-        previous_answer = state.generation.answer
-        actor = rewriter or LLMQueryRewriter()
-        rewritten_query = actor.rewrite(question=query, retrieval=state.retrieval)
-        probe = execute_query(
-            query,
-            corpus_dir=corpus_dir,
-            top_k=top_k,
-            embedder=embedder,
-            generate=False,
-            judge=judge,
-            search_query=rewritten_query,
-            index=resolved_index,
-        )
-        before = state.runtime_evaluation
-        after = probe.runtime_evaluation
-        if after is not None and after.evidence_sufficient:
-            if generate:
-                producer = generator or OpenAIGenerator()
-                repaired = producer.generate(query, probe.retrieval)
-                post_eval = after
-                post_diag = None
-                if judge is not None:
-                    post_eval = judge.judge(
-                        question=query,
-                        answer=repaired.answer,
-                        retrieval=probe.retrieval,
-                    )
-                    post_diag = diagnose_runtime(post_eval)
-                generation = repaired
-            else:
-                post_eval = after
-                post_diag = (
-                    diagnose_after_rewrite(before, after) if before is not None else None
-                )
-                generation = probe.generation
-            if before is not None and post_eval is not None:
-                verification = verify_runtime(before, post_eval)
-            decision = RecoveryDecision(
-                action=REWRITE,
-                reason=decision.reason,
-                attributed_class=RETRIEVAL_MISS,
-            )
-            state = QueryState(
-                query=state.query,
-                retrieval=probe.retrieval,
-                generation=generation,
-                runtime_evaluation=post_eval,
-                diagnosis=post_diag,
-            )
-        else:
-            if before is not None and after is not None:
-                verification = verify_runtime(before, after)
-                post_diag = diagnose_after_rewrite(before, after)
-            else:
-                post_diag = Diagnosis(
-                    failure_class=EVIDENCE_INSUFFICIENCY,
-                    rationale="rewrite did not yield sufficient evidence",
-                    detector="rewrite-outcome",
-                )
-            decision = RecoveryDecision(
-                action=REWRITE,
-                reason=decision.reason,
-                attributed_class=EVIDENCE_INSUFFICIENCY,
-            )
-            state = QueryState(
-                query=state.query,
-                retrieval=probe.retrieval,
-                generation=GenerationResult(answer=ABSTAIN_ANSWER, model="abstain"),
-                runtime_evaluation=after if after is not None else state.runtime_evaluation,
-                diagnosis=post_diag,
-            )
+    if decision.action != REWRITE:
+        raise RecoveryNotApplicable(f"unknown recovery action: {decision.action}")
 
-    return write_run(
-        state,
-        output_dir=output_dir,
-        question_id=question_id,
-        recovery=decision,
-        verification=verification,
-        previous_answer=previous_answer,
-        rewritten_query=rewritten_query,
+    previous_answer = state.generation.answer
+    previous_retrieved_chunks = chunks_payload(state.retrieval)
+    actor = rewriter or LLMQueryRewriter()
+    rewritten_query = actor.rewrite(question=query, retrieval=state.retrieval)
+    probe = execute_query(
+        query,
+        corpus_dir=corpus_dir,
+        top_k=top_k,
+        embedder=embedder,
+        generate=False,
+        judge=judge,
+        search_query=rewritten_query,
+        index=index,
     )
+    before = state.runtime_evaluation
+    after = probe.runtime_evaluation
+    verification = None
+    if after is not None and after.evidence_sufficient:
+        if generate:
+            producer = generator or OpenAIGenerator()
+            repaired = producer.generate(query, probe.retrieval)
+            post_eval = after
+            post_diag = None
+            if judge is not None:
+                post_eval = judge.judge(
+                    question=query,
+                    answer=repaired.answer,
+                    retrieval=probe.retrieval,
+                )
+                post_diag = diagnose_runtime(post_eval)
+            generation = repaired
+        else:
+            post_eval = after
+            post_diag = diagnose_after_rewrite(before, after) if before is not None else None
+            generation = probe.generation
+        if before is not None and post_eval is not None:
+            verification = verify_runtime(before, post_eval)
+        next_decision = RecoveryDecision(
+            action=REWRITE,
+            reason=decision.reason,
+            attributed_class=RETRIEVAL_MISS,
+            source=decision.source,
+        )
+        next_state = QueryState(
+            query=state.query,
+            retrieval=probe.retrieval,
+            generation=generation,
+            runtime_evaluation=post_eval,
+            diagnosis=post_diag,
+        )
+        return _Applied(
+            next_state,
+            next_decision,
+            verification,
+            previous_answer,
+            rewritten_query,
+            previous_retrieved_chunks,
+        )
+    if before is not None and after is not None:
+        verification = verify_runtime(before, after)
+        post_diag = diagnose_after_rewrite(before, after)
+    else:
+        post_diag = Diagnosis(
+            failure_class=EVIDENCE_INSUFFICIENCY,
+            rationale="rewrite did not yield sufficient evidence",
+            detector="rewrite-outcome",
+        )
+    next_decision = RecoveryDecision(
+        action=REWRITE,
+        reason=decision.reason,
+        attributed_class=EVIDENCE_INSUFFICIENCY,
+        source=decision.source,
+    )
+    next_state = QueryState(
+        query=state.query,
+        retrieval=probe.retrieval,
+        generation=GenerationResult(answer=ABSTAIN_ANSWER, model="abstain"),
+        runtime_evaluation=after if after is not None else state.runtime_evaluation,
+        diagnosis=post_diag,
+    )
+    return _Applied(
+        next_state,
+        next_decision,
+        verification,
+        previous_answer,
+        rewritten_query,
+        previous_retrieved_chunks,
+    )
+
+
+def _decision_from_payload(payload: Any) -> RecoveryDecision | None:
+    if not isinstance(payload, dict):
+        return None
+    action = payload.get("action")
+    if not action:
+        return None
+    return RecoveryDecision(
+        action=str(action),
+        reason=str(payload.get("reason") or ""),
+        attributed_class=payload.get("attributed_class"),
+        source=str(payload.get("source") or SOURCE_POLICY),
+    )
+
+
+def _evaluation_from_payload(payload: Any) -> RuntimeEvaluation | None:
+    if not isinstance(payload, dict):
+        return None
+    supported = payload.get("answer_supported")
+    if supported is not None:
+        supported = bool(supported)
+    return RuntimeEvaluation(
+        evidence_sufficient=bool(payload.get("evidence_sufficient")),
+        answer_supported=supported,
+        sufficiency_rationale=str(payload.get("sufficiency_rationale") or ""),
+        support_rationale=str(payload.get("support_rationale") or ""),
+        judge=str(payload.get("judge") or ""),
+        model=str(payload.get("model") or ""),
+    )
+
+
+def _diagnosis_from_payload(payload: Any) -> Diagnosis | None:
+    if not isinstance(payload, dict):
+        return None
+    klass = payload.get("failure_class")
+    return Diagnosis(
+        failure_class=str(klass) if klass is not None else None,
+        rationale=str(payload.get("rationale") or ""),
+        detector=str(payload.get("detector") or "first-pass-runtime"),
+    )
+
+
+def _query_state_from_trace(payload: dict[str, Any]) -> QueryState:
+    chunks = []
+    for item in payload.get("retrieved_chunks") or []:
+        if not isinstance(item, dict):
+            continue
+        text = str(item.get("text") or "")
+        chunk = Chunk(
+            chunk_id=str(item.get("chunk_id") or ""),
+            doc_id=str(item.get("doc_id") or ""),
+            title=str(item.get("title") or ""),
+            text=text,
+            start_char=0,
+            end_char=len(text),
+        )
+        chunks.append(ScoredChunk(chunk=chunk, score=float(item.get("score") or 0.0)))
+    nested = payload.get("generation") if isinstance(payload.get("generation"), dict) else {}
+    retrieval = RetrievalResult(
+        query=str(payload.get("query") or ""),
+        chunks=tuple(chunks),
+        top_k=int(payload.get("top_k") or 4),
+        embedding_model=str(payload.get("embedding_model") or ""),
+    )
+    return QueryState(
+        query=str(payload.get("query") or ""),
+        retrieval=retrieval,
+        generation=GenerationResult(
+            answer=str(nested.get("answer") or payload.get("answer") or ""),
+            model=str(nested.get("model") or payload.get("model") or ""),
+        ),
+        runtime_evaluation=_evaluation_from_payload(payload.get("runtime_evaluation")),
+        diagnosis=_diagnosis_from_payload(payload.get("diagnosis")),
+    )
+
+
+def _safe_run_id(run_id: str) -> bool:
+    if not run_id or run_id in {"summary", "comparison", "config"}:
+        return False
+    if "/" in run_id or "\\" in run_id or ".." in run_id:
+        return False
+    return True
+
+
+def _iter_trace_files(output_dir: str | Path):
+    root = Path(output_dir)
+    if not root.is_dir():
+        return
+    root_resolved = root.resolve()
+    for path in root.rglob("*.json"):
+        if path.name in {"summary.json", "comparison.json", "config.json"}:
+            continue
+        try:
+            path.resolve().relative_to(root_resolved)
+        except ValueError:
+            continue
+        yield path
+
+
+def _load_parent(output_dir: str | Path, run_id: str) -> dict[str, Any]:
+    if not _safe_run_id(run_id):
+        raise RecoveryNotApplicable(f"run not found: {run_id}")
+    matches = [
+        path
+        for path in _iter_trace_files(output_dir)
+        if path.name == f"{run_id}.json"
+    ]
+    if not matches:
+        raise RecoveryNotApplicable(f"run not found: {run_id}")
+    try:
+        payload = json.loads(matches[0].read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        raise RecoveryNotApplicable(f"run not found: {run_id}") from error
+    if not isinstance(payload, dict) or payload.get("run_id") != run_id:
+        raise RecoveryNotApplicable(f"run not found: {run_id}")
+    return payload
+
+
+def _child_exists(output_dir: str | Path, parent_run_id: str) -> bool:
+    for path in _iter_trace_files(output_dir):
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        if payload.get("parent_run_id") == parent_run_id:
+            return True
+    return False
+

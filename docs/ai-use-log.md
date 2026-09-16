@@ -115,4 +115,152 @@ How I verified the result:
 `pytest` gold-loader tests; retrieve-only experiment on the DKU gold set.
 Every gold row still needs a hand check against the `.txt` files.
 
+---
+
+Date: 2026-09-16
+
+Tool: Cursor
+
+Purpose: Show first-pass and post-recovery answers in the explorer (issue #33).
+
+What AI assisted with:
+Waterfall mapping from the existing flat `TraceRecord`, storing first-pass
+chunks on rewrite, and Before/After rendering in the static explorer.
+
+Important suggestions produced:
+Do not invent a first-pass retrieve list. Put recover between the two generate
+steps so a demo reads first answer → action → second answer → verify. Stored
+evaluate flags after recovery are labeled as such; first-pass evaluate is not
+fabricated.
+
+What I independently decided or changed:
+Kept recover/verify as the same step kinds. Accept traces still show one
+answer. Query inspector shows original vs rewritten search string when present.
+
+How I verified the result:
+`pytest` step-mapping and API asset tests. Browser check of accept vs rewrite
+runs in the explorer.
+
+---
+
+Date: 2026-09-16
+
+Tool: Cursor
+
+Purpose: Make chunk citations clickable in the explorer (issue #35).
+
+What AI assisted with:
+A small citation parser shared in spirit between `swrag.tracing.citations`
+and `web/app.js`, plus answer-bar buttons that select the matching retrieve
+chunk.
+
+Important suggestions produced:
+Link only ids that are in this trace's retrieve lists. Tokens that look like
+`{doc_id}::c{nnn}` but are missing get a "not in this retrieve" note instead
+of binding to another chunk. Escape all non-citation text.
+
+What I independently decided or changed:
+Before-answer citations open the first-pass retrieve when those chunks were
+stored. After-answer citations open the post-recovery retrieve. Do not change
+the generator prompt.
+
+Date: 2026-09-16
+
+Tool: Cursor
+
+Purpose: Confirm recovery after diagnosis in the explorer (issue #48).
+
+What AI assisted with:
+Splitting the loop into `run_first_pass` and `apply_recovery`, HTTP
+`loop_confirm` plus `POST /api/runs/{id}/recover`, and explorer buttons
+labeled with V1 actions.
+
+Important suggestions produced:
+Keep automatic `loop` as the default so benchmarks stay one-shot. Persist
+proposals on a first-pass file and write a new child on apply so traces are
+never overwritten. Record `recovery.source` as `policy` or `operator`.
+
+What I independently decided or changed:
+Operator override is allowed among regenerate / rewrite / abstain / accept.
+Accept on first pass is already finished (no button). Proposed traces are not
+treated as successful recoveries. Playground default is confirm recovery;
+automatic `loop` stays available and is still what benchmarks call.
+
+How I verified the result:
+`pytest` with fakes for first-pass vs apply, 409/400 API cases, and a
+browser check of the confirm mode and recovery buttons.
+
+---
+
+Date: 2026-09-17
+
+Tool: Cursor
+
+Purpose: Make confirm recovery the playground default.
+
+What AI assisted with:
+Dropdown order/default so the explorer starts in `loop_confirm`.
+
+Important suggestions produced:
+Do not change the experiment runner; automatic `run_with_recovery` remains
+the benchmark path.
+
+What I independently decided or changed:
+Manual confirm is the explorer default for now, because automatic rewrite
+often ends `still_failing` and the operator should see the proposal first.
+
+How I verified the result:
+API asset test for the selected `loop_confirm` option.
+
+---
+
+Date: 2026-09-17
+
+Tool: Cursor
+
+Purpose: Fix explorer mapping when rewrite recovery has an empty first-pass answer (issue #50).
+
+What AI assisted with:
+Widening the recovered-trace gate and an Evaluate note for rewrite-retrieve probe flags.
+
+Important suggestions produced:
+Do not re-judge the canned abstain on rewrite-fail; that would change stored
+verification semantics. Do not change the rewrite prompt in this fix.
+
+What I independently decided or changed:
+A trace is recovered if it has a previous answer, a rewritten query, stored
+first-pass chunks, or an applied regenerate/rewrite/abstain. The answer bar
+still shows the rewritten query when Before is empty.
+
+How I verified the result:
+`pytest` waterfall and rewrite-then-abstain history assertions.
+
+---
+
+Date: 2026-09-17
+
+Tool: Cursor
+
+Purpose: Stop query rewrite from expanding DKU into the wrong university (issue #52).
+
+What AI assisted with:
+Prompt wording plus a deterministic guard that falls back to the original
+question if the rewrite adds university/college/institute tokens.
+
+Important suggestions produced:
+Do not look up gold labels. Do not pass corpus registry names into rewrite
+in this change (that was option 2).
+
+What I independently decided or changed:
+Chose option 1 from the issue: never expand abbreviations; keep DKU as
+written unless the expansion is already in the question. The guard is the
+testable part.
+
+How I verified the result:
+Unit tests for the Dongkuk rewrite and a Harbor rewrite that already
+contains Institute.
+
+
+
+
 

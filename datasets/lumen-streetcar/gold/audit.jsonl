@@ -1,0 +1,17 @@
+# Substring search against supporting .txt files. Not a student sign-off.
+{"question_id": "ls-001", "answerable": true, "span_found": "yes", "file": "line-amber", "notes": "substring '12 minutes' in line-amber.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "ls-002", "answerable": true, "span_found": "yes", "file": "line-amber", "notes": "substring '20 minutes' in line-amber.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "ls-003", "answerable": true, "span_found": "yes", "file": "headway-2021", "notes": "substring '30 minutes' in headway-2021.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "ls-004", "answerable": true, "span_found": "yes", "file": "line-slate", "notes": "substring '15 minutes' in line-slate.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "ls-005", "answerable": true, "span_found": "yes", "file": "line-amber", "notes": "substring 'Quay' in line-amber.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "ls-006", "answerable": true, "span_found": "yes", "file": "hours", "notes": "substring '05:40' in hours.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "ls-007", "answerable": true, "span_found": "yes", "file": "accessibility", "notes": "substring 'Pine Cut and Old Quarry' in accessibility.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "ls-008", "answerable": true, "span_found": "yes", "file": "contacts", "notes": "substring '555-6600' in contacts.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "ls-009", "answerable": true, "span_found": "yes", "file": "ridge-bus", "notes": "substring '40 minutes' in ridge-bus.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "ls-010", "answerable": true, "span_found": "yes", "file": "yard", "notes": "substring 'P-2' in yard.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "ls-011", "answerable": true, "span_found": "yes", "file": "weather", "notes": "substring '2 minutes' in weather.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "ls-012", "answerable": true, "span_found": "yes", "file": "exchange", "notes": "substring '3 minutes' in exchange.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "ls-013", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+{"question_id": "ls-014", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+{"question_id": "ls-015", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+{"question_id": "ls-016", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
