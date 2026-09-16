@@ -51,6 +51,7 @@
                 Mode
                 <select id="mode">
                   <option value="loop">Loop (evaluate → recover)</option>
+                  <option value="loop_confirm">Loop (confirm recovery)</option>
                   <option value="baseline">Baseline RAG</option>
                   <option value="retrieve_only">Retrieve only</option>
                 </select>
@@ -68,6 +69,8 @@
           </div>
           <div id="answer-text"></div>
         </section>
+
+        <section class="recover-bar hidden" id="recover-bar"></section>
 
         <section class="workspace" id="workspace">
           <div class="waterfall-pane">

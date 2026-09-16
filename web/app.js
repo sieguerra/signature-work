@@ -7,8 +7,19 @@ const state = {
   steps: [],
   selectedStep: null,
   selectedChunkId: null,
+  childRunId: null,
   loading: false,
+  recovering: false,
 };
+
+const ACTION_LABELS = {
+  regenerate: "Regenerate from evidence",
+  rewrite: "Rewrite query and retrieve",
+  abstain: "Abstain",
+  accept: "Keep first-pass answer",
+};
+
+const V1_ACTIONS = ["regenerate", "rewrite", "abstain", "accept"];
 
 const $ = (id) => document.getElementById(id);
 
@@ -151,6 +162,7 @@ function renderRunList() {
           <div class="q">${escapeHtml(item.query || "(no query)")}</div>
           <div class="meta">
             ${pill(item.action, item.action)}
+            ${item.recovery_status === "proposed" ? pill("warn", "proposed") : ""}
             ${pill(item.verification, item.verification)}
             <span>${escapeHtml(when)}</span>
           </div>
@@ -254,6 +266,53 @@ function renderAnswer() {
         <div class="answer-label">After</div>
         ${answerBlock(after, "after_recovery")}
       </div>
+    </div>`;
+}
+
+function proposedAction() {
+  const recovery = (state.trace && state.trace.recovery) || {};
+  return recovery.action || "";
+}
+
+function renderRecoverBar() {
+  const root = $("recover-bar");
+  if (!root) return;
+  const status = state.trace && state.trace.recovery_status;
+  const action = proposedAction();
+  const canPropose = Boolean(state.trace && status === "proposed" && action && action !== "accept");
+  if (!canPropose) {
+    root.classList.add("hidden");
+    root.innerHTML = "";
+    return;
+  }
+  root.classList.remove("hidden");
+  const diagnosis = (state.trace && state.trace.diagnosis) || {};
+  const klass = diagnosis.failure_class || "no class claimed";
+  const rationale = diagnosis.rationale || "";
+  if (state.childRunId) {
+    root.innerHTML = `<div class="recover-kicker">Recovery</div>
+      <p class="recover-note">Already applied on ${escapeHtml(state.childRunId)}.</p>
+      <div class="recover-actions">
+        <button type="button" class="primary" data-open-child="${escapeHtml(state.childRunId)}">Open recovered run</button>
+      </div>`;
+    return;
+  }
+  const others = V1_ACTIONS.filter((item) => item !== action);
+  const secondary = others
+    .map(
+      (item) =>
+        `<button type="button" class="ghost" data-recover="${escapeHtml(item)}" ${
+          state.recovering ? "disabled" : ""
+        }>${escapeHtml(ACTION_LABELS[item] || item)}</button>`
+    )
+    .join("");
+  root.innerHTML = `<div class="recover-kicker">Proposed recovery</div>
+    <p class="recover-note">${escapeHtml(klass)}${rationale ? ` — ${escapeHtml(rationale)}` : ""}</p>
+    <div class="recover-actions">
+      <button type="button" class="primary" data-recover="${escapeHtml(action)}" ${
+        state.recovering ? "disabled" : ""
+      }>${escapeHtml(ACTION_LABELS[action] || action)}</button>
+      ${secondary}
     </div>`;
 }
 
@@ -399,6 +458,8 @@ function renderInspector() {
     root.innerHTML =
       kv([
         ["action", data.action],
+        ["source", data.source],
+        ["recovery status", data.recovery_status],
         ["attributed class", data.attributed_class],
         ["reason", data.reason],
         ["rewritten query", data.rewritten_query],
@@ -420,6 +481,7 @@ function stringify(value) {
 function render() {
   renderRunList();
   renderAnswer();
+  renderRecoverBar();
   renderWaterfall();
   renderInspector();
 }
@@ -438,6 +500,7 @@ async function selectRun(runId) {
   state.steps = payload.steps || [];
   state.selectedStep = state.steps[0] || null;
   state.selectedChunkId = null;
+  state.childRunId = payload.child_run_id || null;
   render();
 }
 
@@ -447,6 +510,7 @@ function clearSelection() {
   state.steps = [];
   state.selectedStep = null;
   state.selectedChunkId = null;
+  state.childRunId = null;
 }
 
 async function deleteRun(runId) {
@@ -480,6 +544,32 @@ async function deleteAllRuns() {
   render();
 }
 
+async function applyRecovery(action) {
+  if (!state.selectedId || !action || state.recovering) return;
+  showError("");
+  state.recovering = true;
+  renderRecoverBar();
+  try {
+    const payload = await api(`/api/runs/${encodeURIComponent(state.selectedId)}/recover`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action }),
+    });
+    state.recovering = false;
+    state.selectedId = payload.run_id;
+    state.trace = payload.trace;
+    state.steps = payload.steps || [];
+    state.selectedStep = state.steps.find((step) => step.id === "recover") || state.steps[0] || null;
+    state.childRunId = payload.child_run_id || null;
+    await loadTraces();
+    render();
+  } catch (error) {
+    state.recovering = false;
+    renderRecoverBar();
+    showError(error.message || String(error));
+  }
+}
+
 async function runQuestion() {
   const question = $("question").value.trim();
   if (!question) {
@@ -505,6 +595,7 @@ async function runQuestion() {
     state.trace = payload.trace;
     state.steps = payload.steps || [];
     state.selectedStep = state.steps.find((step) => step.id === "recover") || state.steps[0] || null;
+    state.childRunId = payload.child_run_id || null;
     await loadTraces();
     render();
   } catch (error) {
@@ -573,6 +664,16 @@ function bind() {
     if (!button) return;
     state.selectedStep = state.steps.find((step) => step.id === button.dataset.step) || null;
     render();
+  });
+  $("recover-bar").addEventListener("click", (event) => {
+    const openChild = event.target.closest("[data-open-child]");
+    if (openChild) {
+      selectRun(openChild.dataset.openChild).catch((error) => showError(error.message));
+      return;
+    }
+    const recover = event.target.closest("[data-recover]");
+    if (!recover) return;
+    applyRecovery(recover.dataset.recover).catch((error) => showError(error.message));
   });
   $("answer-text").addEventListener("click", (event) => {
     const cite = event.target.closest("button.cite");
