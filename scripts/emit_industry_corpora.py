@@ -42,12 +42,18 @@ def write_world(world: dict) -> None:
     for row in world["gold"]:
         lines.append(json.dumps(row, ensure_ascii=False))
     (gold_dir / "questions.jsonl").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    extra = ""
+    if (gold_dir / "recovery.jsonl").exists():
+        extra = (
+            " A separate recovery gold split lives at `gold/recovery.jsonl` "
+            "and is not rewritten by this script."
+        )
     (ROOT / "datasets" / world["id"] / "README.md").write_text(
         f"# {world['label']}\n\n"
         f"**Industry:** {world['industry']}\n\n"
         f"{world['blurb']}\n\n"
         f"Fictional on purpose (ADR 003 / ADR 010). Not a real company. "
-        f"{len(world['docs'])} notes, {len(world['gold'])} gold questions.\n",
+        f"{len(world['docs'])} notes, {len(world['gold'])} gold questions.{extra}\n",
         encoding="utf-8",
     )
 
@@ -178,7 +184,7 @@ KESTREL = {
     "blurb": "A made-up machine shop in Red Mesa. Hangar 2 cuts titanium; Shop 6 cuts aluminum. 2018 vs 2025 spec letters disagree.",
     "examples": [
         "Which building at Kestrel Aero machines titanium bulkheads?",
-        "What AMS specification letter does the 2025 traveler require for titanium plate?",
+        "What AMS specification does the titanium traveler require?",
         "What is the unit price of a Kestrel bulkhead?",
     ],
     "docs": {
@@ -311,7 +317,7 @@ DKU_META = {
     "gold_path": "datasets/dku/gold/questions.jsonl",
     "fictional": False,
     "examples": [
-        "According to the current DKU Library Locations and Hours page, what are the 1st floor information desk hours on Saturday?",
+        "How many seats does the DKU Library list?",
         "What are breakfast hours at University Dining in the Academic Building?",
         "What time does breakfast end at Halal Dining at the Conference Center?",
     ],

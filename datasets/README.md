@@ -26,7 +26,11 @@ officer names).
 Do not edit a gold row after it has results; add a new id. Harbor snapshot
 `experiments/results/20260910T070623/` still scores Harbor only.
 
-Regenerate industry folders (does not touch Harbor or DKU notes):
+Recovery-oriented splits (issue #32) live beside the main gold as
+`gold/recovery.jsonl` on DKU and Kestrel. They do not replace the main sets.
+
+Regenerate industry folders (does not touch Harbor or DKU notes, and does not
+overwrite an existing `gold/recovery.jsonl`):
 
 ```bash
 python scripts/emit_industry_corpora.py
