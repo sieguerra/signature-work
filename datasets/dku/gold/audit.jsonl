@@ -1,0 +1,41 @@
+# Substring search against supporting .txt files. Not a student sign-off.
+{"question_id": "dku-001", "answerable": true, "span_found": "yes", "file": "dku-about", "notes": "substring 'September 2013' in dku-about.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "dku-002", "answerable": true, "span_found": "yes", "file": "dku-about", "notes": "substring 'No. 8 Duke Avenue' in dku-about.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "dku-003", "answerable": true, "span_found": "yes", "file": "dku-about", "notes": "substring 'August 2014' in dku-about.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "dku-004", "answerable": true, "span_found": "yes", "file": "dku-about", "notes": "substring 'August 2018' in dku-about.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "dku-005", "answerable": true, "span_found": "yes", "file": "dku-about", "notes": "substring '200 acres' in dku-about.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "dku-006", "answerable": true, "span_found": "yes", "file": "dku-library-hours", "notes": "substring '08:00-23:00' in dku-library-hours.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "dku-007", "answerable": true, "span_found": "yes", "file": "dku-library-hours", "notes": "substring '14:00-21:00' in dku-library-hours.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "dku-008", "answerable": true, "span_found": "yes", "file": "dku-library-guide-202501", "notes": "substring '14:00-18:00' in dku-library-guide-202501.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "dku-009", "answerable": true, "span_found": "yes", "file": "dku-library-guide-202501", "notes": "substring '560' in dku-library-guide-202501.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "dku-010", "answerable": true, "span_found": "yes", "file": "dku-library-guide-202501", "notes": "substring '3rd floor' in dku-library-guide-202501.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "dku-011", "answerable": true, "span_found": "yes", "file": "dku-library-hours", "notes": "substring '09:00-17:30' in dku-library-hours.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "dku-012", "answerable": true, "span_found": "yes", "file": "dku-library-hours", "notes": "substring 'dkulibrary@dukekunshan.edu.cn' in dku-library-hours.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "dku-013", "answerable": true, "span_found": "yes", "file": "dku-library-handbook-2021", "notes": "substring '(0512) 3665-7027' in dku-library-handbook-2021.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "dku-014", "answerable": true, "span_found": "yes", "file": "dku-library-handbook-2021", "notes": "substring 'Academic Building' in dku-library-handbook-2021.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "dku-015", "answerable": true, "span_found": "yes", "file": "academic-building-dining", "notes": "substring '07:00-09:30' in academic-building-dining.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "dku-016", "answerable": true, "span_found": "yes", "file": "academic-building-dining", "notes": "substring '11:00-13:30' in academic-building-dining.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "dku-017", "answerable": true, "span_found": "yes", "file": "conference-center-dining", "notes": "substring '17:00-19:30' in conference-center-dining.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "dku-018", "answerable": true, "span_found": "yes", "file": "registrar-fall-2026", "notes": "substring '24 August 2026' in registrar-fall-2026.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "dku-019", "answerable": true, "span_found": "yes", "file": "registrar-fall-2026", "notes": "substring '18 December 2026' in registrar-fall-2026.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "dku-020", "answerable": true, "span_found": "yes", "file": "registrar-spring-2027", "notes": "substring '21 May 2027' in registrar-spring-2027.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "dku-021", "answerable": true, "span_found": "yes", "file": "getting-to-dku", "notes": "substring '12 kilometers' in getting-to-dku.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "dku-022", "answerable": true, "span_found": "yes", "file": "getting-to-dku", "notes": "substring '92 kilometers' in getting-to-dku.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "dku-023", "answerable": true, "span_found": "yes", "file": "getting-to-dku", "notes": "substring '30 RMB' in getting-to-dku.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "dku-024", "answerable": true, "span_found": "yes", "file": "dayu-bay", "notes": "substring '500 meters' in dayu-bay.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "dku-025", "answerable": true, "span_found": "yes", "file": "wuhan-university", "notes": "substring '1893' in wuhan-university.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "dku-026", "answerable": true, "span_found": "yes", "file": "duke-university-durham", "notes": "substring '1924' in duke-university-durham.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "dku-027", "answerable": true, "span_found": "yes", "file": "conference-center", "notes": "substring '300' in conference-center.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "dku-028", "answerable": true, "span_found": "yes", "file": "conference-center", "notes": "substring 'over 200' in conference-center.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "dku-029", "answerable": true, "span_found": "yes", "file": "cscc", "notes": "substring 'dku-cscc@dukekunshan.edu.cn' in cscc.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "dku-030", "answerable": true, "span_found": "yes", "file": "cscc", "notes": "substring '+86 512 36657053' in cscc.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "dku-031", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+{"question_id": "dku-032", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+{"question_id": "dku-033", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+{"question_id": "dku-034", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+{"question_id": "dku-035", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+{"question_id": "dku-036", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+{"question_id": "dku-037", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+{"question_id": "dku-038", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+{"question_id": "dku-039", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+{"question_id": "dku-040", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
