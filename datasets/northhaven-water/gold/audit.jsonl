@@ -1,0 +1,17 @@
+# Substring search against supporting .txt files. Not a student sign-off.
+{"question_id": "nw-001", "answerable": true, "span_found": "yes", "file": "billing-desk-current", "notes": "substring '09:00-13:00' in billing-desk-current.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "nw-002", "answerable": true, "span_found": "yes", "file": "billing-desk-2023", "notes": "substring '10:00-12:00' in billing-desk-2023.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "nw-003", "answerable": true, "span_found": "yes", "file": "water-quality-2026", "notes": "substring '0.7 mg/L' in water-quality-2026.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "nw-004", "answerable": true, "span_found": "yes", "file": "water-quality-2021", "notes": "substring '1.2 mg/L' in water-quality-2021.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "nw-005", "answerable": true, "span_found": "yes", "file": "boil-advisories", "notes": "substring '12 March 2026' in boil-advisories.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "nw-006", "answerable": true, "span_found": "yes", "file": "contacts", "notes": "substring '555-0140' in contacts.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "nw-007", "answerable": true, "span_found": "yes", "file": "plover-plant", "notes": "substring '8 million gallons per day' in plover-plant.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "nw-008", "answerable": true, "span_found": "yes", "file": "brine-wellfield", "notes": "substring 'Well 7' in brine-wellfield.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "nw-009", "answerable": true, "span_found": "yes", "file": "about", "notes": "substring '14 Cedar Street' in about.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "nw-010", "answerable": true, "span_found": "yes", "file": "redcliff-alliance", "notes": "substring '08:00-11:00' in redcliff-alliance.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "nw-011", "answerable": true, "span_found": "yes", "file": "boil-advisories", "notes": "substring 'remains under a boil water advisory' in boil-advisories.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "nw-012", "answerable": true, "span_found": "yes", "file": "fleet", "notes": "substring 'W-9' in fleet.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "nw-013", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+{"question_id": "nw-014", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+{"question_id": "nw-015", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+{"question_id": "nw-016", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}

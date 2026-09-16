@@ -21,3 +21,12 @@ text cache, so the second condition's embedding-token total omits queries
 already embedded during the first condition. Chat tokens and wall-clock
 latency are not affected by that cache.
 
+Issue #32 recovery gold (underspecified questions, `top_k=1`):
+
+```bash
+python scripts/run_benchmark.py --config experiments/configs/v2_dku_recovery_vs_loop.json
+```
+
+Judge-agreement labels (issue #38) live under `judge-audit/`. See that
+README. Do not overwrite `results/20260910T070623/`.
+

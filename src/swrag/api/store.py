@@ -6,6 +6,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+from swrag.orchestration.loop import ABSTAIN_ANSWER
+
 SKIP_NAMES = frozenset({"summary.json", "comparison.json", "config.json"})
 
 
@@ -67,8 +69,18 @@ def list_traces(traces_dir: str | Path) -> list[dict[str, Any]]:
                 "verification": verification.get("outcome"),
                 "failure_class": diagnosis.get("failure_class"),
                 "model": payload.get("model"),
+                "recovery_status": payload.get("recovery_status"),
+                "parent_run_id": payload.get("parent_run_id"),
+                "recovery_source": recovery.get("source"),
             }
         )
+    children = {
+        str(item["parent_run_id"]): str(item["run_id"])
+        for item in items
+        if item.get("parent_run_id")
+    }
+    for item in items:
+        item["child_run_id"] = children.get(str(item["run_id"]))
     items.sort(key=lambda item: item["timestamp"], reverse=True)
     return items
 
@@ -88,6 +100,25 @@ def load_trace(traces_dir: str | Path, run_id: str) -> dict[str, Any] | None:
     if not _is_trace_payload(payload):
         return None
     return payload
+
+
+def find_child_run_id(traces_dir: str | Path, parent_run_id: str) -> str | None:
+    """Return the recovered child run_id, if one exists. Does not mutate files."""
+    if not _safe_run_id(parent_run_id):
+        return None
+    root = Path(traces_dir)
+    if not root.exists():
+        return None
+    for path in _iter_trace_paths(root):
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        if not _is_trace_payload(payload):
+            continue
+        if payload.get("parent_run_id") == parent_run_id:
+            return str(payload["run_id"])
+    return None
 
 
 def delete_trace(traces_dir: str | Path, run_id: str) -> bool:
@@ -128,3 +159,53 @@ def delete_all_traces(traces_dir: str | Path) -> int:
             continue
         deleted += 1
     return deleted
+
+
+def eval_counts(traces_dir: str | Path) -> dict[str, Any]:
+    """Counts for the active traces directory. Does not read gold or Harbor snapshots."""
+    by_action: dict[str, int] = {}
+    by_verification: dict[str, int] = {}
+    n = 0
+    abstain = 0
+    latencies: list[float] = []
+    for path in _iter_trace_paths(traces_dir):
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        if not _is_trace_payload(payload):
+            continue
+        n += 1
+        recovery = payload.get("recovery") if isinstance(payload.get("recovery"), dict) else {}
+        verification = (
+            payload.get("verification") if isinstance(payload.get("verification"), dict) else {}
+        )
+        action = str(recovery.get("action") or "none")
+        outcome = str(verification.get("outcome") or "none")
+        by_action[action] = by_action.get(action, 0) + 1
+        by_verification[outcome] = by_verification.get(outcome, 0) + 1
+        answer = str(payload.get("answer") or "")
+        model = str(payload.get("model") or "")
+        if answer.strip() == ABSTAIN_ANSWER or model == "abstain":
+            abstain += 1
+        latency = payload.get("latency_ms")
+        if isinstance(latency, (int, float)):
+            latencies.append(float(latency))
+    batch_summary = None
+    summary_path = Path(traces_dir) / "summary.json"
+    if summary_path.is_file():
+        try:
+            loaded = json.loads(summary_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            loaded = None
+        if isinstance(loaded, dict):
+            batch_summary = loaded
+    return {
+        "n": n,
+        "by_action": by_action,
+        "by_verification": by_verification,
+        "abstain": abstain,
+        "mean_latency_ms": (sum(latencies) / len(latencies) if latencies else None),
+        "batch_summary": batch_summary,
+        "traces_dir": str(Path(traces_dir)),
+    }

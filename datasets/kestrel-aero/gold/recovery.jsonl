@@ -1,0 +1,7 @@
+# Recovery-oriented gold (issue #32). New ids only; questions.jsonl is unchanged.
+# Questions do not name the 2018 vs 2025 traveler. Gold is the current 2025 issue.
+# Harbor and DKU gold files are unchanged.
+
+{"question_id": "ka-017", "question": "What AMS specification does the titanium traveler require?", "answerable": true, "answers": ["AMS 4911R", "4911R"], "supporting_doc_ids": ["traveler-2025"], "notes": "Gold is the current 2025 traveler. The 2018 sheet calls for AMS 4911N. Question does not name the year."}
+{"question_id": "ka-018", "question": "What heat-treat condition does the titanium traveler require?", "answerable": true, "answers": ["annealed"], "supporting_doc_ids": ["traveler-2025"], "notes": "Annealed appears only on the 2025 traveler. Intended retrieval miss if the 2018 sheet is retrieved first."}
+{"question_id": "ka-019", "question": "What is the unit price of a titanium bulkhead?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "Prices omitted. Corpus-gap must still abstain."}

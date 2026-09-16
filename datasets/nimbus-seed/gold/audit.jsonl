@@ -1,0 +1,17 @@
+# Substring search against supporting .txt files. Not a student sign-off.
+{"question_id": "ns-001", "answerable": true, "span_found": "yes", "file": "about", "notes": "substring 'barley' in about.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "ns-002", "answerable": true, "span_found": "yes", "file": "nw-4401", "notes": "substring 'wheat' in nw-4401.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "ns-003", "answerable": true, "span_found": "yes", "file": "viability-2025", "notes": "substring '94%' in viability-2025.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "ns-004", "answerable": true, "span_found": "yes", "file": "viability-2022", "notes": "substring '81%' in viability-2022.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "ns-005", "answerable": true, "span_found": "yes", "file": "cold-room", "notes": "substring '4 C' in cold-room.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "ns-006", "answerable": true, "span_found": "yes", "file": "distribution", "notes": "substring 'Tuesdays' in distribution.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "ns-007", "answerable": true, "span_found": "yes", "file": "field-book", "notes": "substring 'Block A' in field-book.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "ns-008", "answerable": true, "span_found": "yes", "file": "inventory", "notes": "substring '12,400' in inventory.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "ns-009", "answerable": true, "span_found": "yes", "file": "labels", "notes": "substring 'blue' in labels.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "ns-010", "answerable": true, "span_found": "yes", "file": "contacts", "notes": "substring '555-5500' in contacts.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "ns-011", "answerable": true, "span_found": "yes", "file": "prairie-gene", "notes": "substring 'no' in prairie-gene.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "ns-012", "answerable": true, "span_found": "yes", "file": "field-book", "notes": "substring '10 meters' in field-book.txt; student should confirm", "auditor": "substring-search"}
+{"question_id": "ns-013", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+{"question_id": "ns-014", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+{"question_id": "ns-015", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+{"question_id": "ns-016", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
