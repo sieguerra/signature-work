@@ -6,6 +6,7 @@ const state = {
   trace: null,
   steps: [],
   selectedStep: null,
+  selectedChunkId: null,
   loading: false,
 };
 
@@ -160,6 +161,68 @@ function renderRunList() {
     .join("");
 }
 
+function knownChunkIds() {
+  const ids = new Set();
+  const trace = state.trace || {};
+  (trace.retrieved_chunks || []).forEach((chunk) => {
+    if (chunk && chunk.chunk_id) ids.add(chunk.chunk_id);
+  });
+  (trace.previous_retrieved_chunks || []).forEach((chunk) => {
+    if (chunk && chunk.chunk_id) ids.add(chunk.chunk_id);
+  });
+  return ids;
+}
+
+function looksLikeChunkId(token) {
+  return /^\S+::c\d+$/.test(token);
+}
+
+function formatAnswerHtml(text, preferredPass) {
+  const value = text || "";
+  if (!value) return { html: "", missing: [] };
+  const ids = knownChunkIds();
+  const token = /\[([^\[\]]+)\]/g;
+  let cursor = 0;
+  let html = "";
+  const missing = [];
+  let match;
+  while ((match = token.exec(value))) {
+    if (match.index > cursor) {
+      html += escapeHtml(value.slice(cursor, match.index));
+    }
+    const chunkId = match[1];
+    const raw = match[0];
+    if (ids.has(chunkId)) {
+      const active = chunkId === state.selectedChunkId ? " active" : "";
+      const passAttr = preferredPass
+        ? ` data-cite-pass="${escapeHtml(preferredPass)}"`
+        : "";
+      html += `<button type="button" class="cite${active}" data-chunk-id="${escapeHtml(chunkId)}"${passAttr} aria-label="Open chunk ${escapeHtml(chunkId)}">${escapeHtml(raw)}</button>`;
+    } else if (looksLikeChunkId(chunkId)) {
+      html += `<span class="cite-missing" title="not in this retrieve">${escapeHtml(raw)}</span>`;
+      if (!missing.includes(chunkId)) missing.push(chunkId);
+    } else {
+      html += escapeHtml(raw);
+    }
+    cursor = match.index + match[0].length;
+  }
+  if (cursor < value.length) {
+    html += escapeHtml(value.slice(cursor));
+  }
+  return { html, missing };
+}
+
+function missingCitationNote(missing) {
+  if (!missing.length) return "";
+  const labels = missing.map((id) => `[${id}]`).join(", ");
+  return `<div class="answer-meta">Not in this retrieve: ${escapeHtml(labels)}</div>`;
+}
+
+function answerBlock(text, preferredPass) {
+  const parsed = formatAnswerHtml(text, preferredPass);
+  return `<div class="answer-block">${parsed.html}</div>${missingCitationNote(parsed.missing)}`;
+}
+
 function renderAnswer() {
   const bar = $("answer-bar");
   if (!state.trace) {
@@ -174,7 +237,7 @@ function renderAnswer() {
   const action = state.trace.recovery && state.trace.recovery.action;
   const outcome = state.trace.verification && state.trace.verification.outcome;
   if (!before) {
-    $("answer-text").innerHTML = `<div class="answer-block">${escapeHtml(after)}</div>`;
+    $("answer-text").innerHTML = answerBlock(after);
     return;
   }
   const rewriteLine = rewritten
@@ -185,11 +248,11 @@ function renderAnswer() {
     <div class="answer-split">
       <div>
         <div class="answer-label">Before</div>
-        <div class="answer-block">${escapeHtml(before)}</div>
+        ${answerBlock(before, "first")}
       </div>
       <div>
         <div class="answer-label">After</div>
-        <div class="answer-block">${escapeHtml(after)}</div>
+        ${answerBlock(after, "after_recovery")}
       </div>
     </div>`;
 }
@@ -241,11 +304,18 @@ function renderChunks(chunks) {
   return chunks
     .map((chunk) => {
       const width = Math.max(4, Math.min(100, Math.round((chunk.score || 0) * 100)));
-      return `<article class="chunk">
+      const selected = chunk.chunk_id && chunk.chunk_id === state.selectedChunkId;
+      const active = selected ? " selected" : "";
+      const cited = selected ? `<span class="pill ok">cited</span>` : "";
+      const title = chunk.title
+        ? `<div class="chunk-title">${escapeHtml(chunk.title)}</div>`
+        : "";
+      return `<article class="chunk${active}" data-chunk-id="${escapeHtml(chunk.chunk_id || "")}">
         <div class="chunk-head">
           <span>${escapeHtml(chunk.chunk_id || "")}</span>
-          <span>${Number(chunk.score || 0).toFixed(3)}</span>
+          <span>${cited}${Number(chunk.score || 0).toFixed(3)}</span>
         </div>
+        ${title}
         <div class="score"><span style="width:${width}%"></span></div>
         <div class="chunk-text">${escapeHtml(chunk.text || "")}</div>
       </article>`;
@@ -283,12 +353,19 @@ function renderInspector() {
     return;
   }
   if (step.kind === "retrieve") {
+    const cited = state.selectedChunkId;
+    const citedNote = cited
+      ? retrieveHasChunk(step, cited)
+        ? cited
+        : `${cited} (not in this retrieve)`
+      : "";
     root.innerHTML =
       kv([
         ["top_k", data.top_k],
         ["embedding model", data.embedding_model],
         ["pass", data.pass],
         ["note", data.note],
+        ["cited", citedNote],
       ]) + renderChunks(data.chunks);
     return;
   }
@@ -305,14 +382,20 @@ function renderInspector() {
     return;
   }
   if (step.kind === "generate") {
+    const parsed = formatAnswerHtml(data.answer || "(empty)", data.pass);
     root.innerHTML =
       kv([
         ["model", data.model],
         ["pass", data.pass],
-      ]) + `<div class="block">${escapeHtml(data.answer || "(empty)")}</div>`;
+      ]) +
+      `<div class="block">${parsed.html}</div>` +
+      missingCitationNote(parsed.missing);
     return;
   }
   if (step.kind === "recover") {
+    const previous = data.previous_answer
+      ? formatAnswerHtml(data.previous_answer, "first")
+      : null;
     root.innerHTML =
       kv([
         ["action", data.action],
@@ -320,8 +403,8 @@ function renderInspector() {
         ["reason", data.reason],
         ["rewritten query", data.rewritten_query],
       ]) +
-      (data.previous_answer
-        ? `<p class="pane-label">Previous answer</p><div class="block">${escapeHtml(data.previous_answer)}</div>`
+      (previous
+        ? `<p class="pane-label">Previous answer</p><div class="block">${previous.html}</div>${missingCitationNote(previous.missing)}`
         : "");
     return;
   }
@@ -354,6 +437,7 @@ async function selectRun(runId) {
   state.trace = payload.trace;
   state.steps = payload.steps || [];
   state.selectedStep = state.steps[0] || null;
+  state.selectedChunkId = null;
   render();
 }
 
@@ -362,6 +446,7 @@ function clearSelection() {
   state.trace = null;
   state.steps = [];
   state.selectedStep = null;
+  state.selectedChunkId = null;
 }
 
 async function deleteRun(runId) {
@@ -431,6 +516,27 @@ async function runQuestion() {
   }
 }
 
+function retrieveHasChunk(step, chunkId) {
+  if (!step || step.kind !== "retrieve") return false;
+  const chunks = (step.payload && step.payload.chunks) || [];
+  return chunks.some((chunk) => chunk.chunk_id === chunkId);
+}
+
+function selectCitation(chunkId, preferredPass) {
+  if (!chunkId || !knownChunkIds().has(chunkId)) return;
+  state.selectedChunkId = chunkId;
+  const matches = (state.steps || []).filter((step) => retrieveHasChunk(step, chunkId));
+  if (matches.length) {
+    const preferred = preferredPass
+      ? matches.find((step) => step.payload && step.payload.pass === preferredPass)
+      : null;
+    state.selectedStep = preferred || matches[matches.length - 1];
+  }
+  render();
+  const selected = document.querySelector(".chunk.selected");
+  if (selected) selected.scrollIntoView({ block: "nearest" });
+}
+
 function bind() {
   $("run-btn").addEventListener("click", runQuestion);
   $("refresh-runs").addEventListener("click", () => loadTraces().catch((error) => showError(error.message)));
@@ -467,6 +573,16 @@ function bind() {
     if (!button) return;
     state.selectedStep = state.steps.find((step) => step.id === button.dataset.step) || null;
     render();
+  });
+  $("answer-text").addEventListener("click", (event) => {
+    const cite = event.target.closest("button.cite");
+    if (!cite) return;
+    selectCitation(cite.dataset.chunkId, cite.dataset.citePass || null);
+  });
+  $("inspector").addEventListener("click", (event) => {
+    const cite = event.target.closest("button.cite");
+    if (!cite) return;
+    selectCitation(cite.dataset.chunkId, cite.dataset.citePass || null);
   });
 }
 

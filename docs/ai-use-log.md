@@ -141,4 +141,31 @@ How I verified the result:
 `pytest` step-mapping and API asset tests. Browser check of accept vs rewrite
 runs in the explorer.
 
+---
+
+Date: 2026-09-16
+
+Tool: Cursor
+
+Purpose: Make chunk citations clickable in the explorer (issue #35).
+
+What AI assisted with:
+A small citation parser shared in spirit between `swrag.tracing.citations`
+and `web/app.js`, plus answer-bar buttons that select the matching retrieve
+chunk.
+
+Important suggestions produced:
+Link only ids that are in this trace's retrieve lists. Tokens that look like
+`{doc_id}::c{nnn}` but are missing get a "not in this retrieve" note instead
+of binding to another chunk. Escape all non-citation text.
+
+What I independently decided or changed:
+Before-answer citations open the first-pass retrieve when those chunks were
+stored. After-answer citations open the post-recovery retrieve. Do not change
+the generator prompt.
+
+How I verified the result:
+`pytest` parser and API asset tests. Browser click-through on fixture traces
+with known, missing, and HTML-injection answers.
+
 
