@@ -244,3 +244,58 @@ def test_proposed_rewrite_is_labeled_on_the_recover_step() -> None:
     assert recover["summary"] == "proposed: rewrite"
     assert recover["payload"]["source"] == "policy"
     assert recover["payload"]["recovery_status"] == "proposed"
+
+
+def test_rewrite_with_empty_previous_answer_still_splits() -> None:
+    steps = trace_to_steps(
+        _base(
+            previous_answer="",
+            rewritten_query="Harbor Institute Library Saturday hours",
+            previous_retrieved_chunks=[
+                {
+                    "chunk_id": "harbor-hours::c000",
+                    "doc_id": "harbor-hours",
+                    "title": "Hours",
+                    "score": 0.4,
+                    "text": "unrelated",
+                }
+            ],
+            recovery={
+                "action": "rewrite",
+                "reason": "first-pass evidence insufficient",
+                "attributed_class": "evidence_insufficiency",
+            },
+            verification={"outcome": "still_failing", "rationale": "still thin"},
+            runtime_evaluation={
+                "evidence_sufficient": False,
+                "answer_supported": None,
+                "sufficiency_rationale": "probe",
+                "support_rationale": "",
+                "judge": "scripted",
+                "model": "none",
+            },
+            diagnosis={
+                "failure_class": "evidence_insufficiency",
+                "rationale": "still thin",
+                "detector": "rewrite-outcome",
+            },
+            answer="I do not know based on the retrieved documents.",
+            model="abstain",
+        )
+    )
+    kinds = [step["id"] for step in steps]
+    assert kinds == [
+        "query",
+        "retrieve-first",
+        "generate-first",
+        "recover",
+        "retrieve",
+        "generate",
+        "evaluate",
+        "diagnose",
+        "verify",
+    ]
+    evaluate = next(step for step in steps if step["id"] == "evaluate")
+    assert "rewrite retrieve probe" in evaluate["payload"]["note"]
+    diagnose = next(step for step in steps if step["id"] == "diagnose")
+    assert diagnose["title"] == "Diagnose (after recovery)"

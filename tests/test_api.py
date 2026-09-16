@@ -212,6 +212,7 @@ def test_index_page_and_assets_are_served(tmp_path: Path) -> None:
         assert "answer-split" in js.text
         assert "answer-pills" in js.text
         assert "Rewritten query" in js.text
+        assert "Before and after are the same text" in js.text
         assert "formatAnswerHtml" in js.text
         assert "function escapeHtml" in js.text
         assert "cite-missing" in js.text

@@ -18,7 +18,7 @@ def trace_to_steps(payload: dict[str, Any]) -> list[dict[str, Any]]:
     previous_answer = payload.get("previous_answer")
     previous_chunks = payload.get("previous_retrieved_chunks")
     chunks = list(payload.get("retrieved_chunks") or ())
-    recovered = bool(previous_answer)
+    recovered = _is_recovered(payload)
     steps.append(
         _step(
             "query",
@@ -96,9 +96,12 @@ def trace_to_steps(payload: dict[str, Any]) -> list[dict[str, Any]]:
             _generate_after(answer, model, generate_skipped)
         )
         _append_evaluate(steps, payload, after_recovery=True)
-        _append_diagnose(steps, payload)
+        _append_diagnose(steps, payload, after_recovery=True)
         _append_verify(steps, payload)
         return steps
+
+    if after_retrieve is not None:
+        steps.append(after_retrieve)
 
     steps.append(
         _step(
@@ -111,10 +114,30 @@ def trace_to_steps(payload: dict[str, Any]) -> list[dict[str, Any]]:
         )
     )
     _append_evaluate(steps, payload, after_recovery=False)
-    _append_diagnose(steps, payload)
+    _append_diagnose(steps, payload, after_recovery=False)
     _append_recover(steps, payload, rewritten, previous_answer)
     _append_verify(steps, payload)
     return steps
+
+
+def _is_recovered(payload: dict[str, Any]) -> bool:
+    """True when this trace already applied a V1 recovery, not only a proposal."""
+    if payload.get("previous_answer"):
+        return True
+    if payload.get("rewritten_query"):
+        return True
+    if payload.get("previous_retrieved_chunks"):
+        return True
+    recovery = payload.get("recovery") if isinstance(payload.get("recovery"), dict) else {}
+    action = recovery.get("action")
+    if payload.get("recovery_status") == "applied" and action in {
+        "regenerate",
+        "rewrite",
+        "abstain",
+    }:
+        return True
+    verification = payload.get("verification")
+    return isinstance(verification, dict) and bool(verification.get("outcome"))
 
 
 def _retrieve_step(
@@ -173,19 +196,30 @@ def _append_evaluate(
     if after_recovery:
         title = "Evaluate (after recovery)"
         eval_payload["note"] = "flags are from the last judge call (after recovery)"
+        if payload.get("rewritten_query") and supported is None:
+            eval_payload["note"] = (
+                "flags are from the rewrite retrieve probe "
+                "(no answer was generated on that retrieve)"
+            )
     steps.append(_step("evaluate", "evaluate", title, summary, status, eval_payload))
 
 
-def _append_diagnose(steps: list[dict[str, Any]], payload: dict[str, Any]) -> None:
+def _append_diagnose(
+    steps: list[dict[str, Any]],
+    payload: dict[str, Any],
+    *,
+    after_recovery: bool,
+) -> None:
     diagnosis = payload.get("diagnosis")
     if not isinstance(diagnosis, dict):
         return
     klass = diagnosis.get("failure_class")
+    title = "Diagnose (after recovery)" if after_recovery else "Diagnose"
     steps.append(
         _step(
             "diagnose",
             "diagnose",
-            "Diagnose",
+            title,
             str(klass) if klass else "no class claimed",
             "warn" if klass else "ok",
             diagnosis,

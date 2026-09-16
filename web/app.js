@@ -246,25 +246,35 @@ function renderAnswer() {
   const after = (state.trace.answer || "").trim() || "(no generated answer)";
   const before = (state.trace.previous_answer || "").trim();
   const rewritten = (state.trace.rewritten_query || "").trim();
+  const firstChunks = (state.trace.previous_retrieved_chunks || []).length;
   const action = state.trace.recovery && state.trace.recovery.action;
   const outcome = state.trace.verification && state.trace.verification.outcome;
-  if (!before) {
+  const recovered = Boolean(before || rewritten || firstChunks);
+  if (!recovered) {
     $("answer-text").innerHTML = answerBlock(after);
     return;
   }
   const rewriteLine = rewritten
     ? `<div class="answer-meta">Rewritten query: ${escapeHtml(rewritten)}</div>`
     : "";
-  $("answer-text").innerHTML = `<div class="answer-pills">${pill(action, action)}${pill(outcome, outcome)}</div>
-    ${rewriteLine}
-    <div class="answer-split">
-      <div>
+  const sameNote =
+    before && after === before
+      ? `<div class="answer-meta">Before and after are the same text. Recovery did not change the answer.</div>`
+      : "";
+  const beforeColumn = before
+    ? `<div>
         <div class="answer-label">Before</div>
         ${answerBlock(before, "first")}
-      </div>
+      </div>`
+    : "";
+  $("answer-text").innerHTML = `<div class="answer-pills">${pill(action, action)}${pill(outcome, outcome)}</div>
+    ${rewriteLine}
+    ${sameNote}
+    <div class="answer-split">
+      ${beforeColumn}
       <div>
-        <div class="answer-label">After</div>
-        ${answerBlock(after, "after_recovery")}
+        <div class="answer-label">${before ? "After" : "Answer"}</div>
+        ${answerBlock(after, before ? "after_recovery" : null)}
       </div>
     </div>`;
 }

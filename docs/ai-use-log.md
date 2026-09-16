@@ -212,5 +212,29 @@ often ends `still_failing` and the operator should see the proposal first.
 How I verified the result:
 API asset test for the selected `loop_confirm` option.
 
+---
+
+Date: 2026-09-17
+
+Tool: Cursor
+
+Purpose: Fix explorer mapping when rewrite recovery has an empty first-pass answer (issue #50).
+
+What AI assisted with:
+Widening the recovered-trace gate and an Evaluate note for rewrite-retrieve probe flags.
+
+Important suggestions produced:
+Do not re-judge the canned abstain on rewrite-fail; that would change stored
+verification semantics. Do not change the rewrite prompt in this fix.
+
+What I independently decided or changed:
+A trace is recovered if it has a previous answer, a rewritten query, stored
+first-pass chunks, or an applied regenerate/rewrite/abstain. The answer bar
+still shows the rewritten query when Before is empty.
+
+How I verified the result:
+`pytest` waterfall and rewrite-then-abstain history assertions.
+
+
 
 
