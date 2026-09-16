@@ -289,5 +289,27 @@ How I verified the result:
 Unit tests for the Dongkuk rewrite and a Harbor rewrite that already
 contains Institute.
 
+---
+
+Date: 2026-09-17
+
+Tool: Cursor
+
+Purpose: Update the software demo checklist after merging the open fix PRs (issue #40).
+
+What AI assisted with:
+Rewriting checkboxes so merged PRs are marked shipped without claiming a live
+`improved` snapshot or a finished gold/judge audit.
+
+Important suggestions produced:
+Keep #39, #37 (human sign-off), and #38 (filled labels) unchecked.
+
+What I independently decided or changed:
+Demo path uses confirm-recovery as the default and does not promise Verify =
+improved on one Kestrel question.
+
+How I verified the result:
+Checked GitHub issue/PR state after the merge pass.
+
 
 
