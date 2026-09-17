@@ -200,15 +200,16 @@ def chunks_payload(retrieval: RetrievalResult) -> tuple[dict, ...]:
     payload: list[dict] = []
     for scored in retrieval.chunks:
         chunk = scored.chunk
-        payload.append(
-            {
-                "chunk_id": chunk.chunk_id,
-                "doc_id": chunk.doc_id,
-                "title": chunk.title,
-                "score": scored.score,
-                "text": chunk.text,
-            }
-        )
+        row: dict = {
+            "chunk_id": chunk.chunk_id,
+            "doc_id": chunk.doc_id,
+            "title": chunk.title,
+            "score": scored.score,
+            "text": chunk.text,
+        }
+        if chunk.page is not None:
+            row["page"] = chunk.page
+        payload.append(row)
     return tuple(payload)
 
 

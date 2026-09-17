@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from swrag.ingestion.loader import load_documents
+from swrag.ingestion.loader import corpus_file_count, load_documents
 
 REGISTRY_PATH = Path("datasets") / "registry.json"
 DEFAULT_CORPUS_ID = "dku"
@@ -33,9 +33,7 @@ class CorpusEntry:
 
     @property
     def doc_count(self) -> int:
-        if not self.corpus_dir.is_dir():
-            return 0
-        return len(list(self.corpus_dir.glob("*.txt")))
+        return corpus_file_count(self.corpus_dir)
 
     def as_payload(self) -> dict[str, Any]:
         return {
@@ -117,7 +115,7 @@ def traces_dir_for(corpus_id: str, traces_root: str | Path) -> Path:
 
 
 def assert_corpus_readable(entry: CorpusEntry) -> None:
-    """Fail fast if the folder is missing or has no ``.txt`` files."""
+    """Fail fast if the folder is missing or has no readable ``.txt`` / ``.pdf``."""
     load_documents(entry.corpus_dir)
 
 

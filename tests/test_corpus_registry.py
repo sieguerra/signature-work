@@ -30,6 +30,7 @@ def test_every_registered_corpus_loads_and_gold_cites_real_files() -> None:
         documents = load_documents(entry.corpus_dir)
         assert len(documents) >= 10
         stems = {document.doc_id for document in documents}
+        stems.update(Path(document.path).stem for document in documents)
         if entry.gold_path is None:
             continue
         questions = load_gold_set(entry.gold_path)

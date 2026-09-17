@@ -376,12 +376,13 @@ function renderChunks(chunks) {
       const selected = chunk.chunk_id && chunk.chunk_id === state.selectedChunkId;
       const active = selected ? " selected" : "";
       const cited = selected ? `<span class="pill ok">cited</span>` : "";
+      const page = chunk.page ? `<span class="pill">p. ${escapeHtml(String(chunk.page))}</span>` : "";
       const title = chunk.title
         ? `<div class="chunk-title">${escapeHtml(chunk.title)}</div>`
         : "";
       return `<article class="chunk${active}" data-chunk-id="${escapeHtml(chunk.chunk_id || "")}">
         <div class="chunk-head">
-          <span>${escapeHtml(chunk.chunk_id || "")}</span>
+          <span>${escapeHtml(chunk.chunk_id || "")}${page}</span>
           <span>${cited}${Number(chunk.score || 0).toFixed(3)}</span>
         </div>
         ${title}

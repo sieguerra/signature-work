@@ -311,5 +311,31 @@ improved on one Kestrel question.
 How I verified the result:
 Checked GitHub issue/PR state after the merge pass.
 
+---
+
+Date: 2026-09-17
+
+Tool: Cursor
+
+Purpose: Ingest local PDFs as page-citable documents (issue #34).
+
+What AI assisted with:
+Loader/extractor boilerplate, a tiny two-page fixture PDF, and tests that do
+not call OpenAI.
+
+Important suggestions produced:
+pypdf behind a small extract function, not a second extracted-.txt copy
+(ADR 009). One document per PDF page so chunk ids stay
+`{stem}::p{page}::c{index}`. Skip empty/corrupt PDFs instead of indexing
+blank stand-ins. OCR, Drive, and HTML remain out of scope.
+
+What I independently decided or changed:
+Followed the issue's loader-protocol design. Existing `.txt` corpora and the
+Harbor snapshot stay unchanged. Adding a PDF on disk still requires rebuild.
+
+How I verified the result:
+`pytest` including retrieve-only over the fixture PDF. Harbor
+`experiments/results/20260910T070623/` untouched.
+
 
 

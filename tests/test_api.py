@@ -251,6 +251,7 @@ def test_index_page_and_assets_are_served(tmp_path: Path) -> None:
         assert "function escapeHtml" in js.text
         assert "cite-missing" in js.text
         assert "Not in this retrieve" in js.text
+        assert "chunk.page" in js.text
         assert "applyRecovery" in js.text
         assert "Regenerate from evidence" in js.text
         assert "Rewrite query and retrieve" in js.text

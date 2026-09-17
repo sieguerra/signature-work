@@ -23,7 +23,7 @@ overwrite it.
 
 ## Later platform, not V1 blockers
 
-- [#34](https://github.com/sieguerra/signature-work/issues/34) PDF ingest
+- [x] [#34](https://github.com/sieguerra/signature-work/issues/34) PDF ingest — page-aware chunks; OCR / Drive still out of scope
 - [x] [#35](https://github.com/sieguerra/signature-work/issues/35) clickable citations — merged in [#43](https://github.com/sieguerra/signature-work/pull/43)
 - [x] [#36](https://github.com/sieguerra/signature-work/issues/36) eval pane — merged in [#44](https://github.com/sieguerra/signature-work/pull/44)
 

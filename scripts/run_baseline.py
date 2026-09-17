@@ -26,7 +26,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--corpus",
         type=Path,
         default=root / "datasets" / "dku" / "corpus",
-        help="Directory of .txt files",
+        help="Directory of .txt or .pdf files",
     )
     parser.add_argument(
         "--output-dir",

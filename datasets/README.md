@@ -26,6 +26,12 @@ officer names).
 Do not edit a gold row after it has results; add a new id. Harbor snapshot
 `experiments/results/20260910T070623/` still scores Harbor only.
 
+The loader also reads ``.pdf`` files in a corpus folder (issue #34). Each page
+with extractable text becomes a document whose chunks carry a 1-based ``page``.
+Adding a PDF on disk still requires an index rebuild (restart the UI or rerun
+the script). Do not commit copyrighted manuals; tests use
+`tests/fixtures/two-page-notice.pdf`. OCR for scans is out of scope.
+
 Recovery-oriented splits (issue #32) live beside the main gold as
 `gold/recovery.jsonl` on DKU and Kestrel. They do not replace the main sets.
 

@@ -45,6 +45,7 @@ def chunk_document(
                 text=text,
                 start_char=start,
                 end_char=end,
+                page=document.page,
             )
         )
     return chunks
