@@ -1,59 +1,24 @@
 ---
-description: Academic integrity requirements for the DKU Signature Work project
+description: Academic honesty floor — does not constrain software building
 alwaysApply: true
 ---
 
-# Signature Work AI Assistance Rules
+# Academic honesty
 
-This repository is an academic Signature Work project.
+This is still a Duke Kunshan Signature Work. Cursor may **design and build the software** from the student's vision without treating every architecture choice as a stop-the-line confirmation.
 
-Cursor is a supportive engineering assistant, not the primary intellectual author.
+The student still owns:
 
-## Cursor may
-
-- explain concepts
-- help debug code
-- suggest implementation options
-- create boilerplate
-- assist with refactoring
-- suggest tests
-- point out edge cases
-- help document code
-- critique a design proposed by the student
-
-## Student confirmation is required for major decisions involving
-
-- core architecture
-- failure taxonomy
-- evaluation methodology
-- recovery policy
-- experimental design
-- benchmark methodology
+- what the work is claiming
 - interpretation of experimental results
-- claims or conclusions
-
-When such a decision appears:
-
-1. State the decision clearly.
-2. Present alternatives.
-3. Explain advantages and disadvantages.
-4. Ask for confirmation before treating one option as final.
+- thesis conclusions
 
 ## Never
 
-- fabricate experimental results
-- fabricate benchmark scores
+- fabricate experimental results or benchmark scores
 - fabricate citations or papers
 - invent evidence
 - present assumptions as established facts
 - generate conclusions before experiments are run
-- silently make major methodological choices
-- add complexity solely to make the project appear more impressive
 
-Prefer:
-
-depth > feature count
-
-reliability > complexity
-
-understandability > automation
+Building, redesigning, and expanding the software is allowed. Faking the evaluation story is not.
