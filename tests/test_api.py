@@ -85,6 +85,7 @@ def test_delete_trace_removes_the_file(tmp_path: Path) -> None:
         response = client.delete("/api/traces/ui_run_delete")
         assert response.status_code == 200, response.text
         assert response.json()["deleted"] == "ui_run_delete"
+        assert response.json()["also_deleted"] == []
         assert client.get("/api/traces/ui_run_delete").status_code == 404
         assert client.get("/api/traces").json()["traces"] == []
     assert not (tmp_path / "ui_run_delete.json").exists()
@@ -191,6 +192,8 @@ def test_retrieve_only_run_writes_a_trace(tmp_path: Path) -> None:
         saved = json.loads(trace_files[0].read_text(encoding="utf-8"))
         assert saved["query"].startswith("When is the Harbor")
         assert saved["top_k"] == 4
+        assert isinstance(saved.get("latency_ms"), (int, float))
+        assert saved["latency_ms"] >= 0
         assert len(saved["retrieved_chunks"]) <= 4
         assert "answers" not in saved
 
@@ -260,6 +263,14 @@ def test_index_page_and_assets_are_served(tmp_path: Path) -> None:
         assert "Loop (confirm recovery)" in page.text
         assert "Loop (auto recover)" in page.text
         assert 'value="loop_confirm" selected' in page.text
+        assert "has recovery" in js.text
+        assert "after recovery" in js.text
+        assert "child-run" in css.text
+        assert "its recovered child" in js.text
+        assert "First-pass evidence is insufficient" in js.text
+        assert "proposed=" in js.text
+        assert "mean latency" in js.text
+        assert "no class claimed" not in js.text
         assert "Generate (first pass)" not in page.text
 
 
@@ -294,24 +305,49 @@ def test_eval_counts_active_traces_and_zeros_after_delete_all(tmp_path: Path) ->
                 "attributed_class": "evidence_insufficiency",
             },
             verification={"outcome": "still_failing", "rationale": "still thin"},
+            latency_ms=1500,
+        ),
+        tmp_path,
+    )
+    write_trace(
+        TraceRecord(
+            run_id="eval_proposed",
+            timestamp="2026-09-10T12:02:00+00:00",
+            query="How many seats?",
+            retrieved_chunks=(),
+            answer="The library is on the moon.",
+            model="none",
+            embedding_model="fake-hash",
+            top_k=4,
+            recovery={
+                "action": "rewrite",
+                "reason": "first-pass evidence insufficient",
+                "attributed_class": None,
+            },
+            recovery_status="proposed",
         ),
         tmp_path,
     )
     (tmp_path / "summary.json").write_text('{"label": "batch"}', encoding="utf-8")
     with _client(tmp_path) as client:
         payload = client.get("/api/eval").json()
-        assert payload["n"] == 2
+        assert payload["n"] == 3
+        assert payload["proposed"] == 1
         assert payload["by_action"]["accept"] == 1
         assert payload["by_action"]["rewrite"] == 1
         assert payload["by_verification"]["still_failing"] == 1
+        assert "none" not in payload["by_verification"]
         assert payload["abstain"] == 1
+        assert payload["mean_latency_ms"] == 1500
         assert payload["batch_summary"]["label"] == "batch"
         assert "20260910T070623" not in payload["traces_dir"]
         client.delete("/api/traces")
         empty = client.get("/api/eval").json()
         assert empty["n"] == 0
+        assert empty["proposed"] == 0
         assert empty["abstain"] == 0
         assert empty["by_action"] == {}
+        assert empty["mean_latency_ms"] is None
 
 
 def test_lists_corpora_and_switches_without_mixing_indexes(tmp_path: Path) -> None:
@@ -386,6 +422,98 @@ def _proposed_record(run_id: str = "ui_proposed") -> TraceRecord:
         },
         recovery_status="proposed",
     )
+
+
+def test_delete_parent_also_deletes_recovered_child(tmp_path: Path) -> None:
+    write_trace(_proposed_record("keep_parent"), tmp_path)
+    write_trace(
+        TraceRecord(
+            run_id="keep_child",
+            timestamp="2026-09-16T12:02:00+00:00",
+            query="When does the library close?",
+            retrieved_chunks=(),
+            answer="Saturday 10:00-16:00",
+            model="none",
+            embedding_model="fake-hash",
+            top_k=4,
+            previous_answer="The library is on the moon.",
+            recovery={"action": "rewrite", "reason": "first-pass", "source": "policy"},
+            recovery_status="applied",
+            parent_run_id="keep_parent",
+        ),
+        tmp_path,
+    )
+    with _client(tmp_path) as client:
+        response = client.delete("/api/traces/keep_parent")
+        assert response.status_code == 200, response.text
+        assert response.json()["deleted"] == "keep_parent"
+        assert response.json()["also_deleted"] == ["keep_child"]
+        assert client.get("/api/traces/keep_parent").status_code == 404
+        assert client.get("/api/traces/keep_child").status_code == 404
+        assert client.get("/api/traces").json()["traces"] == []
+
+
+def test_delete_child_leaves_parent_proposed(tmp_path: Path, monkeypatch) -> None:
+    write_trace(_proposed_record("solo_parent"), tmp_path)
+    write_trace(
+        TraceRecord(
+            run_id="solo_child",
+            timestamp="2026-09-16T12:02:00+00:00",
+            query="When does the library close?",
+            retrieved_chunks=(),
+            answer="Saturday 10:00-16:00",
+            model="none",
+            embedding_model="fake-hash",
+            top_k=4,
+            recovery={"action": "rewrite", "reason": "first-pass", "source": "policy"},
+            recovery_status="applied",
+            parent_run_id="solo_parent",
+        ),
+        tmp_path,
+    )
+    with _client(tmp_path) as client:
+        response = client.delete("/api/traces/solo_child")
+        assert response.status_code == 200, response.text
+        assert response.json()["also_deleted"] == []
+        parent = client.get("/api/traces/solo_parent")
+        assert parent.status_code == 200
+        assert parent.json()["trace"]["recovery_status"] == "proposed"
+        assert parent.json()["child_run_id"] is None
+
+        def fake_execute_recover(application, run_id, action):
+            chosen = action or "rewrite"
+            path = write_trace(
+                TraceRecord(
+                    run_id="solo_child_2",
+                    timestamp="2026-09-16T12:04:00+00:00",
+                    query="When does the library close?",
+                    retrieved_chunks=(),
+                    answer="Saturday 10:00-16:00",
+                    model="none",
+                    embedding_model="fake-hash",
+                    top_k=4,
+                    previous_answer="The library is on the moon.",
+                    recovery={"action": chosen, "reason": "first-pass", "source": "policy"},
+                    recovery_status="applied",
+                    parent_run_id=run_id,
+                ),
+                application.state.traces_dir,
+            )
+            return BaselineRunResult(
+                run_id="solo_child_2",
+                query="When does the library close?",
+                answer="Saturday 10:00-16:00",
+                retrieval=_empty_retrieval(),
+                generation_model="none",
+                embedding_model="fake-hash",
+                trace_path=path,
+            )
+
+        monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+        monkeypatch.setattr("swrag.api.app._execute_recover", fake_execute_recover)
+        recovered = client.post("/api/runs/solo_parent/recover", json={"action": "rewrite"})
+        assert recovered.status_code == 200, recovered.text
+        assert recovered.json()["run_id"] == "solo_child_2"
 
 
 def test_loop_confirm_without_api_key_is_rejected(tmp_path: Path, monkeypatch) -> None:
@@ -468,6 +596,11 @@ def test_recover_twice_is_409(tmp_path: Path, monkeypatch) -> None:
         loaded = client.get("/api/traces/ui_proposed")
         assert loaded.status_code == 200
         assert loaded.json()["child_run_id"] == "ui_child"
+        listing = client.get("/api/traces").json()["traces"]
+        parent = next(item for item in listing if item["run_id"] == "ui_proposed")
+        child = next(item for item in listing if item["run_id"] == "ui_child")
+        assert parent["child_run_id"] == "ui_child"
+        assert child["parent_run_id"] == "ui_proposed"
         response = client.post("/api/runs/ui_proposed/recover", json={"action": "rewrite"})
         assert response.status_code == 409
 
@@ -549,3 +682,49 @@ def test_loop_confirm_then_recover_writes_a_child(tmp_path: Path, monkeypatch) -
         assert (tmp_path / "confirm_parent.json").read_text(encoding="utf-8") == parent_text
         again = client.post("/api/runs/confirm_parent/recover", json={"action": "rewrite"})
         assert again.status_code == 409
+
+
+def _fake_confirm_run(run_id: str):
+    def fake_execute_run(application, question, mode, top_k):
+        del top_k
+        fake_execute_run.seen.append(mode)
+        path = write_trace(_proposed_record(run_id), application.state.traces_dir)
+        return BaselineRunResult(
+            run_id=run_id,
+            query=question,
+            answer="The library is on the moon.",
+            retrieval=_empty_retrieval(question),
+            generation_model="none",
+            embedding_model="fake-hash",
+            trace_path=path,
+        )
+
+    fake_execute_run.seen = []
+    return fake_execute_run
+
+
+def test_omitted_mode_defaults_to_loop_confirm(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+    fake_execute_run = _fake_confirm_run("omit_parent")
+    monkeypatch.setattr("swrag.api.app._execute_run", fake_execute_run)
+    with _client(tmp_path) as client:
+        response = client.post(
+            "/api/runs",
+            json={"question": "When does the library close?"},
+        )
+        assert response.status_code == 200, response.text
+        assert fake_execute_run.seen == ["loop_confirm"]
+        assert response.json()["trace"]["recovery_status"] == "proposed"
+
+
+def test_explicit_loop_mode_is_still_auto_recover(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+    fake_execute_run = _fake_confirm_run("loop_parent")
+    monkeypatch.setattr("swrag.api.app._execute_run", fake_execute_run)
+    with _client(tmp_path) as client:
+        response = client.post(
+            "/api/runs",
+            json={"question": "When does the library close?", "mode": "loop"},
+        )
+        assert response.status_code == 200, response.text
+        assert fake_execute_run.seen == ["loop"]

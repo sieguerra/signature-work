@@ -11,6 +11,7 @@ button before the V1 action runs.
 from __future__ import annotations
 
 import json
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Protocol
@@ -25,6 +26,7 @@ from swrag.evaluation.judge import GroundingJudge
 from swrag.generation.openai_generator import OpenAIGenerator
 from swrag.pipeline.baseline import (
     QueryState,
+    _elapsed_ms,
     build_corpus_index,
     chunks_payload,
     execute_query,
@@ -108,6 +110,7 @@ def run_with_recovery(
     index: InMemoryIndex | None = None,
 ) -> BaselineRunResult:
     """Run the automatic loop and write one trace. Never overwrites history."""
+    started = time.perf_counter()
     resolved_index = index if index is not None else build_corpus_index(corpus_dir, embedder)
     state, decision = _first_pass_state(
         query,
@@ -144,6 +147,7 @@ def run_with_recovery(
             rewritten_query=applied.rewritten_query,
             previous_retrieved_chunks=applied.previous_retrieved_chunks,
             recovery_status=RECOVERY_APPLIED,
+            latency_ms=_elapsed_ms(started),
         )
     return write_run(
         state,
@@ -151,6 +155,7 @@ def run_with_recovery(
         question_id=question_id,
         recovery=decision,
         recovery_status=RECOVERY_APPLIED,
+        latency_ms=_elapsed_ms(started),
     )
 
 
@@ -168,6 +173,7 @@ def run_first_pass(
     index: InMemoryIndex | None = None,
 ) -> BaselineRunResult:
     """Evaluate and select a recovery without applying it."""
+    started = time.perf_counter()
     resolved_index = index if index is not None else build_corpus_index(corpus_dir, embedder)
     state, decision = _first_pass_state(
         query,
@@ -186,6 +192,7 @@ def run_first_pass(
         question_id=question_id,
         recovery=decision,
         recovery_status=status,
+        latency_ms=_elapsed_ms(started),
     )
 
 
@@ -205,6 +212,7 @@ def apply_recovery(
     index: InMemoryIndex | None = None,
 ) -> BaselineRunResult:
     """Apply one V1 action to a proposed first-pass trace. Writes a new file."""
+    started = time.perf_counter()
     parent = _load_parent(output_dir, parent_run_id)
     if parent.get("parent_run_id"):
         raise RecoveryNotApplicable("cannot apply recovery to a recovered child run")
@@ -246,6 +254,7 @@ def apply_recovery(
         previous_retrieved_chunks=applied.previous_retrieved_chunks,
         recovery_status=RECOVERY_APPLIED,
         parent_run_id=parent_run_id,
+        latency_ms=_elapsed_ms(started),
     )
 
 

@@ -168,6 +168,11 @@ body {
   margin-bottom: 4px;
 }
 
+.run-item.child-run {
+  padding-left: 22px;
+  border-left: 2px solid var(--line-strong);
+}
+
 .run-select {
   flex: 1;
   min-width: 0;

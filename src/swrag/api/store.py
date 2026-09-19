@@ -121,13 +121,26 @@ def find_child_run_id(traces_dir: str | Path, parent_run_id: str) -> str | None:
     return None
 
 
-def delete_trace(traces_dir: str | Path, run_id: str) -> bool:
-    """Delete ``{run_id}.json`` under ``traces_dir``. Returns False if missing."""
+def delete_trace(traces_dir: str | Path, run_id: str) -> list[str]:
+    """Delete ``run_id`` and its recovered child, if any. Empty if missing."""
+    if not _safe_run_id(run_id):
+        return []
+    deleted: list[str] = []
+    child_id = find_child_run_id(traces_dir, run_id)
+    if child_id and _delete_one(traces_dir, child_id):
+        deleted.append(child_id)
+    if _delete_one(traces_dir, run_id):
+        deleted.insert(0, run_id)
+    return deleted
+
+
+def _delete_one(traces_dir: str | Path, run_id: str) -> bool:
+    """Unlink ``{run_id}.json`` only. Does not follow parent/child links."""
     root = Path(traces_dir)
     if not root.exists() or not _safe_run_id(run_id):
         return False
     root_resolved = root.resolve()
-    deleted = False
+    found = False
     for path in root.rglob(f"{run_id}.json"):
         if path.name in SKIP_NAMES:
             continue
@@ -139,8 +152,8 @@ def delete_trace(traces_dir: str | Path, run_id: str) -> bool:
             path.unlink()
         except OSError:
             continue
-        deleted = True
-    return deleted
+        found = True
+    return found
 
 
 def delete_all_traces(traces_dir: str | Path) -> int:
@@ -167,6 +180,7 @@ def eval_counts(traces_dir: str | Path) -> dict[str, Any]:
     by_verification: dict[str, int] = {}
     n = 0
     abstain = 0
+    proposed = 0
     latencies: list[float] = []
     for path in _iter_trace_paths(traces_dir):
         try:
@@ -181,9 +195,14 @@ def eval_counts(traces_dir: str | Path) -> dict[str, Any]:
             payload.get("verification") if isinstance(payload.get("verification"), dict) else {}
         )
         action = str(recovery.get("action") or "none")
-        outcome = str(verification.get("outcome") or "none")
-        by_action[action] = by_action.get(action, 0) + 1
-        by_verification[outcome] = by_verification.get(outcome, 0) + 1
+        if payload.get("recovery_status") == "proposed":
+            proposed += 1
+        else:
+            by_action[action] = by_action.get(action, 0) + 1
+        outcome = verification.get("outcome")
+        if outcome:
+            key = str(outcome)
+            by_verification[key] = by_verification.get(key, 0) + 1
         answer = str(payload.get("answer") or "")
         model = str(payload.get("model") or "")
         if answer.strip() == ABSTAIN_ANSWER or model == "abstain":
@@ -202,6 +221,7 @@ def eval_counts(traces_dir: str | Path) -> dict[str, Any]:
             batch_summary = loaded
     return {
         "n": n,
+        "proposed": proposed,
         "by_action": by_action,
         "by_verification": by_verification,
         "abstain": abstain,
