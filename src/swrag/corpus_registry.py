@@ -30,6 +30,8 @@ class CorpusEntry:
     gold_path: Path | None
     examples: tuple[str, ...]
     fictional: bool
+    writable: bool = False
+    config: dict[str, Any] | None = None
 
     @property
     def doc_count(self) -> int:
@@ -46,6 +48,8 @@ class CorpusEntry:
             "examples": list(self.examples),
             "fictional": self.fictional,
             "doc_count": self.doc_count,
+            "writable": self.writable,
+            "config": dict(self.config) if self.config else None,
         }
 
 

@@ -28,6 +28,8 @@ def test_meta_does_not_include_an_api_key(tmp_path: Path) -> None:
         assert "api_key_present" in payload
         assert payload["traces_dir"] == str(tmp_path)
         assert payload["corpus_id"] == "harbor"
+        assert "agent_config" in payload
+        assert payload["agent_config"] is None
 
 
 def test_empty_trace_list(tmp_path: Path) -> None:
@@ -232,9 +234,13 @@ def test_index_page_and_assets_are_served(tmp_path: Path) -> None:
         assert page.status_code == 200
         assert "Trace explorer" in page.text
         assert "delete-all-runs" in page.text
+        assert "Playground" in page.text
+        assert 'id="view-playground"' in page.text
         css = client.get("/static/styles.css")
         assert css.status_code == 200
         assert "--bg:" in css.text
+        assert "view-nav" in css.text
+        assert "dropzone" in css.text
         js = client.get("/static/app.js")
         assert js.status_code == 200
         assert "example-chips" in js.text
@@ -242,6 +248,12 @@ def test_index_page_and_assets_are_served(tmp_path: Path) -> None:
         assert "deleteAllRuns" in js.text
         assert "switchCorpus" in js.text
         assert "readTopK" in js.text
+        assert "createPlaygroundProject" in js.text
+        assert "savePlaygroundConfig" in js.text
+        assert "resetPlaygroundChat" in js.text
+        assert 'id="pg-reset"' in page.text
+        assert 'id="pg-rerun"' in page.text
+        assert "pg-config" in css.text
         assert 'id="corpus"' in page.text
         assert 'id="top-k"' in page.text
         assert 'id="eval-strip"' in page.text

@@ -111,6 +111,7 @@ def run_with_recovery(
     question_id: str | None = None,
     max_recoveries: int = 1,
     index: InMemoryIndex | None = None,
+    agent_config: dict[str, Any] | None = None,
 ) -> BaselineRunResult:
     """Run the automatic loop and write one trace. Never overwrites history."""
     started = time.perf_counter()
@@ -152,6 +153,7 @@ def run_with_recovery(
             recovery_status=RECOVERY_APPLIED,
             latency_ms=_elapsed_ms(started),
             probe_evaluation=applied.probe_evaluation,
+            agent_config=agent_config,
         )
     return write_run(
         state,
@@ -160,6 +162,7 @@ def run_with_recovery(
         recovery=decision,
         recovery_status=RECOVERY_APPLIED,
         latency_ms=_elapsed_ms(started),
+        agent_config=agent_config,
     )
 
 
@@ -175,6 +178,7 @@ def run_first_pass(
     judge: GroundingJudge | None = None,
     question_id: str | None = None,
     index: InMemoryIndex | None = None,
+    agent_config: dict[str, Any] | None = None,
 ) -> BaselineRunResult:
     """Evaluate and select a recovery without applying it."""
     started = time.perf_counter()
@@ -197,6 +201,7 @@ def run_first_pass(
         recovery=decision,
         recovery_status=status,
         latency_ms=_elapsed_ms(started),
+        agent_config=agent_config,
     )
 
 
@@ -214,6 +219,7 @@ def apply_recovery(
     rewriter: Rewriter | None = None,
     question_id: str | None = None,
     index: InMemoryIndex | None = None,
+    agent_config: dict[str, Any] | None = None,
 ) -> BaselineRunResult:
     """Apply one V1 action to a proposed first-pass trace. Writes a new file."""
     started = time.perf_counter()
@@ -260,6 +266,7 @@ def apply_recovery(
         parent_run_id=parent_run_id,
         latency_ms=_elapsed_ms(started),
         probe_evaluation=applied.probe_evaluation,
+        agent_config=agent_config if agent_config is not None else parent.get("agent_config"),
     )
 
 

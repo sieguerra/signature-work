@@ -115,6 +115,7 @@ def run_query(
     question_id: str | None = None,
     judge: GroundingJudge | None = None,
     index: InMemoryIndex | None = None,
+    agent_config: dict | None = None,
 ) -> BaselineRunResult:
     """Run baseline RAG on ``query`` and write a JSON trace.
 
@@ -140,6 +141,7 @@ def run_query(
         output_dir=output_dir,
         question_id=question_id,
         latency_ms=_elapsed_ms(started),
+        agent_config=agent_config,
     )
 
 
@@ -157,6 +159,7 @@ def write_run(
     parent_run_id: str | None = None,
     latency_ms: float | None = None,
     probe_evaluation: RuntimeEvaluation | None = None,
+    agent_config: dict | None = None,
 ) -> BaselineRunResult:
     """Write a trace for ``state``. Never overwrites an existing file."""
     run_id = _new_run_id()
@@ -199,6 +202,7 @@ def write_run(
                 if state.retrieval_signal is not None
                 else None
             ),
+            agent_config=dict(agent_config) if agent_config else None,
         ),
         output_dir,
     )

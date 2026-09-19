@@ -33,6 +33,8 @@ coverage/
 # Generated experiment artifacts if large
 experiments/output/*
 !experiments/output/.gitkeep
+experiments/projects/*
+!experiments/projects/.gitkeep
 datasets/generated/
 
 # Secrets

@@ -188,6 +188,7 @@ class TraceRecord:
     # rather than folded into ``runtime_evaluation``.
     probe_evaluation: dict[str, Any] | None = field(default=None)
     retrieval_signal: dict[str, Any] | None = field(default=None)
+    agent_config: dict[str, Any] | None = field(default=None)
 
 
 @dataclass(frozen=True)
