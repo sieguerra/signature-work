@@ -188,6 +188,8 @@ def create_app(
                 result = _execute_run(application, question, body.mode, body.top_k)
         except FileExistsError as error:
             raise HTTPException(status_code=409, detail=str(error)) from error
+        except (FileNotFoundError, ValueError) as error:
+            raise HTTPException(status_code=400, detail=str(error)) from error
         except Exception as error:
             raise HTTPException(status_code=500, detail=str(error)) from error
 
@@ -233,6 +235,8 @@ def create_app(
             raise HTTPException(status_code=409, detail=str(error)) from error
         except FileExistsError as error:
             raise HTTPException(status_code=409, detail=str(error)) from error
+        except (FileNotFoundError, ValueError) as error:
+            raise HTTPException(status_code=400, detail=str(error)) from error
         except Exception as error:
             raise HTTPException(status_code=500, detail=str(error)) from error
 

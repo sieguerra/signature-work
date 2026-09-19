@@ -13,6 +13,7 @@ class Document:
     title: str
     path: str
     text: str
+    page: int | None = None
 
 
 @dataclass(frozen=True)
@@ -23,6 +24,7 @@ class Chunk:
     text: str
     start_char: int
     end_char: int
+    page: int | None = None
 
 
 @dataclass(frozen=True)

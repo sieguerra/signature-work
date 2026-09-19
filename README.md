@@ -124,7 +124,7 @@ Tests use the same fake embedder, so chunking, ranking, and tracing do not call 
 
 | Path | Role |
 |---|---|
-| `src/swrag/ingestion/` | Load local `.txt` files and chunk them |
+| `src/swrag/ingestion/` | Load local `.txt` / `.pdf` files and chunk them |
 | `src/swrag/retrieval/` | Embedder protocol, OpenAI embedder, in-memory index |
 | `src/swrag/generation/` | OpenAI generation from evidence |
 | `src/swrag/tracing/` | Per-run JSON traces |

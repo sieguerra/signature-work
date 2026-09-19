@@ -508,6 +508,17 @@ def _diagnosis_from_payload(payload: Any) -> Diagnosis | None:
     )
 
 
+def _optional_page(value: object) -> int | None:
+    if isinstance(value, bool) or value is None:
+        return None
+    if isinstance(value, int):
+        return value if value > 0 else None
+    if isinstance(value, str) and value.isdigit():
+        parsed = int(value)
+        return parsed if parsed > 0 else None
+    return None
+
+
 def _query_state_from_trace(payload: dict[str, Any]) -> QueryState:
     chunks = []
     for item in payload.get("retrieved_chunks") or []:
@@ -521,6 +532,7 @@ def _query_state_from_trace(payload: dict[str, Any]) -> QueryState:
             text=text,
             start_char=0,
             end_char=len(text),
+            page=_optional_page(item.get("page")),
         )
         chunks.append(ScoredChunk(chunk=chunk, score=float(item.get("score") or 0.0)))
     nested = payload.get("generation") if isinstance(payload.get("generation"), dict) else {}

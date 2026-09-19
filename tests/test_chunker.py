@@ -16,6 +16,7 @@ def test_short_document_is_one_chunk() -> None:
     assert len(chunks) == 1
     assert chunks[0].chunk_id == "sample::c000"
     assert chunks[0].text == text
+    assert chunks[0].page is None
     assert chunks[0].start_char >= 0
     assert chunks[0].end_char <= len(text)
 

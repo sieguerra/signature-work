@@ -64,6 +64,7 @@ def test_html_in_the_answer_stays_plain_text_in_the_parser() -> None:
 
 def test_looks_like_chunk_id_matches_v1_shape_only() -> None:
     assert looks_like_chunk_id("dku-library-hours::c001")
+    assert looks_like_chunk_id("two-page-notice::p1::c000")
     assert not looks_like_chunk_id("not-a-chunk")
     assert not looks_like_chunk_id("harbor-library")
     assert not looks_like_chunk_id("::c000")
