@@ -44,6 +44,7 @@ def trace_to_steps(payload: dict[str, Any]) -> list[dict[str, Any]]:
                 first,
                 payload,
                 pass_name="first",
+                include_signal=True,
             )
         )
         after_retrieve = _retrieve_step(
@@ -59,6 +60,8 @@ def trace_to_steps(payload: dict[str, Any]) -> list[dict[str, Any]]:
             "embedding_model": payload.get("embedding_model"),
             "chunks": chunks,
         }
+        if payload.get("retrieval_signal") is not None:
+            retrieve_payload["retrieval_signal"] = payload.get("retrieval_signal")
         if rewritten:
             retrieve_payload["note"] = (
                 "chunks are post-recovery; first-pass chunks were not stored"
@@ -147,19 +150,23 @@ def _retrieve_step(
     payload: dict[str, Any],
     *,
     pass_name: str,
+    include_signal: bool = False,
 ) -> dict[str, Any]:
+    body: dict[str, Any] = {
+        "top_k": payload.get("top_k"),
+        "embedding_model": payload.get("embedding_model"),
+        "chunks": chunks,
+        "pass": pass_name,
+    }
+    if include_signal and payload.get("retrieval_signal") is not None:
+        body["retrieval_signal"] = payload.get("retrieval_signal")
     return _step(
         step_id,
         "retrieve",
         title,
         _chunk_summary(chunks),
         "ok" if chunks else "empty",
-        {
-            "top_k": payload.get("top_k"),
-            "embedding_model": payload.get("embedding_model"),
-            "chunks": chunks,
-            "pass": pass_name,
-        },
+        body,
     )
 
 

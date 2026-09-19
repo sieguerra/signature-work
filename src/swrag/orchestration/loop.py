@@ -23,6 +23,7 @@ from swrag.diagnosis.diagnose import (
     diagnose_runtime,
 )
 from swrag.evaluation.judge import GroundingJudge
+from swrag.evaluation.retrieval_signal import retrieval_signal
 from swrag.generation.openai_generator import OpenAIGenerator
 from swrag.pipeline.baseline import (
     QueryState,
@@ -283,7 +284,11 @@ def _first_pass_state(
         judge=judge,
         index=index,
     )
-    return state, select_recovery(state.diagnosis, state.runtime_evaluation)
+    return state, select_recovery(
+        state.diagnosis,
+        state.runtime_evaluation,
+        state.retrieval_signal,
+    )
 
 
 def _decision_to_apply(proposed: RecoveryDecision, chosen: str) -> RecoveryDecision:
@@ -293,6 +298,7 @@ def _decision_to_apply(proposed: RecoveryDecision, chosen: str) -> RecoveryDecis
         reason=proposed.reason,
         attributed_class=proposed.attributed_class,
         source=source,
+        trigger=proposed.trigger,
     )
 
 
@@ -320,6 +326,7 @@ def _apply_action(
             generation=GenerationResult(answer=ABSTAIN_ANSWER, model="abstain"),
             runtime_evaluation=state.runtime_evaluation,
             diagnosis=state.diagnosis,
+            retrieval_signal=state.retrieval_signal,
         )
         verification = None
         post_eval = state.runtime_evaluation
@@ -338,6 +345,7 @@ def _apply_action(
                 generation=GenerationResult(answer=ABSTAIN_ANSWER, model="abstain"),
                 runtime_evaluation=post_eval,
                 diagnosis=post_diag,
+                retrieval_signal=state.retrieval_signal,
             )
         return _Applied(
             abstained,
@@ -375,11 +383,19 @@ def _apply_action(
             generation=repaired,
             runtime_evaluation=post_eval if post_eval is not None else state.runtime_evaluation,
             diagnosis=post_diag if post_diag is not None else state.diagnosis,
+            retrieval_signal=state.retrieval_signal,
         )
         return _Applied(next_state, decision, verification, previous_answer, None, None)
 
     if decision.action != REWRITE:
         raise RecoveryNotApplicable(f"unknown recovery action: {decision.action}")
+
+    # Rewriting calls a model, so it cannot run on a credential-free retrieve-only
+    # run unless a rewriter was injected. Record the proposal and leave it
+    # unapplied rather than breaking the no-API-key harness. ``regenerate`` above
+    # skips on the same grounds.
+    if not generate and rewriter is None:
+        return _Applied(state, decision, None, None, None, None)
 
     previous_answer = state.generation.answer
     previous_retrieved_chunks = chunks_payload(state.retrieval)
@@ -424,6 +440,7 @@ def _apply_action(
             attributed_class=_attributed_class_after_rewrite(before, post_eval),
             source=decision.source,
             outcome_note=_rewrite_success_note(after, post_eval),
+            trigger=decision.trigger,
         )
         next_state = QueryState(
             query=state.query,
@@ -431,6 +448,9 @@ def _apply_action(
             generation=generation,
             runtime_evaluation=post_eval,
             diagnosis=post_diag,
+            # Keep the first-pass signal: that is what overrode the judge (#64).
+            # Post-rewrite scores live on the new retrieved chunks.
+            retrieval_signal=state.retrieval_signal,
         )
         return _Applied(
             next_state,
@@ -467,6 +487,7 @@ def _apply_action(
         attributed_class=EVIDENCE_INSUFFICIENCY,
         source=decision.source,
         outcome_note=outcome_note,
+        trigger=decision.trigger,
     )
     next_state = QueryState(
         query=state.query,
@@ -474,6 +495,7 @@ def _apply_action(
         generation=generation,
         runtime_evaluation=post_eval if post_eval is not None else state.runtime_evaluation,
         diagnosis=post_diag,
+        retrieval_signal=state.retrieval_signal,
     )
     return _Applied(
         next_state,
@@ -576,6 +598,7 @@ def _decision_from_payload(payload: Any) -> RecoveryDecision | None:
         return None
     return RecoveryDecision(
         action=str(action),
+        trigger=str(payload.get("trigger") or ""),
         reason=str(payload.get("reason") or ""),
         attributed_class=payload.get("attributed_class"),
         source=str(payload.get("source") or SOURCE_POLICY),
@@ -650,6 +673,9 @@ def _query_state_from_trace(payload: dict[str, Any]) -> QueryState:
             answer=str(nested.get("answer") or payload.get("answer") or ""),
             model=str(nested.get("model") or payload.get("model") or ""),
         ),
+        # Recomputed rather than read back: the stored scores are the source of
+        # truth, so a replayed state cannot disagree with a freshly run one.
+        retrieval_signal=retrieval_signal(retrieval),
         runtime_evaluation=_evaluation_from_payload(payload.get("runtime_evaluation")),
         diagnosis=_diagnosis_from_payload(payload.get("diagnosis")),
     )

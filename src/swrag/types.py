@@ -127,8 +127,9 @@ class Diagnosis:
 class RecoveryDecision:
     """Controller output. Applied recoveries: regenerate, rewrite, abstain, accept.
 
-    ``reason`` is why the action was selected. ``outcome_note`` is what the
-    action then did, and is only set once the action has run.
+    ``reason`` is why the action was selected. ``trigger`` is which signal
+    proposed it (``judge`` or ``retrieval_signal``). ``outcome_note`` is what
+    the action then did, and is only set once the action has run.
     """
 
     action: str
@@ -136,6 +137,7 @@ class RecoveryDecision:
     attributed_class: str | None = None
     source: str = "policy"
     outcome_note: str = ""
+    trigger: str = ""
 
     def as_trace_payload(self) -> dict[str, object]:
         return {
@@ -144,6 +146,7 @@ class RecoveryDecision:
             "attributed_class": self.attributed_class,
             "source": self.source,
             "outcome_note": self.outcome_note,
+            "trigger": self.trigger,
         }
 
 
@@ -184,6 +187,7 @@ class TraceRecord:
     # different question from the post-recovery judgement, so it is stored
     # rather than folded into ``runtime_evaluation``.
     probe_evaluation: dict[str, Any] | None = field(default=None)
+    retrieval_signal: dict[str, Any] | None = field(default=None)
 
 
 @dataclass(frozen=True)

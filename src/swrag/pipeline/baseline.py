@@ -11,6 +11,7 @@ from pathlib import Path
 from swrag.config import load_provider_config
 from swrag.diagnosis.diagnose import diagnose_runtime
 from swrag.evaluation.judge import GroundingJudge
+from swrag.evaluation.retrieval_signal import RetrievalSignal, retrieval_signal
 from swrag.generation.openai_generator import OpenAIGenerator
 from swrag.ingestion.chunker import chunk_documents
 from swrag.ingestion.loader import load_documents
@@ -39,6 +40,9 @@ class QueryState:
     generation: GenerationResult
     runtime_evaluation: RuntimeEvaluation | None
     diagnosis: Diagnosis | None
+    # Derived from retrieval scores alone, so it is available even when no
+    # judge ran. Optional because traces replayed from disk predate it.
+    retrieval_signal: RetrievalSignal | None = None
 
 
 def build_corpus_index(
@@ -95,6 +99,7 @@ def execute_query(
         generation=generation,
         runtime_evaluation=runtime_eval,
         diagnosis=diagnosis,
+        retrieval_signal=retrieval_signal(retrieval),
     )
 
 
@@ -188,6 +193,11 @@ def write_run(
             latency_ms=latency_ms,
             probe_evaluation=(
                 probe_evaluation.as_trace_payload() if probe_evaluation is not None else None
+            ),
+            retrieval_signal=(
+                state.retrieval_signal.as_trace_payload()
+                if state.retrieval_signal is not None
+                else None
             ),
         ),
         output_dir,

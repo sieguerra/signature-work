@@ -299,11 +299,14 @@ function renderRecoverBar() {
     return;
   }
   root.classList.remove("hidden");
+  const recovery = (state.trace && state.trace.recovery) || {};
   const diagnosis = (state.trace && state.trace.diagnosis) || {};
   const klass = diagnosis.failure_class;
   const rationale = diagnosis.rationale || "";
   let note = rationale;
-  if (klass) {
+  if (recovery.trigger === "retrieval_signal") {
+    note = recovery.reason || "Retrieval looks unreliable even though the judge accepted.";
+  } else if (klass) {
     note = rationale ? `${klass} — ${rationale}` : klass;
   } else if (action === "rewrite") {
     note =
@@ -442,6 +445,7 @@ function renderInspector() {
         ? cited
         : `${cited} (not in this retrieve)`
       : "";
+    const signal = data.retrieval_signal || {};
     root.innerHTML =
       kv([
         ["top_k", data.top_k],
@@ -449,6 +453,11 @@ function renderInspector() {
         ["pass", data.pass],
         ["note", data.note],
         ["cited", citedNote],
+        ["retrieval signal", signal.reason],
+        ["top score", signal.top_score],
+        ["relative margin", signal.relative_margin],
+        ["weak top", signal.weak_top],
+        ["ambiguous top", signal.ambiguous_top],
       ]) + renderChunks(data.chunks);
     return;
   }
@@ -482,6 +491,7 @@ function renderInspector() {
     root.innerHTML =
       kv([
         ["action", data.action],
+        ["trigger", data.trigger],
         ["source", data.source],
         ["recovery status", data.recovery_status],
         ["attributed class", data.attributed_class],
