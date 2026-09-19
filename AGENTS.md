@@ -30,63 +30,16 @@ The primary deliverable is working software.
 
 ## Academic Context
 
-This is an academic Signature Work project.
+This is an academic Signature Work project. I still own the claims, the interpretation of results, and the conclusions.
 
-Generative AI may be used as a supportive development tool, but the project's core intellectual contribution must remain mine.
+**Software construction (updated 2026-09-19):** Cursor should have **utmost freedom to build**. It may redesign and implement the product from my vision without asking permission at every architecture, UI, or stack choice. Older “do not autonomously redesign / confirm before building” instructions are revoked for engineering work.
 
-I am responsible for independently understanding and deciding:
-
-- project architecture
-- problem framing
-- Agentic RAG design
-- failure taxonomy
-- evaluation methodology
-- recovery logic
-- experimental design
-- benchmark selection
-- interpretation of results
-- conclusions
-
-Cursor may support:
-
-- brainstorming
-- technical explanations
-- comparing implementation approaches
-- debugging
-- code completion
-- boilerplate
-- refactoring
-- unit-test suggestions
-- documentation
-- identifying bugs and edge cases
-
-For major intellectual decisions:
-
-1. Explain the decision.
-2. Present realistic alternatives.
-3. Explain tradeoffs.
-4. Give a recommendation if useful.
-5. Ask me to confirm the decision before treating it as final.
-
-Do not autonomously redesign or build the entire core project from a vague high-level instruction.
-
-I should be able to explain and defend every important part of the final system.
+I still need to be able to explain the finished system. Cursor must not fabricate experimental results, citations, or thesis conclusions.
 
 ## Engineering Principles
 
-Prioritize:
+Build the product I am picturing. Prefer working software that matches the vision over protecting the current issue list or keeping V1 small.
 
-- modularity
-- understandable code
-- reproducibility
-- explicit interfaces
-- traceability
-- testing
-- clean experiment configuration
-- depth over feature count
+Useful habits, not blockers: understandable code, tests where they catch real breakage, reproducible experiments, do not overwrite historical `experiments/results/` snapshots.
 
-Keep the AI/RAG core separate from the frontend.
-
-Do not optimize for unnecessary complexity.
-
-Do not add commercial SaaS features such as billing, enterprise authentication, or unrelated integrations unless explicitly requested.
+Do not add billing, enterprise SSO, or unrelated commercial SaaS unless I ask.

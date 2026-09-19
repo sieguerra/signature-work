@@ -1,38 +1,18 @@
 ---
-description: Architecture guidelines for the Signature Work software
+description: Architecture guidelines — preferences, not build blockers
 alwaysApply: true
 ---
 
-# Architecture Guidelines
+# Architecture
 
-Maintain clear boundaries between:
+These are defaults, not gates. The student's vision and `build-freedom.mdc` win if they conflict.
 
-- document ingestion
-- retrieval
-- Agentic RAG orchestration
-- evaluation
-- failure diagnosis
-- recovery
-- verification
-- experiment infrastructure
-- frontend/UI
+Useful defaults when no vision says otherwise:
 
-Do not tightly couple core RAG logic to the frontend.
+- Keep ingestion, retrieval, generation, evaluation, recovery, experiments, and UI as separable pieces when that does not fight the product.
+- Prefer typed interfaces and structured outputs.
+- Make experiment runs reproducible from config when practical.
 
-Prefer typed interfaces and structured outputs between components.
+Do not overwrite historical benchmark results under `experiments/results/`.
 
-Core AI components should be callable independently from the UI.
-
-Before introducing a major framework, dependency, database, vector store, or architectural abstraction:
-
-- explain why it is needed
-- explain the simpler alternative
-- explain the tradeoff
-
-Avoid premature abstractions.
-
-For Signature Work V1, prefer a small number of reliable failure/recovery mechanisms over a large number of incomplete ones.
-
-All experiments should be reproducible from configuration where practical.
-
-Do not overwrite historical benchmark results.
+New frameworks, databases, or UI approaches are allowed when they serve the product. Record what you chose in code or a short note; do not stall the build for a tradeoff essay.
