@@ -57,7 +57,31 @@ def test_first_pass_diagnosis_without_a_class_still_appears() -> None:
         )
     )
     diagnose = next(step for step in steps if step["id"] == "diagnose")
-    assert diagnose["summary"] == "no class claimed"
+    assert diagnose["summary"] == "deferred until rewrite"
+
+
+def test_supported_first_pass_diagnose_says_no_failure() -> None:
+    steps = trace_to_steps(
+        _base(
+            runtime_evaluation={
+                "evidence_sufficient": True,
+                "answer_supported": True,
+                "sufficiency_rationale": "hours in chunk",
+                "support_rationale": "hours cited",
+                "judge": "scripted",
+                "model": "none",
+            },
+            diagnosis={
+                "failure_class": None,
+                "rationale": "Evidence was sufficient and the answer was supported.",
+                "detector": "first-pass-runtime",
+            },
+            recovery={"action": "accept", "reason": "ok", "source": "policy"},
+            recovery_status="applied",
+        )
+    )
+    diagnose = next(step for step in steps if step["id"] == "diagnose")
+    assert diagnose["summary"] == "no failure"
 
 
 def test_loop_trace_adds_evaluate_diagnose_recover_verify() -> None:
@@ -240,6 +264,8 @@ def test_proposed_rewrite_is_labeled_on_the_recover_step() -> None:
     )
     kinds = [step["id"] for step in steps]
     assert kinds == ["query", "retrieve", "generate", "evaluate", "diagnose", "recover"]
+    diagnose = next(step for step in steps if step["id"] == "diagnose")
+    assert diagnose["summary"] == "deferred until rewrite"
     recover = next(step for step in steps if step["id"] == "recover")
     assert recover["summary"] == "proposed: rewrite"
     assert recover["payload"]["source"] == "policy"

@@ -220,7 +220,7 @@ def _append_diagnose(
             "diagnose",
             "diagnose",
             title,
-            str(klass) if klass else "no class claimed",
+            _diagnose_summary(diagnosis, after_recovery=after_recovery),
             "warn" if klass else "ok",
             diagnosis,
         )
@@ -268,6 +268,23 @@ def _append_verify(steps: list[dict[str, Any]], payload: dict[str, Any]) -> None
 
 def _chunk_summary(chunks: list[Any]) -> str:
     return f"{len(chunks)} chunk" if len(chunks) == 1 else f"{len(chunks)} chunks"
+
+
+def _diagnose_summary(diagnosis: dict[str, Any], *, after_recovery: bool) -> str:
+    """First-pass miss vs gap is deferred; that is not a missing diagnosis."""
+    klass = diagnosis.get("failure_class")
+    if klass:
+        return str(klass)
+    rationale = str(diagnosis.get("rationale") or "").lower()
+    if "not diagnosed on the first pass" in rationale or "not split on first pass" in rationale:
+        return "deferred until rewrite"
+    if "no generated answer" in rationale:
+        return "no generated answer"
+    if "sufficient and the answer was supported" in rationale:
+        return "no failure"
+    if after_recovery:
+        return "no class claimed"
+    return "no class claimed"
 
 
 def _step(

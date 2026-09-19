@@ -337,5 +337,29 @@ How I verified the result:
 `pytest` including retrieve-only over the fixture PDF. Harbor
 `experiments/results/20260910T070623/` untouched.
 
+---
 
+Date: 2026-09-17
+
+Tool: Cursor
+
+Purpose: Fix explorer/API hygiene for issues #55–#59 (cascade delete, run-list
+links, eval counts, first-pass diagnosis copy, confirm-recovery API default).
+
+What AI assisted with:
+Cascade delete of recovered children, `latency_ms` on playground traces,
+eval strip proposed/latency counts, run-list pills, and tests.
+
+Important suggestions produced:
+Keep proposed rewrites out of `by_action` so confirm + apply is not two
+rewrites. Do not change ADR 007 first-pass miss-vs-gap deferral. Leave
+PDF ingest (#34), snapshot (#39), and judge labels (#38) alone.
+
+What I independently decided or changed:
+One PR for the five overlapping explorer/API files. API `POST /api/runs`
+default matches the explorer (`loop_confirm`). Deleting a child leaves
+the parent proposed so recovery can be applied again.
+
+How I verified the result:
+`pytest` (no live OpenAI). Harbor snapshot directory untouched.
 

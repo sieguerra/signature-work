@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from swrag.ingestion.loader import load_documents
@@ -31,6 +32,9 @@ def test_run_query_retrieve_only_writes_trace(tmp_path: Path) -> None:
     assert result.trace_path.exists()
     assert result.generation_model == "none"
     assert result.answer == ""
+    payload = json.loads(result.trace_path.read_text(encoding="utf-8"))
+    assert isinstance(payload.get("latency_ms"), (int, float))
+    assert payload["latency_ms"] >= 0
 
     # Asserts plumbing, not retrieval quality. The corpus now contains
     # deliberate near-neighbours (ADR 004), so which document ranks top-3 is

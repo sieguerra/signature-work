@@ -315,6 +315,8 @@ def test_first_pass_proposes_rewrite_without_applying(tmp_path: Path) -> None:
     assert payload["previous_answer"] is None
     assert payload["parent_run_id"] is None
     assert payload["verification"] is None
+    assert isinstance(payload.get("latency_ms"), (int, float))
+    assert payload["latency_ms"] >= 0
     assert len(list(tmp_path.glob("*.json"))) == 1
 
 
@@ -366,6 +368,8 @@ def test_apply_recovery_writes_a_child_and_keeps_the_parent(tmp_path: Path) -> N
     assert payload["recovery"]["attributed_class"] == RETRIEVAL_MISS
     assert payload["previous_answer"] == "The library is on the moon."
     assert payload["verification"]["outcome"] == IMPROVED
+    assert isinstance(payload.get("latency_ms"), (int, float))
+    assert payload["latency_ms"] >= 0
     assert len(list(tmp_path.glob("*.json"))) == 2
 
 

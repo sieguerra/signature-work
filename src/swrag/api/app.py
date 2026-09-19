@@ -42,7 +42,7 @@ MODES = frozenset({"loop", "loop_confirm", "baseline", "retrieve_only"})
 
 class RunRequest(BaseModel):
     question: str = Field(min_length=1)
-    mode: str = "loop"
+    mode: str = "loop_confirm"
     top_k: int = Field(default=4, ge=1, le=20)
 
 
@@ -161,9 +161,13 @@ def create_app(
 
     @application.delete("/api/traces/{run_id}")
     def remove_trace(run_id: str) -> dict[str, Any]:
-        if not delete_trace(application.state.traces_dir, run_id):
+        deleted = delete_trace(application.state.traces_dir, run_id)
+        if not deleted:
             raise HTTPException(status_code=404, detail="trace not found")
-        return {"deleted": run_id}
+        return {
+            "deleted": run_id,
+            "also_deleted": [item for item in deleted if item != run_id],
+        }
 
     @application.post("/api/runs")
     def create_run(body: RunRequest) -> dict[str, Any]:
