@@ -209,6 +209,79 @@ def test_loop_rewrites_then_abstains_on_corpus_gap(tmp_path: Path) -> None:
     ]
 
 
+def test_rewrite_attribution_and_verification_cannot_contradict(tmp_path: Path) -> None:
+    """Regression for the Harbor snapshot's impossible rows.
+
+    The probe judges the rewritten evidence with no answer in hand and calls it
+    sufficient. The post-recovery judge, now seeing an answer, calls the same
+    evidence insufficient. Attribution used to hardcode retrieval_miss from the
+    probe while verification read the later call, producing traces that claimed
+    the rewrite repaired retrieval and that it still failed.
+    """
+    result = run_with_recovery(
+        "When is the Harbor Institute Library open on Saturday?",
+        corpus_dir=CORPUS,
+        output_dir=tmp_path,
+        embedder=FakeEmbedder(),
+        generator=_CannedGenerator(),  # type: ignore[arg-type]
+        rewriter=ScriptedRewriter("Harbor Institute Library Saturday opening hours"),
+        judge=_SequenceJudge(
+            _eval(sufficient=False, supported=False),
+            _eval(sufficient=True, supported=None),
+            _eval(sufficient=False, supported=False),
+        ),
+    )
+    payload = json.loads(result.trace_path.read_text(encoding="utf-8"))
+    assert payload["verification"]["outcome"] == STILL_FAILING
+    assert payload["recovery"]["attributed_class"] == EVIDENCE_INSUFFICIENCY
+    assert payload["recovery"]["attributed_class"] != RETRIEVAL_MISS
+    # The disagreement is recorded rather than silently resolved.
+    assert "judge disagreement" in payload["recovery"]["outcome_note"]
+    assert payload["probe_evaluation"]["evidence_sufficient"] is True
+    assert payload["runtime_evaluation"]["evidence_sufficient"] is False
+
+
+def test_agreeing_judges_still_attribute_retrieval_miss(tmp_path: Path) -> None:
+    """The ordinary path is unchanged: both calls agree, so nothing is noted."""
+    result = run_with_recovery(
+        "When is the Harbor Institute Library open on Saturday?",
+        corpus_dir=CORPUS,
+        output_dir=tmp_path,
+        embedder=FakeEmbedder(),
+        generator=_CannedGenerator(),  # type: ignore[arg-type]
+        rewriter=ScriptedRewriter("Harbor Institute Library Saturday hours term time"),
+        judge=_SequenceJudge(
+            _eval(sufficient=False, supported=False),
+            _eval(sufficient=True, supported=None),
+            _eval(sufficient=True, supported=True),
+        ),
+    )
+    payload = json.loads(result.trace_path.read_text(encoding="utf-8"))
+    assert payload["recovery"]["attributed_class"] == RETRIEVAL_MISS
+    assert payload["verification"]["outcome"] == IMPROVED
+    assert payload["recovery"]["outcome_note"] == ""
+    assert payload["probe_evaluation"]["evidence_sufficient"] is True
+
+
+def test_failed_rewrite_persists_the_probe_evaluation(tmp_path: Path) -> None:
+    result = run_with_recovery(
+        "When is the Harbor Institute Library open on Saturday?",
+        corpus_dir=CORPUS,
+        output_dir=tmp_path,
+        embedder=FakeEmbedder(),
+        generator=_CannedGenerator(),  # type: ignore[arg-type]
+        rewriter=ScriptedRewriter("Harbor Institute Library Saturday hours"),
+        judge=_SequenceJudge(
+            _eval(sufficient=False, supported=False),
+            _eval(sufficient=False, supported=None),
+        ),
+    )
+    payload = json.loads(result.trace_path.read_text(encoding="utf-8"))
+    assert payload["probe_evaluation"]["evidence_sufficient"] is False
+    assert payload["recovery"]["attributed_class"] == EVIDENCE_INSUFFICIENCY
+    assert payload["verification"]["outcome"] == STILL_FAILING
+
+
 class _PartialAnswerGenerator:
     """Mimics gold-027: says what the evidence does and does not contain."""
 

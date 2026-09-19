@@ -76,6 +76,7 @@ class _Applied:
     previous_answer: str | None
     rewritten_query: str | None
     previous_retrieved_chunks: tuple[dict, ...] | None
+    probe_evaluation: RuntimeEvaluation | None = None
 
 
 class Regenerator(Protocol):
@@ -149,6 +150,7 @@ def run_with_recovery(
             previous_retrieved_chunks=applied.previous_retrieved_chunks,
             recovery_status=RECOVERY_APPLIED,
             latency_ms=_elapsed_ms(started),
+            probe_evaluation=applied.probe_evaluation,
         )
     return write_run(
         state,
@@ -256,6 +258,7 @@ def apply_recovery(
         recovery_status=RECOVERY_APPLIED,
         parent_run_id=parent_run_id,
         latency_ms=_elapsed_ms(started),
+        probe_evaluation=applied.probe_evaluation,
     )
 
 
@@ -418,8 +421,9 @@ def _apply_action(
         next_decision = RecoveryDecision(
             action=REWRITE,
             reason=decision.reason,
-            attributed_class=RETRIEVAL_MISS,
+            attributed_class=_attributed_class_after_rewrite(before, post_eval),
             source=decision.source,
+            outcome_note=_rewrite_success_note(after, post_eval),
         )
         next_state = QueryState(
             query=state.query,
@@ -435,6 +439,7 @@ def _apply_action(
             previous_answer,
             rewritten_query,
             previous_retrieved_chunks,
+            probe_evaluation=after,
         )
     generation, outcome_note, kept_first_pass = _generation_after_failed_rewrite(state, before)
 
@@ -477,7 +482,45 @@ def _apply_action(
         previous_answer,
         rewritten_query,
         previous_retrieved_chunks,
+        probe_evaluation=after,
     )
+
+
+def _attributed_class_after_rewrite(
+    before: RuntimeEvaluation | None,
+    post_eval: RuntimeEvaluation | None,
+) -> str | None:
+    """Attribute the original failure from the evaluation verification also uses.
+
+    Hardcoding ``retrieval_miss`` here let a trace claim the rewrite repaired
+    retrieval while verification reported ``still_failing`` on the same run,
+    because the two read different judge calls. Deriving the class from
+    ``post_eval`` keeps one answer per run.
+    """
+    if before is None or post_eval is None:
+        return RETRIEVAL_MISS
+    return diagnose_after_rewrite(before, post_eval).failure_class
+
+
+def _rewrite_success_note(
+    probe_eval: RuntimeEvaluation | None,
+    post_eval: RuntimeEvaluation | None,
+) -> str:
+    """Record when the probe and the post-recovery judge disagree on sufficiency."""
+    if probe_eval is None or post_eval is None:
+        return ""
+    if probe_eval.evidence_sufficient == post_eval.evidence_sufficient:
+        return ""
+    return (
+        "judge disagreement: the rewrite probe called the new evidence "
+        f"{_sufficiency_word(probe_eval)}, the post-recovery judge called it "
+        f"{_sufficiency_word(post_eval)}; attribution and verification both "
+        "follow the post-recovery judge"
+    )
+
+
+def _sufficiency_word(evaluation: RuntimeEvaluation) -> str:
+    return "sufficient" if evaluation.evidence_sufficient else "insufficient"
 
 
 def is_abstention(answer: str) -> bool:

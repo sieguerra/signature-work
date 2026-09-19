@@ -151,6 +151,7 @@ def write_run(
     recovery_status: str | None = None,
     parent_run_id: str | None = None,
     latency_ms: float | None = None,
+    probe_evaluation: RuntimeEvaluation | None = None,
 ) -> BaselineRunResult:
     """Write a trace for ``state``. Never overwrites an existing file."""
     run_id = _new_run_id()
@@ -185,6 +186,9 @@ def write_run(
             recovery_status=recovery_status,
             parent_run_id=parent_run_id,
             latency_ms=latency_ms,
+            probe_evaluation=(
+                probe_evaluation.as_trace_payload() if probe_evaluation is not None else None
+            ),
         ),
         output_dir,
     )
