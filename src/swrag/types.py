@@ -180,6 +180,10 @@ class TraceRecord:
     recovery_status: str | None = field(default=None)
     parent_run_id: str | None = field(default=None)
     latency_ms: float | None = field(default=None)
+    # The rewrite probe judges the new evidence with no answer in hand. It is a
+    # different question from the post-recovery judgement, so it is stored
+    # rather than folded into ``runtime_evaluation``.
+    probe_evaluation: dict[str, Any] | None = field(default=None)
 
 
 @dataclass(frozen=True)

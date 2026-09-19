@@ -201,6 +201,9 @@ def _append_evaluate(
                 "flags are from the rewrite retrieve probe "
                 "(no answer was generated on that retrieve)"
             )
+        probe = payload.get("probe_evaluation")
+        if isinstance(probe, dict):
+            eval_payload["probe_evaluation"] = probe
     steps.append(_step("evaluate", "evaluate", title, summary, status, eval_payload))
 
 

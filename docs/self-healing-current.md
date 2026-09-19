@@ -190,7 +190,11 @@ One JSON file per run, written by `write_run` in `pipeline/baseline.py` through
 Fields relevant to self-healing on `TraceRecord` (`types.py`):
 `runtime_evaluation`, `diagnosis`, `recovery`, `verification`,
 `previous_answer`, `rewritten_query`, `previous_retrieved_chunks`,
-`recovery_status`, `parent_run_id`, `latency_ms`.
+`recovery_status`, `parent_run_id`, `latency_ms`, `probe_evaluation`.
+
+`probe_evaluation` holds the rewrite probe's judgment of the new evidence,
+made with no answer in hand. It is a different question from
+`runtime_evaluation` and is stored separately rather than folded into it.
 
 `recovery_status` is `proposed` or `applied`. A confirmed recovery writes a
 **second** file carrying `parent_run_id`, so the first pass stays on disk
@@ -255,16 +259,21 @@ possible. (Issues #64, #69.)
 `evidence_sufficient=True` **and** `answer_supported=False` simultaneously,
 which did not occur. (Issue #64.)
 
-**3. A failed rewrite can make the answer worse.** `_apply_action` replaces the
+**3. A failed rewrite could make the answer worse.** `_apply_action` replaced the
 generated answer with the canned abstention. In `gold-027` an answer that
 explained the dates were not listed became `"I do not know based on the
-retrieved documents."` (Issue #65.)
+retrieved documents."` **Fixed in #65:** a first-pass answer the judge called
+supported is now kept, and `recovery.outcome_note` records the choice.
 
-**4. Attribution and verification can contradict each other.** Attribution uses
-the probe judgment (evidence only); verification compares against a later judge
-call made with the answer. Two runs in the snapshot are attributed
-`retrieval_miss` — meaning the rewrite fixed retrieval — while verification
-reports `still_failing`. (Issue #66.)
+**4. Attribution and verification could contradict each other.** Attribution
+hardcoded `retrieval_miss` from the probe judgment (evidence only) while
+verification compared against a later judge call made with the answer. Two runs
+in the snapshot are attributed `retrieval_miss` — meaning the rewrite fixed
+retrieval — while verification reports `still_failing`. **Fixed in #66:**
+attribution is derived from the same evaluation verification uses, the probe
+judgment is persisted as `probe_evaluation`, and a disagreement between the two
+calls is recorded in `recovery.outcome_note`. Traces written before that change
+still carry the contradiction.
 
 **5. There is no retry.** `max_recoveries` is 1 in every committed config and
 the orchestrator applies a single action. `AGENTS.md` describes
