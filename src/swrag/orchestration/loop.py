@@ -57,6 +57,7 @@ from swrag.types import (
 from swrag.verification.runtime import verify_runtime
 
 ABSTAIN_ANSWER = "I do not know based on the retrieved documents."
+_ABSTAIN_PREFIX = "i do not know"
 RECOVERY_PROPOSED = "proposed"
 RECOVERY_APPLIED = "applied"
 SOURCE_POLICY = "policy"
@@ -435,8 +436,10 @@ def _apply_action(
             rewritten_query,
             previous_retrieved_chunks,
         )
+    generation, outcome_note, kept_first_pass = _generation_after_failed_rewrite(state, before)
+
+    # Attribution asks what the rewrite retrieved, so it always reads the probe.
     if before is not None and after is not None:
-        verification = verify_runtime(before, after)
         post_diag = diagnose_after_rewrite(before, after)
     else:
         post_diag = Diagnosis(
@@ -444,17 +447,27 @@ def _apply_action(
             rationale="rewrite did not yield sufficient evidence",
             detector="rewrite-outcome",
         )
+
+    # The probe generates no answer, so its answer_supported is None. Verifying a
+    # kept first-pass answer against the probe would read that None as a lost
+    # support flag and report a degradation that never happened. The first-pass
+    # evaluation is the one that describes the answer actually being kept.
+    post_eval = before if kept_first_pass and before is not None else after
+    if before is not None and post_eval is not None:
+        verification = verify_runtime(before, post_eval)
+
     next_decision = RecoveryDecision(
         action=REWRITE,
         reason=decision.reason,
         attributed_class=EVIDENCE_INSUFFICIENCY,
         source=decision.source,
+        outcome_note=outcome_note,
     )
     next_state = QueryState(
         query=state.query,
         retrieval=probe.retrieval,
-        generation=GenerationResult(answer=ABSTAIN_ANSWER, model="abstain"),
-        runtime_evaluation=after if after is not None else state.runtime_evaluation,
+        generation=generation,
+        runtime_evaluation=post_eval if post_eval is not None else state.runtime_evaluation,
         diagnosis=post_diag,
     )
     return _Applied(
@@ -464,6 +477,51 @@ def _apply_action(
         previous_answer,
         rewritten_query,
         previous_retrieved_chunks,
+    )
+
+
+def is_abstention(answer: str) -> bool:
+    """True for an explicit "I do not know" answer, however it was produced."""
+    return answer.strip().lower().startswith(_ABSTAIN_PREFIX)
+
+
+def _generation_after_failed_rewrite(
+    state: QueryState,
+    before: RuntimeEvaluation | None,
+) -> tuple[GenerationResult, str, bool]:
+    """Pick the answer to keep when a rewrite did not improve the evidence.
+
+    Returns the generation, a note for the trace, and whether the first-pass
+    answer was kept.
+
+    Abstention is a decision, not a fallback. Discarding a first-pass answer the
+    judge already called supported makes the run strictly less useful than doing
+    nothing, so that answer is kept and the failed attempt is recorded instead.
+    """
+    abstained = GenerationResult(answer=ABSTAIN_ANSWER, model="abstain")
+    answer = state.generation.answer.strip()
+    if not answer:
+        return (
+            abstained,
+            "rewrite did not improve evidence and there was no first-pass answer to keep",
+            False,
+        )
+    if is_abstention(answer):
+        return (
+            abstained,
+            "rewrite did not improve evidence and the first-pass answer already abstained",
+            False,
+        )
+    if before is not None and before.answer_supported is True:
+        return (
+            state.generation,
+            "rewrite did not improve evidence; kept the supported first-pass answer",
+            True,
+        )
+    return (
+        abstained,
+        "rewrite did not improve evidence and the first-pass answer was not supported",
+        False,
     )
 
 

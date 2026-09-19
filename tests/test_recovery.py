@@ -209,6 +209,101 @@ def test_loop_rewrites_then_abstains_on_corpus_gap(tmp_path: Path) -> None:
     ]
 
 
+class _PartialAnswerGenerator:
+    """Mimics gold-027: says what the evidence does and does not contain."""
+
+    def generate(self, query: str, retrieval: RetrievalResult) -> GenerationResult:
+        del query, retrieval
+        return GenerationResult(
+            answer=(
+                "The retrieved notes do not give the recess dates. They say recess "
+                "is scheduled by the registrar."
+            ),
+            model="canned",
+        )
+
+
+def test_failed_rewrite_keeps_a_supported_first_pass_answer(tmp_path: Path) -> None:
+    """Regression for gold-027: recovery must not make the answer less useful.
+
+    The first-pass answer is supported but the evidence is insufficient, so the
+    policy rewrites. The rewrite finds nothing better. Replacing the answer with
+    a canned abstention would lose information the run already had.
+    """
+    result = run_with_recovery(
+        "What are the Tideline winter recess dates?",
+        corpus_dir=CORPUS,
+        output_dir=tmp_path,
+        embedder=FakeEmbedder(),
+        generator=_PartialAnswerGenerator(),  # type: ignore[arg-type]
+        rewriter=ScriptedRewriter("Tideline winter recess dates this year"),
+        judge=_SequenceJudge(
+            _eval(sufficient=False, supported=True),
+            _eval(sufficient=False, supported=None),
+        ),
+    )
+    payload = json.loads(result.trace_path.read_text(encoding="utf-8"))
+    assert result.answer != ABSTAIN_ANSWER
+    assert result.answer.startswith("The retrieved notes do not give the recess dates")
+    assert payload["recovery"]["action"] == REWRITE
+    assert payload["recovery"]["attributed_class"] == EVIDENCE_INSUFFICIENCY
+    assert payload["recovery"]["outcome_note"] == (
+        "rewrite did not improve evidence; kept the supported first-pass answer"
+    )
+    # The recovery genuinely failed; keeping the answer must not launder that.
+    assert payload["verification"]["outcome"] == STILL_FAILING
+    assert payload["rewritten_query"] == "Tideline winter recess dates this year"
+
+
+def test_failed_rewrite_still_abstains_when_the_first_answer_was_unsupported(
+    tmp_path: Path,
+) -> None:
+    result = run_with_recovery(
+        "When is the Harbor Institute Library open on Saturday?",
+        corpus_dir=CORPUS,
+        output_dir=tmp_path,
+        embedder=FakeEmbedder(),
+        generator=_CannedGenerator(),  # type: ignore[arg-type]
+        rewriter=ScriptedRewriter("Harbor Institute Library Saturday hours"),
+        judge=_SequenceJudge(
+            _eval(sufficient=False, supported=False),
+            _eval(sufficient=False, supported=None),
+        ),
+    )
+    payload = json.loads(result.trace_path.read_text(encoding="utf-8"))
+    assert result.answer == ABSTAIN_ANSWER
+    assert payload["recovery"]["outcome_note"] == (
+        "rewrite did not improve evidence and the first-pass answer was not supported"
+    )
+
+
+class _AbstainingGenerator:
+    def generate(self, query: str, retrieval: RetrievalResult) -> GenerationResult:
+        del query, retrieval
+        return GenerationResult(answer=ABSTAIN_ANSWER, model="canned")
+
+
+def test_failed_rewrite_over_an_abstention_stays_abstained(tmp_path: Path) -> None:
+    """An abstention the judge calls supported must not be treated as an answer."""
+    result = run_with_recovery(
+        "Who is the East Archive lab manager?",
+        corpus_dir=CORPUS,
+        output_dir=tmp_path,
+        embedder=FakeEmbedder(),
+        generator=_AbstainingGenerator(),  # type: ignore[arg-type]
+        rewriter=ScriptedRewriter("East Archive wing lab manager"),
+        judge=_SequenceJudge(
+            _eval(sufficient=False, supported=True),
+            _eval(sufficient=False, supported=None),
+        ),
+    )
+    payload = json.loads(result.trace_path.read_text(encoding="utf-8"))
+    assert result.answer == ABSTAIN_ANSWER
+    assert payload["recovery"]["outcome_note"] == (
+        "rewrite did not improve evidence and the first-pass answer already abstained"
+    )
+
+
 class _SequenceJudgeClient:
     """Fixture OpenAI client: each create() returns the next JSON payload."""
 
