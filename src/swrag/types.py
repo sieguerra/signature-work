@@ -125,12 +125,17 @@ class Diagnosis:
 
 @dataclass(frozen=True)
 class RecoveryDecision:
-    """Controller output. Applied recoveries: regenerate, rewrite, abstain, accept."""
+    """Controller output. Applied recoveries: regenerate, rewrite, abstain, accept.
+
+    ``reason`` is why the action was selected. ``outcome_note`` is what the
+    action then did, and is only set once the action has run.
+    """
 
     action: str
     reason: str
     attributed_class: str | None = None
     source: str = "policy"
+    outcome_note: str = ""
 
     def as_trace_payload(self) -> dict[str, object]:
         return {
@@ -138,6 +143,7 @@ class RecoveryDecision:
             "reason": self.reason,
             "attributed_class": self.attributed_class,
             "source": self.source,
+            "outcome_note": self.outcome_note,
         }
 
 
