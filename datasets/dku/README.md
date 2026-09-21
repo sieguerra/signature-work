@@ -57,6 +57,11 @@ Three rows are unanswerable so abstention can still be tested. Harbor gold and
 If these questions still first-pass accept at `top_k=4`, use `top_k=1`
 (`experiments/configs/v2_dku_recovery_vs_loop.json`) rather than editing old gold.
 
+`gold/first-pass-fail.jsonl` (`dku-053`–`dku-057`) is an issue #69 split:
+answerable questions that miss the supporting note at `top_k=1` and hit it
+at `top_k=8`, plus one unanswerable row. Use
+`experiments/configs/v3_dku_expand_vs_loop.json` (`max_recoveries: 2`).
+
 `gold/audit.jsonl` lists every id in `questions.jsonl`. Those rows are a
 substring search, not a student sign-off. Do not quote DKU scores until you
 have personally confirmed the spans. Recovery ids in `recovery.jsonl` are a

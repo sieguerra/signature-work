@@ -13,13 +13,12 @@ from swrag.evaluation.retrieval_signal import (
 from swrag.orchestration.loop import run_first_pass, run_with_recovery
 from swrag.recovery.policy import (
     ACCEPT,
+    EXPAND,
     REGENERATE,
-    REWRITE,
     TRIGGER_JUDGE,
     TRIGGER_RETRIEVAL_SIGNAL,
     select_recovery,
 )
-from swrag.recovery.rewrite import ScriptedRewriter
 from swrag.retrieval.fake_embedder import FakeEmbedder
 from swrag.diagnosis.diagnose import diagnose_runtime
 from swrag.types import Chunk, RetrievalResult, RuntimeEvaluation, ScoredChunk
@@ -110,7 +109,7 @@ def test_weak_retrieval_proposes_repair_even_when_the_judge_accepts() -> None:
     assert without_signal.action == ACCEPT
 
     with_signal = select_recovery(diagnosis, accepted, retrieval_signal(_retrieval(0.80, 0.799)))
-    assert with_signal.action == REWRITE
+    assert with_signal.action == EXPAND
     assert with_signal.trigger == TRIGGER_RETRIEVAL_SIGNAL
     assert "judge raised no failure" in with_signal.reason
 
@@ -194,11 +193,11 @@ def test_retrieve_only_never_needs_a_rewriter(tmp_path: Path) -> None:
     assert payload["retrieval_signal"] is not None
 
 
-def test_signal_triggered_rewrite_runs_end_to_end(tmp_path: Path) -> None:
+def test_signal_triggered_expand_runs_end_to_end(tmp_path: Path) -> None:
     """An off-corpus question retrieves nothing similar, so the signal fires.
 
     The judge here accepts everything. Before #64 that ended the run at
-    ``accept``; the rewrite below only happens because the signal overrode it.
+    ``accept``; expand happens because the signal overrode it, without a rewriter.
     """
     result = run_with_recovery(
         "quantum chromodynamics lattice gauge",
@@ -206,13 +205,14 @@ def test_signal_triggered_rewrite_runs_end_to_end(tmp_path: Path) -> None:
         output_dir=tmp_path,
         embedder=FakeEmbedder(),
         generator=_CannedGenerator(),  # type: ignore[arg-type]
-        rewriter=ScriptedRewriter("Harbor Institute Library Saturday opening hours"),
         judge=_ScoreJudge(),
     )
     payload = json.loads(result.trace_path.read_text(encoding="utf-8"))
     assert payload["recovery"]["trigger"] == TRIGGER_RETRIEVAL_SIGNAL
-    assert payload["recovery"]["action"] == REWRITE
-    assert payload["rewritten_query"] == "Harbor Institute Library Saturday opening hours"
+    assert payload["recovery"]["action"] == EXPAND
+    assert payload["rewritten_query"] is None
+    assert payload["previous_retrieved_chunks"]
+    assert payload["top_k"] > 4
     assert payload["retrieval_signal"]["weak_top"] is True
 
 

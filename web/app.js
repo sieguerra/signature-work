@@ -16,6 +16,8 @@ const state = {
   inspectCollapsed: false,
   uploads: [],
   draftConfig: { instructions: "", chat_model: "gpt-4o-mini", top_k: 4 },
+  keys: [],
+  revealedKey: null,
 };
 
 const CHAT_MODELS = ["gpt-4o-mini", "gpt-4o", "gpt-4.1-mini", "gpt-4.1"];
@@ -23,11 +25,12 @@ const CHAT_MODELS = ["gpt-4o-mini", "gpt-4o", "gpt-4.1-mini", "gpt-4.1"];
 const ACTION_LABELS = {
   regenerate: "Regenerate from evidence",
   rewrite: "Rewrite query and retrieve",
+  expand: "Widen retrieval (higher top_k)",
   abstain: "Abstain",
   accept: "Keep first-pass answer",
 };
 
-const V1_ACTIONS = ["regenerate", "rewrite", "abstain", "accept"];
+const V1_ACTIONS = ["regenerate", "rewrite", "expand", "abstain", "accept"];
 
 const $ = (id) => document.getElementById(id);
 
@@ -159,6 +162,8 @@ async function switchCorpus(corpusId) {
     await loadDocuments().catch(() => {
       state.documents = [];
     });
+    state.revealedKey = null;
+    await loadKeys();
     if (state.traces.length) {
       await selectRun(state.traces[0].run_id);
     } else {
@@ -285,7 +290,14 @@ function renderAnswer() {
   const firstChunks = (state.trace.previous_retrieved_chunks || []).length;
   const action = state.trace.recovery && state.trace.recovery.action;
   const outcome = state.trace.verification && state.trace.verification.outcome;
-  const recovered = Boolean(before || rewritten || firstChunks);
+  const recovered = Boolean(before || rewritten || firstChunks || action === "expand");
+  const attempts = ((state.trace && state.trace.recovery_attempts) || [])
+    .map((item) => item && item.action)
+    .filter(Boolean);
+  const attemptLine =
+    attempts.length > 1
+      ? `<div class="answer-meta">Attempts: ${escapeHtml(attempts.join(" → "))}</div>`
+      : "";
   if (!recovered) {
     $("answer-text").innerHTML = answerBlock(after);
     return;
@@ -305,6 +317,7 @@ function renderAnswer() {
     : "";
   $("answer-text").innerHTML = `<div class="answer-pills">${pill(action, action)}${pill(outcome, outcome)}</div>
     ${rewriteLine}
+    ${attemptLine}
     ${sameNote}
     <div class="answer-split">
       ${beforeColumn}
@@ -334,6 +347,10 @@ function recoverMarkup() {
     note = recovery.reason || "Retrieval looks unreliable even though the judge accepted.";
   } else if (klass) {
     note = rationale ? `${klass} — ${rationale}` : klass;
+  } else if (action === "expand") {
+    note =
+      rationale ||
+      "Widen top_k and retrieve again. Same question, more neighbours.";
   } else if (action === "rewrite") {
     note =
       rationale ||
@@ -535,6 +552,10 @@ function renderInspector() {
         ["attributed class", data.attributed_class],
         ["reason", data.reason],
         ["rewritten query", data.rewritten_query],
+        ["attempts", Array.isArray(data.recovery_attempts) && data.recovery_attempts.length
+          ? data.recovery_attempts.map((item) => item && item.action).filter(Boolean).join(" → ")
+          : ""],
+        ["expand", data.parameters && (data.parameters.from_k + " → " + data.parameters.to_k)],
       ]) +
       (previous
         ? `<p class="pane-label">Previous answer</p><div class="block">${previous.html}</div>${missingCitationNote(previous.missing)}`
@@ -749,6 +770,49 @@ async function loadDocuments() {
   state.documents = payload.documents || [];
 }
 
+async function loadKeys() {
+  state.keys = [];
+  const id = state.meta && state.meta.corpus_id;
+  if (!id || !state.meta.writable) return;
+  const payload = await api(`/api/projects/${encodeURIComponent(id)}/keys`);
+  state.keys = payload.keys || [];
+}
+
+async function createProjectKey() {
+  const id = state.meta && state.meta.corpus_id;
+  if (!id || !state.meta.writable) return;
+  const payload = await api(`/api/projects/${encodeURIComponent(id)}/keys`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({}),
+  });
+  state.revealedKey = payload.key || null;
+  await loadKeys();
+  renderPlaygroundKnowledge();
+}
+
+async function revokeProjectKey(keyId) {
+  const id = state.meta && state.meta.corpus_id;
+  if (!id || !keyId) return;
+  const ok = window.confirm("Revoke this API key? External evaluations using it will stop immediately.");
+  if (!ok) return;
+  await api(`/api/projects/${encodeURIComponent(id)}/keys/${encodeURIComponent(keyId)}`, {
+    method: "DELETE",
+  });
+  state.revealedKey = null;
+  await loadKeys();
+  renderPlaygroundKnowledge();
+}
+
+async function copyRevealedKey() {
+  if (!state.revealedKey) return;
+  try {
+    await navigator.clipboard.writeText(state.revealedKey);
+  } catch {
+    showError("Could not copy the key. Select it and copy manually.");
+  }
+}
+
 async function createPlaygroundProject(name) {
   const payload = await api("/api/projects", {
     method: "POST",
@@ -762,6 +826,8 @@ async function createPlaygroundProject(name) {
   await loadCorpora();
   await loadTraces();
   await loadDocuments();
+  state.revealedKey = null;
+  await loadKeys();
   $("corpus").value = payload.active_id;
   render();
   renderPlaygroundKnowledge();
@@ -825,6 +891,8 @@ async function deletePlaygroundProject() {
   await loadDocuments().catch(() => {
     state.documents = [];
   });
+  state.keys = [];
+  state.revealedKey = null;
   render();
   renderPlaygroundKnowledge();
 }
@@ -965,9 +1033,43 @@ function renderPlaygroundKnowledge() {
                 )}" />
               </label>
             </details>
-          </form>`
+          </form>
+          ${renderProjectKeys()}`
         : ""
     }`;
+}
+
+function renderProjectKeys() {
+  const rows = (state.keys || [])
+    .map((item) => {
+      const revoked = item.revoked_at ? " · revoked" : "";
+      const action = item.revoked_at
+        ? ""
+        : `<button type="button" class="ghost danger" data-key-revoke="${escapeHtml(item.id)}">Revoke</button>`;
+      return `<li>
+        <span>${escapeHtml(item.prefix || item.id)}${revoked}</span>
+        ${action}
+      </li>`;
+    })
+    .join("");
+  const revealed = state.revealedKey
+    ? `<div class="revealed-key">
+        <div>Copy this key now. It is not stored in plaintext and will not be shown again.</div>
+        <code>${escapeHtml(state.revealedKey)}</code>
+        <button type="button" class="ghost" id="pg-copy-key">Copy</button>
+      </div>
+      <pre class="key-sample">curl -s http://127.0.0.1:8000/api/v1/evaluations \\
+  -H "Authorization: Bearer ${escapeHtml(state.revealedKey)}" \\
+  -H "Content-Type: application/json" \\
+  -d '{"query":"When is the library open?","answer":"Saturday 10:00-16:00.","contexts":[{"text":"Saturday 10:00-16:00."}]}'</pre>`
+    : "";
+  return `<div class="pg-keys">
+      <div class="pane-label">API keys</div>
+      <p class="recover-note">Keys authenticate POST /api/v1/evaluations for this project. Rewrite and expand are proposed, not applied, on external runs.</p>
+      <button type="button" class="ghost" id="pg-create-key">Create key</button>
+      ${revealed}
+      ${rows ? `<ul class="doc-list">${rows}</ul>` : `<div class="empty">No keys yet.</div>`}
+    </div>`;
 }
 
 function renderPlaygroundChat() {
@@ -1007,6 +1109,13 @@ function renderPlaygroundInspect() {
       ["run", state.selectedId],
       ["recovery", state.trace && state.trace.recovery && state.trace.recovery.action],
       ["trigger", state.trace && state.trace.recovery && state.trace.recovery.trigger],
+      [
+        "attempts",
+        ((state.trace && state.trace.recovery_attempts) || [])
+          .map((item) => item && item.action)
+          .filter(Boolean)
+          .join(" → "),
+      ],
       ["model", config.chat_model],
       ["instructions", config.instructions],
     ]) +
@@ -1159,6 +1268,24 @@ function bind() {
       deletePlaygroundProject().catch((error) => showError(error.message));
       return;
     }
+    const createKey = event.target.closest("#pg-create-key");
+    if (createKey) {
+      event.preventDefault();
+      createProjectKey().catch((error) => showError(error.message));
+      return;
+    }
+    const copyKey = event.target.closest("#pg-copy-key");
+    if (copyKey) {
+      event.preventDefault();
+      copyRevealedKey().catch((error) => showError(error.message));
+      return;
+    }
+    const revokeKey = event.target.closest("[data-key-revoke]");
+    if (revokeKey) {
+      event.preventDefault();
+      revokeProjectKey(revokeKey.dataset.keyRevoke).catch((error) => showError(error.message));
+      return;
+    }
     const remove = event.target.closest("[data-doc-del]");
     if (remove) {
       event.preventDefault();
@@ -1235,6 +1362,7 @@ async function boot() {
     await loadDocuments().catch(() => {
       state.documents = [];
     });
+    await loadKeys();
     if (state.traces.length) {
       await selectRun(state.traces[0].run_id);
     } else {

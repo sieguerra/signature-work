@@ -136,6 +136,7 @@ def _is_recovered(payload: dict[str, Any]) -> bool:
     if payload.get("recovery_status") == "applied" and action in {
         "regenerate",
         "rewrite",
+        "expand",
         "abstain",
     }:
         return True
@@ -248,7 +249,15 @@ def _append_recover(
         return
     action = str(recovery.get("action"))
     status_label = payload.get("recovery_status")
-    summary = f"proposed: {action}" if status_label == "proposed" else action
+    attempts = payload.get("recovery_attempts")
+    if isinstance(attempts, list) and len(attempts) > 1:
+        summary = " → ".join(
+            str(item.get("action") or "")
+            for item in attempts
+            if isinstance(item, dict)
+        )
+    else:
+        summary = f"proposed: {action}" if status_label == "proposed" else action
     status = "ok" if action == "accept" else "warn" if action != "abstain" else "empty"
     steps.append(
         _step(
@@ -262,6 +271,7 @@ def _append_recover(
                 "rewritten_query": rewritten,
                 "previous_answer": previous_answer,
                 "recovery_status": status_label,
+                "recovery_attempts": attempts,
             },
         )
     )

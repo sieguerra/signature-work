@@ -125,11 +125,12 @@ class Diagnosis:
 
 @dataclass(frozen=True)
 class RecoveryDecision:
-    """Controller output. Applied recoveries: regenerate, rewrite, abstain, accept.
+    """Controller output. Applied recoveries: regenerate, rewrite, expand, abstain, accept.
 
     ``reason`` is why the action was selected. ``trigger`` is which signal
     proposed it (``judge`` or ``retrieval_signal``). ``outcome_note`` is what
     the action then did, and is only set once the action has run.
+    ``parameters`` carries action-specific values (expand's from_k/to_k).
     """
 
     action: str
@@ -138,9 +139,10 @@ class RecoveryDecision:
     source: str = "policy"
     outcome_note: str = ""
     trigger: str = ""
+    parameters: dict[str, Any] | None = None
 
     def as_trace_payload(self) -> dict[str, object]:
-        return {
+        payload: dict[str, object] = {
             "action": self.action,
             "reason": self.reason,
             "attributed_class": self.attributed_class,
@@ -148,6 +150,9 @@ class RecoveryDecision:
             "outcome_note": self.outcome_note,
             "trigger": self.trigger,
         }
+        if self.parameters:
+            payload["parameters"] = dict(self.parameters)
+        return payload
 
 
 @dataclass(frozen=True)
@@ -189,6 +194,11 @@ class TraceRecord:
     probe_evaluation: dict[str, Any] | None = field(default=None)
     retrieval_signal: dict[str, Any] | None = field(default=None)
     agent_config: dict[str, Any] | None = field(default=None)
+    # Intermediate recoveries when max_recoveries > 1. Top-level verification
+    # compares first-pass flags to the final state; each attempt stores its
+    # own step-to-step verification.
+    recovery_attempts: tuple[dict[str, Any], ...] | None = field(default=None)
+    first_pass_evaluation: dict[str, Any] | None = field(default=None)
 
 
 @dataclass(frozen=True)

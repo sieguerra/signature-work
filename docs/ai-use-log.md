@@ -363,3 +363,61 @@ the parent proposed so recovery can be applied again.
 How I verified the result:
 `pytest` (no live OpenAI). Harbor snapshot directory untouched.
 
+---
+
+Date: 2026-09-21
+
+Tool: Cursor
+
+Purpose: Implement multi-attempt recovery, expand, and first-pass-fail gold
+(issues #67–#69).
+
+What AI assisted with:
+Recovery budget loop, `expand` (widen `top_k`), first-pass-fail gold splits,
+v3 benchmark configs, explorer labels, and tests.
+
+Important suggestions produced:
+Keep default `max_recoveries` at 1 so Harbor/DKU SequenceJudge tests and
+committed configs do not escalate. First-pass insufficiency still selects
+rewrite (ADR 007). Weak retrieval the judge accepted selects expand. Top-level
+verification is first-pass vs final; `recovery_attempts` stores intermediates.
+Do not edit existing gold rows.
+
+What I independently decided or changed:
+`k=1` expands to 8. Playground auto-loop uses budget 2; Evaluation stays
+confirm-recovery. New gold ids only (`ka-020`–`ka-024`, `dku-053`–`dku-057`).
+No benchmark snapshot was written.
+
+How I verified the result:
+`pytest` including FakeEmbedder ranking of the new gold (miss at `top_k=1`,
+hit at `top_k=8`). Harbor `experiments/results/20260910T070623/` untouched.
+
+---
+
+Date: 2026-09-21
+
+Tool: Cursor
+
+Purpose: Ship the external evaluation API, project-scoped hashed keys, and
+isolation tests (issues #78–#80).
+
+What AI assisted with:
+`POST /api/v1/evaluations` adapter, SHA-256 project keys, playground key UI,
+and cross-project isolation tests.
+
+Important suggestions produced:
+Keep dashboard `/api/*` unauthenticated. Bind `/api/v1/*` to hashed
+`swr_` keys stored in `keys.json`, not `project.json`. Do not apply rewrite
+or expand on external runs; name them in `unavailable_actions`. Index cache
+key includes corpus id and resolved corpus dir. Isolation tests must not
+lock a shared `traces_dir`.
+
+What I independently decided or changed:
+Bearer or `X-Api-Key`. Size limits on query/answer/contexts. Recover looks
+up the parent trace before requiring `OPENAI_API_KEY`, so a guessed id from
+another project is 404. No billing (#81).
+
+How I verified the result:
+`pytest` with a scripted judge (no live OpenAI on the v1 path). Harbor
+`experiments/results/20260910T070623/` untouched.
+

@@ -27,6 +27,13 @@ Issue #32 recovery gold (underspecified questions, `top_k=1`):
 python scripts/run_benchmark.py --config experiments/configs/v2_dku_recovery_vs_loop.json
 ```
 
+Issue #69 first-pass-fail gold (answerable misses at `top_k=1`, expand budget 2):
+
+```bash
+python scripts/run_benchmark.py --config experiments/configs/v3_kestrel_expand_vs_loop.json
+python scripts/run_benchmark.py --config experiments/configs/v3_dku_expand_vs_loop.json
+```
+
 Judge-agreement labels (issue #38) live under `judge-audit/`. See that
 README. Do not overwrite `results/20260910T070623/`.
 

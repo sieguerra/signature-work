@@ -270,6 +270,7 @@ def test_index_page_and_assets_are_served(tmp_path: Path) -> None:
         assert "applyRecovery" in js.text
         assert "Regenerate from evidence" in js.text
         assert "Rewrite query and retrieve" in js.text
+        assert "Widen retrieval (higher top_k)" in js.text
         assert "recover-bar" in js.text
         assert 'id="recover-bar"' in page.text
         assert 'value="loop_confirm"' in page.text

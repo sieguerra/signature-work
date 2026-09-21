@@ -27,14 +27,20 @@ Written for issue #63. Snapshot of `main` at the time of writing.
 ## Shape of the flow
 
 ```
-retrieve ─→ generate ─→ judge ─→ diagnose ─→ select action ─→ apply ONE action
+retrieve ─→ generate ─→ judge ─→ diagnose ─→ select action ─→ apply action
                                                                      │
                                                           re-judge ──┤
+                                                                     │
+                              if still failing and budget remains ───┤
                                                                      │
                                                             verify ──┴─→ write trace
 ```
 
-One action, then stop. There is no loop back to `select action`.
+`run_with_recovery` honors `max_recoveries` as a count of applied actions
+(issue #67). Default remains 1. When the budget is greater than 1, a
+still-failing attempt can escalate to a different action, usually `expand`
+(issue #68). Top-level `verification` compares first-pass flags to the final
+state; `recovery_attempts` records each step.
 
 ## Entry points
 
@@ -51,8 +57,10 @@ immediately.
 uses by default. Both paths converge on the same `_apply_action`
 (`orchestration/loop.py:295`), so the repair logic is shared.
 
-`run_with_recovery` only applies when the selected action is `regenerate` or
-`rewrite`. An `accept` or `abstain` selection is written without a second pass.
+`run_with_recovery` applies `regenerate`, `rewrite`, and `expand` while budget
+remains. An `accept` selection is written without a second pass. First-pass
+`abstain` is recorded without applying the canned phrase; abstain after a
+failed attempt is applied as a stop.
 
 ## Inputs
 
@@ -133,9 +141,14 @@ four-branch chain, evaluated in order:
 1. `unsupported_generation` → `regenerate`
 2. `evidence_insufficiency` → `abstain`
 3. evidence not sufficient (no class yet) → `rewrite`
-4. otherwise → `accept`
+4. judge accepted but retrieval looks weak → `expand`
+5. otherwise → `accept`
 
-The mapping is one-to-one and deterministic. Nothing compares candidate actions.
+`select_next_recovery` runs after an applied action that did not improve the
+first-pass flags. It never repeats an action already used. Rewrite or
+regenerate that still fails prefers `expand`; expand that still fails
+regenerates if the new evidence is sufficient but unsupported, otherwise
+abstains.
 
 What each action changes:
 
@@ -144,6 +157,7 @@ What each action changes:
 | `accept` | unchanged | unchanged |
 | `regenerate` | **unchanged** | new answer from the same chunks, stricter prompt |
 | `rewrite` | **new query, new retrieve** | regenerated from the new chunks *if* they are sufficient |
+| `expand` | **same query, higher `top_k`** | regenerated from the wider retrieve |
 | `abstain` | unchanged | replaced with a fixed string |
 
 `ConstrainedRegenerator` (`recovery/regenerate.py`) is instructed to drop every
@@ -190,7 +204,8 @@ One JSON file per run, written by `write_run` in `pipeline/baseline.py` through
 Fields relevant to self-healing on `TraceRecord` (`types.py`):
 `runtime_evaluation`, `diagnosis`, `recovery`, `verification`,
 `previous_answer`, `rewritten_query`, `previous_retrieved_chunks`,
-`recovery_status`, `parent_run_id`, `latency_ms`, `probe_evaluation`.
+`recovery_status`, `parent_run_id`, `latency_ms`, `probe_evaluation`,
+`recovery_attempts`, `first_pass_evaluation`.
 
 `probe_evaluation` holds the rewrite probe's judgment of the new evidence,
 made with no answer in hand. It is a different question from
@@ -234,15 +249,20 @@ The explorer (`web/`) renders the stored trace. It owns no recovery logic.
 | `GET /api/traces/{run_id}` | One trace plus derived steps. |
 | `DELETE /api/traces/{run_id}` | Delete a run; a parent also deletes its child. |
 | `GET /api/eval` | Counts for the active corpus. |
+| `POST /api/v1/evaluations` | Judge an externally produced query/answer/contexts. Requires a project API key. Does **not** apply rewrite or expand. |
+| `GET /api/v1/evaluations/{run_id}` | Read that evaluation. Scoped to the key's project. |
+| `POST /api/projects/{id}/keys` | Create a project key. Plaintext is returned once. |
 
-`loop` and `loop_confirm` require `OPENAI_API_KEY`; `retrieve_only` does not.
+Dashboard `/api/*` stays unauthenticated for local use. `/api/v1/*` rejects missing or revoked keys with 401. Keys live in `experiments/projects/<id>/keys.json` as SHA-256 hashes, not in `project.json` or `agent_config`.
+
+`loop` and `loop_confirm` require `OPENAI_API_KEY`; `retrieve_only` does not. The v1 adapter uses `LLMJudge` unless a test injects `app.state.grounding_judge`.
 
 ## Tests
 
 No test calls a live model. Coverage lives mainly in `tests/test_recovery.py`,
 `tests/test_diagnosis.py`, `tests/test_runtime_eval.py`, `tests/test_rewrite.py`,
-`tests/test_steps.py`, and `tests/test_api.py`, using `FakeEmbedder` and
-`ScriptedJudge`.
+`tests/test_steps.py`, `tests/test_api.py`, `tests/test_v1_evaluations.py`, and
+`tests/test_isolation.py`, using `FakeEmbedder` and `ScriptedJudge`.
 
 ## Actual weaknesses
 
@@ -275,13 +295,14 @@ judgment is persisted as `probe_evaluation`, and a disagreement between the two
 calls is recorded in `recovery.outcome_note`. Traces written before that change
 still carry the contradiction.
 
-**5. There is no retry.** `max_recoveries` is 1 in every committed config and
-the orchestrator applies a single action. `AGENTS.md` describes
-"accept / retry / abstain"; retry is not implemented. (Issue #67.)
+**5. Retry is budgeted, not unbounded.** `max_recoveries` defaults to 1 in
+existing Harbor/DKU configs. Auto-loop in the playground and the v3 expand
+configs use 2. The orchestrator stops on `improved` or when the budget is
+spent. (Issue #67.)
 
-**6. Only one action can change the evidence.** `regenerate` reuses the same
-chunks, so it cannot supply a missing fact. `decompose` and `rerank` from the
-V1 spec were never built. (Issue #68.)
+**6. Expand can change the evidence without a rewriter.** `regenerate` still
+reuses the same chunks. `expand` widens `top_k` on the current search text.
+`decompose` and `rerank` from the V1 spec were never built. (Issue #68.)
 
 **7. Detection has a single point of failure.** Everything downstream depends on
 one judge call. A lenient judge silently disables the entire system, and the

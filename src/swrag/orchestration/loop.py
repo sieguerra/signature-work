@@ -1,11 +1,12 @@
 """Evaluation-guided loop: evaluate → diagnose → recover → verify.
 
-One recovery attempt, then stop. Does not reimplement retrieval, judging, or
-diagnosis. Does not read gold labels.
+``run_with_recovery`` honors ``max_recoveries`` as a real budget (issue #67).
+The default stays 1 so existing Harbor/DKU configs and SequenceJudge tests do
+not surprise-escalate. When the budget is greater than 1, a still-failing
+attempt can escalate to a different action — usually ``expand`` (#68).
 
-``run_with_recovery`` still auto-applies the policy (benchmarks). Confirm mode
-uses ``run_first_pass`` then ``apply_recovery`` so the explorer can show a
-button before the V1 action runs.
+Confirm mode uses ``run_first_pass`` then ``apply_recovery`` so the explorer
+can show a button before one operator-chosen action runs.
 """
 
 from __future__ import annotations
@@ -34,12 +35,15 @@ from swrag.pipeline.baseline import (
     write_run,
 )
 from swrag.retrieval.memory_index import InMemoryIndex
+from swrag.recovery.expand import next_top_k
 from swrag.recovery.policy import (
     ABSTAIN,
     ACCEPT,
     ACTIONS,
+    EXPAND,
     REGENERATE,
     REWRITE,
+    select_next_recovery,
     select_recovery,
 )
 from swrag.recovery.regenerate import ConstrainedRegenerator
@@ -55,7 +59,7 @@ from swrag.types import (
     RuntimeEvaluation,
     ScoredChunk,
 )
-from swrag.verification.runtime import verify_runtime
+from swrag.verification.runtime import IMPROVED, verify_runtime
 
 ABSTAIN_ANSWER = "I do not know based on the retrieved documents."
 _ABSTAIN_PREFIX = "i do not know"
@@ -63,6 +67,7 @@ RECOVERY_PROPOSED = "proposed"
 RECOVERY_APPLIED = "applied"
 SOURCE_POLICY = "policy"
 SOURCE_OPERATOR = "operator"
+_APPLYABLE = frozenset({REGENERATE, REWRITE, EXPAND})
 
 
 class RecoveryNotApplicable(ValueError):
@@ -113,7 +118,11 @@ def run_with_recovery(
     index: InMemoryIndex | None = None,
     agent_config: dict[str, Any] | None = None,
 ) -> BaselineRunResult:
-    """Run the automatic loop and write one trace. Never overwrites history."""
+    """Run the automatic loop and write one trace. Never overwrites history.
+
+    ``max_recoveries`` is the number of applied actions, not a boolean. A
+    successful repair stops early. Default 1 preserves the V1 one-shot loop.
+    """
     started = time.perf_counter()
     resolved_index = index if index is not None else build_corpus_index(corpus_dir, embedder)
     state, decision = _first_pass_state(
@@ -126,13 +135,40 @@ def run_with_recovery(
         judge=judge,
         index=resolved_index,
     )
-    if max_recoveries >= 1 and decision.action in {REGENERATE, REWRITE}:
+    first_eval = state.runtime_evaluation
+    first_answer = state.generation.answer
+    first_chunks = chunks_payload(state.retrieval)
+
+    if max_recoveries < 1 or not _should_apply(decision.action, attempts_so_far=0):
+        return write_run(
+            state,
+            output_dir=output_dir,
+            question_id=question_id,
+            recovery=decision,
+            recovery_status=RECOVERY_APPLIED,
+            latency_ms=_elapsed_ms(started),
+            agent_config=agent_config,
+        )
+
+    attempts: list[dict[str, Any]] = []
+    used: list[str] = []
+    current_decision = decision
+    current_k = top_k
+    search_query = query
+    last_applied: _Applied | None = None
+    rewritten_query: str | None = None
+    probe_evaluation = None
+    previous_chunks_to_store: tuple[dict, ...] | None = None
+
+    while _should_apply(current_decision.action, attempts_so_far=len(attempts)):
+        if len(attempts) >= max_recoveries:
+            break
         applied = _apply_action(
             state,
-            decision,
+            current_decision,
             query=query,
             corpus_dir=corpus_dir,
-            top_k=top_k,
+            top_k=current_k,
             embedder=embedder,
             generate=generate,
             generator=generator,
@@ -140,29 +176,70 @@ def run_with_recovery(
             regenerator=regenerator,
             rewriter=rewriter,
             index=resolved_index,
+            search_query=search_query,
         )
+        last_applied = applied
+        state = applied.state
+        used.append(current_decision.action)
+        current_k = state.retrieval.top_k
+        if applied.rewritten_query:
+            rewritten_query = applied.rewritten_query
+            search_query = applied.rewritten_query
+        if applied.previous_retrieved_chunks and previous_chunks_to_store is None:
+            previous_chunks_to_store = first_chunks
+        if applied.probe_evaluation is not None:
+            probe_evaluation = applied.probe_evaluation
+        attempts.append(_attempt_payload(len(attempts), applied))
+
+        overall = None
+        if first_eval is not None and state.runtime_evaluation is not None:
+            overall = verify_runtime(first_eval, state.runtime_evaluation)
+            if overall.outcome == IMPROVED:
+                break
+
+        if len(attempts) >= max_recoveries:
+            break
+        nxt = select_next_recovery(
+            last=applied.decision,
+            verification=applied.verification,
+            evaluation=state.runtime_evaluation,
+            used=tuple(used),
+            current_top_k=current_k,
+        )
+        if nxt is None:
+            break
+        current_decision = nxt
+
+    if last_applied is None:
         return write_run(
-            applied.state,
+            state,
             output_dir=output_dir,
             question_id=question_id,
-            recovery=applied.decision,
-            verification=applied.verification,
-            previous_answer=applied.previous_answer,
-            rewritten_query=applied.rewritten_query,
-            previous_retrieved_chunks=applied.previous_retrieved_chunks,
+            recovery=decision,
             recovery_status=RECOVERY_APPLIED,
             latency_ms=_elapsed_ms(started),
-            probe_evaluation=applied.probe_evaluation,
             agent_config=agent_config,
         )
+
+    overall_verification = last_applied.verification
+    if first_eval is not None and state.runtime_evaluation is not None:
+        overall_verification = verify_runtime(first_eval, state.runtime_evaluation)
+
     return write_run(
-        state,
+        last_applied.state,
         output_dir=output_dir,
         question_id=question_id,
-        recovery=decision,
+        recovery=last_applied.decision,
+        verification=overall_verification,
+        previous_answer=first_answer if first_answer else last_applied.previous_answer,
+        rewritten_query=rewritten_query,
+        previous_retrieved_chunks=previous_chunks_to_store,
         recovery_status=RECOVERY_APPLIED,
         latency_ms=_elapsed_ms(started),
+        probe_evaluation=probe_evaluation,
         agent_config=agent_config,
+        recovery_attempts=tuple(attempts),
+        first_pass_evaluation=first_eval,
     )
 
 
@@ -298,6 +375,103 @@ def _first_pass_state(
     )
 
 
+def _should_apply(action: str, *, attempts_so_far: int) -> bool:
+    """First-pass abstain stays a recorded stop; escalation abstain is applied."""
+    if action in _APPLYABLE:
+        return True
+    return action == ABSTAIN and attempts_so_far > 0
+
+
+def _attempt_payload(index: int, applied: _Applied) -> dict[str, Any]:
+    decision = applied.decision
+    retrieval = applied.state.retrieval
+    row: dict[str, Any] = {
+        "index": index,
+        "action": decision.action,
+        "reason": decision.reason,
+        "trigger": decision.trigger,
+        "attributed_class": decision.attributed_class,
+        "outcome_note": decision.outcome_note,
+        "top_k": retrieval.top_k,
+        "retrieved_doc_ids": [scored.chunk.doc_id for scored in retrieval.chunks],
+        "verification": (
+            applied.verification.as_trace_payload() if applied.verification is not None else None
+        ),
+    }
+    if applied.rewritten_query:
+        row["rewritten_query"] = applied.rewritten_query
+    if decision.parameters:
+        row["parameters"] = dict(decision.parameters)
+    return row
+
+
+def _apply_expand(
+    state: QueryState,
+    decision: RecoveryDecision,
+    *,
+    query: str,
+    corpus_dir: str | Path,
+    top_k: int,
+    embedder: Embedder | None,
+    generate: bool,
+    generator: OpenAIGenerator | None,
+    judge: GroundingJudge | None,
+    index: InMemoryIndex,
+    search_query: str,
+) -> _Applied:
+    widened = next_top_k(top_k)
+    if widened is None:
+        return _Applied(state, decision, None, None, None, None)
+    previous_answer = state.generation.answer
+    previous_retrieved_chunks = chunks_payload(state.retrieval)
+    nxt = execute_query(
+        query,
+        corpus_dir=corpus_dir,
+        top_k=widened,
+        embedder=embedder,
+        generate=generate,
+        generator=generator,
+        judge=judge,
+        search_query=search_query,
+        index=index,
+    )
+    verification = None
+    if state.runtime_evaluation is not None and nxt.runtime_evaluation is not None:
+        verification = verify_runtime(state.runtime_evaluation, nxt.runtime_evaluation)
+    next_decision = RecoveryDecision(
+        action=EXPAND,
+        reason=decision.reason,
+        attributed_class=decision.attributed_class,
+        source=decision.source,
+        outcome_note=(
+            f"widened top_k from {state.retrieval.top_k} to {nxt.retrieval.top_k}"
+        ),
+        trigger=decision.trigger,
+        parameters={"from_k": state.retrieval.top_k, "to_k": nxt.retrieval.top_k},
+    )
+    next_state = QueryState(
+        query=state.query,
+        retrieval=nxt.retrieval,
+        generation=nxt.generation,
+        runtime_evaluation=(
+            nxt.runtime_evaluation
+            if nxt.runtime_evaluation is not None
+            else state.runtime_evaluation
+        ),
+        diagnosis=nxt.diagnosis if nxt.diagnosis is not None else state.diagnosis,
+        # Keep the first-pass signal: that is what overrode the judge (#64).
+        retrieval_signal=state.retrieval_signal,
+    )
+    return _Applied(
+        next_state,
+        next_decision,
+        verification,
+        previous_answer,
+        None,
+        previous_retrieved_chunks,
+    )
+
+
 def _decision_to_apply(proposed: RecoveryDecision, chosen: str) -> RecoveryDecision:
     source = SOURCE_POLICY if chosen == proposed.action else SOURCE_OPERATOR
     return RecoveryDecision(
@@ -323,6 +497,7 @@ def _apply_action(
     regenerator: Regenerator | None,
     rewriter: Rewriter | None,
     index: InMemoryIndex,
+    search_query: str | None = None,
 ) -> _Applied:
     if decision.action == ACCEPT:
         return _Applied(state, decision, None, None, None, None)
@@ -393,6 +568,21 @@ def _apply_action(
             retrieval_signal=state.retrieval_signal,
         )
         return _Applied(next_state, decision, verification, previous_answer, None, None)
+
+    if decision.action == EXPAND:
+        return _apply_expand(
+            state,
+            decision,
+            query=query,
+            corpus_dir=corpus_dir,
+            top_k=top_k,
+            embedder=embedder,
+            generate=generate,
+            generator=generator,
+            judge=judge,
+            index=index,
+            search_query=search_query or query,
+        )
 
     if decision.action != REWRITE:
         raise RecoveryNotApplicable(f"unknown recovery action: {decision.action}")

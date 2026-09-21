@@ -102,6 +102,13 @@ one world at a time so retrieval never mixes DKU notes with a water utility.
 Each run can be deleted, or **Delete all** clears traces for the active corpus
 only. Loop and baseline need `OPENAI_API_KEY`. Retrieve-only does not.
 
+A writable **project** can mint hashed API keys in the playground. Those keys
+authenticate `POST /api/v1/evaluations`: a customer agent submits a query,
+answer, and retrieved contexts; swrag runs the existing judge and diagnosis
+and returns a run id. Rewrite and expand are named in `unavailable_actions`
+and are **not applied** (there is no customer corpus index). Dashboard `/api/*`
+stays unauthenticated on localhost.
+
 When the software is ready for a mentor demo, use [docs/software-done.md](docs/software-done.md).
 
 [docs/self-healing-current.md](docs/self-healing-current.md) documents the

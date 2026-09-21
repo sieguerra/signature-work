@@ -261,6 +261,33 @@ body {
   margin-top: 8px;
 }
 
+.pg-keys {
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pg-keys .revealed-key {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 8px;
+  background: var(--bg-elev);
+  font-size: 12px;
+}
+
+.pg-keys .revealed-key code,
+.pg-keys .key-sample {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  margin: 0;
+}
+
 .pg-knowledge-head {
   display: flex;
   justify-content: space-between;
