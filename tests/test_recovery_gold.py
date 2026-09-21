@@ -14,6 +14,8 @@ DKU_MAIN = ROOT / "datasets" / "dku" / "gold" / "questions.jsonl"
 DKU_RECOVERY = ROOT / "datasets" / "dku" / "gold" / "recovery.jsonl"
 KESTREL_MAIN = ROOT / "datasets" / "kestrel-aero" / "gold" / "questions.jsonl"
 KESTREL_RECOVERY = ROOT / "datasets" / "kestrel-aero" / "gold" / "recovery.jsonl"
+DKU_FIRST_PASS_FAIL = ROOT / "datasets" / "dku" / "gold" / "first-pass-fail.jsonl"
+KESTREL_FIRST_PASS_FAIL = ROOT / "datasets" / "kestrel-aero" / "gold" / "first-pass-fail.jsonl"
 HARBOR = ROOT / "datasets" / "gold" / "questions.jsonl"
 SNAPSHOT = ROOT / "experiments" / "results" / "20260910T070623" / "comparison.json"
 RECOVERY_CONFIG = ROOT / "experiments" / "configs" / "v2_dku_recovery_vs_loop.json"
@@ -102,6 +104,44 @@ def test_recovery_ids_do_not_collide_with_registered_gold() -> None:
     for path in (DKU_RECOVERY, KESTREL_RECOVERY):
         for question in load_gold_set(path):
             assert question.question_id not in registered, question.question_id
+
+
+def test_first_pass_fail_ids_are_new_and_do_not_name_the_source() -> None:
+    registered: set[str] = set()
+    for entry in load_registry(root=ROOT):
+        if entry.gold_path is None:
+            continue
+        registered.update(item.question_id for item in load_gold_set(entry.gold_path))
+    for path in (DKU_RECOVERY, KESTREL_RECOVERY):
+        registered.update(item.question_id for item in load_gold_set(path))
+    dku_docs = {path.stem for path in (ROOT / "datasets" / "dku" / "corpus").glob("*.txt")}
+    kestrel_docs = {
+        path.stem for path in (ROOT / "datasets" / "kestrel-aero" / "corpus").glob("*.txt")
+    }
+
+    for path, prefix in (
+        (DKU_FIRST_PASS_FAIL, "dku-"),
+        (KESTREL_FIRST_PASS_FAIL, "ka-"),
+    ):
+        questions = load_gold_set(path)
+        assert sum(item.answerable for item in questions) >= 4
+        assert sum(not item.answerable for item in questions) >= 1
+        for question in questions:
+            assert question.question_id not in registered, question.question_id
+            assert question.question_id.startswith(prefix)
+            lowered = question.question.lower()
+            for leak in SOURCE_LEAKS:
+                assert leak not in lowered, (question.question_id, leak)
+            for answer in question.answers:
+                assert len(answer) <= 40, (question.question_id, answer)
+            if question.answerable:
+                assert question.supporting_doc_ids
+                missing = set(question.supporting_doc_ids) - (
+                    dku_docs if prefix == "dku-" else kestrel_docs
+                )
+                assert not missing, (question.question_id, missing)
+            else:
+                assert question.supporting_doc_ids == ()
 
 
 def test_recovery_benchmark_config_uses_top_k_one() -> None:

@@ -160,6 +160,8 @@ def write_run(
     latency_ms: float | None = None,
     probe_evaluation: RuntimeEvaluation | None = None,
     agent_config: dict | None = None,
+    recovery_attempts: tuple[dict, ...] | None = None,
+    first_pass_evaluation: RuntimeEvaluation | None = None,
 ) -> BaselineRunResult:
     """Write a trace for ``state``. Never overwrites an existing file."""
     run_id = _new_run_id()
@@ -203,6 +205,12 @@ def write_run(
                 else None
             ),
             agent_config=dict(agent_config) if agent_config else None,
+            recovery_attempts=recovery_attempts,
+            first_pass_evaluation=(
+                first_pass_evaluation.as_trace_payload()
+                if first_pass_evaluation is not None
+                else None
+            ),
         ),
         output_dir,
     )

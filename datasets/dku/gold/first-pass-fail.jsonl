@@ -1,0 +1,11 @@
+# First-pass-fail gold (issues #67–#69). New ids only; questions.jsonl and
+# recovery.jsonl are unchanged. Each answerable row misses its supporting
+# document at top_k=1 with the FakeEmbedder and hits it at top_k=8, so expand
+# can change the evidence. Gold is not read at runtime. Verify every row
+# against the cited .txt before trusting scores.
+
+{"question_id": "dku-053", "question": "What is the street address of the DKU Library?", "answerable": true, "answers": ["No. 8 Duke Avenue", "8 Duke Avenue"], "supporting_doc_ids": ["dku-library-hours"], "notes": "Address is on the current hours page. Wuhan University ranks first at top_k=1; hours enter at top_k=8."}
+{"question_id": "dku-054", "question": "What email is listed for the DKU Library?", "answerable": true, "answers": ["dkulibrary@dukekunshan.edu.cn"], "supporting_doc_ids": ["dku-library-hours"], "notes": "Current hours page. The 2021 handbook ranks first and lists a different contact block."}
+{"question_id": "dku-055", "question": "How large is the DKU campus in acres?", "answerable": true, "answers": ["200 acres", "200"], "supporting_doc_ids": ["dku-about"], "notes": "Acreage is on the about note. Durham ranks first at top_k=1."}
+{"question_id": "dku-056", "question": "What phone number is listed for CSCC?", "answerable": true, "answers": ["+86 512 36657053", "512 36657053"], "supporting_doc_ids": ["cscc"], "notes": "CSCC contact block. The 2021 handbook ranks first at top_k=1."}
+{"question_id": "dku-057", "question": "How much is a Conference Center guest room?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "Room rates omitted. Expand must still be able to abstain."}

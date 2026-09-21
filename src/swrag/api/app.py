@@ -14,6 +14,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
+from swrag.api.credentials import create_api_key, list_api_keys, revoke_api_key
 from swrag.api.store import (
     delete_all_traces,
     delete_trace,
@@ -22,6 +23,7 @@ from swrag.api.store import (
     list_traces,
     load_trace,
 )
+from swrag.api.v1 import build_v1_router
 from swrag.config import load_provider_config
 from swrag.corpus_registry import (
     CorpusEntry,
@@ -74,6 +76,10 @@ class ProjectConfigRequest(BaseModel):
     instructions: str = ""
     chat_model: str = "gpt-4o-mini"
     top_k: int = Field(default=4, ge=1, le=20)
+
+
+class ProjectKeyCreateRequest(BaseModel):
+    scope: str = "evaluations"
 
 
 def repo_root() -> Path:
@@ -250,6 +256,43 @@ def create_app(
                 _activate(application, updated, next_traces)
         return {"project": updated.as_payload(), "active_id": application.state.corpus_id}
 
+    @application.get("/api/projects/{project_id}/keys")
+    def project_keys(project_id: str) -> dict[str, Any]:
+        try:
+            records = list_api_keys(project_id, **_workspace_kwargs())
+        except KeyError as error:
+            raise HTTPException(status_code=404, detail=f"unknown project {project_id!r}") from error
+        except ValueError as error:
+            raise HTTPException(status_code=400, detail=str(error)) from error
+        return {"keys": [item.as_public_payload() for item in records]}
+
+    @application.post("/api/projects/{project_id}/keys")
+    def add_project_key(
+        project_id: str, body: ProjectKeyCreateRequest | None = None
+    ) -> dict[str, Any]:
+        request = body or ProjectKeyCreateRequest()
+        try:
+            token, record = create_api_key(
+                project_id,
+                scope=request.scope.strip() or "evaluations",
+                **_workspace_kwargs(),
+            )
+        except KeyError as error:
+            raise HTTPException(status_code=404, detail=f"unknown project {project_id!r}") from error
+        except ValueError as error:
+            raise HTTPException(status_code=400, detail=str(error)) from error
+        return {"key": token, "record": record.as_public_payload()}
+
+    @application.delete("/api/projects/{project_id}/keys/{key_id}")
+    def remove_project_key(project_id: str, key_id: str) -> dict[str, Any]:
+        try:
+            record = revoke_api_key(project_id, key_id, **_workspace_kwargs())
+        except KeyError as error:
+            raise HTTPException(status_code=404, detail="key not found") from error
+        except ValueError as error:
+            raise HTTPException(status_code=400, detail=str(error)) from error
+        return {"revoked": record.as_public_payload()}
+
     @application.get("/api/documents")
     def documents() -> dict[str, Any]:
         return {
@@ -369,14 +412,14 @@ def create_app(
     @application.post("/api/runs/{run_id}/recover")
     def recover_run(run_id: str, body: RecoverRequest | None = None) -> dict[str, Any]:
         request = body or RecoverRequest()
+        parent = load_trace(application.state.traces_dir, run_id)
+        if parent is None:
+            raise HTTPException(status_code=404, detail="trace not found")
         if not os.environ.get("OPENAI_API_KEY"):
             raise HTTPException(
                 status_code=400,
                 detail="OPENAI_API_KEY is not set. Use retrieve-only mode, or add a key to .env.",
             )
-        parent = load_trace(application.state.traces_dir, run_id)
-        if parent is None:
-            raise HTTPException(status_code=404, detail="trace not found")
         if parent.get("parent_run_id"):
             raise HTTPException(status_code=409, detail="cannot apply recovery to a recovered child run")
         if parent.get("recovery_status") != "proposed":
@@ -412,6 +455,8 @@ def create_app(
             "answer": result.answer,
             **_run_payload(application.state.traces_dir, payload),
         }
+
+    application.include_router(build_v1_router())
 
     if static.is_dir():
         @application.get("/")
@@ -473,6 +518,7 @@ def _execute_run(application: FastAPI, question: str, mode: str, top_k: int):
         from swrag.evaluation.llm_judge import LLMJudge
 
         kwargs["judge"] = LLMJudge()
+        kwargs["max_recoveries"] = 2
         return run_with_recovery(question, **kwargs)
     if mode == "loop_confirm":
         from swrag.evaluation.llm_judge import LLMJudge
@@ -525,8 +571,16 @@ def _generator_for(application: FastAPI) -> OpenAIGenerator:
     )
 
 
+def _index_cache_key(application: FastAPI, *, retrieve_only: bool) -> tuple[str, str, str]:
+    return (
+        str(application.state.corpus_id),
+        str(Path(application.state.corpus_dir).resolve()),
+        "fake" if retrieve_only else "openai",
+    )
+
+
 def _index_for(application: FastAPI, *, retrieve_only: bool):
-    key = (application.state.corpus_id, "fake" if retrieve_only else "openai")
+    key = _index_cache_key(application, retrieve_only=retrieve_only)
     with application.state.index_lock:
         cached = application.state.indexes.get(key)
         if cached is not None:

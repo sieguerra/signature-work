@@ -1,0 +1,11 @@
+# First-pass-fail gold (issues #67–#69). New ids only; questions.jsonl and
+# recovery.jsonl are unchanged. Each answerable row misses its supporting
+# document at top_k=1 with the FakeEmbedder and hits it at top_k=8, so expand
+# can change the evidence. Gold is not read at runtime. Verify every row
+# against the cited .txt before trusting scores.
+
+{"question_id": "ka-020", "question": "What hours is the tool crib open?", "answerable": true, "answers": ["06:00-14:30"], "supporting_doc_ids": ["shifts"], "notes": "Clock lives on the shift board. The crib note says Shift A and after 14:30 but not 06:00. Intended miss at top_k=1 (ncr-log ranks first)."}
+{"question_id": "ka-021", "question": "Which bay houses the traveler office?", "answerable": true, "answers": ["Hangar 2, bay C", "bay C"], "supporting_doc_ids": ["about"], "notes": "Office location is only on the about note. Traveler sheets rank first at top_k=1."}
+{"question_id": "ka-022", "question": "What must Hangar 2 wear at the pickle tank?", "answerable": true, "answers": ["face shield"], "supporting_doc_ids": ["ppe"], "notes": "PPE card has the face shield. Hangar 2 ranks first because the question names Hangar 2."}
+{"question_id": "ka-023", "question": "Who answers the traveler desk?", "answerable": true, "answers": ["555-2201"], "supporting_doc_ids": ["contacts"], "notes": "Phone is on the contacts note. Traveler-2025 ranks first at top_k=1."}
+{"question_id": "ka-024", "question": "What is the pickle tank chemical supplier?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "Vendors omitted. Expand must still be able to abstain rather than invent a supplier."}

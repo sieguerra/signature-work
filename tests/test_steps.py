@@ -327,6 +327,36 @@ def test_rewrite_with_empty_previous_answer_still_splits() -> None:
     assert diagnose["title"] == "Diagnose (after recovery)"
 
 
+def test_multi_attempt_recover_summary_joins_actions() -> None:
+    steps = trace_to_steps(
+        _base(
+            previous_answer="wrong building",
+            previous_retrieved_chunks=[
+                {
+                    "chunk_id": "traveler-2025::c000",
+                    "doc_id": "traveler-2025",
+                    "title": "2025 traveler",
+                    "score": 0.2,
+                    "text": "AMS 4911R",
+                }
+            ],
+            recovery={
+                "action": "expand",
+                "reason": "widen top_k",
+                "attributed_class": None,
+            },
+            recovery_status="applied",
+            recovery_attempts=[
+                {"index": 0, "action": "rewrite"},
+                {"index": 1, "action": "expand"},
+            ],
+            verification={"outcome": "improved", "rationale": "about note entered"},
+        )
+    )
+    recover = next(step for step in steps if step["id"] == "recover")
+    assert recover["summary"] == "rewrite → expand"
+
+
 def test_retrieve_step_carries_the_retrieval_signal() -> None:
     signal = {
         "top_score": 0.08,
