@@ -11,6 +11,7 @@ from pathlib import Path
 from swrag.config import load_provider_config
 from swrag.diagnosis.diagnose import diagnose_runtime
 from swrag.evaluation.judge import GroundingJudge
+from swrag.evaluation.retrieval_signal import RetrievalSignal, retrieval_signal
 from swrag.generation.openai_generator import OpenAIGenerator
 from swrag.ingestion.chunker import chunk_documents
 from swrag.ingestion.loader import load_documents
@@ -39,6 +40,9 @@ class QueryState:
     generation: GenerationResult
     runtime_evaluation: RuntimeEvaluation | None
     diagnosis: Diagnosis | None
+    # Derived from retrieval scores alone, so it is available even when no
+    # judge ran. Optional because traces replayed from disk predate it.
+    retrieval_signal: RetrievalSignal | None = None
 
 
 def build_corpus_index(
@@ -95,6 +99,7 @@ def execute_query(
         generation=generation,
         runtime_evaluation=runtime_eval,
         diagnosis=diagnosis,
+        retrieval_signal=retrieval_signal(retrieval),
     )
 
 
@@ -110,6 +115,7 @@ def run_query(
     question_id: str | None = None,
     judge: GroundingJudge | None = None,
     index: InMemoryIndex | None = None,
+    agent_config: dict | None = None,
 ) -> BaselineRunResult:
     """Run baseline RAG on ``query`` and write a JSON trace.
 
@@ -135,6 +141,7 @@ def run_query(
         output_dir=output_dir,
         question_id=question_id,
         latency_ms=_elapsed_ms(started),
+        agent_config=agent_config,
     )
 
 
@@ -152,6 +159,7 @@ def write_run(
     parent_run_id: str | None = None,
     latency_ms: float | None = None,
     probe_evaluation: RuntimeEvaluation | None = None,
+    agent_config: dict | None = None,
 ) -> BaselineRunResult:
     """Write a trace for ``state``. Never overwrites an existing file."""
     run_id = _new_run_id()
@@ -189,6 +197,12 @@ def write_run(
             probe_evaluation=(
                 probe_evaluation.as_trace_payload() if probe_evaluation is not None else None
             ),
+            retrieval_signal=(
+                state.retrieval_signal.as_trace_payload()
+                if state.retrieval_signal is not None
+                else None
+            ),
+            agent_config=dict(agent_config) if agent_config else None,
         ),
         output_dir,
     )

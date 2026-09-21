@@ -15,6 +15,18 @@ When you use a chunk, mention its chunk_id in brackets, for example [harbor-libr
 Do not invent facts that are not in the evidence."""
 
 
+def compose_system_prompt(instructions: str = "") -> str:
+    """Grounding rules first; optional project instructions cannot override them."""
+    extra = instructions.strip()
+    if not extra:
+        return _SYSTEM_PROMPT
+    return (
+        f"{_SYSTEM_PROMPT}\n\n"
+        "Additional project instructions (still never invent facts):\n"
+        f"{extra}"
+    )
+
+
 class OpenAIGenerator:
     def __init__(
         self,
@@ -22,10 +34,12 @@ class OpenAIGenerator:
         model: str | None = None,
         client: OpenAI | None = None,
         config: ProviderConfig | None = None,
+        instructions: str = "",
     ) -> None:
         resolved = config or load_provider_config()
         self.model_name = model or resolved.chat_model
         self.base_url = resolved.base_url
+        self.instructions = instructions
         self._client = client or OpenAI(base_url=resolved.base_url)
 
     def generate(self, query: str, retrieval: RetrievalResult) -> GenerationResult:
@@ -33,7 +47,7 @@ class OpenAIGenerator:
         response = self._client.chat.completions.create(
             model=self.model_name,
             messages=[
-                {"role": "system", "content": _SYSTEM_PROMPT},
+                {"role": "system", "content": compose_system_prompt(self.instructions)},
                 {
                     "role": "user",
                     "content": f"Question:\n{query}\n\nEvidence:\n{evidence}",

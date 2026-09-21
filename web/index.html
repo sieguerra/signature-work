@@ -7,50 +7,122 @@
     <link rel="stylesheet" href="/static/styles.css" />
   </head>
   <body>
-    <div id="app">
+    <div id="app" data-view="playground">
       <header class="topbar">
         <div class="brand">
           <span class="brand-mark" aria-hidden="true"></span>
           <div>
             <div class="brand-name">swrag</div>
-            <div class="brand-sub">Trace explorer</div>
+            <div class="brand-sub" id="brand-sub">Agentic RAG playground</div>
           </div>
         </div>
+        <nav class="view-nav" aria-label="Product views">
+          <a href="#playground" id="nav-playground" class="view-link active">Playground</a>
+          <a href="#evaluation" id="nav-evaluation" class="view-link">Evaluation</a>
+        </nav>
         <div class="top-controls">
           <label class="corpus-select">
-            Corpus
+            Workspace
             <select id="corpus" aria-label="Select corpus"></select>
           </label>
           <div class="top-meta" id="top-meta">Loading backend…</div>
         </div>
       </header>
 
-      <aside class="sidebar">
-        <div class="sidebar-head">
-          <span>Runs</span>
-          <div class="sidebar-actions">
-            <button type="button" class="ghost" id="refresh-runs">Refresh</button>
-            <button type="button" class="ghost danger" id="delete-all-runs">Delete all</button>
+      <div id="view-evaluation" class="view">
+        <span class="sr-only">Trace explorer</span>
+        <aside class="sidebar">
+          <div class="sidebar-head">
+            <span>Runs</span>
+            <div class="sidebar-actions">
+              <button type="button" class="ghost" id="refresh-runs">Refresh</button>
+              <button type="button" class="ghost danger" id="delete-all-runs">Delete all</button>
+            </div>
           </div>
-        </div>
-        <div class="eval-strip" id="eval-strip">n=0</div>
-        <div class="run-list" id="run-list"></div>
-      </aside>
+          <div class="eval-strip" id="eval-strip">n=0</div>
+          <div class="run-list" id="run-list"></div>
+        </aside>
 
-      <main class="main">
-        <section class="playground">
-          <label class="sr-only" for="question">Question</label>
-          <textarea
-            id="question"
-            rows="2"
-            placeholder="Ask a question over the local corpus…"
-          ></textarea>
-          <div class="playground-row">
-            <div class="chips" id="example-chips"></div>
-            <div class="playground-controls">
+        <main class="main">
+          <section class="playground">
+            <label class="sr-only" for="question">Question</label>
+            <textarea
+              id="question"
+              rows="2"
+              placeholder="Ask a question over the local corpus…"
+            ></textarea>
+            <div class="playground-row">
+              <div class="chips" id="example-chips"></div>
+              <div class="playground-controls">
+                <label class="mode">
+                  Mode
+                  <select id="mode">
+                    <option value="loop_confirm" selected>Loop (confirm recovery)</option>
+                    <option value="loop">Loop (auto recover)</option>
+                    <option value="baseline">Baseline RAG</option>
+                    <option value="retrieve_only">Retrieve only</option>
+                  </select>
+                </label>
+                <label class="mode">
+                  top_k
+                  <input
+                    id="top-k"
+                    type="number"
+                    min="1"
+                    max="20"
+                    value="4"
+                    step="1"
+                    aria-label="Number of retrieved chunks"
+                  />
+                </label>
+                <button type="button" class="primary" id="run-btn">Run</button>
+              </div>
+            </div>
+            <div class="banner hidden" id="error-banner" role="alert"></div>
+          </section>
+
+          <section class="answer-bar hidden" id="answer-bar">
+            <div class="answer-kicker">
+              <span>Output</span>
+              <span class="run-id" id="answer-run-id"></span>
+            </div>
+            <div id="answer-text"></div>
+          </section>
+
+          <section class="recover-bar hidden" id="recover-bar"></section>
+
+          <section class="workspace" id="workspace">
+            <div class="waterfall-pane">
+              <div class="pane-label">Trace</div>
+              <ol class="waterfall" id="waterfall"></ol>
+            </div>
+            <div class="inspector-pane">
+              <div class="pane-label" id="inspector-label">Inspector</div>
+              <div class="inspector" id="inspector"></div>
+            </div>
+          </section>
+        </main>
+      </div>
+
+      <div id="view-playground" class="view">
+        <aside class="pg-knowledge" id="pg-knowledge"></aside>
+        <section class="pg-chat">
+          <div class="pg-transcript" id="pg-transcript"></div>
+          <form class="pg-composer" id="pg-composer">
+            <label class="sr-only" for="pg-question">Playground question</label>
+            <textarea
+              id="pg-question"
+              rows="2"
+              placeholder="Ask this agent a question…"
+            ></textarea>
+            <div class="pg-composer-row">
+              <div class="pg-composer-tools">
+                <button type="button" class="ghost" id="pg-reset">Reset</button>
+                <button type="button" class="ghost" id="pg-rerun">Rerun</button>
+              </div>
               <label class="mode">
                 Mode
-                <select id="mode">
+                <select id="pg-mode">
                   <option value="loop_confirm" selected>Loop (confirm recovery)</option>
                   <option value="loop">Loop (auto recover)</option>
                   <option value="baseline">Baseline RAG</option>
@@ -59,43 +131,21 @@
               </label>
               <label class="mode">
                 top_k
-                <input
-                  id="top-k"
-                  type="number"
-                  min="1"
-                  max="20"
-                  value="4"
-                  step="1"
-                  aria-label="Number of retrieved chunks"
-                />
+                <input id="pg-top-k" type="number" min="1" max="20" value="4" step="1" aria-label="Playground top_k" />
               </label>
-              <button type="button" class="primary" id="run-btn">Run</button>
+              <button type="submit" class="primary" id="pg-send">Send</button>
             </div>
-          </div>
-          <div class="banner hidden" id="error-banner" role="alert"></div>
+            <div class="banner hidden" id="pg-error" role="alert"></div>
+          </form>
         </section>
-
-        <section class="answer-bar hidden" id="answer-bar">
-          <div class="answer-kicker">
-            <span>Output</span>
-            <span class="run-id" id="answer-run-id"></span>
+        <aside class="pg-inspect" id="pg-inspect-pane">
+          <div class="pane-label">
+            <span>Sources</span>
+            <button type="button" class="ghost" id="pg-collapse">Collapse</button>
           </div>
-          <div id="answer-text"></div>
-        </section>
-
-        <section class="recover-bar hidden" id="recover-bar"></section>
-
-        <section class="workspace" id="workspace">
-          <div class="waterfall-pane">
-            <div class="pane-label">Trace</div>
-            <ol class="waterfall" id="waterfall"></ol>
-          </div>
-          <div class="inspector-pane">
-            <div class="pane-label" id="inspector-label">Inspector</div>
-            <div class="inspector" id="inspector"></div>
-          </div>
-        </section>
-      </main>
+          <div class="inspector" id="pg-inspect"></div>
+        </aside>
+      </div>
     </div>
     <script src="/static/app.js"></script>
   </body>

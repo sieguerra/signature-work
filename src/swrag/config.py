@@ -14,6 +14,14 @@ from dataclasses import dataclass
 DEFAULT_CHAT_MODEL = "gpt-4o-mini"
 DEFAULT_EMBEDDING_MODEL = "text-embedding-3-small"
 OPENAI_BASE_URL = "https://api.openai.com/v1"
+ALLOWED_CHAT_MODELS = frozenset(
+    {
+        "gpt-4o-mini",
+        "gpt-4o",
+        "gpt-4.1-mini",
+        "gpt-4.1",
+    }
+)
 
 
 @dataclass(frozen=True)

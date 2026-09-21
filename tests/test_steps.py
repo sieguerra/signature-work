@@ -325,3 +325,52 @@ def test_rewrite_with_empty_previous_answer_still_splits() -> None:
     assert "rewrite retrieve probe" in evaluate["payload"]["note"]
     diagnose = next(step for step in steps if step["id"] == "diagnose")
     assert diagnose["title"] == "Diagnose (after recovery)"
+
+
+def test_retrieve_step_carries_the_retrieval_signal() -> None:
+    signal = {
+        "top_score": 0.08,
+        "runner_up_score": 0.07,
+        "relative_margin": 0.125,
+        "weak_top": True,
+        "ambiguous_top": False,
+        "reason": "top score 0.080 is below 0.150",
+        "detector": "retrieval-score",
+    }
+    retrieve = next(
+        step
+        for step in trace_to_steps(_base(retrieval_signal=signal))
+        if step["id"] == "retrieve"
+    )
+    assert retrieve["payload"]["retrieval_signal"] == signal
+
+
+def test_first_pass_retrieve_keeps_the_signal_after_rewrite() -> None:
+    signal = {"weak_top": True, "reason": "thin retrieve", "detector": "retrieval-score"}
+    steps = trace_to_steps(
+        _base(
+            previous_answer="old",
+            rewritten_query="Harbor Institute Library Saturday hours",
+            previous_retrieved_chunks=[
+                {
+                    "chunk_id": "other::c000",
+                    "doc_id": "other",
+                    "title": "Other",
+                    "score": 0.1,
+                    "text": "unrelated",
+                }
+            ],
+            retrieval_signal=signal,
+            recovery={
+                "action": "rewrite",
+                "reason": "judge raised no failure, but retrieval looks unreliable",
+                "trigger": "retrieval_signal",
+            },
+        )
+    )
+    first = next(step for step in steps if step["id"] == "retrieve-first")
+    after = next(step for step in steps if step["id"] == "retrieve")
+    recover = next(step for step in steps if step["id"] == "recover")
+    assert first["payload"]["retrieval_signal"] == signal
+    assert "retrieval_signal" not in after["payload"]
+    assert recover["payload"]["trigger"] == "retrieval_signal"

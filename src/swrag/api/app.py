@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -27,14 +27,26 @@ from swrag.corpus_registry import (
     CorpusEntry,
     assert_corpus_readable,
     default_corpus_id,
-    get_corpus,
-    load_registry,
     traces_dir_for,
 )
+from swrag.generation.openai_generator import OpenAIGenerator
+from swrag.ingestion.loader import corpus_file_count
 from swrag.orchestration.loop import RecoveryNotApplicable, apply_recovery, run_first_pass, run_with_recovery
 from swrag.pipeline.baseline import build_corpus_index, run_query
+from swrag.projects import (
+    MAX_UPLOAD_BYTES,
+    create_project,
+    delete_project,
+    get_workspace,
+    list_documents,
+    list_workspaces,
+    safe_upload_name,
+    update_project_config,
+    validate_uploaded_file,
+)
 from swrag.recovery.policy import ACTIONS
 from swrag.retrieval.fake_embedder import FakeEmbedder
+from swrag.retrieval.memory_index import InMemoryIndex
 from swrag.tracing.steps import trace_to_steps
 
 MODES = frozenset({"loop", "loop_confirm", "baseline", "retrieve_only"})
@@ -54,6 +66,16 @@ class CorpusSelectRequest(BaseModel):
     id: str = Field(min_length=1)
 
 
+class ProjectCreateRequest(BaseModel):
+    name: str = Field(min_length=1, max_length=80)
+
+
+class ProjectConfigRequest(BaseModel):
+    instructions: str = ""
+    chat_model: str = "gpt-4o-mini"
+    top_k: int = Field(default=4, ge=1, le=20)
+
+
 def repo_root() -> Path:
     return Path(__file__).resolve().parents[3]
 
@@ -68,18 +90,25 @@ def create_app(
     traces_dir: str | Path | None = None,
     traces_root: str | Path | None = None,
     corpus_id: str | None = None,
+    projects_root: str | Path | None = None,
 ) -> FastAPI:
     """Build the UI server. The RAG packages stay importable without FastAPI."""
     load_dotenv(repo_root() / ".env")
     root = repo_root()
     resolved_traces_root = Path(traces_root) if traces_root else root / "experiments" / "output"
+    resolved_projects_root = Path(projects_root) if projects_root else root / "experiments" / "projects"
 
     if corpus_dir is not None:
         entry = _entry_for_explicit_dir(Path(corpus_dir), root)
         traces_locked = True
         resolved_traces = Path(traces_dir) if traces_dir else traces_dir_for(entry.id, resolved_traces_root)
     else:
-        entry = get_corpus(corpus_id or default_corpus_id(root=root), root=root)
+        entry = get_workspace(
+            corpus_id or default_corpus_id(root=root),
+            root=root,
+            traces_root=resolved_traces_root,
+            base=resolved_projects_root,
+        )
         traces_locked = traces_dir is not None
         resolved_traces = Path(traces_dir) if traces_dir else traces_dir_for(entry.id, resolved_traces_root)
 
@@ -89,6 +118,7 @@ def create_app(
     async def lifespan(app: FastAPI):
         app.state.repo_root = root
         app.state.traces_root = resolved_traces_root
+        app.state.projects_root = resolved_projects_root
         app.state.traces_locked = traces_locked
         app.state.indexes = {}
         app.state.index_lock = threading.RLock()
@@ -108,25 +138,35 @@ def create_app(
         payload["corpus_industry"] = application.state.corpus_industry
         payload["examples"] = list(application.state.examples)
         payload["doc_count"] = application.state.doc_count
+        payload["writable"] = bool(application.state.writable)
+        payload["agent_config"] = application.state.agent_config
         return payload
+
+    def _workspace_kwargs() -> dict[str, Path]:
+        return {
+            "root": application.state.repo_root,
+            "traces_root": application.state.traces_root,
+            "base": application.state.projects_root,
+        }
 
     @application.get("/api/corpora")
     def corpora() -> dict[str, Any]:
         return {
             "active_id": application.state.corpus_id,
-            "corpora": [item.as_payload() for item in load_registry(root=application.state.repo_root)],
+            "corpora": [item.as_payload() for item in list_workspaces(**_workspace_kwargs())],
         }
 
     @application.post("/api/corpus")
     def select_corpus(body: CorpusSelectRequest) -> dict[str, Any]:
         try:
-            selected = get_corpus(body.id.strip(), root=application.state.repo_root)
+            selected = get_workspace(body.id.strip(), **_workspace_kwargs())
         except KeyError as error:
             raise HTTPException(status_code=404, detail=f"unknown corpus {body.id!r}") from error
-        try:
-            assert_corpus_readable(selected)
-        except (FileNotFoundError, ValueError) as error:
-            raise HTTPException(status_code=400, detail=str(error)) from error
+        if not selected.writable:
+            try:
+                assert_corpus_readable(selected)
+            except (FileNotFoundError, ValueError) as error:
+                raise HTTPException(status_code=400, detail=str(error)) from error
         next_traces = (
             application.state.traces_dir
             if application.state.traces_locked
@@ -139,6 +179,130 @@ def create_app(
             "corpus": selected.as_payload(),
             "traces_dir": str(application.state.traces_dir),
         }
+
+    @application.post("/api/projects")
+    def add_project(body: ProjectCreateRequest) -> dict[str, Any]:
+        try:
+            created = create_project(
+                body.name,
+                root=application.state.repo_root,
+                traces_root=application.state.traces_root,
+                base=application.state.projects_root,
+            )
+        except ValueError as error:
+            raise HTTPException(status_code=400, detail=str(error)) from error
+        next_traces = (
+            application.state.traces_dir
+            if application.state.traces_locked
+            else traces_dir_for(created.id, application.state.traces_root)
+        )
+        with application.state.index_lock:
+            _activate(application, created, next_traces)
+        return {"project": created.as_payload(), "active_id": created.id}
+
+    @application.delete("/api/projects/{project_id}")
+    def remove_project(project_id: str) -> dict[str, Any]:
+        try:
+            delete_project(
+                project_id,
+                root=application.state.repo_root,
+                base=application.state.projects_root,
+            )
+        except KeyError as error:
+            raise HTTPException(status_code=404, detail=f"unknown project {project_id!r}") from error
+        except ValueError as error:
+            raise HTTPException(status_code=400, detail=str(error)) from error
+        if application.state.corpus_id == project_id:
+            fallback = get_workspace(
+                default_corpus_id(root=application.state.repo_root),
+                **_workspace_kwargs(),
+            )
+            next_traces = (
+                application.state.traces_dir
+                if application.state.traces_locked
+                else traces_dir_for(fallback.id, application.state.traces_root)
+            )
+            with application.state.index_lock:
+                _activate(application, fallback, next_traces)
+        return {"deleted": project_id, "active_id": application.state.corpus_id}
+
+    @application.patch("/api/projects/{project_id}/config")
+    def save_project_config(project_id: str, body: ProjectConfigRequest) -> dict[str, Any]:
+        try:
+            updated = update_project_config(
+                project_id,
+                body.model_dump(),
+                root=application.state.repo_root,
+                traces_root=application.state.traces_root,
+                base=application.state.projects_root,
+            )
+        except KeyError as error:
+            raise HTTPException(status_code=404, detail=f"unknown project {project_id!r}") from error
+        except ValueError as error:
+            raise HTTPException(status_code=400, detail=str(error)) from error
+        if application.state.corpus_id == updated.id:
+            next_traces = (
+                application.state.traces_dir
+                if application.state.traces_locked
+                else traces_dir_for(updated.id, application.state.traces_root)
+            )
+            with application.state.index_lock:
+                _activate(application, updated, next_traces)
+        return {"project": updated.as_payload(), "active_id": application.state.corpus_id}
+
+    @application.get("/api/documents")
+    def documents() -> dict[str, Any]:
+        return {
+            "writable": bool(application.state.writable),
+            "documents": list_documents(Path(application.state.corpus_dir)),
+        }
+
+    @application.post("/api/documents")
+    async def upload_document(file: UploadFile = File(...)) -> dict[str, Any]:
+        if not application.state.writable:
+            raise HTTPException(
+                status_code=400,
+                detail="Built-in corpora are read-only. Create a project to upload documents.",
+            )
+        raw_name = file.filename or ""
+        try:
+            name = safe_upload_name(raw_name)
+        except ValueError as error:
+            raise HTTPException(status_code=400, detail=str(error)) from error
+        data = await file.read()
+        if not data:
+            raise HTTPException(status_code=400, detail="file is empty")
+        if len(data) > MAX_UPLOAD_BYTES:
+            raise HTTPException(status_code=400, detail="file is larger than 8 MB")
+        dest = Path(application.state.corpus_dir) / name
+        dest.write_bytes(data)
+        try:
+            validate_uploaded_file(dest)
+        except (ValueError, UnicodeDecodeError) as error:
+            dest.unlink(missing_ok=True)
+            raise HTTPException(status_code=400, detail=str(error)) from error
+        _invalidate_indexes(application)
+        application.state.doc_count = corpus_file_count(application.state.corpus_dir)
+        return {"uploaded": name, "documents": list_documents(Path(application.state.corpus_dir))}
+
+    @application.delete("/api/documents/{name}")
+    def remove_document(name: str) -> dict[str, Any]:
+        if not application.state.writable:
+            raise HTTPException(
+                status_code=400,
+                detail="Built-in corpora are read-only. Create a project to remove documents.",
+            )
+        try:
+            safe = safe_upload_name(name)
+        except ValueError as error:
+            raise HTTPException(status_code=400, detail=str(error)) from error
+        path = Path(application.state.corpus_dir) / safe
+        if not path.is_file():
+            raise HTTPException(status_code=404, detail="document not found")
+        path.unlink()
+        _invalidate_indexes(application)
+        application.state.doc_count = corpus_file_count(application.state.corpus_dir)
+        return {"deleted": safe, "documents": list_documents(Path(application.state.corpus_dir))}
 
     @application.get("/api/eval")
     def eval_panel() -> dict[str, Any]:
@@ -267,13 +431,15 @@ def _activate(application: FastAPI, entry: CorpusEntry, traces: Path) -> None:
     application.state.corpus_dir = entry.corpus_dir
     application.state.examples = entry.examples
     application.state.doc_count = entry.doc_count
+    application.state.writable = bool(entry.writable)
+    application.state.agent_config = dict(entry.config) if entry.writable and entry.config else None
     application.state.traces_dir = Path(traces)
     application.state.indexes = {}
 
 
 def _entry_for_explicit_dir(corpus_dir: Path, root: Path) -> CorpusEntry:
     resolved = corpus_dir.resolve()
-    for entry in load_registry(root=root):
+    for entry in list_workspaces(root=root, traces_root=root / "experiments" / "output"):
         if entry.corpus_dir.resolve() == resolved:
             return entry
     return CorpusEntry(
@@ -285,6 +451,7 @@ def _entry_for_explicit_dir(corpus_dir: Path, root: Path) -> CorpusEntry:
         gold_path=None,
         examples=(),
         fictional=True,
+        writable=False,
     )
 
 
@@ -298,7 +465,10 @@ def _execute_run(application: FastAPI, question: str, mode: str, top_k: int):
         "index": index,
         "generate": not retrieve_only,
         "embedder": FakeEmbedder() if retrieve_only else None,
+        "agent_config": _agent_snapshot(application),
     }
+    if not retrieve_only:
+        kwargs["generator"] = _generator_for(application)
     if mode == "loop":
         from swrag.evaluation.llm_judge import LLMJudge
 
@@ -324,6 +494,8 @@ def _execute_recover(application: FastAPI, run_id: str, action: str | None):
         index=index,
         generate=True,
         judge=LLMJudge(),
+        generator=_generator_for(application),
+        agent_config=_agent_snapshot(application),
     )
 
 
@@ -335,6 +507,24 @@ def _run_payload(traces_dir: Path, payload: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _agent_snapshot(application: FastAPI) -> dict[str, Any] | None:
+    config = application.state.agent_config
+    if not application.state.writable or not isinstance(config, dict):
+        return None
+    return dict(config)
+
+
+def _generator_for(application: FastAPI) -> OpenAIGenerator:
+    config = application.state.agent_config if isinstance(application.state.agent_config, dict) else {}
+    model = str(config.get("chat_model") or "") or None
+    if not application.state.writable:
+        model = None
+    return OpenAIGenerator(
+        model=model,
+        instructions=str(config.get("instructions") or ""),
+    )
+
+
 def _index_for(application: FastAPI, *, retrieve_only: bool):
     key = (application.state.corpus_id, "fake" if retrieve_only else "openai")
     with application.state.index_lock:
@@ -342,9 +532,21 @@ def _index_for(application: FastAPI, *, retrieve_only: bool):
         if cached is not None:
             return cached
         embedder = FakeEmbedder() if retrieve_only else None
-        index = build_corpus_index(application.state.corpus_dir, embedder)
+        try:
+            index = build_corpus_index(application.state.corpus_dir, embedder)
+        except ValueError:
+            if not application.state.writable:
+                raise
+            index = InMemoryIndex(embedder or FakeEmbedder())
         application.state.indexes[key] = index
         return index
+
+
+def _invalidate_indexes(application: FastAPI) -> None:
+    corpus_id = application.state.corpus_id
+    with application.state.index_lock:
+        for key in [item for item in application.state.indexes if item[0] == corpus_id]:
+            del application.state.indexes[key]
 
 
 app = create_app()

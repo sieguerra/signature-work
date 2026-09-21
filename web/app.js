@@ -10,7 +10,15 @@ const state = {
   childRunId: null,
   loading: false,
   recovering: false,
+  view: "playground",
+  documents: [],
+  messages: [],
+  inspectCollapsed: false,
+  uploads: [],
+  draftConfig: { instructions: "", chat_model: "gpt-4o-mini", top_k: 4 },
 };
+
+const CHAT_MODELS = ["gpt-4o-mini", "gpt-4o", "gpt-4.1-mini", "gpt-4.1"];
 
 const ACTION_LABELS = {
   regenerate: "Regenerate from evidence",
@@ -33,14 +41,31 @@ function escapeHtml(value) {
 }
 
 function showError(message) {
-  const banner = $("error-banner");
-  if (!message) {
-    banner.classList.add("hidden");
-    banner.textContent = "";
-    return;
-  }
-  banner.textContent = message;
-  banner.classList.remove("hidden");
+  ["error-banner", "pg-error"].forEach((id) => {
+    const banner = $(id);
+    if (!banner) return;
+    if (!message) {
+      banner.classList.add("hidden");
+      banner.textContent = "";
+      return;
+    }
+    banner.textContent = message;
+    banner.classList.remove("hidden");
+  });
+}
+
+function currentView() {
+  return location.hash.replace("#", "") === "evaluation" ? "evaluation" : "playground";
+}
+
+function applyView() {
+  state.view = currentView();
+  document.getElementById("app").dataset.view = state.view;
+  $("nav-playground").classList.toggle("active", state.view === "playground");
+  $("nav-evaluation").classList.toggle("active", state.view === "evaluation");
+  $("brand-sub").textContent =
+    state.view === "evaluation" ? "Trace explorer" : "Agentic RAG playground";
+  document.getElementById("app").classList.toggle("inspect-collapsed", state.inspectCollapsed);
 }
 
 async function api(path, options) {
@@ -71,7 +96,9 @@ async function loadMeta() {
     );
   if (!state.meta.api_key_present) {
     $("mode").value = "retrieve_only";
+    if ($("pg-mode")) $("pg-mode").value = "retrieve_only";
   }
+  syncDraftConfig();
   renderExamples();
 }
 
@@ -124,14 +151,20 @@ async function switchCorpus(corpusId) {
       body: JSON.stringify({ id: corpusId }),
     });
     clearSelection();
+    state.messages = [];
+    state.uploads = [];
     await loadMeta();
     await loadCorpora();
     await loadTraces();
+    await loadDocuments().catch(() => {
+      state.documents = [];
+    });
     if (state.traces.length) {
       await selectRun(state.traces[0].run_id);
     } else {
       render();
     }
+    renderPlaygroundKnowledge();
   } finally {
     $("corpus").disabled = false;
   }
@@ -287,23 +320,19 @@ function proposedAction() {
   return recovery.action || "";
 }
 
-function renderRecoverBar() {
-  const root = $("recover-bar");
-  if (!root) return;
+function recoverMarkup() {
   const status = state.trace && state.trace.recovery_status;
   const action = proposedAction();
   const canPropose = Boolean(state.trace && status === "proposed" && action && action !== "accept");
-  if (!canPropose) {
-    root.classList.add("hidden");
-    root.innerHTML = "";
-    return;
-  }
-  root.classList.remove("hidden");
+  if (!canPropose) return "";
+  const recovery = (state.trace && state.trace.recovery) || {};
   const diagnosis = (state.trace && state.trace.diagnosis) || {};
   const klass = diagnosis.failure_class;
   const rationale = diagnosis.rationale || "";
   let note = rationale;
-  if (klass) {
+  if (recovery.trigger === "retrieval_signal") {
+    note = recovery.reason || "Retrieval looks unreliable even though the judge accepted.";
+  } else if (klass) {
     note = rationale ? `${klass} — ${rationale}` : klass;
   } else if (action === "rewrite") {
     note =
@@ -313,12 +342,11 @@ function renderRecoverBar() {
     note = "No failure class on this pass.";
   }
   if (state.childRunId) {
-    root.innerHTML = `<div class="recover-kicker">Recovery</div>
+    return `<div class="recover-kicker">Recovery</div>
       <p class="recover-note">Already applied on ${escapeHtml(state.childRunId)}.</p>
       <div class="recover-actions">
         <button type="button" class="primary" data-open-child="${escapeHtml(state.childRunId)}">Open recovered run</button>
       </div>`;
-    return;
   }
   const others = V1_ACTIONS.filter((item) => item !== action);
   const secondary = others
@@ -329,7 +357,7 @@ function renderRecoverBar() {
         }>${escapeHtml(ACTION_LABELS[item] || item)}</button>`
     )
     .join("");
-  root.innerHTML = `<div class="recover-kicker">Proposed recovery</div>
+  return `<div class="recover-kicker">Proposed recovery</div>
     <p class="recover-note">${escapeHtml(note)}</p>
     <div class="recover-actions">
       <button type="button" class="primary" data-recover="${escapeHtml(action)}" ${
@@ -337,6 +365,19 @@ function renderRecoverBar() {
       }>${escapeHtml(ACTION_LABELS[action] || action)}</button>
       ${secondary}
     </div>`;
+}
+
+function renderRecoverBar() {
+  const root = $("recover-bar");
+  if (!root) return;
+  const html = recoverMarkup();
+  if (!html) {
+    root.classList.add("hidden");
+    root.innerHTML = "";
+    return;
+  }
+  root.classList.remove("hidden");
+  root.innerHTML = html;
 }
 
 function renderWaterfall() {
@@ -442,6 +483,7 @@ function renderInspector() {
         ? cited
         : `${cited} (not in this retrieve)`
       : "";
+    const signal = data.retrieval_signal || {};
     root.innerHTML =
       kv([
         ["top_k", data.top_k],
@@ -449,6 +491,11 @@ function renderInspector() {
         ["pass", data.pass],
         ["note", data.note],
         ["cited", citedNote],
+        ["retrieval signal", signal.reason],
+        ["top score", signal.top_score],
+        ["relative margin", signal.relative_margin],
+        ["weak top", signal.weak_top],
+        ["ambiguous top", signal.ambiguous_top],
       ]) + renderChunks(data.chunks);
     return;
   }
@@ -482,6 +529,7 @@ function renderInspector() {
     root.innerHTML =
       kv([
         ["action", data.action],
+        ["trigger", data.trigger],
         ["source", data.source],
         ["recovery status", data.recovery_status],
         ["attributed class", data.attributed_class],
@@ -508,6 +556,8 @@ function render() {
   renderRecoverBar();
   renderWaterfall();
   renderInspector();
+  renderPlaygroundChat();
+  renderPlaygroundInspect();
 }
 
 async function loadTraces() {
@@ -591,8 +641,9 @@ async function deleteAllRuns() {
   render();
 }
 
-function readTopK() {
-  const raw = Number($("top-k").value);
+function readTopK(fromPlayground) {
+  const field = fromPlayground ? $("pg-top-k") : $("top-k");
+  const raw = Number(field.value);
   if (!Number.isInteger(raw) || raw < 1 || raw > 20) {
     return null;
   }
@@ -616,6 +667,13 @@ async function applyRecovery(action) {
     state.steps = payload.steps || [];
     state.selectedStep = state.steps.find((step) => step.id === "recover") || state.steps[0] || null;
     state.childRunId = payload.child_run_id || null;
+    if (state.view === "playground") {
+      state.messages.push({
+        role: "assistant",
+        text: (payload.trace && payload.trace.answer) || payload.answer || retrieveFallback(payload),
+        runId: payload.run_id,
+      });
+    }
     await loadTraces();
     render();
   } catch (error) {
@@ -625,28 +683,34 @@ async function applyRecovery(action) {
   }
 }
 
-async function runQuestion() {
-  const question = $("question").value.trim();
+async function runQuestion(fromPlayground) {
+  const questionEl = fromPlayground ? $("pg-question") : $("question");
+  const modeEl = fromPlayground ? $("pg-mode") : $("mode");
+  const sendBtn = fromPlayground ? $("pg-send") : $("run-btn");
+  const question = questionEl.value.trim();
   if (!question) {
     showError("Enter a question.");
     return;
   }
-  const topK = readTopK();
+  const topK = readTopK(fromPlayground);
   if (topK === null) {
     showError("top_k must be an integer from 1 to 20.");
     return;
   }
   showError("");
+  if (fromPlayground) {
+    state.messages.push({ role: "user", text: question });
+  }
   state.loading = true;
-  $("run-btn").disabled = true;
-  renderWaterfall();
+  sendBtn.disabled = true;
+  render();
   try {
     const payload = await api("/api/runs", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         question,
-        mode: $("mode").value,
+        mode: modeEl.value,
         top_k: topK,
       }),
     });
@@ -656,15 +720,313 @@ async function runQuestion() {
     state.steps = payload.steps || [];
     state.selectedStep = state.steps.find((step) => step.id === "recover") || state.steps[0] || null;
     state.childRunId = payload.child_run_id || null;
+    if (fromPlayground) {
+      state.messages.push({
+        role: "assistant",
+        text: (payload.trace && payload.trace.answer) || payload.answer || retrieveFallback(payload),
+        runId: payload.run_id,
+      });
+      questionEl.value = "";
+    }
     await loadTraces();
     render();
   } catch (error) {
     state.loading = false;
+    if (fromPlayground) {
+      state.messages.push({ role: "assistant", text: error.message || String(error), error: true });
+    }
     renderWaterfall();
+    renderPlaygroundChat();
+    renderPlaygroundInspect();
     showError(error.message || String(error));
   } finally {
-    $("run-btn").disabled = false;
+    sendBtn.disabled = false;
   }
+}
+
+async function loadDocuments() {
+  const payload = await api("/api/documents");
+  state.documents = payload.documents || [];
+}
+
+async function createPlaygroundProject(name) {
+  const payload = await api("/api/projects", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name }),
+  });
+  clearSelection();
+  state.messages = [];
+  state.uploads = [];
+  await loadMeta();
+  await loadCorpora();
+  await loadTraces();
+  await loadDocuments();
+  $("corpus").value = payload.active_id;
+  render();
+  renderPlaygroundKnowledge();
+}
+
+async function uploadFiles(fileList) {
+  const files = [...fileList];
+  if (!files.length) return;
+  showError("");
+  for (const file of files) {
+    const name = file.name || "";
+    if (!/\.(txt|pdf)$/i.test(name)) {
+      state.uploads = [{ name, status: "failed", error: "Only .txt and .pdf files can be uploaded." }];
+      renderPlaygroundKnowledge();
+      showError("Only .txt and .pdf files can be uploaded.");
+      return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      state.uploads = [{ name, status: "failed", error: "File is larger than 8 MB." }];
+      renderPlaygroundKnowledge();
+      showError("File is larger than 8 MB.");
+      return;
+    }
+    state.uploads = [{ name, status: "indexing" }];
+    renderPlaygroundKnowledge();
+    try {
+      const body = new FormData();
+      body.append("file", file, file.name);
+      await api("/api/documents", { method: "POST", body });
+      state.uploads = [{ name, status: "ready" }];
+    } catch (error) {
+      state.uploads = [{ name, status: "failed", error: error.message || String(error) }];
+      renderPlaygroundKnowledge();
+      throw error;
+    }
+  }
+  await loadMeta();
+  await loadDocuments();
+  renderPlaygroundKnowledge();
+}
+
+async function deleteDocument(name) {
+  await api(`/api/documents/${encodeURIComponent(name)}`, { method: "DELETE" });
+  await loadMeta();
+  await loadDocuments();
+  renderPlaygroundKnowledge();
+}
+
+async function deletePlaygroundProject() {
+  const id = state.meta && state.meta.corpus_id;
+  if (!id || !state.meta.writable) return;
+  const ok = window.confirm(`Delete project ${state.meta.corpus_label} and its documents?`);
+  if (!ok) return;
+  await api(`/api/projects/${encodeURIComponent(id)}`, { method: "DELETE" });
+  clearSelection();
+  state.messages = [];
+  state.uploads = [];
+  await loadMeta();
+  await loadCorpora();
+  await loadTraces();
+  await loadDocuments().catch(() => {
+    state.documents = [];
+  });
+  render();
+  renderPlaygroundKnowledge();
+}
+
+async function savePlaygroundConfig() {
+  const id = state.meta && state.meta.corpus_id;
+  if (!id || !state.meta.writable) return;
+  const payload = await api(`/api/projects/${encodeURIComponent(id)}/config`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(state.draftConfig),
+  });
+  if (payload.project && payload.project.config) {
+    state.draftConfig = {
+      instructions: payload.project.config.instructions || "",
+      chat_model: payload.project.config.chat_model || "gpt-4o-mini",
+      top_k: Number(payload.project.config.top_k) || 4,
+    };
+  }
+  await loadMeta();
+  renderPlaygroundKnowledge();
+}
+
+function syncDraftConfig() {
+  const config = (state.meta && state.meta.agent_config) || {};
+  state.draftConfig = {
+    instructions: config.instructions || "",
+    chat_model: config.chat_model || "gpt-4o-mini",
+    top_k: Number(config.top_k) || 4,
+  };
+  if ($("pg-top-k") && state.meta && state.meta.writable) {
+    $("pg-top-k").value = String(state.draftConfig.top_k);
+  }
+}
+
+function captureDraftConfig() {
+  const instructions = $("pg-instructions");
+  const model = $("pg-chat-model");
+  const topK = $("pg-config-top-k");
+  if (instructions) state.draftConfig.instructions = instructions.value;
+  if (model) state.draftConfig.chat_model = model.value;
+  if (topK) {
+    const parsed = Number(topK.value);
+    if (Number.isInteger(parsed) && parsed >= 1 && parsed <= 20) {
+      state.draftConfig.top_k = parsed;
+    }
+  }
+}
+
+function retrieveFallback(payload) {
+  const chunks = (payload.trace && payload.trace.retrieved_chunks) || [];
+  if (chunks.length) {
+    return `Retrieved ${chunks.length} chunks. Open Sources to inspect them.`;
+  }
+  return "No chunks retrieved.";
+}
+
+function renderPlaygroundKnowledge() {
+  const knowledge = $("pg-knowledge");
+  if (!knowledge) return;
+  const writable = Boolean(state.meta && state.meta.writable);
+  const label = (state.meta && state.meta.corpus_label) || "Workspace";
+  const docs = state.documents || [];
+  const docItems = docs
+    .map(
+      (item) => `<li>
+        <span>${escapeHtml(item.name)} · ${item.size} B</span>
+        ${
+          writable
+            ? `<button type="button" class="ghost danger" data-doc-del="${escapeHtml(item.name)}">Remove</button>`
+            : ""
+        }
+      </li>`
+    )
+    .join("");
+  const uploads = (state.uploads || [])
+    .map((item) => {
+      const kind = item.status === "failed" ? "error" : item.status === "ready" ? "ok" : "warn";
+      const detail = item.error || item.status;
+      return `<li class="${kind}">${escapeHtml(item.name)} — ${escapeHtml(detail)}</li>`;
+    })
+    .join("");
+  const modelOptions = CHAT_MODELS.map((model) => {
+    const selected = model === state.draftConfig.chat_model ? " selected" : "";
+    return `<option value="${escapeHtml(model)}"${selected}>${escapeHtml(model)}</option>`;
+  }).join("");
+  knowledge.innerHTML = `<div class="pg-knowledge-head">
+      <div class="pane-label">${escapeHtml(label)}</div>
+      ${
+        writable
+          ? `<button type="button" class="ghost danger" id="pg-delete-project">Delete</button>`
+          : ""
+      }
+    </div>
+    <p class="recover-note">${
+      writable
+        ? "This project owns its documents, instructions, and runs. Drop files to index them."
+        : "Built-in corpora are read-only. Create a project to upload your own files."
+    }</p>
+    <form class="project-form" id="pg-project-form">
+      <input id="pg-project-name" maxlength="80" placeholder="New project name" />
+      <button type="submit" class="ghost">Create</button>
+    </form>
+    ${
+      writable
+        ? `<div class="dropzone" id="pg-drop" role="button" tabindex="0">
+            Drop .txt or .pdf here, or click to choose
+            <input id="pg-file" type="file" accept=".txt,.pdf,text/plain,application/pdf" multiple />
+          </div>`
+        : ""
+    }
+    ${uploads ? `<ul class="upload-status">${uploads}</ul>` : ""}
+    ${
+      docs.length
+        ? `<ul class="doc-list">${docItems}</ul>`
+        : `<div class="empty"><strong>No documents yet</strong>${
+            writable ? "Upload a notice or guide to give the agent something to retrieve." : "Switch to a project, or create one."
+          }</div>`
+    }
+    ${
+      writable
+        ? `<form class="pg-config" id="pg-config-form">
+            <div class="pane-label">Instructions</div>
+            <textarea id="pg-instructions" maxlength="8000" placeholder="How this agent should answer, on top of grounding.">${escapeHtml(
+              state.draftConfig.instructions || ""
+            )}</textarea>
+            <button type="submit" class="ghost">Save configuration</button>
+            <details>
+              <summary>Advanced</summary>
+              <label class="mode">
+                Model
+                <select id="pg-chat-model">${modelOptions}</select>
+              </label>
+              <label class="mode">
+                Default top_k
+                <input id="pg-config-top-k" type="number" min="1" max="20" step="1" value="${escapeHtml(
+                  String(state.draftConfig.top_k || 4)
+                )}" />
+              </label>
+            </details>
+          </form>`
+        : ""
+    }`;
+}
+
+function renderPlaygroundChat() {
+  const transcript = $("pg-transcript");
+  if (!transcript) return;
+  if (!state.messages.length && !state.loading) {
+    transcript.innerHTML = `<div class="empty"><strong>Ask the agent</strong>Questions run through the same evaluate → diagnose → recover loop as Evaluation.</div>`;
+    return;
+  }
+  const rows = state.messages.map((item) => {
+    if (item.role === "user") {
+      return `<div class="pg-msg user"><div class="who">You</div>${escapeHtml(item.text)}</div>`;
+    }
+    const parsed = formatAnswerHtml(item.text || "(empty)");
+    return `<div class="pg-msg"><div class="who">${item.error ? "Error" : "Agent"}</div><div class="block">${parsed.html}</div></div>`;
+  });
+  if (state.loading) {
+    rows.push(`<div class="pg-msg"><div class="who">Agent</div>Retrieving and evaluating…</div>`);
+  }
+  transcript.innerHTML = rows.join("");
+  transcript.scrollTop = transcript.scrollHeight;
+}
+
+function renderPlaygroundInspect() {
+  const inspect = $("pg-inspect");
+  if (!inspect) return;
+  const recover = recoverMarkup();
+  const chunks = ((state.trace && state.trace.retrieved_chunks) || []).slice(0, 8);
+  const config = (state.trace && state.trace.agent_config) || {};
+  if (!chunks.length && !recover) {
+    inspect.innerHTML = `<div class="empty"><strong>Sources</strong>Retrieved chunks and recovery details appear after a run.</div>`;
+    return;
+  }
+  inspect.innerHTML =
+    (recover ? `<div class="recover-bar" style="margin:0 0 12px">${recover}</div>` : "") +
+    kv([
+      ["run", state.selectedId],
+      ["recovery", state.trace && state.trace.recovery && state.trace.recovery.action],
+      ["trigger", state.trace && state.trace.recovery && state.trace.recovery.trigger],
+      ["model", config.chat_model],
+      ["instructions", config.instructions],
+    ]) +
+    (chunks.length ? renderChunks(chunks) : "");
+}
+
+function resetPlaygroundChat() {
+  state.messages = [];
+  clearSelection();
+  render();
+}
+
+function rerunLastPlayground() {
+  const last = [...state.messages].reverse().find((item) => item.role === "user");
+  if (!last) {
+    showError("Nothing to rerun.");
+    return;
+  }
+  $("pg-question").value = last.text;
+  runQuestion(true).catch((error) => showError(error.message));
 }
 
 function retrieveHasChunk(step, chunkId) {
@@ -745,9 +1107,124 @@ function bind() {
     if (!cite) return;
     selectCitation(cite.dataset.chunkId, cite.dataset.citePass || null);
   });
+  window.addEventListener("hashchange", () => {
+    applyView();
+    renderPlaygroundChat();
+    renderPlaygroundInspect();
+    renderPlaygroundKnowledge();
+  });
+  $("pg-reset").addEventListener("click", () => resetPlaygroundChat());
+  $("pg-rerun").addEventListener("click", () => rerunLastPlayground());
+  $("pg-composer").addEventListener("submit", (event) => {
+    event.preventDefault();
+    runQuestion(true).catch((error) => showError(error.message));
+  });
+  $("pg-question").addEventListener("keydown", (event) => {
+    if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+      event.preventDefault();
+      runQuestion(true).catch((error) => showError(error.message));
+    }
+  });
+  $("pg-collapse").addEventListener("click", () => {
+    state.inspectCollapsed = !state.inspectCollapsed;
+    $("pg-collapse").textContent = state.inspectCollapsed ? "Show sources" : "Collapse";
+    applyView();
+  });
+  $("pg-knowledge").addEventListener("submit", (event) => {
+    const configForm = event.target.closest("#pg-config-form");
+    if (configForm) {
+      event.preventDefault();
+      captureDraftConfig();
+      savePlaygroundConfig().catch((error) => showError(error.message));
+      return;
+    }
+    const form = event.target.closest("#pg-project-form");
+    if (!form) return;
+    event.preventDefault();
+    const name = $("pg-project-name").value.trim();
+    if (!name) {
+      showError("Name the project first.");
+      return;
+    }
+    createPlaygroundProject(name).catch((error) => showError(error.message));
+  });
+  $("pg-knowledge").addEventListener("input", (event) => {
+    if (!["pg-instructions", "pg-chat-model", "pg-config-top-k"].includes(event.target.id)) return;
+    captureDraftConfig();
+  });
+  $("pg-knowledge").addEventListener("click", (event) => {
+    const delProject = event.target.closest("#pg-delete-project");
+    if (delProject) {
+      event.preventDefault();
+      deletePlaygroundProject().catch((error) => showError(error.message));
+      return;
+    }
+    const remove = event.target.closest("[data-doc-del]");
+    if (remove) {
+      event.preventDefault();
+      deleteDocument(remove.dataset.docDel).catch((error) => showError(error.message));
+      return;
+    }
+    const zone = event.target.closest("#pg-drop");
+    if (zone && event.target.id !== "pg-file") {
+      const input = $("pg-file");
+      if (input) input.click();
+    }
+  });
+  $("pg-knowledge").addEventListener("keydown", (event) => {
+    if (event.target.id !== "pg-drop") return;
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    const input = $("pg-file");
+    if (input) input.click();
+  });
+  $("pg-knowledge").addEventListener("change", (event) => {
+    if (event.target.id !== "pg-file") return;
+    uploadFiles(event.target.files).catch((error) => showError(error.message));
+    event.target.value = "";
+  });
+  $("pg-knowledge").addEventListener("dragover", (event) => {
+    const zone = event.target.closest("#pg-drop");
+    if (!zone) return;
+    event.preventDefault();
+    zone.classList.add("dragover");
+  });
+  $("pg-knowledge").addEventListener("dragleave", (event) => {
+    const zone = event.target.closest("#pg-drop");
+    if (!zone) return;
+    zone.classList.remove("dragover");
+  });
+  $("pg-knowledge").addEventListener("drop", (event) => {
+    const zone = event.target.closest("#pg-drop");
+    if (!zone) return;
+    event.preventDefault();
+    zone.classList.remove("dragover");
+    uploadFiles(event.dataTransfer.files).catch((error) => showError(error.message));
+  });
+  $("pg-transcript").addEventListener("click", (event) => {
+    const cite = event.target.closest("button.cite");
+    if (!cite) return;
+    selectCitation(cite.dataset.chunkId, cite.dataset.citePass || null);
+  });
+  $("pg-inspect").addEventListener("click", (event) => {
+    const openChild = event.target.closest("[data-open-child]");
+    if (openChild) {
+      selectRun(openChild.dataset.openChild).catch((error) => showError(error.message));
+      return;
+    }
+    const recover = event.target.closest("[data-recover]");
+    if (recover) {
+      applyRecovery(recover.dataset.recover).catch((error) => showError(error.message));
+      return;
+    }
+    const cite = event.target.closest("button.cite");
+    if (!cite) return;
+    selectCitation(cite.dataset.chunkId, cite.dataset.citePass || null);
+  });
 }
 
 async function boot() {
+  applyView();
   renderExamples();
   bind();
   render();
@@ -755,13 +1232,18 @@ async function boot() {
     await loadMeta();
     await loadCorpora();
     await loadTraces();
+    await loadDocuments().catch(() => {
+      state.documents = [];
+    });
     if (state.traces.length) {
       await selectRun(state.traces[0].run_id);
     } else {
       render();
     }
+    renderPlaygroundKnowledge();
   } catch (error) {
     showError(error.message || String(error));
+    renderPlaygroundKnowledge();
   }
 }
 
