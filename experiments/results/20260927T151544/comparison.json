@@ -1,0 +1,518 @@
+{
+  "name": "v3_dku_expand_vs_loop",
+  "timestamp": "2026-09-27T15:17:26.046965+00:00",
+  "gold_path": "/Users/siegfreidbugarin/Desktop/Signature Work/datasets/dku/gold/first-pass-fail.jsonl",
+  "corpus_dir": "/Users/siegfreidbugarin/Desktop/Signature Work/datasets/dku/corpus",
+  "top_k": 1,
+  "max_recoveries": 2,
+  "provider": {
+    "base_url": "https://api.openlux.ai/v1",
+    "official_openai": false,
+    "configured_chat_model": "gpt-4o-mini",
+    "configured_embedding_model": "text-embedding-3-small",
+    "api_key_present": true
+  },
+  "setup_usage": {
+    "chat_calls": 0,
+    "embedding_calls": 1,
+    "prompt_tokens": 0,
+    "completion_tokens": 0,
+    "embedding_tokens": 2766
+  },
+  "condition_ids": [
+    "baseline",
+    "eval_guided"
+  ],
+  "quality": {
+    "answerable_exact_match": {
+      "baseline": 0.0,
+      "eval_guided": 0.0,
+      "delta": 0.0
+    },
+    "answerable_contains_answer": {
+      "baseline": 0.5,
+      "eval_guided": 1.0,
+      "delta": 0.5
+    },
+    "answerable_f1": {
+      "baseline": 0.17094017094017094,
+      "eval_guided": 0.3334401709401709,
+      "delta": 0.16249999999999998
+    },
+    "unanswerable_abstention_rate": {
+      "baseline": 1.0,
+      "eval_guided": 1.0,
+      "delta": 0.0
+    },
+    "answerable_abstention_rate": {
+      "baseline": 0.5,
+      "eval_guided": 0.0,
+      "delta": -0.5
+    },
+    "retrieval_hit_rate": {
+      "baseline": 0.25,
+      "eval_guided": 0.75,
+      "delta": 0.5
+    },
+    "mean_latency_ms": {
+      "baseline": 6699.380508600734,
+      "eval_guided": 11599.69117520377,
+      "delta": 4900.310666603036
+    },
+    "total_chat_calls": {
+      "baseline": 5,
+      "eval_guided": 22,
+      "delta": 17
+    },
+    "total_embedding_calls": {
+      "baseline": 5,
+      "eval_guided": 3,
+      "delta": -2
+    },
+    "total_prompt_tokens": {
+      "baseline": 1056,
+      "eval_guided": 12595,
+      "delta": 11539
+    },
+    "total_completion_tokens": {
+      "baseline": 85,
+      "eval_guided": 867,
+      "delta": 782
+    },
+    "total_embedding_tokens": {
+      "baseline": 49,
+      "eval_guided": 37,
+      "delta": -12
+    }
+  },
+  "verification_vs_gold": {
+    "n_with_runtime_verification": 3,
+    "n_loop_questions": 5,
+    "by_runtime_outcome": {
+      "improved": {
+        "n": 2,
+        "gold_f1_up": 2,
+        "gold_f1_down": 0,
+        "gold_f1_same": 0,
+        "no_previous_score": 0
+      },
+      "still_failing": {
+        "n": 1,
+        "gold_f1_up": 0,
+        "gold_f1_down": 0,
+        "gold_f1_same": 1,
+        "no_previous_score": 0
+      }
+    },
+    "by_recovery_action": {
+      "expand": {
+        "n": 3,
+        "gold_f1_up": 2,
+        "gold_f1_down": 0,
+        "gold_f1_same": 1,
+        "no_previous_score": 0
+      }
+    },
+    "by_attributed_class": {}
+  },
+  "conditions": {
+    "baseline": {
+      "run_label": "baseline",
+      "timestamp": "2026-09-27T15:16:28.031181+00:00",
+      "gold_path": "/Users/siegfreidbugarin/Desktop/Signature Work/datasets/dku/gold/first-pass-fail.jsonl",
+      "corpus_dir": "/Users/siegfreidbugarin/Desktop/Signature Work/datasets/dku/corpus",
+      "output_dir": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20260927T151544/baseline",
+      "top_k": 1,
+      "provider": {
+        "base_url": "https://api.openlux.ai/v1",
+        "official_openai": false,
+        "configured_chat_model": "gpt-4o-mini",
+        "configured_embedding_model": "text-embedding-3-small",
+        "api_key_present": true
+      },
+      "total": 5,
+      "answerable_total": 4,
+      "unanswerable_total": 1,
+      "exact_match": 0.2,
+      "contains_answer": 0.6,
+      "f1": 0.3367521367521368,
+      "answerable_exact_match": 0.0,
+      "answerable_contains_answer": 0.5,
+      "answerable_f1": 0.17094017094017094,
+      "unanswerable_abstention_rate": 1.0,
+      "answerable_abstention_rate": 0.5,
+      "retrieval_hit_rate": 0.25,
+      "condition": "baseline",
+      "mean_latency_ms": 6699.380508600734,
+      "total_chat_calls": 5,
+      "total_embedding_calls": 5,
+      "total_prompt_tokens": 1056,
+      "total_completion_tokens": 85,
+      "total_embedding_tokens": 49
+    },
+    "eval_guided": {
+      "run_label": "eval_guided",
+      "timestamp": "2026-09-27T15:17:26.045963+00:00",
+      "gold_path": "/Users/siegfreidbugarin/Desktop/Signature Work/datasets/dku/gold/first-pass-fail.jsonl",
+      "corpus_dir": "/Users/siegfreidbugarin/Desktop/Signature Work/datasets/dku/corpus",
+      "output_dir": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20260927T151544/eval_guided",
+      "top_k": 1,
+      "provider": {
+        "base_url": "https://api.openlux.ai/v1",
+        "official_openai": false,
+        "configured_chat_model": "gpt-4o-mini",
+        "configured_embedding_model": "text-embedding-3-small",
+        "api_key_present": true
+      },
+      "total": 5,
+      "answerable_total": 4,
+      "unanswerable_total": 1,
+      "exact_match": 0.2,
+      "contains_answer": 1.0,
+      "f1": 0.4667521367521368,
+      "answerable_exact_match": 0.0,
+      "answerable_contains_answer": 1.0,
+      "answerable_f1": 0.3334401709401709,
+      "unanswerable_abstention_rate": 1.0,
+      "answerable_abstention_rate": 0.0,
+      "retrieval_hit_rate": 0.75,
+      "condition": "loop",
+      "mean_latency_ms": 11599.69117520377,
+      "total_chat_calls": 22,
+      "total_embedding_calls": 3,
+      "total_prompt_tokens": 12595,
+      "total_completion_tokens": 867,
+      "total_embedding_tokens": 37
+    }
+  },
+  "paired_outcomes": [
+    {
+      "question_id": "dku-053",
+      "question": "What is the street address of the DKU Library?",
+      "answerable": true,
+      "baseline": {
+        "answer": "I do not know based on the retrieved documents.",
+        "exact_match": false,
+        "contains_answer": false,
+        "f1": 0.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "dku-library-handbook-2021"
+        ],
+        "latency_ms": 4386.905125022167,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 211,
+          "completion_tokens": 10,
+          "embedding_tokens": 11
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20260927T151558_64e47462",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20260927T151544/baseline/traces/20260927T151558_64e47462.json"
+      },
+      "eval_guided": {
+        "answer": "The street address of the DKU Library is No. 8 Duke Avenue, Kunshan, Jiangsu Province, China 215316 [dku-library-hours::c001].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.4,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "dku-library-handbook-2021",
+          "dku-library-hours",
+          "dku-library-handbook-2021",
+          "dku-library-guide-202501",
+          "duke-university-durham",
+          "dku-library-handbook-2021",
+          "wuhan-university",
+          "dku-library-hours"
+        ],
+        "latency_ms": 20478.74912500265,
+        "usage": {
+          "chat_calls": 6,
+          "embedding_calls": 1,
+          "prompt_tokens": 3713,
+          "completion_tokens": 253,
+          "embedding_tokens": 12
+        },
+        "recovery_action": "expand",
+        "attributed_class": null,
+        "verification_outcome": "improved",
+        "previous_answer": "I do not know based on the retrieved documents.",
+        "previous_f1": 0.0,
+        "f1_delta": 0.4,
+        "rewritten_query": "What is the current street address of the DKU Library?",
+        "run_id": "20260927T151648_1086b552",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20260927T151544/eval_guided/traces/20260927T151648_1086b552.json"
+      }
+    },
+    {
+      "question_id": "dku-054",
+      "question": "What email is listed for the DKU Library?",
+      "answerable": true,
+      "baseline": {
+        "answer": "The email listed for the DKU Library is dkulibrary@dukekunshan.edu.cn [dku-library-handbook-2021::c001].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.2222222222222222,
+        "abstained": false,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "dku-library-handbook-2021"
+        ],
+        "latency_ms": 5139.241666998714,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 210,
+          "completion_tokens": 32,
+          "embedding_tokens": 10
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20260927T151604_29c63af9",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20260927T151544/baseline/traces/20260927T151604_29c63af9.json"
+      },
+      "eval_guided": {
+        "answer": "The email listed for the DKU Library is dkulibrary@dukekunshan.edu.cn [dku-library-handbook-2021::c001].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.2222222222222222,
+        "abstained": false,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "dku-library-handbook-2021"
+        ],
+        "latency_ms": 4114.113999996334,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 713,
+          "completion_tokens": 90,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20260927T151652_13525b42",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20260927T151544/eval_guided/traces/20260927T151652_13525b42.json"
+      }
+    },
+    {
+      "question_id": "dku-055",
+      "question": "How large is the DKU campus in acres?",
+      "answerable": true,
+      "baseline": {
+        "answer": "I do not know based on the retrieved documents.",
+        "exact_match": false,
+        "contains_answer": false,
+        "f1": 0.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "duke-university-durham"
+        ],
+        "latency_ms": 7902.446416992461,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 205,
+          "completion_tokens": 10,
+          "embedding_tokens": 10
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20260927T151611_d652be4a",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20260927T151544/baseline/traces/20260927T151611_d652be4a.json"
+      },
+      "eval_guided": {
+        "answer": "The DKU campus covers 200 acres in Kunshan's Yangcheng Lake Science and Technology Park [dku-about::c001].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.25,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "duke-university-durham",
+          "dku-library-handbook-2021",
+          "duke-university-durham",
+          "conference-center",
+          "dku-library-guide-202501",
+          "dayu-bay",
+          "dku-about",
+          "dku-library-handbook-2021"
+        ],
+        "latency_ms": 14002.385959000094,
+        "usage": {
+          "chat_calls": 6,
+          "embedding_calls": 1,
+          "prompt_tokens": 3796,
+          "completion_tokens": 221,
+          "embedding_tokens": 12
+        },
+        "recovery_action": "expand",
+        "attributed_class": null,
+        "verification_outcome": "improved",
+        "previous_answer": "I do not know based on the retrieved documents.",
+        "previous_f1": 0.0,
+        "f1_delta": 0.25,
+        "rewritten_query": "What is the size of the DKU campus in acres?",
+        "run_id": "20260927T151706_90b331c5",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20260927T151544/eval_guided/traces/20260927T151706_90b331c5.json"
+      }
+    },
+    {
+      "question_id": "dku-056",
+      "question": "What phone number is listed for CSCC?",
+      "answerable": true,
+      "baseline": {
+        "answer": "The phone number listed for CSCC is +86 512 36657053 [cscc::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.4615384615384615,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "cscc"
+        ],
+        "latency_ms": 8825.743166991742,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 227,
+          "completion_tokens": 23,
+          "embedding_tokens": 9
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20260927T151620_8e12c8e4",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20260927T151544/baseline/traces/20260927T151620_8e12c8e4.json"
+      },
+      "eval_guided": {
+        "answer": "The phone number listed for CSCC is +86 512 36657053 [cscc::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.4615384615384615,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "cscc"
+        ],
+        "latency_ms": 5133.199750009226,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 738,
+          "completion_tokens": 81,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20260927T151711_0f7e7d58",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20260927T151544/eval_guided/traces/20260927T151711_0f7e7d58.json"
+      }
+    },
+    {
+      "question_id": "dku-057",
+      "question": "How much is a Conference Center guest room?",
+      "answerable": false,
+      "baseline": {
+        "answer": "I do not know based on the retrieved documents.",
+        "exact_match": true,
+        "contains_answer": true,
+        "f1": 1.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "conference-center"
+        ],
+        "latency_ms": 7242.566166998586,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 203,
+          "completion_tokens": 10,
+          "embedding_tokens": 9
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20260927T151628_e9a6ea95",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20260927T151544/baseline/traces/20260927T151628_e9a6ea95.json"
+      },
+      "eval_guided": {
+        "answer": "I do not know based on the retrieved documents.",
+        "exact_match": true,
+        "contains_answer": true,
+        "f1": 1.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "conference-center-dining",
+          "conference-center",
+          "conference-center",
+          "dku-library-guide-202501",
+          "academic-building-dining",
+          "getting-to-dku",
+          "academic-building-dining",
+          "registrar-spring-2027"
+        ],
+        "latency_ms": 14270.007042010548,
+        "usage": {
+          "chat_calls": 6,
+          "embedding_calls": 1,
+          "prompt_tokens": 3635,
+          "completion_tokens": 222,
+          "embedding_tokens": 13
+        },
+        "recovery_action": "expand",
+        "attributed_class": null,
+        "verification_outcome": "still_failing",
+        "previous_answer": "I do not know based on the retrieved documents.",
+        "previous_f1": 1.0,
+        "f1_delta": 0.0,
+        "rewritten_query": "What is the price of a guest room at the Conference Center?",
+        "run_id": "20260927T151726_8d680b1b",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20260927T151544/eval_guided/traces/20260927T151726_8d680b1b.json"
+      }
+    }
+  ],
+  "output_dir": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20260927T151544",
+  "results_dir": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/results/20260927T151544"
+}
