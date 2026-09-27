@@ -1394,23 +1394,39 @@ function nodeStatus(id) {
   return "idle";
 }
 
+function gridSpec() {
+  const canvas = $("pg-canvas");
+  const avail = Math.max(NODE_W, (canvas ? canvas.clientWidth : 640) - 48);
+  const gapX = 36;
+  const cols = Math.max(1, Math.floor((avail + gapX) / (NODE_W + gapX)));
+  return { cols, gapX, gapY: 36 };
+}
+
+function cellFor(index, grid) {
+  const col = index % grid.cols;
+  const row = Math.floor(index / grid.cols);
+  return {
+    x: 16 + col * (NODE_W + grid.gapX),
+    y: 24 + row * (NODE_H + grid.gapY),
+  };
+}
+
 function ensurePositions(ids) {
   const missing = ids.filter((id) => !canvasState.positions[id]);
   if (!missing.length) return;
+  const canvas = $("pg-canvas");
+  if (missing.length === ids.length && canvas && canvas.clientWidth < 40) return;
+  const grid = gridSpec();
   if (missing.length === ids.length) {
     ids.forEach((id, index) => {
-      canvasState.positions[id] = { x: 16 + index * 232, y: 40 };
+      canvasState.positions[id] = cellFor(index, grid);
     });
     return;
   }
-  let x = 16;
-  ids.forEach((id) => {
-    const pos = canvasState.positions[id];
-    if (pos) x = Math.max(x, pos.x + 232);
-  });
+  let next = ids.length - missing.length;
   missing.forEach((id) => {
-    canvasState.positions[id] = { x, y: 40 };
-    x += 232;
+    canvasState.positions[id] = cellFor(next, grid);
+    next += 1;
   });
 }
 
@@ -1730,11 +1746,25 @@ function frameCanvas() {
   if (!canvas) return;
   const stages = stagesForMode(currentPlaygroundMode());
   ensurePositions(stages);
-  const first = canvasState.positions[stages[0]];
-  if (!first) return;
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  stages.forEach((id) => {
+    const pos = canvasState.positions[id];
+    if (!pos) return;
+    minX = Math.min(minX, pos.x);
+    minY = Math.min(minY, pos.y);
+    maxX = Math.max(maxX, pos.x + NODE_W);
+    maxY = Math.max(maxY, pos.y + NODE_H);
+  });
+  if (!Number.isFinite(minX)) return;
+  const boundsW = maxX - minX;
+  const boundsH = maxY - minY;
   canvasState.zoom = 1;
-  canvasState.pan.x = 28 - first.x;
-  canvasState.pan.y = Math.max(24, (canvas.clientHeight - NODE_H) / 2 - first.y);
+  canvasState.pan.x = Math.max(16, (canvas.clientWidth - boundsW) / 2 - minX);
+  const extraY = canvas.clientHeight - boundsH;
+  canvasState.pan.y = extraY > 48 ? extraY / 2 - minY : 24 - minY;
   applyWorldTransform();
 }
 
