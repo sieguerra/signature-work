@@ -236,6 +236,12 @@ def test_index_page_and_assets_are_served(tmp_path: Path) -> None:
         assert "delete-all-runs" in page.text
         assert "Playground" in page.text
         assert 'id="view-playground"' in page.text
+        assert 'id="nav-knowledge"' in page.text
+        assert 'id="view-knowledge"' in page.text
+        assert 'id="nav-agent"' in page.text
+        assert 'id="view-agent"' in page.text
+        assert 'id="nav-api"' in page.text
+        assert 'id="view-api"' in page.text
         css = client.get("/static/styles.css")
         assert css.status_code == 200
         assert "--bg:" in css.text

@@ -13,7 +13,8 @@ const state = {
   view: "playground",
   documents: [],
   messages: [],
-  inspectCollapsed: false,
+  inspectCollapsed: true,
+  navCollapsed: false,
   uploads: [],
   draftConfig: { instructions: "", chat_model: "gpt-4o-mini", top_k: 4 },
   keys: [],
@@ -57,18 +58,31 @@ function showError(message) {
   });
 }
 
+const VIEWS = ["playground", "knowledge", "agent", "evaluation", "api"];
+
 function currentView() {
-  return location.hash.replace("#", "") === "evaluation" ? "evaluation" : "playground";
+  const hash = location.hash.replace("#", "");
+  return VIEWS.includes(hash) ? hash : "playground";
 }
 
 function applyView() {
   state.view = currentView();
-  document.getElementById("app").dataset.view = state.view;
-  $("nav-playground").classList.toggle("active", state.view === "playground");
-  $("nav-evaluation").classList.toggle("active", state.view === "evaluation");
-  $("brand-sub").textContent =
-    state.view === "evaluation" ? "Trace explorer" : "Agentic RAG playground";
-  document.getElementById("app").classList.toggle("inspect-collapsed", state.inspectCollapsed);
+  const app = document.getElementById("app");
+  app.dataset.view = state.view;
+  app.classList.toggle("inspect-collapsed", state.inspectCollapsed);
+  app.classList.toggle("nav-collapsed", state.navCollapsed);
+  document.querySelectorAll(".view-link").forEach((link) => {
+    const view = (link.getAttribute("href") || "").replace("#", "");
+    link.classList.toggle("active", view === state.view);
+  });
+  const collapse = $("pg-collapse");
+  if (collapse) collapse.textContent = state.inspectCollapsed ? "Sources" : "Hide sources";
+  const navCollapse = $("nav-collapse");
+  if (navCollapse) {
+    const label = state.navCollapsed ? "Expand sidebar" : "Collapse sidebar";
+    navCollapse.setAttribute("aria-label", label);
+    navCollapse.title = label;
+  }
 }
 
 async function api(path, options) {
@@ -97,6 +111,8 @@ async function loadMeta() {
       /^ · /,
       ""
     );
+  const sub = $("brand-sub");
+  if (sub) sub.textContent = state.meta.corpus_label || "Workspace";
   if (!state.meta.api_key_present) {
     $("mode").value = "retrieve_only";
     if ($("pg-mode")) $("pg-mode").value = "retrieve_only";
@@ -748,6 +764,9 @@ async function runQuestion(fromPlayground) {
         runId: payload.run_id,
       });
       questionEl.value = "";
+      const chunks = (payload.trace && payload.trace.retrieved_chunks) || [];
+      if (chunks.length) state.inspectCollapsed = false;
+      applyView();
     }
     await loadTraces();
     render();
@@ -951,10 +970,15 @@ function retrieveFallback(payload) {
 }
 
 function renderPlaygroundKnowledge() {
+  renderKnowledge();
+  renderAgent();
+  renderApiPanel();
+}
+
+function renderKnowledge() {
   const knowledge = $("pg-knowledge");
   if (!knowledge) return;
   const writable = Boolean(state.meta && state.meta.writable);
-  const label = (state.meta && state.meta.corpus_label) || "Workspace";
   const docs = state.documents || [];
   const docItems = docs
     .map(
@@ -975,23 +999,11 @@ function renderPlaygroundKnowledge() {
       return `<li class="${kind}">${escapeHtml(item.name)} — ${escapeHtml(detail)}</li>`;
     })
     .join("");
-  const modelOptions = CHAT_MODELS.map((model) => {
-    const selected = model === state.draftConfig.chat_model ? " selected" : "";
-    return `<option value="${escapeHtml(model)}"${selected}>${escapeHtml(model)}</option>`;
-  }).join("");
-  knowledge.innerHTML = `<div class="pg-knowledge-head">
-      <div class="pane-label">${escapeHtml(label)}</div>
-      ${
-        writable
-          ? `<button type="button" class="ghost danger" id="pg-delete-project">Delete</button>`
-          : ""
-      }
-    </div>
-    <p class="recover-note">${
+  knowledge.innerHTML = `${
       writable
-        ? "This project owns its documents, instructions, and runs. Drop files to index them."
-        : "Built-in corpora are read-only. Create a project to upload your own files."
-    }</p>
+        ? ""
+        : `<p class="recover-note">Built-in corpora are read-only. Create a project to upload your own files.</p>`
+    }
     <form class="project-form" id="pg-project-form">
       <input id="pg-project-name" maxlength="80" placeholder="New project name" />
       <button type="submit" class="ghost">Create</button>
@@ -1014,29 +1026,54 @@ function renderPlaygroundKnowledge() {
     }
     ${
       writable
-        ? `<form class="pg-config" id="pg-config-form">
-            <div class="pane-label">Instructions</div>
-            <textarea id="pg-instructions" maxlength="8000" placeholder="How this agent should answer, on top of grounding.">${escapeHtml(
-              state.draftConfig.instructions || ""
-            )}</textarea>
-            <button type="submit" class="ghost">Save configuration</button>
-            <details>
-              <summary>Advanced</summary>
-              <label class="mode">
-                Model
-                <select id="pg-chat-model">${modelOptions}</select>
-              </label>
-              <label class="mode">
-                Default top_k
-                <input id="pg-config-top-k" type="number" min="1" max="20" step="1" value="${escapeHtml(
-                  String(state.draftConfig.top_k || 4)
-                )}" />
-              </label>
-            </details>
-          </form>
-          ${renderProjectKeys()}`
+        ? `<div class="pg-knowledge-head"><button type="button" class="ghost danger" id="pg-delete-project">Delete project</button></div>`
         : ""
     }`;
+}
+
+function renderAgent() {
+  const root = $("pg-agent");
+  if (!root) return;
+  const writable = Boolean(state.meta && state.meta.writable);
+  if (!writable) {
+    root.innerHTML = `<div class="empty"><strong>Projects only</strong>Create a project in Knowledge to set instructions and a model.</div>`;
+    return;
+  }
+  const modelOptions = CHAT_MODELS.map((model) => {
+    const selected = model === state.draftConfig.chat_model ? " selected" : "";
+    return `<option value="${escapeHtml(model)}"${selected}>${escapeHtml(model)}</option>`;
+  }).join("");
+  root.innerHTML = `<form class="pg-config" id="pg-config-form">
+      <label class="sr-only" for="pg-instructions">Instructions</label>
+      <textarea id="pg-instructions" maxlength="8000" placeholder="How this agent should answer, on top of grounding.">${escapeHtml(
+        state.draftConfig.instructions || ""
+      )}</textarea>
+      <button type="submit" class="primary">Save</button>
+      <details>
+        <summary>Advanced</summary>
+        <label class="mode">
+          Model
+          <select id="pg-chat-model">${modelOptions}</select>
+        </label>
+        <label class="mode">
+          Default top_k
+          <input id="pg-config-top-k" type="number" min="1" max="20" step="1" value="${escapeHtml(
+            String(state.draftConfig.top_k || 4)
+          )}" />
+        </label>
+      </details>
+    </form>`;
+}
+
+function renderApiPanel() {
+  const root = $("pg-api");
+  if (!root) return;
+  const writable = Boolean(state.meta && state.meta.writable);
+  if (!writable) {
+    root.innerHTML = `<div class="empty"><strong>Projects only</strong>Create a project in Knowledge to issue an API key.</div>`;
+    return;
+  }
+  root.innerHTML = renderProjectKeys();
 }
 
 function renderProjectKeys() {
@@ -1064,9 +1101,8 @@ function renderProjectKeys() {
   -d '{"query":"When is the library open?","answer":"Saturday 10:00-16:00.","contexts":[{"text":"Saturday 10:00-16:00."}]}'</pre>`
     : "";
   return `<div class="pg-keys">
-      <div class="pane-label">API keys</div>
       <p class="recover-note">Keys authenticate POST /api/v1/evaluations for this project. Rewrite and expand are proposed, not applied, on external runs.</p>
-      <button type="button" class="ghost" id="pg-create-key">Create key</button>
+      <button type="button" class="primary" id="pg-create-key">Create key</button>
       ${revealed}
       ${rows ? `<ul class="doc-list">${rows}</ul>` : `<div class="empty">No keys yet.</div>`}
     </div>`;
@@ -1076,7 +1112,7 @@ function renderPlaygroundChat() {
   const transcript = $("pg-transcript");
   if (!transcript) return;
   if (!state.messages.length && !state.loading) {
-    transcript.innerHTML = `<div class="empty"><strong>Ask the agent</strong>Questions run through the same evaluate → diagnose → recover loop as Evaluation.</div>`;
+    transcript.innerHTML = `<div class="empty"><strong>Ask the agent</strong>Answers and sources show up after you send a question.</div>`;
     return;
   }
   const rows = state.messages.map((item) => {
@@ -1236,10 +1272,13 @@ function bind() {
   });
   $("pg-collapse").addEventListener("click", () => {
     state.inspectCollapsed = !state.inspectCollapsed;
-    $("pg-collapse").textContent = state.inspectCollapsed ? "Show sources" : "Collapse";
     applyView();
   });
-  $("pg-knowledge").addEventListener("submit", (event) => {
+  $("nav-collapse").addEventListener("click", () => {
+    state.navCollapsed = !state.navCollapsed;
+    applyView();
+  });
+  document.getElementById("app").addEventListener("submit", (event) => {
     const configForm = event.target.closest("#pg-config-form");
     if (configForm) {
       event.preventDefault();
@@ -1257,11 +1296,11 @@ function bind() {
     }
     createPlaygroundProject(name).catch((error) => showError(error.message));
   });
-  $("pg-knowledge").addEventListener("input", (event) => {
+  document.getElementById("app").addEventListener("input", (event) => {
     if (!["pg-instructions", "pg-chat-model", "pg-config-top-k"].includes(event.target.id)) return;
     captureDraftConfig();
   });
-  $("pg-knowledge").addEventListener("click", (event) => {
+  document.getElementById("app").addEventListener("click", (event) => {
     const delProject = event.target.closest("#pg-delete-project");
     if (delProject) {
       event.preventDefault();
@@ -1298,30 +1337,30 @@ function bind() {
       if (input) input.click();
     }
   });
-  $("pg-knowledge").addEventListener("keydown", (event) => {
+  document.getElementById("app").addEventListener("keydown", (event) => {
     if (event.target.id !== "pg-drop") return;
     if (event.key !== "Enter" && event.key !== " ") return;
     event.preventDefault();
     const input = $("pg-file");
     if (input) input.click();
   });
-  $("pg-knowledge").addEventListener("change", (event) => {
+  document.getElementById("app").addEventListener("change", (event) => {
     if (event.target.id !== "pg-file") return;
     uploadFiles(event.target.files).catch((error) => showError(error.message));
     event.target.value = "";
   });
-  $("pg-knowledge").addEventListener("dragover", (event) => {
+  document.getElementById("app").addEventListener("dragover", (event) => {
     const zone = event.target.closest("#pg-drop");
     if (!zone) return;
     event.preventDefault();
     zone.classList.add("dragover");
   });
-  $("pg-knowledge").addEventListener("dragleave", (event) => {
+  document.getElementById("app").addEventListener("dragleave", (event) => {
     const zone = event.target.closest("#pg-drop");
     if (!zone) return;
     zone.classList.remove("dragover");
   });
-  $("pg-knowledge").addEventListener("drop", (event) => {
+  document.getElementById("app").addEventListener("drop", (event) => {
     const zone = event.target.closest("#pg-drop");
     if (!zone) return;
     event.preventDefault();
