@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="/static/styles.css" />
   </head>
   <body>
-    <div id="app" class="inspect-collapsed" data-view="playground">
+    <div id="app" data-view="playground">
       <aside class="app-nav" id="app-nav">
         <div class="brand">
           <span class="brand-mark" aria-hidden="true"></span>
@@ -68,50 +68,65 @@
 
       <div class="app-main">
         <div id="view-playground" class="view">
-          <header class="page-head">
-            <div>
-              <h1>Playground</h1>
-              <p>Ask this workspace a question.</p>
-            </div>
-            <button type="button" class="ghost" id="pg-collapse">Sources</button>
-          </header>
-          <section class="pg-chat">
-            <div class="pg-transcript" id="pg-transcript"></div>
-            <form class="pg-composer" id="pg-composer">
-              <label class="sr-only" for="pg-question">Playground question</label>
-              <textarea
-                id="pg-question"
-                rows="2"
-                placeholder="Ask this agent a question…"
-              ></textarea>
-              <div class="pg-composer-row">
-                <div class="pg-composer-tools">
-                  <button type="button" class="ghost" id="pg-reset">Reset</button>
-                  <button type="button" class="ghost" id="pg-rerun">Rerun</button>
-                </div>
-                <label class="mode">
-                  <span class="sr-only">Mode</span>
-                  <select id="pg-mode" aria-label="Mode">
-                    <option value="loop" selected>Loop (auto recover)</option>
-                    <option value="loop_confirm">Loop (confirm recovery)</option>
-                    <option value="baseline">Baseline RAG</option>
-                    <option value="retrieve_only">Retrieve only</option>
-                  </select>
-                </label>
-                <button type="submit" class="primary" id="pg-send">Send</button>
+          <aside class="pg-library">
+            <div id="pg-palette"></div>
+          </aside>
+          <section class="pg-stage">
+            <div class="pg-canvas-bar">
+              <div class="pg-canvas-status" id="pg-canvas-status">Idle</div>
+              <div class="pg-canvas-tools">
+                <button type="button" class="ghost" id="pg-zoom-out" aria-label="Zoom out">−</button>
+                <button type="button" class="ghost" id="pg-zoom-in" aria-label="Zoom in">+</button>
+                <button type="button" class="ghost" id="pg-fit">Fit</button>
+                <button type="button" class="primary" id="pg-run">Run</button>
               </div>
-              <details class="run-settings">
-                <summary>Run settings</summary>
-                <label class="mode">
-                  top_k
-                  <input id="pg-top-k" type="number" min="1" max="20" value="4" step="1" aria-label="Playground top_k" />
-                </label>
-              </details>
-              <div class="banner hidden" id="pg-error" role="alert"></div>
-            </form>
+            </div>
+            <div class="pg-canvas" id="pg-canvas" tabindex="0" aria-label="Workflow canvas">
+              <div class="pg-world" id="pg-world">
+                <svg class="pg-edges" id="pg-edges"></svg>
+                <div id="pg-nodes"></div>
+              </div>
+            </div>
+            <div class="pg-dock">
+              <form class="pg-composer" id="pg-composer">
+                <label class="sr-only" for="pg-question">Playground question</label>
+                <textarea
+                  id="pg-question"
+                  rows="2"
+                  placeholder="Ask this agent a question…"
+                ></textarea>
+                <div class="pg-composer-row">
+                  <div class="pg-composer-tools">
+                    <button type="button" class="ghost" id="pg-reset">Reset</button>
+                    <button type="button" class="ghost" id="pg-rerun">Rerun</button>
+                  </div>
+                  <label class="mode">
+                    Mode
+                    <select id="pg-mode">
+                      <option value="loop" selected>Loop (auto recover)</option>
+                      <option value="loop_confirm">Loop (confirm recovery)</option>
+                      <option value="baseline">Baseline RAG</option>
+                      <option value="retrieve_only">Retrieve only</option>
+                    </select>
+                  </label>
+                  <label class="mode">
+                    top_k
+                    <input id="pg-top-k" type="number" min="1" max="20" value="4" step="1" aria-label="Playground top_k" />
+                  </label>
+                  <button type="submit" class="primary" id="pg-send">Send</button>
+                </div>
+                <div class="banner hidden" id="pg-error" role="alert"></div>
+              </form>
+              <div class="pg-transcript" id="pg-transcript"></div>
+            </div>
           </section>
           <aside class="pg-inspect" id="pg-inspect-pane">
-            <div class="pane-label">Sources</div>
+            <div class="pane-label">
+              <span id="pg-inspector-title">Input</span>
+              <button type="button" class="ghost" id="pg-collapse">Collapse</button>
+            </div>
+            <div id="pg-node-config"></div>
+            <div class="pane-label pg-sources-label">Sources</div>
             <div class="inspector" id="pg-inspect"></div>
           </aside>
         </div>
@@ -238,6 +253,6 @@
         </div>
       </div>
     </div>
-    <script src="/static/app.js"></script>
+    <script src="/static/app.js?v=3"></script>
   </body>
 </html>

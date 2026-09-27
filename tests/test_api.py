@@ -236,6 +236,9 @@ def test_index_page_and_assets_are_served(tmp_path: Path) -> None:
         assert "delete-all-runs" in page.text
         assert "Playground" in page.text
         assert 'id="view-playground"' in page.text
+        assert 'id="pg-canvas"' in page.text
+        assert 'id="pg-palette"' in page.text
+        assert 'id="pg-run"' in page.text
         assert 'id="nav-knowledge"' in page.text
         assert 'id="view-knowledge"' in page.text
         assert 'id="nav-agent"' in page.text
