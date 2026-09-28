@@ -185,6 +185,7 @@ def build_comparison(
         summaries[loop_id].outcomes if loop_id is not None else ()
     )
 
+    loop_outcomes = summaries[loop_id].outcomes if loop_id is not None else ()
     return {
         "name": config.get("name"),
         "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -203,6 +204,7 @@ def build_comparison(
         "condition_ids": condition_ids,
         "quality": quality,
         "verification_vs_gold": verification,
+        "by_failure_class": _by_failure_class(loop_outcomes),
         "conditions": {
             condition_id: _summary_without_outcomes(summaries[condition_id])
             for condition_id in condition_ids
@@ -265,7 +267,15 @@ def _verification_table(outcomes: tuple[QuestionOutcome, ...]) -> dict[str, Any]
     distinct rather than collapsed.
     """
     recovered = [item for item in outcomes if item.verification_outcome is not None]
-    empty = {"n": 0, "gold_f1_up": 0, "gold_f1_down": 0, "gold_f1_same": 0, "no_previous_score": 0}
+    empty = {
+        "n": 0,
+        "gold_f1_up": 0,
+        "gold_f1_down": 0,
+        "gold_f1_same": 0,
+        "no_previous_score": 0,
+        "verdict_agrees": 0,
+        "verdict_disagrees": 0,
+    }
     by_outcome: dict[str, dict[str, int]] = {}
     by_class: dict[str, dict[str, int]] = {}
     by_action: dict[str, dict[str, int]] = {}
@@ -275,12 +285,17 @@ def _verification_table(outcomes: tuple[QuestionOutcome, ...]) -> dict[str, Any]
         row["n"] += 1
         if item.f1_delta is None:
             row["no_previous_score"] += 1
-        elif item.f1_delta > 0:
+            return
+        if item.f1_delta > 0:
             row["gold_f1_up"] += 1
         elif item.f1_delta < 0:
             row["gold_f1_down"] += 1
         else:
             row["gold_f1_same"] += 1
+        if _verdict_agrees(key if table is by_outcome else item.verification_outcome, item.f1_delta):
+            row["verdict_agrees"] += 1
+        else:
+            row["verdict_disagrees"] += 1
 
     for item in recovered:
         _bucket(by_outcome, item.verification_outcome or "unknown", item)
@@ -288,13 +303,71 @@ def _verification_table(outcomes: tuple[QuestionOutcome, ...]) -> dict[str, Any]
         if item.attributed_class:
             _bucket(by_class, item.attributed_class, item)
 
+    agrees = sum(row["verdict_agrees"] for row in by_outcome.values())
+    disagrees = sum(row["verdict_disagrees"] for row in by_outcome.values())
     return {
         "n_with_runtime_verification": len(recovered),
         "n_loop_questions": len(outcomes),
+        "n_verdict_agrees": agrees,
+        "n_verdict_disagrees": disagrees,
         "by_runtime_outcome": by_outcome,
         "by_recovery_action": by_action,
         "by_attributed_class": by_class,
     }
+
+
+def _verdict_agrees(outcome: str | None, f1_delta: float) -> bool:
+    """Whether the runtime verdict points the same way as the offline F1 change.
+
+    ``improved`` agrees only when gold F1 rose. ``degraded`` agrees only when
+    it fell. ``unchanged`` agrees only when it stayed the same. ``still_failing``
+    agrees when gold F1 did not rise. This is a count, not a thesis claim.
+    """
+    if outcome == "improved":
+        return f1_delta > 0
+    if outcome == "degraded":
+        return f1_delta < 0
+    if outcome == "unchanged":
+        return f1_delta == 0
+    if outcome == "still_failing":
+        return f1_delta <= 0
+    return False
+
+
+def _class_key(item: QuestionOutcome) -> str:
+    if item.attributed_class:
+        return item.attributed_class
+    if item.recovery_action in (None, "accept"):
+        return "no_failure"
+    return item.recovery_action or "unknown"
+
+
+def _by_failure_class(outcomes: tuple[QuestionOutcome, ...]) -> dict[str, Any]:
+    """EM/F1 and verification counts for each failure class, not one pooled rate."""
+    groups: dict[str, list[QuestionOutcome]] = {}
+    for item in outcomes:
+        groups.setdefault(_class_key(item), []).append(item)
+    report: dict[str, Any] = {}
+    for key, rows in groups.items():
+        answerable = [item for item in rows if item.answerable]
+        verification: dict[str, int] = {}
+        for item in rows:
+            if item.verification_outcome:
+                verification[item.verification_outcome] = verification.get(item.verification_outcome, 0) + 1
+        report[key] = {
+            "n": len(rows),
+            "answerable_n": len(answerable),
+            "answerable_exact_match": (
+                sum(1 for item in answerable if item.score.exact_match) / len(answerable)
+                if answerable
+                else None
+            ),
+            "answerable_f1": (
+                sum(item.score.f1 for item in answerable) / len(answerable) if answerable else None
+            ),
+            "verification_counts": verification,
+        }
+    return report
 
 
 def _summary_without_outcomes(summary: ExperimentSummary) -> dict[str, Any]:
