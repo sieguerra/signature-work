@@ -171,6 +171,10 @@ def test_rewrite_then_expand_brings_in_the_missing_chunk(tmp_path: Path) -> None
     payload = json.loads(result.trace_path.read_text(encoding="utf-8"))
     assert payload["recovery"]["action"] == EXPAND
     assert [item["action"] for item in payload["recovery_attempts"]] == [REWRITE, EXPAND]
+    rewrite_class = payload["recovery_attempts"][0]["attributed_class"]
+    assert rewrite_class is not None
+    assert payload["recovery_attempts"][1]["attributed_class"] == rewrite_class
+    assert payload["recovery"]["attributed_class"] == rewrite_class
     assert payload["verification"]["outcome"] == IMPROVED
     assert payload["first_pass_evaluation"]["evidence_sufficient"] is False
     assert payload["runtime_evaluation"]["evidence_sufficient"] is True

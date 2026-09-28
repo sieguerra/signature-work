@@ -264,7 +264,10 @@ def _verification_table(outcomes: tuple[QuestionOutcome, ...]) -> dict[str, Any]
 
     This is the ADR 002 measurement. Gold never entered the runtime loop; it is
     applied here after the fact. ``still_failing`` and ``unchanged`` are kept
-    distinct rather than collapsed.
+    distinct rather than collapsed. ``final_gold_correct`` counts final answers
+    gold accepts (contains a gold answer, or abstains on an unanswerable
+    question), because a ``still_failing`` verdict can agree on direction while
+    the final answer was already right.
     """
     recovered = [item for item in outcomes if item.verification_outcome is not None]
     empty = {
@@ -275,6 +278,7 @@ def _verification_table(outcomes: tuple[QuestionOutcome, ...]) -> dict[str, Any]
         "no_previous_score": 0,
         "verdict_agrees": 0,
         "verdict_disagrees": 0,
+        "final_gold_correct": 0,
     }
     by_outcome: dict[str, dict[str, int]] = {}
     by_class: dict[str, dict[str, int]] = {}
@@ -283,6 +287,8 @@ def _verification_table(outcomes: tuple[QuestionOutcome, ...]) -> dict[str, Any]
     def _bucket(table: dict[str, dict[str, int]], key: str, item: QuestionOutcome) -> None:
         row = table.setdefault(key, dict(empty))
         row["n"] += 1
+        if item.score.contains_answer:
+            row["final_gold_correct"] += 1
         if item.f1_delta is None:
             row["no_previous_score"] += 1
             return

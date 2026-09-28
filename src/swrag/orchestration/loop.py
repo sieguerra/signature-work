@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import json
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any, Protocol
 
@@ -208,6 +208,8 @@ def run_with_recovery(
         )
         if nxt is None:
             break
+        if nxt.attributed_class is None and applied.decision.attributed_class is not None:
+            nxt = replace(nxt, attributed_class=applied.decision.attributed_class)
         current_decision = nxt
 
     if last_applied is None:
