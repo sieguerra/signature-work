@@ -187,6 +187,99 @@ def test_rewrite_then_expand_brings_in_the_missing_chunk(tmp_path: Path) -> None
     assert recover["summary"] == "rewrite → expand"
 
 
+class _ScriptedGenerator:
+    def __init__(self, *answers: str) -> None:
+        self._answers = list(answers)
+
+    def generate(self, query: str, retrieval: RetrievalResult) -> GenerationResult:
+        del query, retrieval
+        return GenerationResult(answer=self._answers.pop(0), model="scripted")
+
+
+def _run_gap_after_expand(tmp_path: Path, expand_answer: str, expand_supported: bool | None):
+    """Rewrite and expand both leave the evidence insufficient (a missing fact)."""
+    result = run_with_recovery(
+        "What is the late-return fine at the Harbor Institute Library?",
+        corpus_dir=KESTREL,
+        output_dir=tmp_path,
+        top_k=1,
+        embedder=FakeEmbedder(),
+        generator=_ScriptedGenerator("Hangar 2, bay C.", expand_answer),  # type: ignore[arg-type]
+        rewriter=ScriptedRewriter("Harbor Institute Library overdue fine"),
+        judge=_SequenceJudge(
+            _eval(sufficient=False, supported=False),
+            _eval(sufficient=False, supported=None),
+            _eval(sufficient=False, supported=expand_supported),
+        ),
+        max_recoveries=2,
+    )
+    return result, json.loads(result.trace_path.read_text(encoding="utf-8"))
+
+
+def test_missing_fact_ends_in_the_abstention_after_the_budget_is_spent(tmp_path: Path) -> None:
+    from swrag.orchestration.loop import ABSTAIN_ANSWER
+
+    result, payload = _run_gap_after_expand(
+        tmp_path,
+        "I do not know the late-return fine based on the retrieved documents.",
+        True,
+    )
+    assert result.answer == ABSTAIN_ANSWER
+    assert payload["recovery"]["action"] == ABSTAIN
+    assert [item["action"] for item in payload["recovery_attempts"]] == [REWRITE, EXPAND, ABSTAIN]
+    assert payload["recovery"]["attributed_class"] == payload["recovery_attempts"][0]["attributed_class"]
+    assert payload["verification"]["outcome"] == STILL_FAILING
+    assert "abstained instead of answering" in payload["verification"]["rationale"]
+    assert payload["runtime_evaluation"]["evidence_sufficient"] is False
+    assert payload["runtime_evaluation"]["answer_supported"] is None
+    assert payload["previous_answer"] == "Hangar 2, bay C."
+
+
+def test_expand_that_abstains_itself_is_not_called_degraded(tmp_path: Path) -> None:
+    """A supported first-pass hedge followed by an abstention is not a worse answer."""
+    from swrag.orchestration.loop import ABSTAIN_ANSWER
+
+    result = run_with_recovery(
+        "In The Time Machine, what is the Time Traveller's first name?",
+        corpus_dir=KESTREL,
+        output_dir=tmp_path,
+        top_k=1,
+        embedder=FakeEmbedder(),
+        generator=_ScriptedGenerator(  # type: ignore[arg-type]
+            "The evidence does not mention the Time Traveller's first name.",
+            ABSTAIN_ANSWER,
+        ),
+        rewriter=ScriptedRewriter("Time Traveller first name"),
+        judge=_SequenceJudge(
+            _eval(sufficient=False, supported=True),
+            _eval(sufficient=False, supported=None),
+            _eval(sufficient=False, supported=None),
+        ),
+        max_recoveries=2,
+    )
+    payload = json.loads(result.trace_path.read_text(encoding="utf-8"))
+    assert result.answer == ABSTAIN_ANSWER
+    assert [item["action"] for item in payload["recovery_attempts"]] == [REWRITE, EXPAND]
+    assert payload["verification"]["outcome"] == STILL_FAILING
+    assert "abstained instead of answering" in payload["verification"]["rationale"]
+
+
+def test_unsupported_answer_after_expand_is_replaced_by_the_abstention(tmp_path: Path) -> None:
+    from swrag.orchestration.loop import ABSTAIN_ANSWER
+
+    result, payload = _run_gap_after_expand(tmp_path, "The fine is $5 per day.", False)
+    assert result.answer == ABSTAIN_ANSWER
+    assert payload["recovery"]["action"] == ABSTAIN
+
+
+def test_supported_partial_answer_after_expand_is_kept(tmp_path: Path) -> None:
+    partial = "The documents describe borrowing limits but do not state a late-return fine."
+    result, payload = _run_gap_after_expand(tmp_path, partial, True)
+    assert result.answer == partial
+    assert payload["recovery"]["action"] == EXPAND
+    assert [item["action"] for item in payload["recovery_attempts"]] == [REWRITE, EXPAND]
+
+
 def test_successful_rewrite_does_not_spend_the_second_slot(tmp_path: Path) -> None:
     result = run_with_recovery(
         "When is the Harbor Institute Library open on Saturday?",
