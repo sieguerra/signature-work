@@ -58,8 +58,9 @@ from swrag.types import (
     RetrievalResult,
     RuntimeEvaluation,
     ScoredChunk,
+    Verification,
 )
-from swrag.verification.runtime import IMPROVED, verify_runtime
+from swrag.verification.runtime import IMPROVED, STILL_FAILING, verify_runtime
 
 ABSTAIN_ANSWER = "I do not know based on the retrieved documents."
 _ABSTAIN_PREFIX = "i do not know"
@@ -212,6 +213,13 @@ def run_with_recovery(
             nxt = replace(nxt, attributed_class=applied.decision.attributed_class)
         current_decision = nxt
 
+    if last_applied is not None and _needs_terminal_abstain(last_applied.decision, state):
+        applied = _terminal_abstain(state, last_applied.decision)
+        last_applied = applied
+        state = applied.state
+        used.append(ABSTAIN)
+        attempts.append(_attempt_payload(len(attempts), applied))
+
     if last_applied is None:
         return write_run(
             state,
@@ -225,7 +233,13 @@ def run_with_recovery(
 
     overall_verification = last_applied.verification
     if first_eval is not None and state.runtime_evaluation is not None:
-        overall_verification = verify_runtime(first_eval, state.runtime_evaluation)
+        if (
+            is_abstention(state.generation.answer)
+            and not state.runtime_evaluation.evidence_sufficient
+        ):
+            overall_verification = Verification(outcome=STILL_FAILING, rationale=_ABSTAIN_RATIONALE)
+        else:
+            overall_verification = verify_runtime(first_eval, state.runtime_evaluation)
 
     return write_run(
         last_applied.state,
@@ -374,6 +388,72 @@ def _first_pass_state(
         state.diagnosis,
         state.runtime_evaluation,
         state.retrieval_signal,
+    )
+
+
+_ABSTAIN_RATIONALE = (
+    "evidence stayed insufficient after recovery; the loop abstained instead of answering"
+)
+
+
+def _needs_terminal_abstain(last: RecoveryDecision, state: QueryState) -> bool:
+    """The loop ended on a fresh answer the judge cannot ground in sufficient evidence.
+
+    Only expand and regenerate end with a newly generated answer; a failed
+    rewrite already picks between keeping and abstaining. The same rule applies
+    here: a supported answer that is not a refusal is kept (gold-027), a
+    refusal is normalized to the abstention, anything else abstains.
+    """
+    evaluation = state.runtime_evaluation
+    if last.action not in {EXPAND, REGENERATE} or evaluation is None:
+        return False
+    if evaluation.evidence_sufficient:
+        return False
+    answer = state.generation.answer.strip()
+    if answer == ABSTAIN_ANSWER:
+        return False
+    return is_abstention(answer) or evaluation.answer_supported is not True
+
+
+def _terminal_abstain(state: QueryState, last: RecoveryDecision) -> _Applied:
+    """Replace an ungrounded answer with the abstention once retries are spent.
+
+    Abstaining changes no evidence, so it runs outside ``max_recoveries`` and
+    makes no judge call: sufficiency is carried over and support is left null
+    because there is no answer to support.
+    """
+    decision = RecoveryDecision(
+        action=ABSTAIN,
+        reason=f"{last.action} ended with insufficient evidence; abstain instead of answering",
+        attributed_class=last.attributed_class,
+        source=SOURCE_POLICY,
+        trigger=last.trigger,
+        outcome_note="replaced the last answer with the abstention; no judge call",
+    )
+    evaluation = state.runtime_evaluation
+    abstained = QueryState(
+        query=state.query,
+        retrieval=state.retrieval,
+        generation=GenerationResult(answer=ABSTAIN_ANSWER, model="abstain"),
+        runtime_evaluation=(
+            replace(
+                evaluation,
+                answer_supported=None,
+                support_rationale="The loop abstained, so there is no answer to support.",
+            )
+            if evaluation is not None
+            else None
+        ),
+        diagnosis=state.diagnosis,
+        retrieval_signal=state.retrieval_signal,
+    )
+    return _Applied(
+        abstained,
+        decision,
+        Verification(outcome=STILL_FAILING, rationale=_ABSTAIN_RATIONALE),
+        state.generation.answer,
+        None,
+        None,
     )
 
 
