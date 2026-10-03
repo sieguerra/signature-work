@@ -70,6 +70,13 @@ DKU set: `experiments/configs/v2_dku_baseline_vs_loop.json`. Reproduce the
 Harbor snapshot with `--config experiments/configs/v1_baseline_vs_loop.json`
 (do not overwrite `experiments/results/20260910T070623/`).
 
+Later snapshots, cited by folder name only:
+
+- Kestrel first-pass-fail: `experiments/results/20260927T151157/`
+- DKU first-pass-fail: `experiments/results/20260927T151544/`
+
+Each `comparison.json` records the backend that produced it. Harbor remains the historical full-set run.
+
 ```bash
 python scripts/run_benchmark.py --retrieve-only   # harness check, no API key
 python scripts/run_benchmark.py                   # needs OPENAI_API_KEY

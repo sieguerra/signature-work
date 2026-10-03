@@ -13,7 +13,7 @@ overwrite it.
 - [x] Loop and verification shipped ([#10](https://github.com/sieguerra/signature-work/issues/10), [#11](https://github.com/sieguerra/signature-work/issues/11) closed via #25/#26)
 - [x] [#32](https://github.com/sieguerra/signature-work/issues/32) software: span-check judge, constrained regenerate, `recovery.jsonl`, playground `top_k`. Merged in [#41](https://github.com/sieguerra/signature-work/pull/41). Judge wording and recovery gold still need student confirmation before quoting scores.
 - [x] [#33](https://github.com/sieguerra/signature-work/issues/33) explorer Before/After: merged in [#42](https://github.com/sieguerra/signature-work/pull/42)
-- [ ] At least one **recorded** loop run with `verification.outcome == improved` (or an explicit recorded failure after a good-faith attempt). That recorded snapshot is [#39](https://github.com/sieguerra/signature-work/issues/39). Do not invent it.
+- [x] At least one **recorded** loop run with `verification.outcome == improved`. Snapshots: Kestrel `experiments/results/20260927T151157/` and DKU `experiments/results/20260927T151544/` ([#39](https://github.com/sieguerra/signature-work/issues/39)). Harbor `20260910T070623` is unchanged. These folders are the record; they are not a thesis conclusion.
 
 ## Should be true before quoting numbers
 

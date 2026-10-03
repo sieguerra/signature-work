@@ -1,0 +1,17 @@
+{
+  "name": "v3_dku_expand_vs_loop",
+  "gold_path": "/Users/siegfreidbugarin/Desktop/Signature Work/datasets/dku/gold/first-pass-fail.jsonl",
+  "corpus_dir": "/Users/siegfreidbugarin/Desktop/Signature Work/datasets/dku/corpus",
+  "top_k": 1,
+  "max_recoveries": 2,
+  "conditions": [
+    {
+      "id": "baseline",
+      "mode": "baseline"
+    },
+    {
+      "id": "eval_guided",
+      "mode": "loop"
+    }
+  ]
+}

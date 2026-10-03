@@ -34,6 +34,11 @@ python scripts/run_benchmark.py --config experiments/configs/v3_kestrel_expand_v
 python scripts/run_benchmark.py --config experiments/configs/v3_dku_expand_vs_loop.json
 ```
 
+Committed snapshots from those two commands (do not overwrite):
+
+- `results/20260927T151157/` — Kestrel first-pass-fail
+- `results/20260927T151544/` — DKU first-pass-fail
+
 Judge-agreement labels (issue #38) live under `judge-audit/`. See that
 README. Do not overwrite `results/20260910T070623/`.
 
