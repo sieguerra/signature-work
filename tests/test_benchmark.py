@@ -187,3 +187,9 @@ def test_verification_table_joins_runtime_verdict_to_gold_f1(tmp_path: Path) -> 
     table = comparison["verification_vs_gold"]["by_runtime_outcome"]["improved"]
     assert table["n"] == 1
     assert table["gold_f1_up"] == 1
+    assert table["verdict_agrees"] == 1
+    assert table["final_gold_correct"] == (1 if loop["contains_answer"] else 0)
+    assert comparison["verification_vs_gold"]["n_verdict_agrees"] == 1
+    assert comparison["verification_vs_gold"]["n_verdict_disagrees"] == 0
+    classes = comparison["by_failure_class"]
+    assert sum(row["n"] for row in classes.values()) == 1

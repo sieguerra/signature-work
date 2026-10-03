@@ -127,6 +127,13 @@ def _report(comparison: dict, *, retrieve_only: bool) -> None:
         f"(n={verification['n_with_runtime_verification']} recovered):"
     )
     print(json.dumps(verification["by_runtime_outcome"], indent=2))
+    print(
+        f"verdict agrees with gold F1 direction: {verification['n_verdict_agrees']}, "
+        f"disagrees: {verification['n_verdict_disagrees']}"
+    )
+    print()
+    print("Loop condition by failure class:")
+    print(json.dumps(comparison["by_failure_class"], indent=2))
     print()
     print("Numbers only. Interpretation is out of scope for this command.")
 
