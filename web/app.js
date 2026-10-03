@@ -12,13 +12,20 @@ const state = {
   recovering: false,
   view: "playground",
   documents: [],
+  openDocument: null,
   messages: [],
   inspectCollapsed: false,
+  libraryCollapsed: false,
   navCollapsed: false,
   uploads: [],
   draftConfig: { instructions: "", chat_model: "gpt-4o-mini", top_k: 4 },
   keys: [],
   revealedKey: null,
+  evalTab: "overview",
+  evalPayload: null,
+  runView: "diagram",
+  quality: {},
+  scoringProgress: null,
 };
 
 const CHAT_MODELS = ["gpt-4o-mini", "gpt-4o", "gpt-4.1-mini", "gpt-4.1"];
@@ -70,16 +77,36 @@ function applyView() {
   const app = document.getElementById("app");
   app.dataset.view = state.view;
   app.classList.toggle("inspect-collapsed", state.inspectCollapsed);
+  app.classList.toggle("library-collapsed", state.libraryCollapsed);
   app.classList.toggle("nav-collapsed", state.navCollapsed);
   document.querySelectorAll(".view-link").forEach((link) => {
     const view = (link.getAttribute("href") || "").replace("#", "");
     link.classList.toggle("active", view === state.view);
   });
   const collapse = $("pg-collapse");
-  if (collapse) collapse.textContent = state.inspectCollapsed ? "Show inspector" : "Collapse";
+  if (collapse) {
+    const open = !state.inspectCollapsed;
+    const label = open ? "Hide inspector" : "Show inspector";
+    collapse.classList.toggle("is-on", open);
+    collapse.setAttribute("aria-pressed", open ? "true" : "false");
+    collapse.setAttribute("aria-label", label);
+    collapse.title = label;
+  }
+  const blocks = $("pg-blocks-toggle");
+  if (blocks) {
+    const open = !state.libraryCollapsed;
+    const label = open ? "Hide blocks" : "Show blocks";
+    blocks.classList.toggle("is-on", open);
+    blocks.setAttribute("aria-pressed", open ? "true" : "false");
+    blocks.setAttribute("aria-label", label);
+    blocks.title = label;
+  }
   const navCollapse = $("nav-collapse");
   if (navCollapse) {
-    const label = state.navCollapsed ? "Expand sidebar" : "Collapse sidebar";
+    const open = !state.navCollapsed;
+    const label = open ? "Hide sidebar" : "Show sidebar";
+    navCollapse.classList.toggle("is-on", open);
+    navCollapse.setAttribute("aria-pressed", open ? "true" : "false");
     navCollapse.setAttribute("aria-label", label);
     navCollapse.title = label;
   }
@@ -105,7 +132,8 @@ async function loadMeta() {
   const official = state.meta.official_openai ? "OpenAI" : "custom backend";
   const key = state.meta.api_key_present ? "key on" : "no key";
   const docs = state.meta.doc_count != null ? `${state.meta.doc_count} docs` : "";
-  const industry = state.meta.corpus_industry ? `${state.meta.corpus_industry} · ` : "";
+  const industry =
+    !state.meta.writable && state.meta.corpus_industry ? `${state.meta.corpus_industry} · ` : "";
   $("top-meta").textContent =
     `${industry}${docs} · ${state.meta.configured_chat_model} · ${official} · ${key}`.replace(
       /^ · /,
@@ -126,27 +154,23 @@ async function loadCorpora() {
   state.corpora = payload.corpora || [];
   const select = $("corpus");
   const active = payload.active_id || (state.meta && state.meta.corpus_id) || "";
-  const groups = [];
-  const seen = new Set();
-  state.corpora.forEach((item) => {
-    const group = item.group || "Other";
-    if (!seen.has(group)) {
-      seen.add(group);
-      groups.push(group);
-    }
-  });
-  select.innerHTML = groups
-    .map((group) => {
-      const options = state.corpora
-        .filter((item) => (item.group || "Other") === group)
-        .map((item) => {
-          const selected = item.id === active ? " selected" : "";
-          return `<option value="${escapeHtml(item.id)}"${selected}>${escapeHtml(item.label)}</option>`;
-        })
-        .join("");
-      return `<optgroup label="${escapeHtml(group)}">${options}</optgroup>`;
+  const workspaces = state.corpora.filter((item) => item.writable);
+  if (!workspaces.length) {
+    select.innerHTML = `<option value="">No workspace yet</option>`;
+    const form = $("new-workspace-form");
+    if (form) form.hidden = false;
+    return;
+  }
+  const activeIsWorkspace = workspaces.some((item) => item.id === active);
+  select.innerHTML = workspaces
+    .map((item) => {
+      const selected = item.id === active ? " selected" : "";
+      return `<option value="${escapeHtml(item.id)}"${selected}>${escapeHtml(item.label)}</option>`;
     })
     .join("");
+  if (!activeIsWorkspace) {
+    await switchCorpus(workspaces[0].id);
+  }
 }
 
 function renderExamples() {
@@ -172,6 +196,7 @@ async function switchCorpus(corpusId) {
     clearSelection();
     state.messages = [];
     state.uploads = [];
+    state.openDocument = null;
     await loadMeta();
     await loadCorpora();
     await loadTraces();
@@ -591,6 +616,7 @@ function render() {
   renderRunList();
   renderAnswer();
   renderRecoverBar();
+  renderRunView();
   renderWaterfall();
   renderInspector();
   renderPlaygroundChat();
@@ -608,10 +634,105 @@ async function loadTraces() {
   renderRunList();
 }
 
+function setEvalTab(tab) {
+  state.evalTab = tab;
+  applyEvalTab();
+}
+
+function applyEvalTab() {
+  const view = $("view-evaluation");
+  if (!view) return;
+  view.dataset.tab = state.evalTab;
+  view.querySelectorAll("[data-eval-tab]").forEach((button) => {
+    const on = button.dataset.evalTab === state.evalTab;
+    button.classList.toggle("active", on);
+    button.setAttribute("aria-selected", on ? "true" : "false");
+  });
+}
+
+function renderRunView() {
+  const view = $("view-evaluation");
+  const root = $("run-diagram");
+  const tabs = $("run-view-tabs");
+  if (!view || !root || !tabs) return;
+  const hasRun = Boolean(state.trace);
+  view.dataset.runMode = hasRun ? state.runView : "trace";
+  tabs.classList.toggle("hidden", !hasRun);
+  tabs.querySelectorAll("[data-run-view]").forEach((button) => {
+    const on = button.dataset.runView === state.runView;
+    button.classList.toggle("active", on);
+    button.setAttribute("aria-selected", on ? "true" : "false");
+  });
+  const runId = hasRun ? String(state.trace.run_id || "") : "";
+  if (typeof renderRunDiagram === "function") renderRunDiagram(root, hasRun ? state.trace : null, state.quality[runId]);
+  if (hasRun && state.runView === "diagram" && String(state.trace.answer || "").trim() && !state.quality[runId]) {
+    ensureQuality(runId);
+  }
+}
+
+async function ensureQuality(runId) {
+  state.quality[runId] = { status: "loading" };
+  try {
+    const saved = (await api(`/api/traces/${encodeURIComponent(runId)}/quality`)).quality;
+    if (saved) {
+      state.quality[runId] = { status: "done", data: saved };
+    } else {
+      await scoreRun(runId, { refresh: false });
+      return;
+    }
+  } catch (error) {
+    state.quality[runId] = { status: "error", error: error.message };
+  }
+  if (state.trace && state.trace.run_id === runId) renderRunView();
+}
+
+async function scoreRun(runId, { refresh = true } = {}) {
+  state.quality[runId] = { status: "loading" };
+  if (refresh && state.trace && state.trace.run_id === runId) renderRunView();
+  try {
+    const scored = (await api(`/api/traces/${encodeURIComponent(runId)}/quality`, { method: "POST" })).quality;
+    state.quality[runId] = { status: "done", data: scored };
+  } catch (error) {
+    state.quality[runId] = { status: "error", error: error.message };
+  }
+  if (state.trace && state.trace.run_id === runId) renderRunView();
+  loadEval().catch(() => {});
+}
+
+async function scoreAllRuns() {
+  const runs = ((state.evalPayload && state.evalPayload.runs) || []).filter((run) => run.has_answer && !run.quality);
+  if (!runs.length || state.scoringProgress) return;
+  state.scoringProgress = { done: 0, total: runs.length };
+  renderEvalCharts();
+  let failed = 0;
+  for (const run of runs) {
+    try {
+      const scored = (await api(`/api/traces/${encodeURIComponent(run.run_id)}/quality`, { method: "POST" })).quality;
+      state.quality[run.run_id] = { status: "done", data: scored };
+    } catch (error) {
+      failed += 1;
+      if (failed === 1) showError(`Scoring stopped: ${error.message}`);
+      break;
+    }
+    state.scoringProgress.done += 1;
+    renderEvalCharts();
+  }
+  state.scoringProgress = null;
+  await loadEval();
+}
+
+function renderEvalCharts() {
+  const root = $("eval-overview");
+  if (!root || typeof renderEvalOverview !== "function") return;
+  renderEvalOverview(root, state.evalPayload, state.scoringProgress);
+}
+
 async function loadEval() {
   const strip = $("eval-strip");
   if (!strip) return;
   const payload = await api("/api/eval");
+  state.evalPayload = payload;
+  renderEvalCharts();
   const actions = Object.entries(payload.by_action || {})
     .map(([name, count]) => `${name}=${count}`)
     .join(" · ");
@@ -851,6 +972,7 @@ async function createPlaygroundProject(name) {
   clearSelection();
   state.messages = [];
   state.uploads = [];
+  state.openDocument = null;
   await loadMeta();
   await loadCorpora();
   await loadTraces();
@@ -860,6 +982,12 @@ async function createPlaygroundProject(name) {
   $("corpus").value = payload.active_id;
   render();
   renderPlaygroundKnowledge();
+}
+
+async function openDocument(name) {
+  const payload = await api(`/api/documents/${encodeURIComponent(name)}`);
+  state.openDocument = { name: payload.name, text: payload.text || "" };
+  renderKnowledge();
 }
 
 async function uploadFiles(fileList) {
@@ -874,10 +1002,10 @@ async function uploadFiles(fileList) {
       showError("Only .txt and .pdf files can be uploaded.");
       return;
     }
-    if (file.size > 8 * 1024 * 1024) {
-      state.uploads = [{ name, status: "failed", error: "File is larger than 8 MB." }];
+    if (file.size > 32 * 1024 * 1024) {
+      state.uploads = [{ name, status: "failed", error: "File is larger than 32 MB." }];
       renderPlaygroundKnowledge();
-      showError("File is larger than 8 MB.");
+      showError("File is larger than 32 MB.");
       return;
     }
     state.uploads = [{ name, status: "indexing" }];
@@ -900,6 +1028,7 @@ async function uploadFiles(fileList) {
 
 async function deleteDocument(name) {
   await api(`/api/documents/${encodeURIComponent(name)}`, { method: "DELETE" });
+  if (state.openDocument && state.openDocument.name === name) state.openDocument = null;
   await loadMeta();
   await loadDocuments();
   renderPlaygroundKnowledge();
@@ -908,12 +1037,13 @@ async function deleteDocument(name) {
 async function deletePlaygroundProject() {
   const id = state.meta && state.meta.corpus_id;
   if (!id || !state.meta.writable) return;
-  const ok = window.confirm(`Delete project ${state.meta.corpus_label} and its documents?`);
+  const ok = window.confirm(`Delete workspace ${state.meta.corpus_label} and its documents?`);
   if (!ok) return;
   await api(`/api/projects/${encodeURIComponent(id)}`, { method: "DELETE" });
   clearSelection();
   state.messages = [];
   state.uploads = [];
+  state.openDocument = null;
   await loadMeta();
   await loadCorpora();
   await loadTraces();
@@ -994,10 +1124,15 @@ function renderKnowledge() {
   if (!knowledge) return;
   const writable = Boolean(state.meta && state.meta.writable);
   const docs = state.documents || [];
+  const open = state.openDocument;
+  const showing = open && docs.some((item) => item.name === open.name) ? open : null;
   const docItems = docs
     .map(
-      (item) => `<li>
-        <span>${escapeHtml(item.name)} · ${item.size} B</span>
+      (item) => `<li class="${showing && showing.name === item.name ? "is-open" : ""}">
+        <button type="button" class="doc-open" data-doc-open="${escapeHtml(item.name)}">
+          <span class="doc-name">${escapeHtml(item.name)}</span>
+          <span class="doc-size">${item.size} B</span>
+        </button>
         ${
           writable
             ? `<button type="button" class="ghost danger" data-doc-del="${escapeHtml(item.name)}">Remove</button>`
@@ -1016,11 +1151,11 @@ function renderKnowledge() {
   knowledge.innerHTML = `${
       writable
         ? ""
-        : `<p class="recover-note">Built-in corpora are read-only. Create a project to upload your own files.</p>`
+        : `<p class="recover-note">This workspace is read-only. Add a workspace to upload your own files.</p>`
     }
     <form class="project-form" id="pg-project-form">
-      <input id="pg-project-name" maxlength="80" placeholder="New project name" />
-      <button type="submit" class="ghost">Create</button>
+      <input id="pg-project-name" maxlength="80" placeholder="New workspace name" aria-label="New workspace name" />
+      <button type="submit" class="ghost">Add workspace</button>
     </form>
     ${
       writable
@@ -1033,14 +1168,27 @@ function renderKnowledge() {
     ${uploads ? `<ul class="upload-status">${uploads}</ul>` : ""}
     ${
       docs.length
-        ? `<ul class="doc-list">${docItems}</ul>`
+        ? `<div class="knowledge-split${showing ? " has-reader" : ""}">
+            <ul class="doc-list">${docItems}</ul>
+            ${
+              showing
+                ? `<article class="doc-reader">
+                    <div class="doc-reader-bar">
+                      <h2>${escapeHtml(showing.name)}</h2>
+                      <button type="button" class="ghost" data-doc-close>Close</button>
+                    </div>
+                    <pre class="doc-text">${escapeHtml(showing.text)}</pre>
+                  </article>`
+                : ""
+            }
+          </div>`
         : `<div class="empty"><strong>No documents yet</strong>${
-            writable ? "Upload a notice or guide to give the agent something to retrieve." : "Switch to a project, or create one."
+            writable ? "Upload a notice or guide to give the agent something to retrieve." : "Add a workspace, then upload a file."
           }</div>`
     }
     ${
       writable
-        ? `<div class="pg-knowledge-head"><button type="button" class="ghost danger" id="pg-delete-project">Delete project</button></div>`
+        ? `<div class="pg-knowledge-head"><button type="button" class="ghost danger" id="pg-delete-project">Delete workspace</button></div>`
         : ""
     }`;
 }
@@ -1050,7 +1198,7 @@ function renderAgent() {
   if (!root) return;
   const writable = Boolean(state.meta && state.meta.writable);
   if (!writable) {
-    root.innerHTML = `<div class="empty"><strong>Projects only</strong>Create a project in Knowledge to set instructions and a model.</div>`;
+    root.innerHTML = `<div class="empty"><strong>Workspaces only</strong>Add a workspace to set instructions and a model.</div>`;
     return;
   }
   const modelOptions = CHAT_MODELS.map((model) => {
@@ -1084,7 +1232,7 @@ function renderApiPanel() {
   if (!root) return;
   const writable = Boolean(state.meta && state.meta.writable);
   if (!writable) {
-    root.innerHTML = `<div class="empty"><strong>Projects only</strong>Create a project in Knowledge to issue an API key.</div>`;
+    root.innerHTML = `<div class="empty"><strong>Workspaces only</strong>Add a workspace to issue an API key.</div>`;
     return;
   }
   root.innerHTML = renderProjectKeys();
@@ -1662,9 +1810,41 @@ function portIn(id) {
 }
 
 function edgePath(x1, y1, x2, y2) {
-  const dx = Math.max(48, Math.abs(x2 - x1) * 0.45);
   const fmt = (n) => Number(n).toFixed(1);
-  return `M ${fmt(x1)} ${fmt(y1)} C ${fmt(x1 + dx)} ${fmt(y1)}, ${fmt(x2 - dx)} ${fmt(y2)}, ${fmt(x2)} ${fmt(y2)}`;
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  if (Math.abs(dy) < 20 && dx > 24) {
+    const bend = Math.max(32, dx * 0.42);
+    return `M ${fmt(x1)} ${fmt(y1)} C ${fmt(x1 + bend)} ${fmt(y1)}, ${fmt(x2 - bend)} ${fmt(y2)}, ${fmt(x2)} ${fmt(y2)}`;
+  }
+  if (dy > 24 && dx < -24) {
+    const wrapped = wrapEdge(x1, y1, x2, y2);
+    if (wrapped) return wrapped;
+  }
+  const bend = Math.max(40, Math.hypot(dx, dy) * 0.35);
+  return `M ${fmt(x1)} ${fmt(y1)} C ${fmt(x1 + bend)} ${fmt(y1)}, ${fmt(x2 - bend)} ${fmt(y2)}, ${fmt(x2)} ${fmt(y2)}`;
+}
+
+function wrapEdge(x1, y1, x2, y2) {
+  const fmt = (n) => Number(n).toFixed(1);
+  const outX = x1 + 22;
+  const inX = x2 - 22;
+  const midY = (y1 + y2) / 2;
+  const radius = 12;
+  if (midY - radius < y1 + radius + 4 || y2 - radius < midY + radius + 4) return "";
+  if (outX - radius <= x1 || inX + radius >= x2) return "";
+  return [
+    `M ${fmt(x1)} ${fmt(y1)}`,
+    `H ${fmt(outX - radius)}`,
+    `Q ${fmt(outX)} ${fmt(y1)} ${fmt(outX)} ${fmt(y1 + radius)}`,
+    `V ${fmt(midY - radius)}`,
+    `Q ${fmt(outX)} ${fmt(midY)} ${fmt(outX - radius)} ${fmt(midY)}`,
+    `H ${fmt(inX + radius)}`,
+    `Q ${fmt(inX)} ${fmt(midY)} ${fmt(inX)} ${fmt(midY + radius)}`,
+    `V ${fmt(y2 - radius)}`,
+    `Q ${fmt(inX)} ${fmt(y2)} ${fmt(inX + radius)} ${fmt(y2)}`,
+    `H ${fmt(x2)}`,
+  ].join(" ");
 }
 
 function sizeWorld() {
@@ -1852,7 +2032,7 @@ function corpusInspector() {
     .join("");
   const note = writableProject()
     ? "Drop .txt or .pdf files in the left column. This project indexes them for retrieval."
-    : "Built-in workspaces stay read-only. Create a project to upload files.";
+    : "Add a workspace to upload files.";
   return `<p class="recover-note">${note}</p>
     ${names ? `<ul class="doc-list">${names}</ul>` : `<div class="empty">No documents indexed.</div>`}`;
 }
@@ -1872,7 +2052,7 @@ function retrieverInspector() {
 
 function instructionsInspector() {
   if (!writableProject()) {
-    return `<p class="recover-note">This workspace uses the grounding prompt. Create a project to add instructions. Saved instructions are prepended and still cannot invent facts.</p>`;
+    return `<p class="recover-note">This workspace uses the grounding prompt. Add a workspace to write instructions. Saved instructions are prepended and still cannot invent facts.</p>`;
   }
   return `<label class="sr-only" for="pg-node-instructions">Instructions</label>
     <textarea id="pg-node-instructions" maxlength="8000" placeholder="How this agent should answer, on top of grounding.">${escapeHtml(state.draftConfig.instructions || "")}</textarea>
@@ -1883,7 +2063,7 @@ function instructionsInspector() {
 function modelInspector() {
   const model = activeChatModel();
   if (!writableProject()) {
-    return `<p class="recover-note">This workspace uses ${escapeHtml(model)}. Temperature is 0 for generation, the judge, and recovery. Create a project to choose another allowed model.</p>`;
+    return `<p class="recover-note">This workspace uses ${escapeHtml(model)}. Temperature is 0 for generation, the judge, and recovery. Add a workspace to choose another allowed model.</p>`;
   }
   const options = CHAT_MODELS.map((item) => {
     const selected = item === state.draftConfig.chat_model ? " selected" : "";
@@ -2277,6 +2457,32 @@ function bind() {
     if (!item) return;
     selectRun(item.dataset.id).catch((error) => showError(error.message));
   });
+  $("view-evaluation").addEventListener("click", (event) => {
+    const tab = event.target.closest("[data-eval-tab]");
+    if (tab) {
+      setEvalTab(tab.dataset.evalTab);
+      return;
+    }
+    const runView = event.target.closest("[data-run-view]");
+    if (runView) {
+      state.runView = runView.dataset.runView;
+      renderRunView();
+      return;
+    }
+    if (event.target.closest("[data-score-run]")) {
+      if (state.trace) scoreRun(String(state.trace.run_id));
+      return;
+    }
+    if (event.target.closest("[data-score-all]")) {
+      scoreAllRuns();
+      return;
+    }
+    const bar = event.target.closest("[data-chart-run]");
+    if (!bar) return;
+    setEvalTab("runs");
+    state.runView = "diagram";
+    selectRun(bar.dataset.chartRun).catch((error) => showError(error.message));
+  });
   $("waterfall").addEventListener("click", (event) => {
     const button = event.target.closest(".step-btn");
     if (!button) return;
@@ -2324,10 +2530,22 @@ function bind() {
   $("pg-collapse").addEventListener("click", () => {
     state.inspectCollapsed = !state.inspectCollapsed;
     applyView();
+    window.setTimeout(() => frameCanvas(), 260);
+  });
+  $("pg-blocks-toggle").addEventListener("click", () => {
+    state.libraryCollapsed = !state.libraryCollapsed;
+    applyView();
+    window.setTimeout(() => frameCanvas(), 260);
+  });
+  $("new-workspace").addEventListener("click", () => {
+    const form = $("new-workspace-form");
+    form.hidden = !form.hidden;
+    if (!form.hidden) $("new-workspace-name").focus();
   });
   $("nav-collapse").addEventListener("click", () => {
     state.navCollapsed = !state.navCollapsed;
     applyView();
+    window.setTimeout(() => frameCanvas(), 260);
   });
   document.getElementById("app").addEventListener("submit", (event) => {
     const configForm = event.target.closest("#pg-config-form");
@@ -2337,15 +2555,23 @@ function bind() {
       savePlaygroundConfig().catch((error) => showError(error.message));
       return;
     }
-    const form = event.target.closest("#pg-project-form");
+    const sidebarForm = event.target.closest("#new-workspace-form");
+    const knowledgeForm = event.target.closest("#pg-project-form");
+    const form = sidebarForm || knowledgeForm;
     if (!form) return;
     event.preventDefault();
-    const name = $("pg-project-name").value.trim();
+    const input = sidebarForm ? $("new-workspace-name") : $("pg-project-name");
+    const name = input.value.trim();
     if (!name) {
-      showError("Name the project first.");
+      showError("Name the workspace first.");
       return;
     }
-    createPlaygroundProject(name).catch((error) => showError(error.message));
+    createPlaygroundProject(name)
+      .then(() => {
+        input.value = "";
+        if (sidebarForm) sidebarForm.hidden = true;
+      })
+      .catch((error) => showError(error.message));
   });
   document.getElementById("app").addEventListener("input", (event) => {
     if (!["pg-instructions", "pg-chat-model", "pg-config-top-k"].includes(event.target.id)) return;
@@ -2380,6 +2606,19 @@ function bind() {
     if (remove) {
       event.preventDefault();
       deleteDocument(remove.dataset.docDel).catch((error) => showError(error.message));
+      return;
+    }
+    const closeDoc = event.target.closest("[data-doc-close]");
+    if (closeDoc) {
+      event.preventDefault();
+      state.openDocument = null;
+      renderKnowledge();
+      return;
+    }
+    const openDoc = event.target.closest("[data-doc-open]");
+    if (openDoc) {
+      event.preventDefault();
+      openDocument(openDoc.dataset.docOpen).catch((error) => showError(error.message));
       return;
     }
     const zone = event.target.closest("#pg-drop");
@@ -2443,6 +2682,7 @@ function bind() {
 
 async function boot() {
   applyView();
+  applyEvalTab();
   renderExamples();
   bind();
   render();

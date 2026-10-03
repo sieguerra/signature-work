@@ -4,11 +4,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>swrag · Trace</title>
-    <link rel="stylesheet" href="/static/styles.css" />
+    <link rel="stylesheet" href="/static/styles.css?v=31" />
   </head>
   <body>
     <div id="app" data-view="playground">
       <aside class="app-nav" id="app-nav">
+        <div class="drawer-clip">
+        <div class="drawer-sheet nav-sheet">
         <div class="brand">
           <span class="brand-mark" aria-hidden="true"></span>
           <div class="brand-copy">
@@ -18,7 +20,14 @@
         </div>
         <label class="nav-workspace corpus-select">
           <span class="nav-workspace-label">Workspace</span>
-          <select id="corpus" aria-label="Select corpus"></select>
+          <div class="workspace-picker">
+            <select id="corpus" aria-label="Select workspace"></select>
+            <button type="button" class="ghost workspace-add" id="new-workspace" aria-label="New workspace" title="New workspace">+</button>
+          </div>
+          <form class="workspace-create" id="new-workspace-form" hidden>
+            <input id="new-workspace-name" maxlength="80" placeholder="Workspace name" aria-label="Workspace name" />
+            <button type="submit" class="ghost">Add</button>
+          </form>
         </label>
         <nav class="view-nav" aria-label="Product views">
           <div class="nav-group">Workspace</div>
@@ -60,16 +69,23 @@
         </nav>
         <div class="nav-foot">
           <div class="top-meta" id="top-meta">Loading backend…</div>
-          <button type="button" class="ghost nav-collapse" id="nav-collapse" aria-label="Collapse sidebar" title="Collapse sidebar">
-            <span class="nav-collapse-label">Collapse</span>
-          </button>
         </div>
+        </div>
+        </div>
+        <button type="button" class="drawer-handle" id="nav-collapse" aria-pressed="true" aria-label="Hide sidebar" title="Hide sidebar">
+          <span class="drawer-chevron" aria-hidden="true"></span>
+        </button>
       </aside>
 
       <div class="app-main">
         <div id="view-playground" class="view">
-          <aside class="pg-library">
-            <div id="pg-palette"></div>
+          <aside class="pg-drawer pg-library">
+            <div class="drawer-clip">
+              <div class="drawer-sheet pg-palette" id="pg-palette"></div>
+            </div>
+            <button type="button" class="drawer-handle" id="pg-blocks-toggle" aria-pressed="true" aria-label="Hide blocks" title="Hide blocks">
+              <span class="drawer-chevron" aria-hidden="true"></span>
+            </button>
           </aside>
           <section class="pg-stage">
             <div class="pg-canvas-bar">
@@ -120,14 +136,20 @@
               <div class="pg-transcript" id="pg-transcript"></div>
             </div>
           </section>
-          <aside class="pg-inspect" id="pg-inspect-pane">
-            <div class="pane-label">
-              <span id="pg-inspector-title">Input</span>
-              <button type="button" class="ghost" id="pg-collapse">Collapse</button>
+          <aside class="pg-drawer pg-inspect" id="pg-inspect-pane">
+            <button type="button" class="drawer-handle" id="pg-collapse" aria-pressed="true" aria-label="Hide inspector" title="Hide inspector">
+              <span class="drawer-chevron" aria-hidden="true"></span>
+            </button>
+            <div class="drawer-clip">
+              <div class="drawer-sheet">
+                <div class="pane-label">
+                  <span id="pg-inspector-title">Input</span>
+                </div>
+                <div id="pg-node-config"></div>
+                <div class="pane-label pg-sources-label">Sources</div>
+                <div class="inspector" id="pg-inspect"></div>
+              </div>
             </div>
-            <div id="pg-node-config"></div>
-            <div class="pane-label pg-sources-label">Sources</div>
-            <div class="inspector" id="pg-inspect"></div>
           </aside>
         </div>
 
@@ -166,9 +188,14 @@
           <header class="page-head">
             <div>
               <h1>Evaluation</h1>
-              <p>Run a question, then read the trace.</p>
+              <p>How the loop judged, recovered, and verified runs in this workspace.</p>
+            </div>
+            <div class="eval-tabs" role="tablist" aria-label="Evaluation views">
+              <button type="button" role="tab" data-eval-tab="overview">Overview</button>
+              <button type="button" role="tab" data-eval-tab="runs">Runs</button>
             </div>
           </header>
+          <div class="eval-overview" id="eval-overview"></div>
           <div class="eval-body">
             <aside class="sidebar">
               <div class="sidebar-head">
@@ -238,6 +265,12 @@
 
               <section class="recover-bar hidden" id="recover-bar"></section>
 
+              <div class="run-view-tabs eval-tabs hidden" id="run-view-tabs" role="tablist" aria-label="Run views">
+                <button type="button" role="tab" data-run-view="diagram">Diagram</button>
+                <button type="button" role="tab" data-run-view="trace">Trace details</button>
+              </div>
+              <section class="run-diagram" id="run-diagram"></section>
+
               <section class="workspace" id="workspace">
                 <div class="waterfall-pane">
                   <div class="pane-label">Trace</div>
@@ -253,6 +286,7 @@
         </div>
       </div>
     </div>
-    <script src="/static/app.js?v=4"></script>
+    <script src="/static/charts.js?v=31"></script>
+    <script src="/static/app.js?v=31"></script>
   </body>
 </html>
