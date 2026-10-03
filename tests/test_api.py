@@ -236,6 +236,15 @@ def test_index_page_and_assets_are_served(tmp_path: Path) -> None:
         assert "delete-all-runs" in page.text
         assert "Playground" in page.text
         assert 'id="view-playground"' in page.text
+        assert 'id="pg-canvas"' in page.text
+        assert 'id="pg-palette"' in page.text
+        assert 'id="pg-run"' in page.text
+        assert 'id="nav-knowledge"' in page.text
+        assert 'id="view-knowledge"' in page.text
+        assert 'id="nav-agent"' in page.text
+        assert 'id="view-agent"' in page.text
+        assert 'id="nav-api"' in page.text
+        assert 'id="view-api"' in page.text
         css = client.get("/static/styles.css")
         assert css.status_code == 200
         assert "--bg:" in css.text
@@ -319,6 +328,7 @@ def test_eval_counts_active_traces_and_zeros_after_delete_all(tmp_path: Path) ->
                 "attributed_class": "evidence_insufficiency",
             },
             verification={"outcome": "still_failing", "rationale": "still thin"},
+            previous_answer="I do not know based on the retrieved documents.",
             latency_ms=1500,
         ),
         tmp_path,
@@ -355,6 +365,22 @@ def test_eval_counts_active_traces_and_zeros_after_delete_all(tmp_path: Path) ->
         assert payload["mean_latency_ms"] == 1500
         assert payload["batch_summary"]["label"] == "batch"
         assert "20260910T070623" not in payload["traces_dir"]
+        runs = {row["run_id"]: row for row in payload["runs"]}
+        assert [row["run_id"] for row in payload["runs"]] == [
+            "eval_accept",
+            "eval_rewrite",
+            "eval_proposed",
+        ]
+        assert runs["eval_accept"]["path"] == []
+        assert runs["eval_rewrite"]["path"] == ["rewrite"]
+        assert runs["eval_rewrite"]["failure_class"] == "evidence_insufficiency"
+        assert runs["eval_rewrite"]["abstained"] is True
+        assert runs["eval_rewrite"]["first_abstained"] is True
+        assert runs["eval_accept"]["first_abstained"] is False
+        assert runs["eval_rewrite"]["latency_ms"] == 1500
+        assert runs["eval_proposed"]["path"] == []
+        assert runs["eval_proposed"]["proposed_action"] == "rewrite"
+        assert not any("gold" in key for row in payload["runs"] for key in row)
         client.delete("/api/traces")
         empty = client.get("/api/eval").json()
         assert empty["n"] == 0
@@ -362,6 +388,7 @@ def test_eval_counts_active_traces_and_zeros_after_delete_all(tmp_path: Path) ->
         assert empty["abstain"] == 0
         assert empty["by_action"] == {}
         assert empty["mean_latency_ms"] is None
+        assert empty["runs"] == []
 
 
 def test_lists_corpora_and_switches_without_mixing_indexes(tmp_path: Path) -> None:

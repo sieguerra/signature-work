@@ -21,10 +21,13 @@ from swrag.api.store import (
     eval_counts,
     find_child_run_id,
     list_traces,
+    load_quality,
     load_trace,
+    save_quality,
 )
 from swrag.api.v1 import build_v1_router
 from swrag.config import load_provider_config
+from swrag.evaluation.quality_metrics import score_trace
 from swrag.corpus_registry import (
     CorpusEntry,
     assert_corpus_readable,
@@ -42,6 +45,7 @@ from swrag.projects import (
     get_workspace,
     list_documents,
     list_workspaces,
+    read_document_text,
     safe_upload_name,
     update_project_config,
     validate_uploaded_file,
@@ -128,6 +132,8 @@ def create_app(
         app.state.traces_locked = traces_locked
         app.state.indexes = {}
         app.state.index_lock = threading.RLock()
+        if not hasattr(app.state, "quality_scorer"):
+            app.state.quality_scorer = _default_quality_scorer
         _activate(app, entry, resolved_traces)
         yield
 
@@ -300,6 +306,21 @@ def create_app(
             "documents": list_documents(Path(application.state.corpus_dir)),
         }
 
+    @application.get("/api/documents/{name}")
+    def document_text(name: str) -> dict[str, Any]:
+        try:
+            safe = safe_upload_name(name)
+        except ValueError as error:
+            raise HTTPException(status_code=400, detail=str(error)) from error
+        path = Path(application.state.corpus_dir) / safe
+        if not path.is_file():
+            raise HTTPException(status_code=404, detail="document not found")
+        try:
+            text = read_document_text(path)
+        except (UnicodeDecodeError, ValueError) as error:
+            raise HTTPException(status_code=400, detail=str(error)) from error
+        return {"name": safe, "text": text}
+
     @application.post("/api/documents")
     async def upload_document(file: UploadFile = File(...)) -> dict[str, Any]:
         if not application.state.writable:
@@ -316,7 +337,10 @@ def create_app(
         if not data:
             raise HTTPException(status_code=400, detail="file is empty")
         if len(data) > MAX_UPLOAD_BYTES:
-            raise HTTPException(status_code=400, detail="file is larger than 8 MB")
+            raise HTTPException(
+                status_code=400,
+                detail=f"file is larger than {MAX_UPLOAD_BYTES // (1024 * 1024)} MB",
+            )
         dest = Path(application.state.corpus_dir) / name
         dest.write_bytes(data)
         try:
@@ -365,6 +389,29 @@ def create_app(
         if payload is None:
             raise HTTPException(status_code=404, detail="trace not found")
         return _run_payload(application.state.traces_dir, payload)
+
+    @application.get("/api/traces/{run_id}/quality")
+    def get_quality(run_id: str) -> dict[str, Any]:
+        if load_trace(application.state.traces_dir, run_id) is None:
+            raise HTTPException(status_code=404, detail="trace not found")
+        return {"quality": load_quality(application.state.traces_dir, run_id)}
+
+    @application.post("/api/traces/{run_id}/quality")
+    def score_quality(run_id: str) -> dict[str, Any]:
+        payload = load_trace(application.state.traces_dir, run_id)
+        if payload is None:
+            raise HTTPException(status_code=404, detail="trace not found")
+        if not str(payload.get("answer") or "").strip():
+            raise HTTPException(status_code=400, detail="retrieve-only runs have no answer to score")
+        client, model = application.state.quality_scorer()
+        try:
+            scores = score_trace(payload, client=client, model=model)
+        except ValueError as error:
+            raise HTTPException(status_code=502, detail=str(error)) from error
+        except Exception as error:
+            raise HTTPException(status_code=500, detail=str(error)) from error
+        save_quality(application.state.traces_dir, run_id, scores)
+        return {"quality": scores}
 
     @application.delete("/api/traces/{run_id}")
     def remove_trace(run_id: str) -> dict[str, Any]:
@@ -543,6 +590,15 @@ def _execute_recover(application: FastAPI, run_id: str, action: str | None):
         generator=_generator_for(application),
         agent_config=_agent_snapshot(application),
     )
+
+
+def _default_quality_scorer() -> tuple[Any, str]:
+    if not os.environ.get("OPENAI_API_KEY"):
+        raise HTTPException(status_code=400, detail="OPENAI_API_KEY is not set, so runs cannot be scored.")
+    from openai import OpenAI
+
+    config = load_provider_config()
+    return OpenAI(base_url=config.base_url), config.chat_model
 
 
 def _run_payload(traces_dir: Path, payload: dict[str, Any]) -> dict[str, Any]:

@@ -74,6 +74,11 @@ def test_project_upload_and_retrieve(tmp_path: Path) -> None:
         assert uploaded.status_code == 200, uploaded.text
         names = [item["name"] for item in uploaded.json()["documents"]]
         assert names == ["library.txt"]
+        opened = client.get("/api/documents/library.txt")
+        assert opened.status_code == 200, opened.text
+        assert "Saturday" in opened.json()["text"]
+        missing = client.get("/api/documents/missing.txt")
+        assert missing.status_code == 404
         pdf = client.post(
             "/api/documents",
             files={"file": ("two-page-notice.pdf", FIXTURE_PDF.read_bytes(), "application/pdf")},

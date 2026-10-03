@@ -135,10 +135,11 @@ def delete_trace(traces_dir: str | Path, run_id: str) -> list[str]:
 
 
 def _delete_one(traces_dir: str | Path, run_id: str) -> bool:
-    """Unlink ``{run_id}.json`` only. Does not follow parent/child links."""
+    """Unlink ``{run_id}.json`` and its quality scores. Does not follow parent/child links."""
     root = Path(traces_dir)
     if not root.exists() or not _safe_run_id(run_id):
         return False
+    delete_quality(root, run_id)
     root_resolved = root.resolve()
     found = False
     for path in root.rglob(f"{run_id}.json"):
@@ -170,6 +171,7 @@ def delete_all_traces(traces_dir: str | Path) -> int:
             path.unlink()
         except OSError:
             continue
+        delete_quality(traces_dir, str(payload["run_id"]))
         deleted += 1
     return deleted
 
@@ -182,6 +184,7 @@ def eval_counts(traces_dir: str | Path) -> dict[str, Any]:
     abstain = 0
     proposed = 0
     latencies: list[float] = []
+    runs: list[dict[str, Any]] = []
     for path in _iter_trace_paths(traces_dir):
         try:
             payload = json.loads(path.read_text(encoding="utf-8"))
@@ -190,6 +193,9 @@ def eval_counts(traces_dir: str | Path) -> dict[str, Any]:
         if not _is_trace_payload(payload):
             continue
         n += 1
+        row = _chart_row(payload)
+        row["quality"] = _quality_row(traces_dir, row["run_id"])
+        runs.append(row)
         recovery = payload.get("recovery") if isinstance(payload.get("recovery"), dict) else {}
         verification = (
             payload.get("verification") if isinstance(payload.get("verification"), dict) else {}
@@ -228,4 +234,96 @@ def eval_counts(traces_dir: str | Path) -> dict[str, Any]:
         "mean_latency_ms": (sum(latencies) / len(latencies) if latencies else None),
         "batch_summary": batch_summary,
         "traces_dir": str(Path(traces_dir)),
+        "runs": sorted(runs, key=lambda row: row["timestamp"]),
     }
+
+
+def _dict(value: object) -> dict[str, Any]:
+    return value if isinstance(value, dict) else {}
+
+
+def _chart_row(payload: dict[str, Any]) -> dict[str, Any]:
+    """One run reduced to what the evaluation charts plot. Runtime signals only, no gold."""
+    recovery = _dict(payload.get("recovery"))
+    final = _dict(payload.get("runtime_evaluation"))
+    first = _dict(payload.get("first_pass_evaluation")) or final
+    attempts = [item for item in payload.get("recovery_attempts") or [] if isinstance(item, dict)]
+    status = payload.get("recovery_status")
+    if attempts:
+        path = [str(item.get("action")) for item in attempts if item.get("action")]
+    elif status != "proposed" and recovery.get("action") not in (None, "accept"):
+        path = [str(recovery["action"])]
+    else:
+        path = []
+    failure_class = next(
+        (item.get("attributed_class") for item in attempts if item.get("attributed_class")),
+        None,
+    ) or recovery.get("attributed_class") or _dict(payload.get("diagnosis")).get("failure_class")
+    answer = str(payload.get("answer") or "")
+    first_answer = str(payload.get("previous_answer") or "") if path and payload.get("previous_answer") is not None else answer
+    latency = payload.get("latency_ms")
+    return {
+        "run_id": str(payload["run_id"]),
+        "timestamp": str(payload.get("timestamp") or ""),
+        "query": str(payload.get("query") or "")[:140],
+        "status": status,
+        "proposed_action": recovery.get("action") if status == "proposed" else None,
+        "path": path,
+        "verification": _dict(payload.get("verification")).get("outcome"),
+        "failure_class": failure_class,
+        "first_sufficient": first.get("evidence_sufficient"),
+        "first_supported": first.get("answer_supported"),
+        "final_sufficient": final.get("evidence_sufficient"),
+        "final_supported": final.get("answer_supported"),
+        "abstained": answer.strip() == ABSTAIN_ANSWER or payload.get("model") == "abstain",
+        "first_abstained": first_answer.strip() == ABSTAIN_ANSWER,
+        "has_answer": bool(answer.strip()),
+        "latency_ms": float(latency) if isinstance(latency, (int, float)) else None,
+        "parent_run_id": payload.get("parent_run_id"),
+    }
+
+
+QUALITY_DIR = "quality"
+QUALITY_KEYS = ("faithfulness", "answer_relevance", "context_relevance")
+
+
+def _quality_path(traces_dir: str | Path, run_id: str) -> Path:
+    return Path(traces_dir) / QUALITY_DIR / f"{run_id}.quality.json"
+
+
+def load_quality(traces_dir: str | Path, run_id: str) -> dict[str, Any] | None:
+    """Saved quality scores for ``run_id``, or None when it has not been scored."""
+    if not _safe_run_id(run_id):
+        return None
+    path = _quality_path(traces_dir, run_id)
+    if not path.is_file():
+        return None
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    return payload if isinstance(payload, dict) else None
+
+
+def save_quality(traces_dir: str | Path, run_id: str, scores: dict[str, Any]) -> None:
+    if not _safe_run_id(run_id):
+        raise ValueError(f"unsafe run id: {run_id!r}")
+    path = _quality_path(traces_dir, run_id)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(scores, indent=2), encoding="utf-8")
+
+
+def delete_quality(traces_dir: str | Path, run_id: str) -> None:
+    if _safe_run_id(run_id):
+        _quality_path(traces_dir, run_id).unlink(missing_ok=True)
+
+
+def _quality_row(traces_dir: str | Path, run_id: str) -> dict[str, Any] | None:
+    saved = load_quality(traces_dir, run_id)
+    if saved is None:
+        return None
+    final = _dict(saved.get("final"))
+    first = _dict(saved.get("first"))
+    row: dict[str, Any] = {key: final.get(key) for key in QUALITY_KEYS}
+    row["first"] = {key: first.get(key) for key in QUALITY_KEYS} if first else None
+    return row

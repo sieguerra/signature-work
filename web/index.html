@@ -4,149 +4,289 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>swrag · Trace</title>
-    <link rel="stylesheet" href="/static/styles.css" />
+    <link rel="stylesheet" href="/static/styles.css?v=31" />
   </head>
   <body>
     <div id="app" data-view="playground">
-      <header class="topbar">
+      <aside class="app-nav" id="app-nav">
+        <div class="drawer-clip">
+        <div class="drawer-sheet nav-sheet">
         <div class="brand">
           <span class="brand-mark" aria-hidden="true"></span>
-          <div>
+          <div class="brand-copy">
             <div class="brand-name">swrag</div>
-            <div class="brand-sub" id="brand-sub">Agentic RAG playground</div>
+            <div class="brand-sub" id="brand-sub">Workspace</div>
           </div>
         </div>
+        <label class="nav-workspace corpus-select">
+          <span class="nav-workspace-label">Workspace</span>
+          <div class="workspace-picker">
+            <select id="corpus" aria-label="Select workspace"></select>
+            <button type="button" class="ghost workspace-add" id="new-workspace" aria-label="New workspace" title="New workspace">+</button>
+          </div>
+          <form class="workspace-create" id="new-workspace-form" hidden>
+            <input id="new-workspace-name" maxlength="80" placeholder="Workspace name" aria-label="Workspace name" />
+            <button type="submit" class="ghost">Add</button>
+          </form>
+        </label>
         <nav class="view-nav" aria-label="Product views">
-          <a href="#playground" id="nav-playground" class="view-link active">Playground</a>
-          <a href="#evaluation" id="nav-evaluation" class="view-link">Evaluation</a>
+          <div class="nav-group">Workspace</div>
+          <a href="#playground" id="nav-playground" class="view-link active" title="Playground">
+            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M3 3.5h10v7H6.2L3 13V3.5z" />
+            </svg>
+            <span>Playground</span>
+          </a>
+          <a href="#knowledge" id="nav-knowledge" class="view-link" title="Knowledge">
+            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M4 2.5h6.5L13 5v8.5H4v-11z" />
+              <path d="M10 2.5V5h3" />
+            </svg>
+            <span>Knowledge</span>
+          </a>
+          <a href="#agent" id="nav-agent" class="view-link" title="Agent">
+            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="8" cy="8" r="2" />
+              <path d="M8 2.5v2M8 11.5v2M2.5 8h2M11.5 8h2M4.1 4.1l1.4 1.4M10.5 10.5l1.4 1.4M11.9 4.1l-1.4 1.4M5.5 10.5l-1.4 1.4" />
+            </svg>
+            <span>Agent</span>
+          </a>
+          <div class="nav-group">Review</div>
+          <a href="#evaluation" id="nav-evaluation" class="view-link" title="Evaluation">
+            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M3 4h10M3 8h10M3 12h6" />
+            </svg>
+            <span>Evaluation</span>
+          </a>
+          <div class="nav-group">Developer</div>
+          <a href="#api" id="nav-api" class="view-link" title="API">
+            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="6" cy="8" r="2.2" />
+              <path d="M8.2 8H13M11.2 6.2v3.6" />
+            </svg>
+            <span>API</span>
+          </a>
         </nav>
-        <div class="top-controls">
-          <label class="corpus-select">
-            Workspace
-            <select id="corpus" aria-label="Select corpus"></select>
-          </label>
+        <div class="nav-foot">
           <div class="top-meta" id="top-meta">Loading backend…</div>
         </div>
-      </header>
+        </div>
+        </div>
+        <button type="button" class="drawer-handle" id="nav-collapse" aria-pressed="true" aria-label="Hide sidebar" title="Hide sidebar">
+          <span class="drawer-chevron" aria-hidden="true"></span>
+        </button>
+      </aside>
 
-      <div id="view-evaluation" class="view">
-        <span class="sr-only">Trace explorer</span>
-        <aside class="sidebar">
-          <div class="sidebar-head">
-            <span>Runs</span>
-            <div class="sidebar-actions">
-              <button type="button" class="ghost" id="refresh-runs">Refresh</button>
-              <button type="button" class="ghost danger" id="delete-all-runs">Delete all</button>
+      <div class="app-main">
+        <div id="view-playground" class="view">
+          <aside class="pg-drawer pg-library">
+            <div class="drawer-clip">
+              <div class="drawer-sheet pg-palette" id="pg-palette"></div>
             </div>
-          </div>
-          <div class="eval-strip" id="eval-strip">n=0</div>
-          <div class="run-list" id="run-list"></div>
-        </aside>
-
-        <main class="main">
-          <section class="playground">
-            <label class="sr-only" for="question">Question</label>
-            <textarea
-              id="question"
-              rows="2"
-              placeholder="Ask a question over the local corpus…"
-            ></textarea>
-            <div class="playground-row">
-              <div class="chips" id="example-chips"></div>
-              <div class="playground-controls">
-                <label class="mode">
-                  Mode
-                  <select id="mode">
-                    <option value="loop_confirm" selected>Loop (confirm recovery)</option>
-                    <option value="loop">Loop (auto recover)</option>
-                    <option value="baseline">Baseline RAG</option>
-                    <option value="retrieve_only">Retrieve only</option>
-                  </select>
-                </label>
-                <label class="mode">
-                  top_k
-                  <input
-                    id="top-k"
-                    type="number"
-                    min="1"
-                    max="20"
-                    value="4"
-                    step="1"
-                    aria-label="Number of retrieved chunks"
-                  />
-                </label>
-                <button type="button" class="primary" id="run-btn">Run</button>
+            <button type="button" class="drawer-handle" id="pg-blocks-toggle" aria-pressed="true" aria-label="Hide blocks" title="Hide blocks">
+              <span class="drawer-chevron" aria-hidden="true"></span>
+            </button>
+          </aside>
+          <section class="pg-stage">
+            <div class="pg-canvas-bar">
+              <div class="pg-canvas-status" id="pg-canvas-status">Idle</div>
+              <div class="pg-canvas-tools">
+                <button type="button" class="ghost" id="pg-zoom-out" aria-label="Zoom out">−</button>
+                <button type="button" class="ghost" id="pg-zoom-in" aria-label="Zoom in">+</button>
+                <button type="button" class="ghost" id="pg-fit">Fit</button>
+                <button type="button" class="primary" id="pg-run">Run</button>
               </div>
             </div>
-            <div class="banner hidden" id="error-banner" role="alert"></div>
-          </section>
-
-          <section class="answer-bar hidden" id="answer-bar">
-            <div class="answer-kicker">
-              <span>Output</span>
-              <span class="run-id" id="answer-run-id"></span>
-            </div>
-            <div id="answer-text"></div>
-          </section>
-
-          <section class="recover-bar hidden" id="recover-bar"></section>
-
-          <section class="workspace" id="workspace">
-            <div class="waterfall-pane">
-              <div class="pane-label">Trace</div>
-              <ol class="waterfall" id="waterfall"></ol>
-            </div>
-            <div class="inspector-pane">
-              <div class="pane-label" id="inspector-label">Inspector</div>
-              <div class="inspector" id="inspector"></div>
-            </div>
-          </section>
-        </main>
-      </div>
-
-      <div id="view-playground" class="view">
-        <aside class="pg-knowledge" id="pg-knowledge"></aside>
-        <section class="pg-chat">
-          <div class="pg-transcript" id="pg-transcript"></div>
-          <form class="pg-composer" id="pg-composer">
-            <label class="sr-only" for="pg-question">Playground question</label>
-            <textarea
-              id="pg-question"
-              rows="2"
-              placeholder="Ask this agent a question…"
-            ></textarea>
-            <div class="pg-composer-row">
-              <div class="pg-composer-tools">
-                <button type="button" class="ghost" id="pg-reset">Reset</button>
-                <button type="button" class="ghost" id="pg-rerun">Rerun</button>
+            <div class="pg-canvas" id="pg-canvas" tabindex="0" aria-label="Workflow canvas">
+              <div class="pg-world" id="pg-world">
+                <svg class="pg-edges" id="pg-edges"></svg>
+                <div id="pg-nodes"></div>
               </div>
-              <label class="mode">
-                Mode
-                <select id="pg-mode">
-                  <option value="loop" selected>Loop (auto recover)</option>
-                  <option value="loop_confirm">Loop (confirm recovery)</option>
-                  <option value="baseline">Baseline RAG</option>
-                  <option value="retrieve_only">Retrieve only</option>
-                </select>
-              </label>
-              <label class="mode">
-                top_k
-                <input id="pg-top-k" type="number" min="1" max="20" value="4" step="1" aria-label="Playground top_k" />
-              </label>
-              <button type="submit" class="primary" id="pg-send">Send</button>
             </div>
-            <div class="banner hidden" id="pg-error" role="alert"></div>
-          </form>
-        </section>
-        <aside class="pg-inspect" id="pg-inspect-pane">
-          <div class="pane-label">
-            <span>Sources</span>
-            <button type="button" class="ghost" id="pg-collapse">Collapse</button>
+            <div class="pg-dock">
+              <form class="pg-composer" id="pg-composer">
+                <label class="sr-only" for="pg-question">Playground question</label>
+                <textarea
+                  id="pg-question"
+                  rows="2"
+                  placeholder="Ask this agent a question…"
+                ></textarea>
+                <div class="pg-composer-row">
+                  <div class="pg-composer-tools">
+                    <button type="button" class="ghost" id="pg-reset">Reset</button>
+                    <button type="button" class="ghost" id="pg-rerun">Rerun</button>
+                  </div>
+                  <label class="mode">
+                    Mode
+                    <select id="pg-mode">
+                      <option value="loop" selected>Loop (auto recover)</option>
+                      <option value="loop_confirm">Loop (confirm recovery)</option>
+                      <option value="baseline">Baseline RAG</option>
+                      <option value="retrieve_only">Retrieve only</option>
+                    </select>
+                  </label>
+                  <label class="mode">
+                    top_k
+                    <input id="pg-top-k" type="number" min="1" max="20" value="4" step="1" aria-label="Playground top_k" />
+                  </label>
+                  <button type="submit" class="primary" id="pg-send">Send</button>
+                </div>
+                <div class="banner hidden" id="pg-error" role="alert"></div>
+              </form>
+              <div class="pg-transcript" id="pg-transcript"></div>
+            </div>
+          </section>
+          <aside class="pg-drawer pg-inspect" id="pg-inspect-pane">
+            <button type="button" class="drawer-handle" id="pg-collapse" aria-pressed="true" aria-label="Hide inspector" title="Hide inspector">
+              <span class="drawer-chevron" aria-hidden="true"></span>
+            </button>
+            <div class="drawer-clip">
+              <div class="drawer-sheet">
+                <div class="pane-label">
+                  <span id="pg-inspector-title">Input</span>
+                </div>
+                <div id="pg-node-config"></div>
+                <div class="pane-label pg-sources-label">Sources</div>
+                <div class="inspector" id="pg-inspect"></div>
+              </div>
+            </div>
+          </aside>
+        </div>
+
+        <div id="view-knowledge" class="view">
+          <header class="page-head">
+            <div>
+              <h1>Knowledge</h1>
+              <p>Documents this workspace can retrieve.</p>
+            </div>
+          </header>
+          <div class="page-body pg-knowledge" id="pg-knowledge"></div>
+        </div>
+
+        <div id="view-agent" class="view">
+          <header class="page-head">
+            <div>
+              <h1>Agent</h1>
+              <p>How this project answers, on top of grounding.</p>
+            </div>
+          </header>
+          <div class="page-body" id="pg-agent"></div>
+        </div>
+
+        <div id="view-api" class="view">
+          <header class="page-head">
+            <div>
+              <h1>API</h1>
+              <p>Keys for external evaluation requests.</p>
+            </div>
+          </header>
+          <div class="page-body" id="pg-api"></div>
+        </div>
+
+        <div id="view-evaluation" class="view">
+          <span class="sr-only">Trace explorer</span>
+          <header class="page-head">
+            <div>
+              <h1>Evaluation</h1>
+              <p>How the loop judged, recovered, and verified runs in this workspace.</p>
+            </div>
+            <div class="eval-tabs" role="tablist" aria-label="Evaluation views">
+              <button type="button" role="tab" data-eval-tab="overview">Overview</button>
+              <button type="button" role="tab" data-eval-tab="runs">Runs</button>
+            </div>
+          </header>
+          <div class="eval-overview" id="eval-overview"></div>
+          <div class="eval-body">
+            <aside class="sidebar">
+              <div class="sidebar-head">
+                <span>Runs</span>
+                <div class="sidebar-actions">
+                  <button type="button" class="ghost" id="refresh-runs">Refresh</button>
+                </div>
+              </div>
+              <details class="eval-counts">
+                <summary>Counts</summary>
+                <div class="eval-strip" id="eval-strip">n=0</div>
+              </details>
+              <div class="run-list" id="run-list"></div>
+              <div class="sidebar-foot">
+                <button type="button" class="ghost danger" id="delete-all-runs">Delete all</button>
+              </div>
+            </aside>
+
+            <main class="main">
+              <section class="playground">
+                <label class="sr-only" for="question">Question</label>
+                <textarea
+                  id="question"
+                  rows="2"
+                  placeholder="Ask a question over the local corpus…"
+                ></textarea>
+                <div class="chips" id="example-chips"></div>
+                <div class="playground-row">
+                  <div class="playground-controls">
+                    <label class="mode">
+                      Mode
+                      <select id="mode">
+                        <option value="loop_confirm" selected>Loop (confirm recovery)</option>
+                        <option value="loop">Loop (auto recover)</option>
+                        <option value="baseline">Baseline RAG</option>
+                        <option value="retrieve_only">Retrieve only</option>
+                      </select>
+                    </label>
+                    <button type="button" class="primary" id="run-btn">Run</button>
+                  </div>
+                </div>
+                <details class="run-settings">
+                  <summary>Run settings</summary>
+                  <label class="mode">
+                    top_k
+                    <input
+                      id="top-k"
+                      type="number"
+                      min="1"
+                      max="20"
+                      value="4"
+                      step="1"
+                      aria-label="Number of retrieved chunks"
+                    />
+                  </label>
+                </details>
+                <div class="banner hidden" id="error-banner" role="alert"></div>
+              </section>
+
+              <section class="answer-bar hidden" id="answer-bar">
+                <div class="answer-kicker">
+                  <span>Output</span>
+                  <span class="run-id" id="answer-run-id"></span>
+                </div>
+                <div id="answer-text"></div>
+              </section>
+
+              <section class="recover-bar hidden" id="recover-bar"></section>
+
+              <div class="run-view-tabs eval-tabs hidden" id="run-view-tabs" role="tablist" aria-label="Run views">
+                <button type="button" role="tab" data-run-view="diagram">Diagram</button>
+                <button type="button" role="tab" data-run-view="trace">Trace details</button>
+              </div>
+              <section class="run-diagram" id="run-diagram"></section>
+
+              <section class="workspace" id="workspace">
+                <div class="waterfall-pane">
+                  <div class="pane-label">Trace</div>
+                  <ol class="waterfall" id="waterfall"></ol>
+                </div>
+                <div class="inspector-pane">
+                  <div class="pane-label" id="inspector-label">Inspector</div>
+                  <div class="inspector" id="inspector"></div>
+                </div>
+              </section>
+            </main>
           </div>
-          <div class="inspector" id="pg-inspect"></div>
-        </aside>
+        </div>
       </div>
     </div>
-    <script src="/static/app.js"></script>
+    <script src="/static/charts.js?v=31"></script>
+    <script src="/static/app.js?v=31"></script>
   </body>
 </html>

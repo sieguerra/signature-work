@@ -12,12 +12,20 @@ const state = {
   recovering: false,
   view: "playground",
   documents: [],
+  openDocument: null,
   messages: [],
   inspectCollapsed: false,
+  libraryCollapsed: false,
+  navCollapsed: false,
   uploads: [],
   draftConfig: { instructions: "", chat_model: "gpt-4o-mini", top_k: 4 },
   keys: [],
   revealedKey: null,
+  evalTab: "overview",
+  evalPayload: null,
+  runView: "diagram",
+  quality: {},
+  scoringProgress: null,
 };
 
 const CHAT_MODELS = ["gpt-4o-mini", "gpt-4o", "gpt-4.1-mini", "gpt-4.1"];
@@ -57,18 +65,51 @@ function showError(message) {
   });
 }
 
+const VIEWS = ["playground", "knowledge", "agent", "evaluation", "api"];
+
 function currentView() {
-  return location.hash.replace("#", "") === "evaluation" ? "evaluation" : "playground";
+  const hash = location.hash.replace("#", "");
+  return VIEWS.includes(hash) ? hash : "playground";
 }
 
 function applyView() {
   state.view = currentView();
-  document.getElementById("app").dataset.view = state.view;
-  $("nav-playground").classList.toggle("active", state.view === "playground");
-  $("nav-evaluation").classList.toggle("active", state.view === "evaluation");
-  $("brand-sub").textContent =
-    state.view === "evaluation" ? "Trace explorer" : "Agentic RAG playground";
-  document.getElementById("app").classList.toggle("inspect-collapsed", state.inspectCollapsed);
+  const app = document.getElementById("app");
+  app.dataset.view = state.view;
+  app.classList.toggle("inspect-collapsed", state.inspectCollapsed);
+  app.classList.toggle("library-collapsed", state.libraryCollapsed);
+  app.classList.toggle("nav-collapsed", state.navCollapsed);
+  document.querySelectorAll(".view-link").forEach((link) => {
+    const view = (link.getAttribute("href") || "").replace("#", "");
+    link.classList.toggle("active", view === state.view);
+  });
+  const collapse = $("pg-collapse");
+  if (collapse) {
+    const open = !state.inspectCollapsed;
+    const label = open ? "Hide inspector" : "Show inspector";
+    collapse.classList.toggle("is-on", open);
+    collapse.setAttribute("aria-pressed", open ? "true" : "false");
+    collapse.setAttribute("aria-label", label);
+    collapse.title = label;
+  }
+  const blocks = $("pg-blocks-toggle");
+  if (blocks) {
+    const open = !state.libraryCollapsed;
+    const label = open ? "Hide blocks" : "Show blocks";
+    blocks.classList.toggle("is-on", open);
+    blocks.setAttribute("aria-pressed", open ? "true" : "false");
+    blocks.setAttribute("aria-label", label);
+    blocks.title = label;
+  }
+  const navCollapse = $("nav-collapse");
+  if (navCollapse) {
+    const open = !state.navCollapsed;
+    const label = open ? "Hide sidebar" : "Show sidebar";
+    navCollapse.classList.toggle("is-on", open);
+    navCollapse.setAttribute("aria-pressed", open ? "true" : "false");
+    navCollapse.setAttribute("aria-label", label);
+    navCollapse.title = label;
+  }
 }
 
 async function api(path, options) {
@@ -91,12 +132,15 @@ async function loadMeta() {
   const official = state.meta.official_openai ? "OpenAI" : "custom backend";
   const key = state.meta.api_key_present ? "key on" : "no key";
   const docs = state.meta.doc_count != null ? `${state.meta.doc_count} docs` : "";
-  const industry = state.meta.corpus_industry ? `${state.meta.corpus_industry} · ` : "";
+  const industry =
+    !state.meta.writable && state.meta.corpus_industry ? `${state.meta.corpus_industry} · ` : "";
   $("top-meta").textContent =
     `${industry}${docs} · ${state.meta.configured_chat_model} · ${official} · ${key}`.replace(
       /^ · /,
       ""
     );
+  const sub = $("brand-sub");
+  if (sub) sub.textContent = state.meta.corpus_label || "Workspace";
   if (!state.meta.api_key_present) {
     $("mode").value = "retrieve_only";
     if ($("pg-mode")) $("pg-mode").value = "retrieve_only";
@@ -110,27 +154,23 @@ async function loadCorpora() {
   state.corpora = payload.corpora || [];
   const select = $("corpus");
   const active = payload.active_id || (state.meta && state.meta.corpus_id) || "";
-  const groups = [];
-  const seen = new Set();
-  state.corpora.forEach((item) => {
-    const group = item.group || "Other";
-    if (!seen.has(group)) {
-      seen.add(group);
-      groups.push(group);
-    }
-  });
-  select.innerHTML = groups
-    .map((group) => {
-      const options = state.corpora
-        .filter((item) => (item.group || "Other") === group)
-        .map((item) => {
-          const selected = item.id === active ? " selected" : "";
-          return `<option value="${escapeHtml(item.id)}"${selected}>${escapeHtml(item.label)}</option>`;
-        })
-        .join("");
-      return `<optgroup label="${escapeHtml(group)}">${options}</optgroup>`;
+  const workspaces = state.corpora.filter((item) => item.writable);
+  if (!workspaces.length) {
+    select.innerHTML = `<option value="">No workspace yet</option>`;
+    const form = $("new-workspace-form");
+    if (form) form.hidden = false;
+    return;
+  }
+  const activeIsWorkspace = workspaces.some((item) => item.id === active);
+  select.innerHTML = workspaces
+    .map((item) => {
+      const selected = item.id === active ? " selected" : "";
+      return `<option value="${escapeHtml(item.id)}"${selected}>${escapeHtml(item.label)}</option>`;
     })
     .join("");
+  if (!activeIsWorkspace) {
+    await switchCorpus(workspaces[0].id);
+  }
 }
 
 function renderExamples() {
@@ -156,6 +196,7 @@ async function switchCorpus(corpusId) {
     clearSelection();
     state.messages = [];
     state.uploads = [];
+    state.openDocument = null;
     await loadMeta();
     await loadCorpora();
     await loadTraces();
@@ -575,10 +616,15 @@ function render() {
   renderRunList();
   renderAnswer();
   renderRecoverBar();
+  renderRunView();
   renderWaterfall();
   renderInspector();
   renderPlaygroundChat();
   renderPlaygroundInspect();
+  if (typeof renderCanvas === "function") {
+    renderCanvas();
+    renderNodeInspector();
+  }
 }
 
 async function loadTraces() {
@@ -588,10 +634,105 @@ async function loadTraces() {
   renderRunList();
 }
 
+function setEvalTab(tab) {
+  state.evalTab = tab;
+  applyEvalTab();
+}
+
+function applyEvalTab() {
+  const view = $("view-evaluation");
+  if (!view) return;
+  view.dataset.tab = state.evalTab;
+  view.querySelectorAll("[data-eval-tab]").forEach((button) => {
+    const on = button.dataset.evalTab === state.evalTab;
+    button.classList.toggle("active", on);
+    button.setAttribute("aria-selected", on ? "true" : "false");
+  });
+}
+
+function renderRunView() {
+  const view = $("view-evaluation");
+  const root = $("run-diagram");
+  const tabs = $("run-view-tabs");
+  if (!view || !root || !tabs) return;
+  const hasRun = Boolean(state.trace);
+  view.dataset.runMode = hasRun ? state.runView : "trace";
+  tabs.classList.toggle("hidden", !hasRun);
+  tabs.querySelectorAll("[data-run-view]").forEach((button) => {
+    const on = button.dataset.runView === state.runView;
+    button.classList.toggle("active", on);
+    button.setAttribute("aria-selected", on ? "true" : "false");
+  });
+  const runId = hasRun ? String(state.trace.run_id || "") : "";
+  if (typeof renderRunDiagram === "function") renderRunDiagram(root, hasRun ? state.trace : null, state.quality[runId]);
+  if (hasRun && state.runView === "diagram" && String(state.trace.answer || "").trim() && !state.quality[runId]) {
+    ensureQuality(runId);
+  }
+}
+
+async function ensureQuality(runId) {
+  state.quality[runId] = { status: "loading" };
+  try {
+    const saved = (await api(`/api/traces/${encodeURIComponent(runId)}/quality`)).quality;
+    if (saved) {
+      state.quality[runId] = { status: "done", data: saved };
+    } else {
+      await scoreRun(runId, { refresh: false });
+      return;
+    }
+  } catch (error) {
+    state.quality[runId] = { status: "error", error: error.message };
+  }
+  if (state.trace && state.trace.run_id === runId) renderRunView();
+}
+
+async function scoreRun(runId, { refresh = true } = {}) {
+  state.quality[runId] = { status: "loading" };
+  if (refresh && state.trace && state.trace.run_id === runId) renderRunView();
+  try {
+    const scored = (await api(`/api/traces/${encodeURIComponent(runId)}/quality`, { method: "POST" })).quality;
+    state.quality[runId] = { status: "done", data: scored };
+  } catch (error) {
+    state.quality[runId] = { status: "error", error: error.message };
+  }
+  if (state.trace && state.trace.run_id === runId) renderRunView();
+  loadEval().catch(() => {});
+}
+
+async function scoreAllRuns() {
+  const runs = ((state.evalPayload && state.evalPayload.runs) || []).filter((run) => run.has_answer && !run.quality);
+  if (!runs.length || state.scoringProgress) return;
+  state.scoringProgress = { done: 0, total: runs.length };
+  renderEvalCharts();
+  let failed = 0;
+  for (const run of runs) {
+    try {
+      const scored = (await api(`/api/traces/${encodeURIComponent(run.run_id)}/quality`, { method: "POST" })).quality;
+      state.quality[run.run_id] = { status: "done", data: scored };
+    } catch (error) {
+      failed += 1;
+      if (failed === 1) showError(`Scoring stopped: ${error.message}`);
+      break;
+    }
+    state.scoringProgress.done += 1;
+    renderEvalCharts();
+  }
+  state.scoringProgress = null;
+  await loadEval();
+}
+
+function renderEvalCharts() {
+  const root = $("eval-overview");
+  if (!root || typeof renderEvalOverview !== "function") return;
+  renderEvalOverview(root, state.evalPayload, state.scoringProgress);
+}
+
 async function loadEval() {
   const strip = $("eval-strip");
   if (!strip) return;
   const payload = await api("/api/eval");
+  state.evalPayload = payload;
+  renderEvalCharts();
   const actions = Object.entries(payload.by_action || {})
     .map(([name, count]) => `${name}=${count}`)
     .join(" · ");
@@ -707,7 +848,9 @@ async function applyRecovery(action) {
 async function runQuestion(fromPlayground) {
   const questionEl = fromPlayground ? $("pg-question") : $("question");
   const modeEl = fromPlayground ? $("pg-mode") : $("mode");
-  const sendBtn = fromPlayground ? $("pg-send") : $("run-btn");
+  const runButtons = fromPlayground
+    ? [$("pg-send"), $("pg-run")].filter(Boolean)
+    : [$("run-btn")];
   const question = questionEl.value.trim();
   if (!question) {
     showError("Enter a question.");
@@ -721,9 +864,12 @@ async function runQuestion(fromPlayground) {
   showError("");
   if (fromPlayground) {
     state.messages.push({ role: "user", text: question });
+    canvasState.note = "";
   }
   state.loading = true;
-  sendBtn.disabled = true;
+  runButtons.forEach((button) => {
+    button.disabled = true;
+  });
   render();
   try {
     const payload = await api("/api/runs", {
@@ -759,9 +905,13 @@ async function runQuestion(fromPlayground) {
     renderWaterfall();
     renderPlaygroundChat();
     renderPlaygroundInspect();
+    renderCanvas();
+    renderNodeInspector();
     showError(error.message || String(error));
   } finally {
-    sendBtn.disabled = false;
+    runButtons.forEach((button) => {
+      button.disabled = false;
+    });
   }
 }
 
@@ -822,6 +972,7 @@ async function createPlaygroundProject(name) {
   clearSelection();
   state.messages = [];
   state.uploads = [];
+  state.openDocument = null;
   await loadMeta();
   await loadCorpora();
   await loadTraces();
@@ -831,6 +982,12 @@ async function createPlaygroundProject(name) {
   $("corpus").value = payload.active_id;
   render();
   renderPlaygroundKnowledge();
+}
+
+async function openDocument(name) {
+  const payload = await api(`/api/documents/${encodeURIComponent(name)}`);
+  state.openDocument = { name: payload.name, text: payload.text || "" };
+  renderKnowledge();
 }
 
 async function uploadFiles(fileList) {
@@ -845,10 +1002,10 @@ async function uploadFiles(fileList) {
       showError("Only .txt and .pdf files can be uploaded.");
       return;
     }
-    if (file.size > 8 * 1024 * 1024) {
-      state.uploads = [{ name, status: "failed", error: "File is larger than 8 MB." }];
+    if (file.size > 32 * 1024 * 1024) {
+      state.uploads = [{ name, status: "failed", error: "File is larger than 32 MB." }];
       renderPlaygroundKnowledge();
-      showError("File is larger than 8 MB.");
+      showError("File is larger than 32 MB.");
       return;
     }
     state.uploads = [{ name, status: "indexing" }];
@@ -871,6 +1028,7 @@ async function uploadFiles(fileList) {
 
 async function deleteDocument(name) {
   await api(`/api/documents/${encodeURIComponent(name)}`, { method: "DELETE" });
+  if (state.openDocument && state.openDocument.name === name) state.openDocument = null;
   await loadMeta();
   await loadDocuments();
   renderPlaygroundKnowledge();
@@ -879,12 +1037,13 @@ async function deleteDocument(name) {
 async function deletePlaygroundProject() {
   const id = state.meta && state.meta.corpus_id;
   if (!id || !state.meta.writable) return;
-  const ok = window.confirm(`Delete project ${state.meta.corpus_label} and its documents?`);
+  const ok = window.confirm(`Delete workspace ${state.meta.corpus_label} and its documents?`);
   if (!ok) return;
   await api(`/api/projects/${encodeURIComponent(id)}`, { method: "DELETE" });
   clearSelection();
   state.messages = [];
   state.uploads = [];
+  state.openDocument = null;
   await loadMeta();
   await loadCorpora();
   await loadTraces();
@@ -951,15 +1110,29 @@ function retrieveFallback(payload) {
 }
 
 function renderPlaygroundKnowledge() {
+  renderKnowledge();
+  renderAgent();
+  renderApiPanel();
+  if (typeof renderCanvas === "function") {
+    renderCanvas();
+    renderNodeInspector();
+  }
+}
+
+function renderKnowledge() {
   const knowledge = $("pg-knowledge");
   if (!knowledge) return;
   const writable = Boolean(state.meta && state.meta.writable);
-  const label = (state.meta && state.meta.corpus_label) || "Workspace";
   const docs = state.documents || [];
+  const open = state.openDocument;
+  const showing = open && docs.some((item) => item.name === open.name) ? open : null;
   const docItems = docs
     .map(
-      (item) => `<li>
-        <span>${escapeHtml(item.name)} · ${item.size} B</span>
+      (item) => `<li class="${showing && showing.name === item.name ? "is-open" : ""}">
+        <button type="button" class="doc-open" data-doc-open="${escapeHtml(item.name)}">
+          <span class="doc-name">${escapeHtml(item.name)}</span>
+          <span class="doc-size">${item.size} B</span>
+        </button>
         ${
           writable
             ? `<button type="button" class="ghost danger" data-doc-del="${escapeHtml(item.name)}">Remove</button>`
@@ -975,26 +1148,14 @@ function renderPlaygroundKnowledge() {
       return `<li class="${kind}">${escapeHtml(item.name)} — ${escapeHtml(detail)}</li>`;
     })
     .join("");
-  const modelOptions = CHAT_MODELS.map((model) => {
-    const selected = model === state.draftConfig.chat_model ? " selected" : "";
-    return `<option value="${escapeHtml(model)}"${selected}>${escapeHtml(model)}</option>`;
-  }).join("");
-  knowledge.innerHTML = `<div class="pg-knowledge-head">
-      <div class="pane-label">${escapeHtml(label)}</div>
-      ${
-        writable
-          ? `<button type="button" class="ghost danger" id="pg-delete-project">Delete</button>`
-          : ""
-      }
-    </div>
-    <p class="recover-note">${
+  knowledge.innerHTML = `${
       writable
-        ? "This project owns its documents, instructions, and runs. Drop files to index them."
-        : "Built-in corpora are read-only. Create a project to upload your own files."
-    }</p>
+        ? ""
+        : `<p class="recover-note">This workspace is read-only. Add a workspace to upload your own files.</p>`
+    }
     <form class="project-form" id="pg-project-form">
-      <input id="pg-project-name" maxlength="80" placeholder="New project name" />
-      <button type="submit" class="ghost">Create</button>
+      <input id="pg-project-name" maxlength="80" placeholder="New workspace name" aria-label="New workspace name" />
+      <button type="submit" class="ghost">Add workspace</button>
     </form>
     ${
       writable
@@ -1007,36 +1168,74 @@ function renderPlaygroundKnowledge() {
     ${uploads ? `<ul class="upload-status">${uploads}</ul>` : ""}
     ${
       docs.length
-        ? `<ul class="doc-list">${docItems}</ul>`
+        ? `<div class="knowledge-split${showing ? " has-reader" : ""}">
+            <ul class="doc-list">${docItems}</ul>
+            ${
+              showing
+                ? `<article class="doc-reader">
+                    <div class="doc-reader-bar">
+                      <h2>${escapeHtml(showing.name)}</h2>
+                      <button type="button" class="ghost" data-doc-close>Close</button>
+                    </div>
+                    <pre class="doc-text">${escapeHtml(showing.text)}</pre>
+                  </article>`
+                : ""
+            }
+          </div>`
         : `<div class="empty"><strong>No documents yet</strong>${
-            writable ? "Upload a notice or guide to give the agent something to retrieve." : "Switch to a project, or create one."
+            writable ? "Upload a notice or guide to give the agent something to retrieve." : "Add a workspace, then upload a file."
           }</div>`
     }
     ${
       writable
-        ? `<form class="pg-config" id="pg-config-form">
-            <div class="pane-label">Instructions</div>
-            <textarea id="pg-instructions" maxlength="8000" placeholder="How this agent should answer, on top of grounding.">${escapeHtml(
-              state.draftConfig.instructions || ""
-            )}</textarea>
-            <button type="submit" class="ghost">Save configuration</button>
-            <details>
-              <summary>Advanced</summary>
-              <label class="mode">
-                Model
-                <select id="pg-chat-model">${modelOptions}</select>
-              </label>
-              <label class="mode">
-                Default top_k
-                <input id="pg-config-top-k" type="number" min="1" max="20" step="1" value="${escapeHtml(
-                  String(state.draftConfig.top_k || 4)
-                )}" />
-              </label>
-            </details>
-          </form>
-          ${renderProjectKeys()}`
+        ? `<div class="pg-knowledge-head"><button type="button" class="ghost danger" id="pg-delete-project">Delete workspace</button></div>`
         : ""
     }`;
+}
+
+function renderAgent() {
+  const root = $("pg-agent");
+  if (!root) return;
+  const writable = Boolean(state.meta && state.meta.writable);
+  if (!writable) {
+    root.innerHTML = `<div class="empty"><strong>Workspaces only</strong>Add a workspace to set instructions and a model.</div>`;
+    return;
+  }
+  const modelOptions = CHAT_MODELS.map((model) => {
+    const selected = model === state.draftConfig.chat_model ? " selected" : "";
+    return `<option value="${escapeHtml(model)}"${selected}>${escapeHtml(model)}</option>`;
+  }).join("");
+  root.innerHTML = `<form class="pg-config" id="pg-config-form">
+      <label class="sr-only" for="pg-instructions">Instructions</label>
+      <textarea id="pg-instructions" maxlength="8000" placeholder="How this agent should answer, on top of grounding.">${escapeHtml(
+        state.draftConfig.instructions || ""
+      )}</textarea>
+      <button type="submit" class="primary">Save</button>
+      <details>
+        <summary>Advanced</summary>
+        <label class="mode">
+          Model
+          <select id="pg-chat-model">${modelOptions}</select>
+        </label>
+        <label class="mode">
+          Default top_k
+          <input id="pg-config-top-k" type="number" min="1" max="20" step="1" value="${escapeHtml(
+            String(state.draftConfig.top_k || 4)
+          )}" />
+        </label>
+      </details>
+    </form>`;
+}
+
+function renderApiPanel() {
+  const root = $("pg-api");
+  if (!root) return;
+  const writable = Boolean(state.meta && state.meta.writable);
+  if (!writable) {
+    root.innerHTML = `<div class="empty"><strong>Workspaces only</strong>Add a workspace to issue an API key.</div>`;
+    return;
+  }
+  root.innerHTML = renderProjectKeys();
 }
 
 function renderProjectKeys() {
@@ -1064,9 +1263,8 @@ function renderProjectKeys() {
   -d '{"query":"When is the library open?","answer":"Saturday 10:00-16:00.","contexts":[{"text":"Saturday 10:00-16:00."}]}'</pre>`
     : "";
   return `<div class="pg-keys">
-      <div class="pane-label">API keys</div>
       <p class="recover-note">Keys authenticate POST /api/v1/evaluations for this project. Rewrite and expand are proposed, not applied, on external runs.</p>
-      <button type="button" class="ghost" id="pg-create-key">Create key</button>
+      <button type="button" class="primary" id="pg-create-key">Create key</button>
       ${revealed}
       ${rows ? `<ul class="doc-list">${rows}</ul>` : `<div class="empty">No keys yet.</div>`}
     </div>`;
@@ -1076,7 +1274,7 @@ function renderPlaygroundChat() {
   const transcript = $("pg-transcript");
   if (!transcript) return;
   if (!state.messages.length && !state.loading) {
-    transcript.innerHTML = `<div class="empty"><strong>Ask the agent</strong>Questions run through the same evaluate → diagnose → recover loop as Evaluation.</div>`;
+    transcript.innerHTML = `<div class="empty"><strong>Ask the agent</strong>Answers and sources show up after you send a question.</div>`;
     return;
   }
   const rows = state.messages.map((item) => {
@@ -1159,6 +1357,1075 @@ function selectCitation(chunkId, preferredPass) {
   if (selected) selected.scrollIntoView({ block: "nearest" });
 }
 
+const NODE_W = 196;
+const NODE_H = 84;
+const STAGE_ORDER = ["input", "corpus", "retriever", "instructions", "model", "judge", "recover", "output"];
+const FLOW_TITLES = {
+  input: "Input",
+  corpus: "Corpus",
+  retriever: "Retriever",
+  instructions: "Instructions",
+  model: "Model",
+  judge: "Judge",
+  recover: "Recover",
+  output: "Output",
+};
+
+const canvasState = {
+  selectedId: "input",
+  selectedEdge: null,
+  positions: {},
+  pan: { x: 28, y: 36 },
+  zoom: 1,
+  note: "",
+  fitted: false,
+  fitScheduled: false,
+  pointer: null,
+};
+
+function currentPlaygroundMode() {
+  return ($("pg-mode") && $("pg-mode").value) || "loop";
+}
+
+function modeLabel(mode) {
+  if (mode === "loop") return "Loop · auto recover";
+  if (mode === "loop_confirm") return "Loop · confirm recovery";
+  if (mode === "baseline") return "Baseline RAG";
+  return "Retrieve only";
+}
+
+function stagesForMode(mode) {
+  const generate = mode !== "retrieve_only";
+  const evaluation = mode === "loop" || mode === "loop_confirm";
+  return STAGE_ORDER.filter((id) => {
+    if (id === "instructions" || id === "model") return generate;
+    if (id === "judge" || id === "recover") return evaluation;
+    return true;
+  });
+}
+
+function isRemovableStage(id) {
+  return id === "instructions" || id === "model" || id === "judge" || id === "recover";
+}
+
+function clipText(value, max) {
+  const text = String(value || "").replace(/\s+/g, " ").trim();
+  if (text.length <= max) return text;
+  return `${text.slice(0, max - 1)}…`;
+}
+
+function flagWord(value) {
+  if (value === true) return "true";
+  if (value === false) return "false";
+  return "n/a";
+}
+
+function latestStep(kind) {
+  const matches = (state.steps || []).filter((step) => step.kind === kind);
+  return matches.length ? matches[matches.length - 1] : null;
+}
+
+function mapStepStatus(status) {
+  if (status === "ok") return "ok";
+  if (status === "error") return "error";
+  if (status === "warn" || status === "empty") return "warn";
+  return "idle";
+}
+
+function lastPlaygroundMessage() {
+  return state.messages.length ? state.messages[state.messages.length - 1] : null;
+}
+
+function activeChatModel() {
+  if (state.meta && state.meta.writable) return state.draftConfig.chat_model || "gpt-4o-mini";
+  return (state.meta && state.meta.configured_chat_model) || "gpt-4o-mini";
+}
+
+function nodeCopy(id) {
+  const mode = currentPlaygroundMode();
+  if (id === "input") {
+    const typed = $("pg-question") && $("pg-question").value.trim();
+    const last = [...state.messages].reverse().find((item) => item.role === "user");
+    return {
+      summary: clipText(typed || (last && last.text) || "Question for this run", 42),
+      meta: "Sent with Run",
+    };
+  }
+  if (id === "corpus") {
+    const label = (state.meta && state.meta.corpus_label) || "Workspace";
+    const count = (state.documents || []).length;
+    const files = count === 1 ? "1 file" : `${count} files`;
+    return {
+      summary: clipText(count ? `${label} · ${files}` : label, 42),
+      meta: (state.meta && state.meta.corpus_industry) || (state.meta && state.meta.writable ? "Project" : "Read-only workspace"),
+    };
+  }
+  if (id === "retriever") {
+    const topK = $("pg-top-k") ? $("pg-top-k").value : String(state.draftConfig.top_k || 4);
+    return {
+      summary: `top_k ${topK}`,
+      meta: (state.meta && state.meta.configured_embedding_model) || "In-memory index",
+    };
+  }
+  if (id === "instructions") {
+    const text = (state.draftConfig.instructions || "").trim();
+    return {
+      summary: text ? clipText(text, 42) : "Grounding prompt",
+      meta: state.meta && state.meta.writable ? "Saved on the project" : "Server grounding prompt",
+    };
+  }
+  if (id === "model") {
+    return { summary: activeChatModel(), meta: "temperature 0" };
+  }
+  if (id === "judge") {
+    const evaluation = state.trace && state.trace.runtime_evaluation;
+    return {
+      summary: evaluation
+        ? `sufficient ${flagWord(evaluation.evidence_sufficient)} · supported ${flagWord(evaluation.answer_supported)}`
+        : "Grounding flags",
+      meta: "temperature 0",
+    };
+  }
+  if (id === "recover") {
+    const action = state.trace && state.trace.recovery && state.trace.recovery.action;
+    const verify = latestStep("verify");
+    return {
+      summary: action ? ACTION_LABELS[action] || action : mode === "loop_confirm" ? "Confirm recovery" : "Auto recover",
+      meta: verify && verify.summary
+        ? clipText(`${mode === "loop_confirm" ? "confirm" : "auto · up to 2"} · ${verify.summary}`, 42)
+        : mode === "loop_confirm"
+          ? "confirm before apply"
+          : "auto · up to 2",
+    };
+  }
+  const last = lastPlaygroundMessage();
+  if (last && last.error) return { summary: "Run failed", meta: "See the inspector" };
+  const verify = latestStep("verify");
+  if (verify && verify.summary) return { summary: clipText(verify.summary, 42), meta: "Latest run" };
+  const answer = state.trace && state.trace.answer;
+  if (answer) return { summary: clipText(answer, 42), meta: "Latest run" };
+  const chunks = (state.trace && state.trace.retrieved_chunks) || [];
+  if (chunks.length) return { summary: chunks.length === 1 ? "1 chunk" : `${chunks.length} chunks`, meta: "Latest run" };
+  return { summary: "Result of the run", meta: "After Run" };
+}
+
+function nodeStatus(id) {
+  if (state.loading) return "idle";
+  if (id === "recover" && state.recovering) return "running";
+  const last = lastPlaygroundMessage();
+  if (id === "output" && last && last.error) return "error";
+  if (!state.trace) return "idle";
+  if (id === "input" || id === "corpus" || id === "instructions") return "ok";
+  if (id === "retriever") {
+    const step = latestStep("retrieve");
+    return step ? mapStepStatus(step.status) : "idle";
+  }
+  if (id === "model") {
+    const step = latestStep("generate");
+    if (!step || step.status === "skipped") return "idle";
+    return mapStepStatus(step.status);
+  }
+  if (id === "judge") {
+    const step = latestStep("evaluate");
+    return step ? mapStepStatus(step.status) : "idle";
+  }
+  if (id === "recover") {
+    if (state.trace.recovery_status === "proposed") return "warn";
+    const step = latestStep("recover");
+    if (step) return mapStepStatus(step.status);
+    const verify = latestStep("verify");
+    return verify ? mapStepStatus(verify.status) : "idle";
+  }
+  const verify = latestStep("verify");
+  if (verify) return mapStepStatus(verify.status);
+  if (state.trace.answer || ((state.trace.retrieved_chunks || []).length)) return "ok";
+  return "idle";
+}
+
+function gridSpec() {
+  const canvas = $("pg-canvas");
+  const avail = Math.max(NODE_W, (canvas ? canvas.clientWidth : 640) - 48);
+  const gapX = 36;
+  const cols = Math.max(1, Math.floor((avail + gapX) / (NODE_W + gapX)));
+  return { cols, gapX, gapY: 36 };
+}
+
+function cellFor(index, grid) {
+  const col = index % grid.cols;
+  const row = Math.floor(index / grid.cols);
+  return {
+    x: 16 + col * (NODE_W + grid.gapX),
+    y: 24 + row * (NODE_H + grid.gapY),
+  };
+}
+
+function ensurePositions(ids) {
+  const missing = ids.filter((id) => !canvasState.positions[id]);
+  if (!missing.length) return;
+  const canvas = $("pg-canvas");
+  if (missing.length === ids.length && canvas && canvas.clientWidth < 40) return;
+  const grid = gridSpec();
+  if (missing.length === ids.length) {
+    ids.forEach((id, index) => {
+      canvasState.positions[id] = cellFor(index, grid);
+    });
+    return;
+  }
+  let next = ids.length - missing.length;
+  missing.forEach((id) => {
+    canvasState.positions[id] = cellFor(next, grid);
+    next += 1;
+  });
+}
+
+function setPlaygroundMode(mode, note) {
+  const select = $("pg-mode");
+  if (select && select.value !== mode) select.value = mode;
+  canvasState.note = note || "";
+  const stages = stagesForMode(currentPlaygroundMode());
+  if (!stages.includes(canvasState.selectedId)) canvasState.selectedId = stages[0] || "input";
+  renderCanvas();
+  renderNodeInspector();
+}
+
+function addStage(kind) {
+  const mode = currentPlaygroundMode();
+  if (kind === "generate") {
+    if (mode !== "retrieve_only") {
+      canvasState.selectedId = "model";
+      canvasState.selectedEdge = null;
+      canvasState.note = "Generate is already in this run.";
+      renderCanvas();
+      renderNodeInspector();
+      return;
+    }
+    canvasState.selectedId = "model";
+    canvasState.selectedEdge = null;
+    setPlaygroundMode("baseline", "Mode is baseline RAG.");
+    return;
+  }
+  if (kind !== "evaluation") return;
+  if (mode === "loop" || mode === "loop_confirm") {
+    canvasState.selectedId = "judge";
+    canvasState.selectedEdge = null;
+    canvasState.note = "Evaluation is already in this run.";
+    renderCanvas();
+    renderNodeInspector();
+    return;
+  }
+  canvasState.selectedId = "recover";
+  canvasState.selectedEdge = null;
+  const note = mode === "retrieve_only"
+    ? "Mode is loop with auto recover. Generate is on this run too."
+    : "Mode is loop with auto recover.";
+  setPlaygroundMode("loop", note);
+}
+
+function removeStage(id) {
+  const mode = currentPlaygroundMode();
+  if (id === "instructions" || id === "model") {
+    if (mode === "retrieve_only") return;
+    const hadEval = mode === "loop" || mode === "loop_confirm";
+    canvasState.selectedId = "retriever";
+    canvasState.selectedEdge = null;
+    setPlaygroundMode(
+      "retrieve_only",
+      hadEval ? "Mode is retrieve only. Generate and evaluation left this run." : "Mode is retrieve only."
+    );
+    return;
+  }
+  if (id === "judge" || id === "recover") {
+    if (mode !== "loop" && mode !== "loop_confirm") return;
+    canvasState.selectedId = "model";
+    canvasState.selectedEdge = null;
+    setPlaygroundMode("baseline", "Mode is baseline RAG.");
+  }
+}
+
+function removeEdgeTarget(target) {
+  if (target === "instructions" || target === "model" || target === "judge" || target === "recover") {
+    removeStage(target);
+    return;
+  }
+  canvasState.note = "Input, corpus, retriever, and output stay connected on every run.";
+  renderCanvas();
+}
+
+function connectionPlan(from, to) {
+  if (!from || !to || from === to) return { ok: false, note: "Choose two different blocks." };
+  const stages = stagesForMode(currentPlaygroundMode());
+  const fromIndex = stages.indexOf(from);
+  if (fromIndex >= 0 && stages[fromIndex + 1] === to) return { ok: true, note: "Already connected." };
+  const mode = currentPlaygroundMode();
+  const towardGenerate = to === "instructions" || to === "model";
+  const fromEarly = from === "input" || from === "corpus" || from === "retriever";
+  if (towardGenerate && fromEarly) {
+    if (mode !== "retrieve_only") return { ok: true, note: "Generate is already in this run." };
+    return { ok: true, mode: "baseline", select: "model", note: "Mode is baseline RAG." };
+  }
+  const towardEval = to === "judge" || to === "recover";
+  if (towardEval && (from === "model" || from === "instructions")) {
+    if (mode === "loop" || mode === "loop_confirm") return { ok: true, note: "Evaluation is already in this run." };
+    if (mode === "retrieve_only") return { ok: false, note: "Add Generate before Evaluation." };
+    return { ok: true, mode: "loop", select: "recover", note: "Mode is loop with auto recover." };
+  }
+  if (towardEval && mode === "retrieve_only") return { ok: false, note: "Add Generate before Evaluation." };
+  return { ok: false, note: "Those blocks do not connect in this run." };
+}
+
+function applyConnection(from, to) {
+  const result = connectionPlan(from, to);
+  if (!result.ok) {
+    canvasState.note = result.note;
+    renderCanvas();
+    return;
+  }
+  if (result.mode) {
+    canvasState.selectedId = result.select || canvasState.selectedId;
+    canvasState.selectedEdge = null;
+    setPlaygroundMode(result.mode, result.note);
+    return;
+  }
+  canvasState.note = result.note || "Already connected.";
+  renderCanvas();
+}
+
+function insertFromPort(from) {
+  const mode = currentPlaygroundMode();
+  if (mode === "retrieve_only" && (from === "input" || from === "corpus" || from === "retriever")) {
+    canvasState.selectedId = "model";
+    canvasState.selectedEdge = null;
+    setPlaygroundMode("baseline", "Mode is baseline RAG.");
+    return;
+  }
+  if (mode === "baseline" && (from === "model" || from === "instructions")) {
+    canvasState.selectedId = "recover";
+    canvasState.selectedEdge = null;
+    setPlaygroundMode("loop", "Mode is loop with auto recover.");
+    return;
+  }
+  canvasState.note = "Nothing further connects from that block.";
+  renderCanvas();
+}
+
+function renderPalette() {
+  const root = $("pg-palette");
+  if (!root) return;
+  const mode = currentPlaygroundMode();
+  const generateOn = mode !== "retrieve_only";
+  const evalOn = mode === "loop" || mode === "loop_confirm";
+  root.innerHTML = `<div class="pane-label">Blocks</div>
+    <p class="palette-note">Drag a block onto the canvas. The run mode updates to match.</p>
+    ${paletteItem("generate", "Generate", "Instructions and model", generateOn)}
+    ${paletteItem("evaluation", "Evaluation", "Judge and recover", evalOn)}
+    <p class="palette-fixed">On every run: Input, Corpus, Retriever, Output.</p>`;
+}
+
+function paletteItem(id, title, detail, on) {
+  return `<button type="button" class="palette-item${on ? " is-on" : ""}" draggable="${on ? "false" : "true"}" data-add="${id}">
+      <span>${escapeHtml(title)}</span>
+      <small>${escapeHtml(detail)}${on ? " · on canvas" : ""}</small>
+    </button>`;
+}
+
+function canvasStatusText() {
+  if (state.loading) return "Running";
+  if (state.recovering) return "Applying recovery";
+  if (canvasState.note) return canvasState.note;
+  return modeLabel(currentPlaygroundMode());
+}
+
+function renderCanvas() {
+  const host = $("pg-nodes");
+  const canvas = $("pg-canvas");
+  if (!host || !canvas) return;
+  renderPalette();
+  const stages = stagesForMode(currentPlaygroundMode());
+  ensurePositions(stages);
+  if (!stages.includes(canvasState.selectedId)) canvasState.selectedId = stages[0] || "input";
+  host.innerHTML = stages.map((id) => flowNodeHtml(id)).join("");
+  drawEdges();
+  applyWorldTransform();
+  const status = $("pg-canvas-status");
+  if (status) status.textContent = canvasStatusText();
+  if (!canvasState.fitted && !canvasState.fitScheduled) {
+    canvasState.fitScheduled = true;
+    requestAnimationFrame(() => {
+      canvasState.fitScheduled = false;
+      const view = $("pg-canvas");
+      if (!view || view.clientWidth < 40) return;
+      frameCanvas();
+      canvasState.fitted = true;
+    });
+  }
+}
+
+function flowNodeHtml(id) {
+  const copy = nodeCopy(id);
+  const status = nodeStatus(id);
+  const pos = canvasState.positions[id] || { x: 16, y: 40 };
+  const selected = id === canvasState.selectedId ? " is-selected" : "";
+  const removable = isRemovableStage(id)
+    ? `<button type="button" class="flow-remove" data-remove="${id}" aria-label="Remove ${escapeHtml(FLOW_TITLES[id])} from this run">×</button>`
+    : "";
+  const inlet = id === "input"
+    ? ""
+    : `<button type="button" class="flow-port in" data-port="in" data-node="${id}" aria-label="${escapeHtml(FLOW_TITLES[id])} input"></button>`;
+  const outlet = id === "output"
+    ? ""
+    : `<button type="button" class="flow-port out" data-port="out" data-node="${id}" aria-label="${escapeHtml(FLOW_TITLES[id])} output"></button>`;
+  return `<article class="flow-node is-${status}${selected}" data-node="${id}" style="transform: translate(${pos.x}px, ${pos.y}px)">
+      <span class="flow-port-slot">${inlet}</span>
+      <div class="flow-body">
+        <div class="flow-top">
+          <span class="flow-kicker">${escapeHtml(FLOW_TITLES[id])}</span>
+          <span class="flow-dot" title="${escapeHtml(status)}"></span>
+          ${removable}
+        </div>
+        <div class="flow-sub">${escapeHtml(copy.summary)}</div>
+        <div class="flow-meta">${escapeHtml(copy.meta)}</div>
+      </div>
+      <span class="flow-port-slot">${outlet}</span>
+    </article>`;
+}
+
+function updateNodeSubtitle(id) {
+  const node = document.querySelector(`.flow-node[data-node="${id}"]`);
+  if (!node) return;
+  const copy = nodeCopy(id);
+  const sub = node.querySelector(".flow-sub");
+  const meta = node.querySelector(".flow-meta");
+  if (sub) sub.textContent = copy.summary;
+  if (meta) meta.textContent = copy.meta;
+}
+
+function portOut(id) {
+  const pos = canvasState.positions[id] || { x: 0, y: 0 };
+  return { x: pos.x + NODE_W, y: pos.y + NODE_H / 2 };
+}
+
+function portIn(id) {
+  const pos = canvasState.positions[id] || { x: 0, y: 0 };
+  return { x: pos.x, y: pos.y + NODE_H / 2 };
+}
+
+function edgePath(x1, y1, x2, y2) {
+  const fmt = (n) => Number(n).toFixed(1);
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  if (Math.abs(dy) < 20 && dx > 24) {
+    const bend = Math.max(32, dx * 0.42);
+    return `M ${fmt(x1)} ${fmt(y1)} C ${fmt(x1 + bend)} ${fmt(y1)}, ${fmt(x2 - bend)} ${fmt(y2)}, ${fmt(x2)} ${fmt(y2)}`;
+  }
+  if (dy > 24 && dx < -24) {
+    const wrapped = wrapEdge(x1, y1, x2, y2);
+    if (wrapped) return wrapped;
+  }
+  const bend = Math.max(40, Math.hypot(dx, dy) * 0.35);
+  return `M ${fmt(x1)} ${fmt(y1)} C ${fmt(x1 + bend)} ${fmt(y1)}, ${fmt(x2 - bend)} ${fmt(y2)}, ${fmt(x2)} ${fmt(y2)}`;
+}
+
+function wrapEdge(x1, y1, x2, y2) {
+  const fmt = (n) => Number(n).toFixed(1);
+  const outX = x1 + 22;
+  const inX = x2 - 22;
+  const midY = (y1 + y2) / 2;
+  const radius = 12;
+  if (midY - radius < y1 + radius + 4 || y2 - radius < midY + radius + 4) return "";
+  if (outX - radius <= x1 || inX + radius >= x2) return "";
+  return [
+    `M ${fmt(x1)} ${fmt(y1)}`,
+    `H ${fmt(outX - radius)}`,
+    `Q ${fmt(outX)} ${fmt(y1)} ${fmt(outX)} ${fmt(y1 + radius)}`,
+    `V ${fmt(midY - radius)}`,
+    `Q ${fmt(outX)} ${fmt(midY)} ${fmt(outX - radius)} ${fmt(midY)}`,
+    `H ${fmt(inX + radius)}`,
+    `Q ${fmt(inX)} ${fmt(midY)} ${fmt(inX)} ${fmt(midY + radius)}`,
+    `V ${fmt(y2 - radius)}`,
+    `Q ${fmt(inX)} ${fmt(y2)} ${fmt(inX + radius)} ${fmt(y2)}`,
+    `H ${fmt(x2)}`,
+  ].join(" ");
+}
+
+function sizeWorld() {
+  const stages = stagesForMode(currentPlaygroundMode());
+  let maxX = 800;
+  let maxY = 420;
+  stages.forEach((id) => {
+    const pos = canvasState.positions[id];
+    if (!pos) return;
+    maxX = Math.max(maxX, pos.x + NODE_W + 120);
+    maxY = Math.max(maxY, pos.y + NODE_H + 120);
+  });
+  const world = $("pg-world");
+  const svg = $("pg-edges");
+  if (world) {
+    world.style.width = `${maxX}px`;
+    world.style.height = `${maxY}px`;
+  }
+  if (svg) {
+    svg.setAttribute("width", String(maxX));
+    svg.setAttribute("height", String(maxY));
+  }
+}
+
+function drawEdges(preview) {
+  const svg = $("pg-edges");
+  if (!svg) return;
+  sizeWorld();
+  const stages = stagesForMode(currentPlaygroundMode());
+  const parts = [];
+  for (let index = 0; index < stages.length - 1; index += 1) {
+    const from = stages[index];
+    const to = stages[index + 1];
+    const start = portOut(from);
+    const end = portIn(to);
+    const key = `${from}->${to}`;
+    const selected = canvasState.selectedEdge === key ? " is-selected" : "";
+    const d = edgePath(start.x, start.y, end.x, end.y);
+    parts.push(`<path class="pg-edge-hit${selected}" data-from="${from}" data-to="${to}" d="${d}"></path>`);
+    parts.push(`<path class="pg-edge${selected}" d="${d}"></path>`);
+  }
+  if (preview && canvasState.pointer && canvasState.pointer.type === "link") {
+    const start = portOut(canvasState.pointer.id);
+    parts.push(`<path class="pg-edge is-preview" d="${edgePath(start.x, start.y, preview.x, preview.y)}"></path>`);
+  }
+  svg.innerHTML = parts.join("");
+}
+
+function applyWorldTransform() {
+  const world = $("pg-world");
+  if (!world) return;
+  world.style.transform = `translate(${canvasState.pan.x}px, ${canvasState.pan.y}px) scale(${canvasState.zoom})`;
+}
+
+function placeNode(id) {
+  const node = document.querySelector(`.flow-node[data-node="${id}"]`);
+  const pos = canvasState.positions[id];
+  if (!node || !pos) return;
+  node.style.transform = `translate(${pos.x}px, ${pos.y}px)`;
+}
+
+function markSelectedNode() {
+  document.querySelectorAll(".flow-node").forEach((node) => {
+    node.classList.toggle("is-selected", node.dataset.node === canvasState.selectedId);
+  });
+}
+
+function clientToWorld(clientX, clientY) {
+  const canvas = $("pg-canvas");
+  const rect = canvas.getBoundingClientRect();
+  return {
+    x: (clientX - rect.left - canvasState.pan.x) / canvasState.zoom,
+    y: (clientY - rect.top - canvasState.pan.y) / canvasState.zoom,
+  };
+}
+
+function frameCanvas() {
+  const canvas = $("pg-canvas");
+  if (!canvas) return;
+  const stages = stagesForMode(currentPlaygroundMode());
+  ensurePositions(stages);
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  stages.forEach((id) => {
+    const pos = canvasState.positions[id];
+    if (!pos) return;
+    minX = Math.min(minX, pos.x);
+    minY = Math.min(minY, pos.y);
+    maxX = Math.max(maxX, pos.x + NODE_W);
+    maxY = Math.max(maxY, pos.y + NODE_H);
+  });
+  if (!Number.isFinite(minX)) return;
+  const boundsW = maxX - minX;
+  const boundsH = maxY - minY;
+  canvasState.zoom = 1;
+  canvasState.pan.x = Math.max(16, (canvas.clientWidth - boundsW) / 2 - minX);
+  const extraY = canvas.clientHeight - boundsH;
+  canvasState.pan.y = extraY > 48 ? extraY / 2 - minY : 24 - minY;
+  applyWorldTransform();
+}
+
+function fitCanvas() {
+  const canvas = $("pg-canvas");
+  if (!canvas) return;
+  const stages = stagesForMode(currentPlaygroundMode());
+  ensurePositions(stages);
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  stages.forEach((id) => {
+    const pos = canvasState.positions[id];
+    minX = Math.min(minX, pos.x);
+    minY = Math.min(minY, pos.y);
+    maxX = Math.max(maxX, pos.x + NODE_W);
+    maxY = Math.max(maxY, pos.y + NODE_H);
+  });
+  const pad = 36;
+  const boundsW = Math.max(1, maxX - minX);
+  const boundsH = Math.max(1, maxY - minY);
+  const zoom = Math.max(0.32, Math.min(1.15, (canvas.clientWidth - pad * 2) / boundsW, (canvas.clientHeight - pad * 2) / boundsH));
+  canvasState.zoom = zoom;
+  canvasState.pan.x = (canvas.clientWidth - boundsW * zoom) / 2 - minX * zoom;
+  canvasState.pan.y = (canvas.clientHeight - boundsH * zoom) / 2 - minY * zoom;
+  applyWorldTransform();
+}
+
+function zoomCanvas(factor) {
+  const canvas = $("pg-canvas");
+  if (!canvas) return;
+  const mx = canvas.clientWidth / 2;
+  const my = canvas.clientHeight / 2;
+  const next = Math.min(1.6, Math.max(0.32, canvasState.zoom * factor));
+  const ratio = next / canvasState.zoom;
+  canvasState.pan.x = mx - (mx - canvasState.pan.x) * ratio;
+  canvasState.pan.y = my - (my - canvasState.pan.y) * ratio;
+  canvasState.zoom = next;
+  applyWorldTransform();
+}
+
+function writableProject() {
+  return Boolean(state.meta && state.meta.writable);
+}
+
+function renderNodeInspector() {
+  const root = $("pg-node-config");
+  const title = $("pg-inspector-title");
+  if (!root || !title) return;
+  const stages = stagesForMode(currentPlaygroundMode());
+  if (!stages.includes(canvasState.selectedId)) canvasState.selectedId = stages[0] || "input";
+  const id = canvasState.selectedId;
+  title.textContent = FLOW_TITLES[id] || "Inspector";
+  root.innerHTML = inspectorHtml(id);
+}
+
+function inspectorHtml(id) {
+  if (id === "input") return inputInspector();
+  if (id === "corpus") return corpusInspector();
+  if (id === "retriever") return retrieverInspector();
+  if (id === "instructions") return instructionsInspector();
+  if (id === "model") return modelInspector();
+  if (id === "judge") return judgeInspector();
+  if (id === "recover") return recoverInspector();
+  return outputInspector();
+}
+
+function inputInspector() {
+  const examples = ((state.meta && state.meta.examples) || [])
+    .map(
+      (question) =>
+        `<button type="button" class="chip" data-fill-question="${escapeHtml(question)}">${escapeHtml(clipText(question, 80))}</button>`
+    )
+    .join("");
+  return `<p class="recover-note">The question in the dock is what this run sends. The retriever and the judge both see that text.</p>
+    ${examples ? `<div class="chips">${examples}</div>` : ""}`;
+}
+
+function corpusInspector() {
+  const docs = state.documents || [];
+  const names = docs
+    .slice(0, 8)
+    .map((item) => `<li><span>${escapeHtml(item.name)}</span></li>`)
+    .join("");
+  const note = writableProject()
+    ? "Drop .txt or .pdf files in the left column. This project indexes them for retrieval."
+    : "Add a workspace to upload files.";
+  return `<p class="recover-note">${note}</p>
+    ${names ? `<ul class="doc-list">${names}</ul>` : `<div class="empty">No documents indexed.</div>`}`;
+}
+
+function retrieverInspector() {
+  const value = $("pg-top-k") ? $("pg-top-k").value : String(state.draftConfig.top_k || 4);
+  const embed = (state.meta && state.meta.configured_embedding_model) || "";
+  const save = writableProject()
+    ? `<button type="button" class="ghost" id="pg-node-save">Save as project default</button>`
+    : "";
+  return `<label class="mode">top_k
+      <input id="pg-node-topk" type="number" min="1" max="20" step="1" value="${escapeHtml(String(value))}" />
+    </label>
+    <p class="recover-note">The next run sends this top_k.${embed ? ` Embedding model: ${escapeHtml(embed)}.` : ""}</p>
+    ${save}`;
+}
+
+function instructionsInspector() {
+  if (!writableProject()) {
+    return `<p class="recover-note">This workspace uses the grounding prompt. Add a workspace to write instructions. Saved instructions are prepended and still cannot invent facts.</p>`;
+  }
+  return `<label class="sr-only" for="pg-node-instructions">Instructions</label>
+    <textarea id="pg-node-instructions" maxlength="8000" placeholder="How this agent should answer, on top of grounding.">${escapeHtml(state.draftConfig.instructions || "")}</textarea>
+    <p class="recover-note">Save to prepend this text to the grounding prompt on the next run.</p>
+    <button type="button" class="ghost" id="pg-node-save">Save configuration</button>`;
+}
+
+function modelInspector() {
+  const model = activeChatModel();
+  if (!writableProject()) {
+    return `<p class="recover-note">This workspace uses ${escapeHtml(model)}. Temperature is 0 for generation, the judge, and recovery. Add a workspace to choose another allowed model.</p>`;
+  }
+  const options = CHAT_MODELS.map((item) => {
+    const selected = item === state.draftConfig.chat_model ? " selected" : "";
+    return `<option value="${escapeHtml(item)}"${selected}>${escapeHtml(item)}</option>`;
+  }).join("");
+  return `<label class="mode">Model
+      <select id="pg-node-model">${options}</select>
+    </label>
+    <p class="recover-note">Temperature is 0. Save to use this model on the next run.</p>
+    <button type="button" class="ghost" id="pg-node-save">Save configuration</button>`;
+}
+
+function judgeInspector() {
+  const fields = [
+    ["evidence_sufficient", "boolean", "required"],
+    ["answer_supported", "boolean | null", "with an answer"],
+    ["sufficiency_rationale", "string", "optional"],
+    ["support_rationale", "string", "optional"],
+  ];
+  const rows = fields
+    .map(
+      ([name, type, flag]) =>
+        `<li><span>${escapeHtml(name)}</span><span>${escapeHtml(type)}</span><span class="schema-flag">${escapeHtml(flag)}</span></li>`
+    )
+    .join("");
+  const evaluation = state.trace && state.trace.runtime_evaluation;
+  const live = evaluation
+    ? flagPills(evaluation) +
+      kv([
+        ["sufficiency", evaluation.sufficiency_rationale],
+        ["support", evaluation.support_rationale],
+        ["judge", evaluation.judge],
+        ["model", evaluation.model],
+      ])
+    : "";
+  return `<p class="pane-label">Response shape</p>
+    <ul class="schema-fields">${rows}</ul>
+    <p class="recover-note">The judge always returns this shape. Temperature is 0. Gold answers are never included.</p>
+    ${live}`;
+}
+
+function recoverInspector() {
+  const mode = currentPlaygroundMode();
+  const proposal = recoverMarkup();
+  return `<label class="mode">When a failure is diagnosed
+      <select id="pg-node-policy">
+        <option value="loop"${mode === "loop" ? " selected" : ""}>Auto recover</option>
+        <option value="loop_confirm"${mode === "loop_confirm" ? " selected" : ""}>Confirm first</option>
+      </select>
+    </label>
+    <p class="recover-note">${
+      mode === "loop_confirm"
+        ? "Confirm writes a proposal and waits for a choice."
+        : "Auto applies up to 2 recovery actions, then verifies."
+    }</p>
+    ${proposal ? `<div class="recover-bar">${proposal}</div>` : ""}`;
+}
+
+function outputInspector() {
+  const last = lastPlaygroundMessage();
+  if (last && last.error) return `<div class="banner">${escapeHtml(last.text)}</div>`;
+  const trace = state.trace;
+  if (!trace) return `<div class="empty"><strong>Output</strong>Run a question to fill this block.</div>`;
+  const answer = trace.answer || "";
+  const verify = latestStep("verify");
+  if (!answer.trim()) {
+    const count = (trace.retrieved_chunks || []).length;
+    return kv([
+      ["chunks", count],
+      ["model", trace.model],
+    ]) + `<div class="empty">This run stopped before an answer. Sources lists the chunks.</div>`;
+  }
+  const parsed = formatAnswerHtml(answer);
+  return kv([
+    ["run", state.selectedId],
+    ["verification", verify && verify.summary],
+    ["model", trace.model],
+  ]) + `<div class="block">${parsed.html}</div>${missingCitationNote(parsed.missing)}`;
+}
+
+function applyInspectorDraft() {
+  const instructions = $("pg-node-instructions");
+  const model = $("pg-node-model");
+  const topK = $("pg-node-topk");
+  if (instructions) {
+    state.draftConfig.instructions = instructions.value;
+    const existing = $("pg-instructions");
+    if (existing) existing.value = instructions.value;
+  }
+  if (model) {
+    state.draftConfig.chat_model = model.value;
+    const existing = $("pg-chat-model");
+    if (existing) existing.value = model.value;
+  }
+  if (topK) {
+    const parsed = Number(topK.value);
+    if (Number.isInteger(parsed) && parsed >= 1 && parsed <= 20) {
+      state.draftConfig.top_k = parsed;
+      if ($("pg-top-k")) $("pg-top-k").value = String(parsed);
+      const saved = $("pg-config-top-k");
+      if (saved) saved.value = String(parsed);
+    }
+  }
+}
+
+function onCanvasPointerDown(event) {
+  if (event.button !== 0) return;
+  const canvas = $("pg-canvas");
+  const remove = event.target.closest("[data-remove]");
+  if (remove) {
+    event.preventDefault();
+    event.stopPropagation();
+    removeStage(remove.dataset.remove);
+    return;
+  }
+  const port = event.target.closest(".flow-port.out");
+  if (port) {
+    event.preventDefault();
+    canvasState.pointer = { type: "link", id: port.dataset.node, pointerId: event.pointerId };
+    canvas.setPointerCapture(event.pointerId);
+    drawEdges(clientToWorld(event.clientX, event.clientY));
+    return;
+  }
+  const node = event.target.closest(".flow-node");
+  if (node) {
+    event.preventDefault();
+    const id = node.dataset.node;
+    const world = clientToWorld(event.clientX, event.clientY);
+    const pos = canvasState.positions[id] || { x: 0, y: 0 };
+    canvasState.selectedId = id;
+    canvasState.selectedEdge = null;
+    canvasState.pointer = {
+      type: "move",
+      id,
+      dx: world.x - pos.x,
+      dy: world.y - pos.y,
+      pointerId: event.pointerId,
+    };
+    canvas.setPointerCapture(event.pointerId);
+    canvas.focus({ preventScroll: true });
+    markSelectedNode();
+    renderNodeInspector();
+    return;
+  }
+  const edge = event.target.closest(".pg-edge-hit");
+  if (edge) {
+    canvasState.selectedEdge = `${edge.dataset.from}->${edge.dataset.to}`;
+    canvasState.selectedId = edge.dataset.to;
+    canvas.focus({ preventScroll: true });
+    markSelectedNode();
+    drawEdges();
+    renderNodeInspector();
+    return;
+  }
+  canvasState.pointer = {
+    type: "pan",
+    x: event.clientX,
+    y: event.clientY,
+    panX: canvasState.pan.x,
+    panY: canvasState.pan.y,
+    pointerId: event.pointerId,
+  };
+  canvas.setPointerCapture(event.pointerId);
+  canvas.focus({ preventScroll: true });
+}
+
+function onCanvasPointerMove(event) {
+  const pointer = canvasState.pointer;
+  if (!pointer || pointer.pointerId !== event.pointerId) return;
+  if (pointer.type === "pan") {
+    canvasState.pan.x = pointer.panX + (event.clientX - pointer.x);
+    canvasState.pan.y = pointer.panY + (event.clientY - pointer.y);
+    applyWorldTransform();
+    return;
+  }
+  if (pointer.type === "move") {
+    const world = clientToWorld(event.clientX, event.clientY);
+    canvasState.positions[pointer.id] = { x: world.x - pointer.dx, y: world.y - pointer.dy };
+    placeNode(pointer.id);
+    drawEdges();
+    return;
+  }
+  if (pointer.type === "link") drawEdges(clientToWorld(event.clientX, event.clientY));
+}
+
+function onCanvasPointerUp(event) {
+  const pointer = canvasState.pointer;
+  if (!pointer || pointer.pointerId !== event.pointerId) return;
+  canvasState.pointer = null;
+  if (pointer.type !== "link") return;
+  const hit = document.elementFromPoint(event.clientX, event.clientY);
+  const port = hit && hit.closest(".flow-port");
+  const node = hit && hit.closest(".flow-node");
+  const to = (port && port.dataset.node) || (node && node.dataset.node);
+  drawEdges();
+  if (to && to !== pointer.id) applyConnection(pointer.id, to);
+  else if (!to) insertFromPort(pointer.id);
+  else drawEdges();
+}
+
+function isStageDrag(event) {
+  const types = event.dataTransfer ? [...event.dataTransfer.types] : [];
+  return types.includes("text/plain");
+}
+
+function bindCanvas() {
+  const canvas = $("pg-canvas");
+  const palette = $("pg-palette");
+  const pane = $("pg-inspect-pane");
+  if (!canvas || !palette || !pane) return;
+  canvas.addEventListener("pointerdown", onCanvasPointerDown);
+  canvas.addEventListener("pointermove", onCanvasPointerMove);
+  canvas.addEventListener("pointerup", onCanvasPointerUp);
+  canvas.addEventListener("pointercancel", onCanvasPointerUp);
+  canvas.addEventListener("wheel", (event) => {
+    event.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const mx = event.clientX - rect.left;
+    const my = event.clientY - rect.top;
+    const next = Math.min(1.6, Math.max(0.32, canvasState.zoom * (event.deltaY > 0 ? 0.92 : 1.08)));
+    const ratio = next / canvasState.zoom;
+    canvasState.pan.x = mx - (mx - canvasState.pan.x) * ratio;
+    canvasState.pan.y = my - (my - canvasState.pan.y) * ratio;
+    canvasState.zoom = next;
+    applyWorldTransform();
+  }, { passive: false });
+  canvas.addEventListener("dragenter", (event) => {
+    if (!isStageDrag(event)) return;
+    event.preventDefault();
+    canvas.classList.add("is-dropping");
+  });
+  canvas.addEventListener("dragover", (event) => {
+    if (!isStageDrag(event)) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "copy";
+  });
+  canvas.addEventListener("dragleave", (event) => {
+    if (canvas.contains(event.relatedTarget)) return;
+    canvas.classList.remove("is-dropping");
+  });
+  canvas.addEventListener("drop", (event) => {
+    const kind = event.dataTransfer.getData("text/plain");
+    canvas.classList.remove("is-dropping");
+    if (kind !== "generate" && kind !== "evaluation") return;
+    event.preventDefault();
+    addStage(kind);
+  });
+  palette.addEventListener("click", (event) => {
+    const item = event.target.closest("[data-add]");
+    if (!item) return;
+    addStage(item.dataset.add);
+  });
+  palette.addEventListener("dragstart", (event) => {
+    const item = event.target.closest("[data-add]");
+    if (!item || item.classList.contains("is-on")) {
+      event.preventDefault();
+      return;
+    }
+    event.dataTransfer.setData("text/plain", item.dataset.add);
+    event.dataTransfer.effectAllowed = "copy";
+  });
+  $("pg-fit").addEventListener("click", () => fitCanvas());
+  $("pg-zoom-in").addEventListener("click", () => zoomCanvas(1.1));
+  $("pg-zoom-out").addEventListener("click", () => zoomCanvas(0.9));
+  $("pg-run").addEventListener("click", () => {
+    runQuestion(true).catch((error) => showError(error.message));
+  });
+  $("pg-mode").addEventListener("change", () => {
+    const stages = stagesForMode(currentPlaygroundMode());
+    if (!stages.includes(canvasState.selectedId)) canvasState.selectedId = stages[0] || "input";
+    canvasState.selectedEdge = null;
+    canvasState.note = "";
+    renderCanvas();
+    renderNodeInspector();
+  });
+  $("pg-top-k").addEventListener("input", () => {
+    const field = $("pg-node-topk");
+    if (field && document.activeElement !== field) field.value = $("pg-top-k").value;
+    updateNodeSubtitle("retriever");
+  });
+  $("pg-question").addEventListener("input", () => updateNodeSubtitle("input"));
+  pane.addEventListener("click", (event) => {
+    if (event.target.closest("#pg-inspect")) return;
+    const save = event.target.closest("#pg-node-save");
+    if (save) {
+      event.preventDefault();
+      applyInspectorDraft();
+      savePlaygroundConfig().catch((error) => showError(error.message));
+      return;
+    }
+    const fill = event.target.closest("[data-fill-question]");
+    if (fill) {
+      $("pg-question").value = fill.dataset.fillQuestion;
+      updateNodeSubtitle("input");
+      $("pg-question").focus();
+      return;
+    }
+    const openChild = event.target.closest("[data-open-child]");
+    if (openChild) {
+      selectRun(openChild.dataset.openChild).catch((error) => showError(error.message));
+      return;
+    }
+    const recover = event.target.closest("[data-recover]");
+    if (recover) {
+      applyRecovery(recover.dataset.recover).catch((error) => showError(error.message));
+      return;
+    }
+    const cite = event.target.closest("button.cite");
+    if (!cite) return;
+    selectCitation(cite.dataset.chunkId, cite.dataset.citePass || null);
+  });
+  pane.addEventListener("change", (event) => {
+    if (event.target.id === "pg-node-policy") {
+      canvasState.selectedId = "recover";
+      setPlaygroundMode(event.target.value, "");
+      return;
+    }
+    if (event.target.id === "pg-node-model") {
+      state.draftConfig.chat_model = event.target.value;
+      const existing = $("pg-chat-model");
+      if (existing) existing.value = event.target.value;
+      updateNodeSubtitle("model");
+    }
+  });
+  pane.addEventListener("input", (event) => {
+    if (event.target.id === "pg-node-topk") {
+      const parsed = Number(event.target.value);
+      if (Number.isInteger(parsed) && parsed >= 1 && parsed <= 20) {
+        $("pg-top-k").value = String(parsed);
+        const saved = $("pg-config-top-k");
+        if (saved) saved.value = String(parsed);
+        state.draftConfig.top_k = parsed;
+        updateNodeSubtitle("retriever");
+      }
+      return;
+    }
+    if (event.target.id === "pg-node-instructions") {
+      state.draftConfig.instructions = event.target.value;
+      const existing = $("pg-instructions");
+      if (existing) existing.value = event.target.value;
+      updateNodeSubtitle("instructions");
+    }
+  });
+  window.addEventListener("keydown", (event) => {
+    if (state.view !== "playground") return;
+    if (event.key !== "Delete" && event.key !== "Backspace") return;
+    if (document.activeElement !== canvas) return;
+    if (canvasState.selectedEdge) {
+      const target = canvasState.selectedEdge.split("->")[1];
+      event.preventDefault();
+      removeEdgeTarget(target);
+      return;
+    }
+    if (isRemovableStage(canvasState.selectedId)) {
+      event.preventDefault();
+      removeStage(canvasState.selectedId);
+    }
+  });
+}
+
+
+
 function bind() {
   $("run-btn").addEventListener("click", runQuestion);
   $("refresh-runs").addEventListener("click", () => loadTraces().catch((error) => showError(error.message)));
@@ -1189,6 +2456,32 @@ function bind() {
     const item = event.target.closest(".run-item");
     if (!item) return;
     selectRun(item.dataset.id).catch((error) => showError(error.message));
+  });
+  $("view-evaluation").addEventListener("click", (event) => {
+    const tab = event.target.closest("[data-eval-tab]");
+    if (tab) {
+      setEvalTab(tab.dataset.evalTab);
+      return;
+    }
+    const runView = event.target.closest("[data-run-view]");
+    if (runView) {
+      state.runView = runView.dataset.runView;
+      renderRunView();
+      return;
+    }
+    if (event.target.closest("[data-score-run]")) {
+      if (state.trace) scoreRun(String(state.trace.run_id));
+      return;
+    }
+    if (event.target.closest("[data-score-all]")) {
+      scoreAllRuns();
+      return;
+    }
+    const bar = event.target.closest("[data-chart-run]");
+    if (!bar) return;
+    setEvalTab("runs");
+    state.runView = "diagram";
+    selectRun(bar.dataset.chartRun).catch((error) => showError(error.message));
   });
   $("waterfall").addEventListener("click", (event) => {
     const button = event.target.closest(".step-btn");
@@ -1236,10 +2529,25 @@ function bind() {
   });
   $("pg-collapse").addEventListener("click", () => {
     state.inspectCollapsed = !state.inspectCollapsed;
-    $("pg-collapse").textContent = state.inspectCollapsed ? "Show sources" : "Collapse";
     applyView();
+    window.setTimeout(() => frameCanvas(), 260);
   });
-  $("pg-knowledge").addEventListener("submit", (event) => {
+  $("pg-blocks-toggle").addEventListener("click", () => {
+    state.libraryCollapsed = !state.libraryCollapsed;
+    applyView();
+    window.setTimeout(() => frameCanvas(), 260);
+  });
+  $("new-workspace").addEventListener("click", () => {
+    const form = $("new-workspace-form");
+    form.hidden = !form.hidden;
+    if (!form.hidden) $("new-workspace-name").focus();
+  });
+  $("nav-collapse").addEventListener("click", () => {
+    state.navCollapsed = !state.navCollapsed;
+    applyView();
+    window.setTimeout(() => frameCanvas(), 260);
+  });
+  document.getElementById("app").addEventListener("submit", (event) => {
     const configForm = event.target.closest("#pg-config-form");
     if (configForm) {
       event.preventDefault();
@@ -1247,21 +2555,29 @@ function bind() {
       savePlaygroundConfig().catch((error) => showError(error.message));
       return;
     }
-    const form = event.target.closest("#pg-project-form");
+    const sidebarForm = event.target.closest("#new-workspace-form");
+    const knowledgeForm = event.target.closest("#pg-project-form");
+    const form = sidebarForm || knowledgeForm;
     if (!form) return;
     event.preventDefault();
-    const name = $("pg-project-name").value.trim();
+    const input = sidebarForm ? $("new-workspace-name") : $("pg-project-name");
+    const name = input.value.trim();
     if (!name) {
-      showError("Name the project first.");
+      showError("Name the workspace first.");
       return;
     }
-    createPlaygroundProject(name).catch((error) => showError(error.message));
+    createPlaygroundProject(name)
+      .then(() => {
+        input.value = "";
+        if (sidebarForm) sidebarForm.hidden = true;
+      })
+      .catch((error) => showError(error.message));
   });
-  $("pg-knowledge").addEventListener("input", (event) => {
+  document.getElementById("app").addEventListener("input", (event) => {
     if (!["pg-instructions", "pg-chat-model", "pg-config-top-k"].includes(event.target.id)) return;
     captureDraftConfig();
   });
-  $("pg-knowledge").addEventListener("click", (event) => {
+  document.getElementById("app").addEventListener("click", (event) => {
     const delProject = event.target.closest("#pg-delete-project");
     if (delProject) {
       event.preventDefault();
@@ -1292,36 +2608,49 @@ function bind() {
       deleteDocument(remove.dataset.docDel).catch((error) => showError(error.message));
       return;
     }
+    const closeDoc = event.target.closest("[data-doc-close]");
+    if (closeDoc) {
+      event.preventDefault();
+      state.openDocument = null;
+      renderKnowledge();
+      return;
+    }
+    const openDoc = event.target.closest("[data-doc-open]");
+    if (openDoc) {
+      event.preventDefault();
+      openDocument(openDoc.dataset.docOpen).catch((error) => showError(error.message));
+      return;
+    }
     const zone = event.target.closest("#pg-drop");
     if (zone && event.target.id !== "pg-file") {
       const input = $("pg-file");
       if (input) input.click();
     }
   });
-  $("pg-knowledge").addEventListener("keydown", (event) => {
+  document.getElementById("app").addEventListener("keydown", (event) => {
     if (event.target.id !== "pg-drop") return;
     if (event.key !== "Enter" && event.key !== " ") return;
     event.preventDefault();
     const input = $("pg-file");
     if (input) input.click();
   });
-  $("pg-knowledge").addEventListener("change", (event) => {
+  document.getElementById("app").addEventListener("change", (event) => {
     if (event.target.id !== "pg-file") return;
     uploadFiles(event.target.files).catch((error) => showError(error.message));
     event.target.value = "";
   });
-  $("pg-knowledge").addEventListener("dragover", (event) => {
+  document.getElementById("app").addEventListener("dragover", (event) => {
     const zone = event.target.closest("#pg-drop");
     if (!zone) return;
     event.preventDefault();
     zone.classList.add("dragover");
   });
-  $("pg-knowledge").addEventListener("dragleave", (event) => {
+  document.getElementById("app").addEventListener("dragleave", (event) => {
     const zone = event.target.closest("#pg-drop");
     if (!zone) return;
     zone.classList.remove("dragover");
   });
-  $("pg-knowledge").addEventListener("drop", (event) => {
+  document.getElementById("app").addEventListener("drop", (event) => {
     const zone = event.target.closest("#pg-drop");
     if (!zone) return;
     event.preventDefault();
@@ -1348,10 +2677,12 @@ function bind() {
     if (!cite) return;
     selectCitation(cite.dataset.chunkId, cite.dataset.citePass || null);
   });
+  bindCanvas();
 }
 
 async function boot() {
   applyView();
+  applyEvalTab();
   renderExamples();
   bind();
   render();

@@ -20,7 +20,7 @@ PROJECT_GROUP = "Projects"
 _SAFE_ID = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$")
 _SAFE_FILE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,120}$")
 ALLOWED_SUFFIXES = frozenset({".txt", ".pdf"})
-MAX_UPLOAD_BYTES = 8 * 1024 * 1024
+MAX_UPLOAD_BYTES = 32 * 1024 * 1024
 MAX_INSTRUCTIONS_CHARS = 8000
 
 
@@ -180,6 +180,19 @@ def update_project_config(
     payload["config"] = normalize_project_config(raw)
     config_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
     return _entry_from_folder(folder, traces_root)
+
+
+def read_document_text(path: Path) -> str:
+    suffix = path.suffix.lower()
+    if suffix == ".txt":
+        return path.read_text(encoding="utf-8")
+    if suffix != ".pdf":
+        raise ValueError("only .txt and .pdf files can be read")
+    try:
+        pages = extract_pdf_pages(path)
+    except PdfExtractError as error:
+        raise ValueError(str(error)) from error
+    return "\n\n".join(text for _, text in pages if text.strip())
 
 
 def validate_uploaded_file(path: Path) -> None:
