@@ -35,6 +35,8 @@ experiments/output/*
 !experiments/output/.gitkeep
 experiments/projects/*
 !experiments/projects/.gitkeep
+experiments/verification-v2/cache/
+experiments/verification-v2/traces/
 datasets/generated/
 
 # Secrets

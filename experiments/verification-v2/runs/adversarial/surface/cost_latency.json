@@ -1,0 +1,13 @@
+{
+  "completion_tokens_total": null,
+  "estimated_cost_usd": null,
+  "latency_ms_p50": 0.0,
+  "latency_ms_p95": 0.0,
+  "model": null,
+  "model_calls_mean": 0.0,
+  "model_calls_total": 0,
+  "n": 17,
+  "price_note": "List-rate estimate from protocol.PRICE_PER_MILLION. Not an invoice.",
+  "prompt_tokens_total": null,
+  "tokens_observed": false
+}
