@@ -758,7 +758,13 @@ def _apply_action(
     # evaluation is the one that describes the answer actually being kept.
     post_eval = before if kept_first_pass and before is not None else after
     if before is not None and post_eval is not None:
-        verification = verify_runtime(before, post_eval)
+        if is_abstention(generation.answer) and not post_eval.evidence_sufficient:
+            # Ending on an abstention with still-insufficient evidence is the
+            # same outcome run_with_recovery records, and the null support flag
+            # behind it is not a degradation.
+            verification = Verification(outcome=STILL_FAILING, rationale=_ABSTAIN_RATIONALE)
+        else:
+            verification = verify_runtime(before, post_eval)
 
     next_decision = RecoveryDecision(
         action=REWRITE,
