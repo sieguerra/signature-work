@@ -280,6 +280,7 @@ def _run_one(
             question_id=question_id,
             max_recoveries=max_recoveries,
             index=index,
+            run_mode=mode,
         )
     return run_query(
         query,
@@ -292,6 +293,7 @@ def _run_one(
         question_id=question_id,
         judge=judge,
         index=index,
+        run_mode=mode,
     )
 
 

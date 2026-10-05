@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>swrag · Reliability</title>
     <meta name="color-scheme" content="dark" />
-    <link rel="stylesheet" href="/static/styles.css?v=53" />
+    <link rel="stylesheet" href="/static/styles.css?v=58" />
   </head>
   <body>
     <div id="app" data-view="overview">
@@ -182,106 +182,88 @@
           <div class="page-body" id="pg-api"></div>
         </div>
 
-        <div id="view-evaluation" class="view">
+        <div id="view-evaluation" class="view" data-tab="overview">
           <span class="sr-only">Trace explorer</span>
           <header class="page-head">
             <div>
               <h1>Reliability</h1>
-              <p>Review how runs were evaluated, when recovery was triggered, what action was applied, and whether verification said the result improved.</p>
+              <p>What failure and recovery patterns exist across runs, and which runs should be investigated.</p>
             </div>
             <div class="eval-tabs" role="tablist" aria-label="Reliability views">
               <button type="button" role="tab" data-eval-tab="overview">Summary</button>
               <button type="button" role="tab" data-eval-tab="runs">Runs</button>
+              <button type="button" role="tab" data-eval-tab="recoveries">Recoveries</button>
+              <button type="button" role="tab" data-eval-tab="quality">Quality</button>
             </div>
           </header>
-          <div class="eval-overview" id="eval-overview"></div>
-          <div class="eval-body">
-            <aside class="sidebar">
-              <div class="sidebar-head">
-                <span>Runs</span>
-                <div class="sidebar-actions">
-                  <button type="button" class="ghost" id="refresh-runs">Refresh</button>
-                </div>
+          <div class="banner hidden" id="error-banner" role="alert"></div>
+          <section class="rel-panel" data-rel-panel="overview" id="rel-summary"></section>
+          <section class="rel-panel" data-rel-panel="runs">
+            <div class="rel-toolbar">
+              <div class="rel-filters" id="rel-filters">
+                <input id="rel-search" type="search" placeholder="Search questions" aria-label="Search questions" />
+                <label>Verification
+                  <select id="rel-verification" aria-label="Verification filter">
+                    <option value="all">All</option>
+                    <option value="needs">Needs investigation</option>
+                    <option value="improved">Improved</option>
+                    <option value="unchanged">Unchanged</option>
+                    <option value="still_failing">Still failing</option>
+                    <option value="degraded">Degraded</option>
+                    <option value="pending">Pending</option>
+                  </select>
+                </label>
+                <label>Recovery
+                  <select id="rel-recovery" aria-label="Recovery filter">
+                    <option value="all">All</option>
+                    <option value="required">Recovery required</option>
+                    <option value="none">No recovery</option>
+                    <option value="pending">Pending recovery</option>
+                    <option value="applied">Applied recovery</option>
+                  </select>
+                </label>
+                <label>Action
+                  <select id="rel-action" aria-label="Action filter">
+                    <option value="all">All</option>
+                    <option value="rewrite">Rewrite</option>
+                    <option value="expand">Expand</option>
+                    <option value="regenerate">Regenerate</option>
+                    <option value="abstain">Safe abstention</option>
+                  </select>
+                </label>
+                <label>Diagnosis
+                  <select id="rel-diagnosis" aria-label="Diagnosis filter">
+                    <option value="all">All</option>
+                    <option value="unsupported_generation">Unsupported generation</option>
+                    <option value="retrieval_miss">Retrieval miss</option>
+                    <option value="evidence_insufficiency">Evidence insufficiency</option>
+                    <option value="unattributed">Not attributed</option>
+                  </select>
+                </label>
               </div>
-              <details class="eval-counts">
-                <summary>Counts</summary>
-                <div class="eval-strip" id="eval-strip">n=0</div>
-              </details>
-              <div class="run-list" id="run-list"></div>
-              <div class="sidebar-foot">
+              <div class="rel-toolbar-actions">
+                <button type="button" class="ghost" id="refresh-runs">Refresh</button>
                 <button type="button" class="ghost danger" id="delete-all-runs">Delete all</button>
               </div>
-            </aside>
-
-            <main class="main">
-              <section class="playground">
-                <label class="sr-only" for="question">Question</label>
-                <textarea
-                  id="question"
-                  rows="2"
-                  placeholder="Run a query against this system…"
-                ></textarea>
-                <div class="chips" id="example-chips"></div>
-                <div class="playground-row">
-                  <div class="playground-controls">
-                    <label class="mode">
-                      Mode
-                      <select id="mode">
-                        <option value="loop_confirm" selected>Loop (confirm recovery)</option>
-                        <option value="loop">Loop (auto recover)</option>
-                        <option value="baseline">Baseline RAG</option>
-                        <option value="retrieve_only">Retrieve only</option>
-                      </select>
-                    </label>
-                    <button type="button" class="primary" id="run-btn">Run</button>
-                  </div>
-                </div>
-                <details class="run-settings">
-                  <summary>Run settings</summary>
-                  <label class="mode">
-                    top_k
-                    <input
-                      id="top-k"
-                      type="number"
-                      min="1"
-                      max="20"
-                      value="4"
-                      step="1"
-                      aria-label="Number of retrieved chunks"
-                    />
-                  </label>
-                </details>
-                <div class="banner hidden" id="error-banner" role="alert"></div>
-              </section>
-
-              <section class="answer-bar hidden" id="answer-bar">
-                <div class="answer-kicker">
-                  <span>Output</span>
-                  <span class="run-id" id="answer-run-id"></span>
-                </div>
-                <div id="answer-text"></div>
-              </section>
-
-              <section class="recover-bar hidden" id="recover-bar"></section>
-
-              <div class="run-view-tabs eval-tabs hidden" id="run-view-tabs" role="tablist" aria-label="Run views">
-                <button type="button" role="tab" data-run-view="diagram">Diagram</button>
-                <button type="button" role="tab" data-run-view="trace">Trace details</button>
+            </div>
+            <div id="rel-runs"></div>
+            <div id="rel-detail"></div>
+            <section class="workspace rel-trace" id="workspace" hidden>
+              <div class="waterfall-pane">
+                <div class="pane-label">Trace steps</div>
+                <ol class="waterfall" id="waterfall"></ol>
               </div>
-              <section class="run-diagram" id="run-diagram"></section>
-
-              <section class="workspace" id="workspace">
-                <div class="waterfall-pane">
-                  <div class="pane-label">Trace</div>
-                  <ol class="waterfall" id="waterfall"></ol>
-                </div>
-                <div class="inspector-pane">
-                  <div class="pane-label" id="inspector-label">Inspector</div>
-                  <div class="inspector" id="inspector"></div>
-                </div>
-              </section>
-            </main>
-          </div>
+              <div class="inspector-pane">
+                <div class="pane-label" id="inspector-label">Inspector</div>
+                <div class="inspector" id="inspector"></div>
+              </div>
+            </section>
+          </section>
+          <section class="rel-panel" data-rel-panel="recoveries" id="rel-recoveries"></section>
+          <section class="rel-panel" data-rel-panel="quality">
+            <div class="eval-strip" id="eval-strip">n=0</div>
+            <div class="eval-overview" id="eval-overview"></div>
+          </section>
         </div>
         </div>
       </div>
@@ -300,9 +282,10 @@
       <div class="toasts" id="toasts" aria-live="polite"></div>
     </div>
     <script src="/static/icons.js?v=43"></script>
-    <script src="/static/charts.js?v=44"></script>
-    <script src="/static/flight-recorder.js?v=2"></script>
+    <script src="/static/charts.js?v=45"></script>
+    <script src="/static/flight-recorder.js?v=3"></script>
+    <script src="/static/reliability.js?v=1"></script>
     <script src="/static/agent-config.js?v=46"></script>
-    <script src="/static/app.js?v=53"></script>
+    <script src="/static/app.js?v=57"></script>
   </body>
 </html>

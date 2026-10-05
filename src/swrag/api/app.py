@@ -28,6 +28,7 @@ from swrag.api.store import (
 )
 from swrag.api.v1 import build_v1_router
 from swrag.config import load_provider_config
+from swrag.usage import capture_usage
 from swrag.evaluation.quality_metrics import score_trace
 from swrag.corpus_registry import (
     CorpusEntry,
@@ -448,7 +449,7 @@ def create_app(
                 detail="OPENAI_API_KEY is not set. Use retrieve-only mode, or add a key to .env.",
             )
         try:
-            with application.state.index_lock:
+            with application.state.index_lock, capture_usage():
                 result = _execute_run(application, question, body.mode, body.top_k)
         except FileExistsError as error:
             raise HTTPException(status_code=409, detail=str(error)) from error
@@ -493,7 +494,7 @@ def create_app(
                 detail=f"action must be one of {sorted(ACTIONS)}",
             )
         try:
-            with application.state.index_lock:
+            with application.state.index_lock, capture_usage():
                 result = _execute_recover(application, run_id, action)
         except RecoveryNotApplicable as error:
             raise HTTPException(status_code=409, detail=str(error)) from error
@@ -568,6 +569,7 @@ def _execute_run(application: FastAPI, question: str, mode: str, top_k: int):
         "generate": not retrieve_only,
         "embedder": FakeEmbedder() if retrieve_only else None,
         "agent_config": _agent_snapshot(application),
+        "run_mode": mode,
     }
     if not retrieve_only:
         kwargs["generator"] = _generator_for(application)
