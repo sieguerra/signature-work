@@ -41,6 +41,31 @@ def capture_usage() -> Iterator[UsageCounters]:
         _CURRENT.reset(token)
 
 
+def peek_usage() -> dict[str, int] | None:
+    """Totals for the active capture, or None when nobody is recording."""
+    counters = _CURRENT.get()
+    if counters is None:
+        return None
+    return counters.snapshot()
+
+
+def usage_delta(
+    before: dict[str, int] | None,
+    after: dict[str, int] | None,
+) -> dict[str, int] | None:
+    """Token and call counts incurred between two peeks. None if uncaptured."""
+    if before is None or after is None:
+        return None
+    keys = (
+        "chat_calls",
+        "embedding_calls",
+        "prompt_tokens",
+        "completion_tokens",
+        "embedding_tokens",
+    )
+    return {key: int(after.get(key, 0)) - int(before.get(key, 0)) for key in keys}
+
+
 def record_chat(response: object) -> None:
     counters = _CURRENT.get()
     if counters is None:

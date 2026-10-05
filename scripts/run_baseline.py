@@ -80,6 +80,7 @@ def main(argv: list[str] | None = None) -> int:
         embedder=FakeEmbedder() if args.retrieve_only else None,
         generate=not args.retrieve_only,
         judge=judge,
+        run_mode="loop" if args.recover else "retrieve_only" if args.retrieve_only else "baseline",
     )
     if args.recover:
         from swrag.orchestration.loop import run_with_recovery

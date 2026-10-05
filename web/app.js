@@ -4555,6 +4555,10 @@ function flightSummary(flight) {
 }
 
 function inferredFlightMode(flight) {
+  if (flight.runMode === "retrieve_only") return "Retrieve only";
+  if (flight.runMode === "baseline") return "Baseline";
+  if (flight.runMode === "loop_confirm") return "Confirm recovery";
+  if (flight.runMode === "loop") return "Auto recovery";
   if (flight.pending || flight.joined) return "Confirm recovery";
   if (flight.attemptCount) return "Auto recovery";
   if (flight.status === "retrieve_only") return "Retrieve only";

@@ -52,6 +52,7 @@ from pathlib import Path
 from typing import Any
 
 from swrag.api.store import load_trace_payloads
+from swrag.tracing.schema import first_pass_diagnosis
 
 _ACCEPT = frozenset({"", "accept", "none"})
 _OUTCOMES = ("improved", "unchanged", "still_failing", "degraded")
@@ -404,6 +405,9 @@ def _diagnosis_classes(run: LogicalRun) -> list[str]:
         diagnosis = trace.get("diagnosis")
         if isinstance(diagnosis, dict):
             _add_class(found, diagnosis.get("failure_class"))
+        first = first_pass_diagnosis(trace)
+        if isinstance(first, dict):
+            _add_class(found, first.get("failure_class"))
         for attempt in trace.get("recovery_attempts") or []:
             if isinstance(attempt, dict):
                 _add_class(found, attempt.get("attributed_class"))

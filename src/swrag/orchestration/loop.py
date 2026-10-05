@@ -34,6 +34,22 @@ from swrag.pipeline.baseline import (
     execute_query,
     write_run,
 )
+from swrag.tracing.schema import (
+    ANSWER_ABSTAINED,
+    ANSWER_GENERATED,
+    ANSWER_KEPT_PREVIOUS,
+    ANSWER_NONE,
+    EVAL_CARRIED,
+    EVAL_JUDGE,
+    EVAL_PROBE,
+    EVIDENCE_REPLACED,
+    EVIDENCE_UNCHANGED,
+    EVIDENCE_WIDENED,
+    attempt_record,
+    initial_from_trace,
+    initial_snapshot,
+)
+from swrag.usage import peek_usage, usage_delta
 from swrag.retrieval.memory_index import InMemoryIndex
 from swrag.recovery.expand import next_top_k
 from swrag.recovery.policy import (
@@ -84,6 +100,11 @@ class _Applied:
     rewritten_query: str | None
     previous_retrieved_chunks: tuple[dict, ...] | None
     probe_evaluation: RuntimeEvaluation | None = None
+    answer_relation: str = "unchanged"
+    evidence_relation: str = EVIDENCE_UNCHANGED
+    evaluation_source: str = EVAL_CARRIED
+    executed: bool = True
+    search_query: str | None = None
 
 
 class Regenerator(Protocol):
@@ -118,6 +139,7 @@ def run_with_recovery(
     max_recoveries: int = 1,
     index: InMemoryIndex | None = None,
     agent_config: dict[str, Any] | None = None,
+    run_mode: str = "loop",
 ) -> BaselineRunResult:
     """Run the automatic loop and write one trace. Never overwrites history.
 
@@ -126,6 +148,7 @@ def run_with_recovery(
     """
     started = time.perf_counter()
     resolved_index = index if index is not None else build_corpus_index(corpus_dir, embedder)
+    pass_started = time.perf_counter()
     state, decision = _first_pass_state(
         query,
         corpus_dir=corpus_dir,
@@ -136,9 +159,11 @@ def run_with_recovery(
         judge=judge,
         index=resolved_index,
     )
+    first_latency = _elapsed_ms(pass_started)
     first_eval = state.runtime_evaluation
     first_answer = state.generation.answer
     first_chunks = chunks_payload(state.retrieval)
+    first_state = state
 
     if max_recoveries < 1 or not _should_apply(decision.action, attempts_so_far=0):
         return write_run(
@@ -149,6 +174,7 @@ def run_with_recovery(
             recovery_status=RECOVERY_APPLIED,
             latency_ms=_elapsed_ms(started),
             agent_config=agent_config,
+            run_mode=run_mode,
         )
 
     attempts: list[dict[str, Any]] = []
@@ -164,6 +190,8 @@ def run_with_recovery(
     while _should_apply(current_decision.action, attempts_so_far=len(attempts)):
         if len(attempts) >= max_recoveries:
             break
+        usage_before = peek_usage()
+        attempt_started = time.perf_counter()
         applied = _apply_action(
             state,
             current_decision,
@@ -179,6 +207,8 @@ def run_with_recovery(
             index=resolved_index,
             search_query=search_query,
         )
+        attempt_latency = _elapsed_ms(attempt_started)
+        attempt_usage = usage_delta(usage_before, peek_usage())
         last_applied = applied
         state = applied.state
         used.append(current_decision.action)
@@ -190,7 +220,14 @@ def run_with_recovery(
             previous_chunks_to_store = first_chunks
         if applied.probe_evaluation is not None:
             probe_evaluation = applied.probe_evaluation
-        attempts.append(_attempt_payload(len(attempts), applied))
+        attempts.append(
+            _attempt_payload(
+                len(attempts),
+                applied,
+                latency_ms=attempt_latency,
+                usage=attempt_usage,
+            )
+        )
 
         overall = None
         if first_eval is not None and state.runtime_evaluation is not None:
@@ -214,11 +251,22 @@ def run_with_recovery(
         current_decision = nxt
 
     if last_applied is not None and _needs_terminal_abstain(last_applied.decision, state):
+        usage_before = peek_usage()
+        attempt_started = time.perf_counter()
         applied = _terminal_abstain(state, last_applied.decision)
+        attempt_latency = _elapsed_ms(attempt_started)
+        attempt_usage = usage_delta(usage_before, peek_usage())
         last_applied = applied
         state = applied.state
         used.append(ABSTAIN)
-        attempts.append(_attempt_payload(len(attempts), applied))
+        attempts.append(
+            _attempt_payload(
+                len(attempts),
+                applied,
+                latency_ms=attempt_latency,
+                usage=attempt_usage,
+            )
+        )
 
     if last_applied is None:
         return write_run(
@@ -229,6 +277,7 @@ def run_with_recovery(
             recovery_status=RECOVERY_APPLIED,
             latency_ms=_elapsed_ms(started),
             agent_config=agent_config,
+            run_mode=run_mode,
         )
 
     overall_verification = last_applied.verification
@@ -256,6 +305,8 @@ def run_with_recovery(
         agent_config=agent_config,
         recovery_attempts=tuple(attempts),
         first_pass_evaluation=first_eval,
+        run_mode=run_mode,
+        initial=_initial_from_state(first_state, first_latency),
     )
 
 
@@ -272,6 +323,7 @@ def run_first_pass(
     question_id: str | None = None,
     index: InMemoryIndex | None = None,
     agent_config: dict[str, Any] | None = None,
+    run_mode: str = "loop_confirm",
 ) -> BaselineRunResult:
     """Evaluate and select a recovery without applying it."""
     started = time.perf_counter()
@@ -295,6 +347,7 @@ def run_first_pass(
         recovery_status=status,
         latency_ms=_elapsed_ms(started),
         agent_config=agent_config,
+        run_mode=run_mode,
     )
 
 
@@ -332,6 +385,8 @@ def apply_recovery(
     decision = _decision_to_apply(proposed, chosen)
     state = _query_state_from_trace(parent)
     resolved_index = index if index is not None else build_corpus_index(corpus_dir, embedder)
+    usage_before = peek_usage()
+    attempt_started = time.perf_counter()
     applied = _apply_action(
         state,
         decision,
@@ -346,6 +401,13 @@ def apply_recovery(
         rewriter=rewriter,
         index=resolved_index,
     )
+    attempt = _attempt_payload(
+        0,
+        applied,
+        latency_ms=_elapsed_ms(attempt_started),
+        usage=usage_delta(usage_before, peek_usage()),
+    )
+    parent_eval = _evaluation_from_payload(parent.get("runtime_evaluation"))
     return write_run(
         applied.state,
         output_dir=output_dir,
@@ -360,6 +422,10 @@ def apply_recovery(
         latency_ms=_elapsed_ms(started),
         probe_evaluation=applied.probe_evaluation,
         agent_config=agent_config if agent_config is not None else parent.get("agent_config"),
+        recovery_attempts=(attempt,),
+        first_pass_evaluation=parent_eval,
+        run_mode="loop_confirm",
+        initial=initial_from_trace(parent),
     )
 
 
@@ -454,6 +520,9 @@ def _terminal_abstain(state: QueryState, last: RecoveryDecision) -> _Applied:
         state.generation.answer,
         None,
         None,
+        answer_relation=ANSWER_ABSTAINED,
+        evidence_relation=EVIDENCE_UNCHANGED,
+        evaluation_source=EVAL_CARRIED,
     )
 
 
@@ -464,27 +533,70 @@ def _should_apply(action: str, *, attempts_so_far: int) -> bool:
     return action == ABSTAIN and attempts_so_far > 0
 
 
-def _attempt_payload(index: int, applied: _Applied) -> dict[str, Any]:
+def _initial_from_state(state: QueryState, latency_ms: float) -> dict[str, Any]:
+    evaluation = state.runtime_evaluation
+    diagnosis = state.diagnosis
+    signal = state.retrieval_signal
+    return initial_snapshot(
+        query=state.query,
+        retrieved_chunks=chunks_payload(state.retrieval),
+        answer=state.generation.answer,
+        model=state.generation.model,
+        top_k=state.retrieval.top_k,
+        runtime_evaluation=evaluation.as_trace_payload() if evaluation is not None else None,
+        retrieval_signal=signal.as_trace_payload() if signal is not None else None,
+        diagnosis=diagnosis.as_trace_payload() if diagnosis is not None else None,
+        latency_ms=latency_ms,
+    )
+
+
+def _attempt_payload(
+    index: int,
+    applied: _Applied,
+    *,
+    latency_ms: float,
+    usage: dict[str, int] | None,
+) -> dict[str, Any]:
     decision = applied.decision
     retrieval = applied.state.retrieval
-    row: dict[str, Any] = {
-        "index": index,
-        "action": decision.action,
-        "reason": decision.reason,
-        "trigger": decision.trigger,
-        "attributed_class": decision.attributed_class,
-        "outcome_note": decision.outcome_note,
-        "top_k": retrieval.top_k,
-        "retrieved_doc_ids": [scored.chunk.doc_id for scored in retrieval.chunks],
-        "verification": (
+    evaluation = applied.state.runtime_evaluation
+    diagnosis = applied.state.diagnosis
+    chunks = None
+    if applied.evidence_relation in {EVIDENCE_REPLACED, EVIDENCE_WIDENED}:
+        chunks = list(chunks_payload(retrieval))
+    return attempt_record(
+        index=index,
+        action=decision.action,
+        reason=decision.reason,
+        trigger=decision.trigger,
+        source=decision.source,
+        attributed_class=decision.attributed_class,
+        outcome_note=decision.outcome_note,
+        top_k=retrieval.top_k,
+        retrieved_doc_ids=[scored.chunk.doc_id for scored in retrieval.chunks],
+        verification=(
             applied.verification.as_trace_payload() if applied.verification is not None else None
         ),
-    }
-    if applied.rewritten_query:
-        row["rewritten_query"] = applied.rewritten_query
-    if decision.parameters:
-        row["parameters"] = dict(decision.parameters)
-    return row
+        answer=applied.state.generation.answer,
+        answer_model=applied.state.generation.model,
+        answer_relation=applied.answer_relation,
+        evidence_relation=applied.evidence_relation,
+        evaluation_source=applied.evaluation_source,
+        executed=applied.executed,
+        runtime_evaluation=evaluation.as_trace_payload() if evaluation is not None else None,
+        diagnosis=diagnosis.as_trace_payload() if diagnosis is not None else None,
+        latency_ms=latency_ms,
+        rewritten_query=applied.rewritten_query,
+        parameters=decision.parameters,
+        search_query=applied.search_query,
+        retrieved_chunks=chunks,
+        probe_evaluation=(
+            applied.probe_evaluation.as_trace_payload()
+            if applied.probe_evaluation is not None
+            else None
+        ),
+        usage=usage,
+    )
 
 
 def _apply_expand(
@@ -503,7 +615,7 @@ def _apply_expand(
 ) -> _Applied:
     widened = next_top_k(top_k)
     if widened is None:
-        return _Applied(state, decision, None, None, None, None)
+        return _Applied(state, decision, None, None, None, None, executed=False)
     previous_answer = state.generation.answer
     previous_retrieved_chunks = chunks_payload(state.retrieval)
     nxt = execute_query(
@@ -551,6 +663,10 @@ def _apply_expand(
         previous_answer,
         None,
         previous_retrieved_chunks,
+        answer_relation=ANSWER_GENERATED if generate else ANSWER_NONE,
+        evidence_relation=EVIDENCE_WIDENED,
+        evaluation_source=EVAL_JUDGE if nxt.runtime_evaluation is not None else EVAL_CARRIED,
+        search_query=search_query,
     )
 
 
@@ -582,7 +698,7 @@ def _apply_action(
     search_query: str | None = None,
 ) -> _Applied:
     if decision.action == ACCEPT:
-        return _Applied(state, decision, None, None, None, None)
+        return _Applied(state, decision, None, None, None, None, executed=False)
     if decision.action == ABSTAIN:
         abstained = QueryState(
             query=state.query,
@@ -618,10 +734,13 @@ def _apply_action(
             state.generation.answer,
             None,
             None,
+            answer_relation=ANSWER_ABSTAINED,
+            evidence_relation=EVIDENCE_UNCHANGED,
+            evaluation_source=EVAL_JUDGE if judge is not None else EVAL_CARRIED,
         )
     if decision.action == REGENERATE:
         if not generate:
-            return _Applied(state, decision, None, None, None, None)
+            return _Applied(state, decision, None, None, None, None, executed=False)
         actor = regenerator or ConstrainedRegenerator()
         previous_answer = state.generation.answer
         repaired = actor.regenerate(
@@ -649,7 +768,17 @@ def _apply_action(
             diagnosis=post_diag if post_diag is not None else state.diagnosis,
             retrieval_signal=state.retrieval_signal,
         )
-        return _Applied(next_state, decision, verification, previous_answer, None, None)
+        return _Applied(
+            next_state,
+            decision,
+            verification,
+            previous_answer,
+            None,
+            None,
+            answer_relation=ANSWER_GENERATED,
+            evidence_relation=EVIDENCE_UNCHANGED,
+            evaluation_source=EVAL_JUDGE if judge is not None else EVAL_CARRIED,
+        )
 
     if decision.action == EXPAND:
         return _apply_expand(
@@ -674,7 +803,7 @@ def _apply_action(
     # unapplied rather than breaking the no-API-key harness. ``regenerate`` above
     # skips on the same grounds.
     if not generate and rewriter is None:
-        return _Applied(state, decision, None, None, None, None)
+        return _Applied(state, decision, None, None, None, None, executed=False)
 
     previous_answer = state.generation.answer
     previous_retrieved_chunks = chunks_payload(state.retrieval)
@@ -739,6 +868,10 @@ def _apply_action(
             rewritten_query,
             previous_retrieved_chunks,
             probe_evaluation=after,
+            answer_relation=ANSWER_GENERATED if generate else ANSWER_NONE,
+            evidence_relation=EVIDENCE_REPLACED,
+            evaluation_source=EVAL_JUDGE if generate and judge is not None else EVAL_PROBE,
+            search_query=rewritten_query,
         )
     generation, outcome_note, kept_first_pass = _generation_after_failed_rewrite(state, before)
 
@@ -782,6 +915,7 @@ def _apply_action(
         diagnosis=post_diag,
         retrieval_signal=state.retrieval_signal,
     )
+    kept = kept_first_pass and before is not None
     return _Applied(
         next_state,
         next_decision,
@@ -790,6 +924,10 @@ def _apply_action(
         rewritten_query,
         previous_retrieved_chunks,
         probe_evaluation=after,
+        answer_relation=ANSWER_KEPT_PREVIOUS if kept else ANSWER_ABSTAINED,
+        evidence_relation=EVIDENCE_REPLACED,
+        evaluation_source=EVAL_CARRIED if kept or after is None else EVAL_PROBE,
+        search_query=rewritten_query,
     )
 
 

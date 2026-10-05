@@ -199,6 +199,12 @@ class TraceRecord:
     # own step-to-step verification.
     recovery_attempts: tuple[dict[str, Any], ...] | None = field(default=None)
     first_pass_evaluation: dict[str, Any] | None = field(default=None)
+    # Schema 2. Missing or null on a file means a legacy trace. ``initial`` is
+    # the first pass and is null when the top-level fields are the only state.
+    trace_schema_version: int | None = field(default=None)
+    run_mode: str | None = field(default=None)
+    initial: dict[str, Any] | None = field(default=None)
+    usage: dict[str, int] | None = field(default=None)
 
 
 @dataclass(frozen=True)

@@ -70,6 +70,7 @@
       evidence: applied ? diffChunks(beforeChunks, afterChunks) : null,
       retrievalWarning: signal,
       phases: phasesFor(list, beforeChunks, beforeAnswer, beforeEval, attempts, verification, applied),
+      runMode: explicitMode(list),
     };
   }
 
@@ -140,6 +141,13 @@
     if (attempt.source) {
       steps.push({ kind: "source", title: attempt.source, detail: "" });
     }
+    if (attempt.executed === false) {
+      steps.push({
+        kind: "why",
+        title: "Not executed",
+        detail: "The action did not change the run.",
+      });
+    }
     if (attempt.action === "rewrite" && attempt.rewrittenQuery) {
       steps.push({
         kind: "retrieve",
@@ -154,18 +162,37 @@
         detail: `top_k ${attempt.topK}`,
       });
     }
-    if (attempt.action === "regenerate") {
+    if (attempt.answerRelation === "kept_previous") {
+      steps.push({
+        kind: "generate",
+        title: "Kept previous answer",
+        detail: clip(attempt.answer || ""),
+      });
+    } else if (attempt.answerRelation === "generated") {
+      steps.push({
+        kind: "generate",
+        title: attempt.action === "regenerate" ? "Answer regenerated" : "Answer",
+        detail: clip(attempt.answer || "Same evidence."),
+      });
+    } else if (attempt.action === "regenerate") {
       steps.push({
         kind: "generate",
         title: "Answer regenerated",
         detail: "Same evidence.",
       });
     }
-    if (attempt.action === "abstain") {
+    if (attempt.answerRelation === "abstained" || attempt.action === "abstain") {
       steps.push({
         kind: "abstain",
         title: "Safe abstention",
-        detail: ABSTAIN_ANSWER,
+        detail: attempt.answer || ABSTAIN_ANSWER,
+      });
+    }
+    if (attempt.evaluation) {
+      steps.push({
+        kind: "judge",
+        title: attempt.evaluationSource === "probe" ? "Probe judge" : "Judge",
+        detail: judgeDetail(attempt.evaluation),
       });
     }
     if (attempt.verification) {
@@ -238,6 +265,12 @@
             topK: numberOrNull(item.top_k),
             reason: String(item.reason || recovery.reason || ""),
             historical: false,
+            answer: item.answer != null ? String(item.answer) : "",
+            answerRelation: String(item.answer_relation || ""),
+            evidenceRelation: String(item.evidence_relation || ""),
+            evaluation: evaluationOf(item.runtime_evaluation),
+            evaluationSource: String(item.evaluation_source || ""),
+            executed: item.executed !== false,
           });
         });
         continue;
@@ -276,7 +309,27 @@
     return [action];
   }
 
+  function explicitInitial(list) {
+    for (const trace of list) {
+      if (trace.initial && typeof trace.initial === "object") return trace.initial;
+    }
+    return null;
+  }
+
+  function explicitMode(list) {
+    const root = list.find((trace) => !trace.parent_run_id) || list[0];
+    const mode = String((root && root.run_mode) || "").trim();
+    if (mode) return mode;
+    for (const trace of list) {
+      const other = String(trace.run_mode || "").trim();
+      if (other) return other;
+    }
+    return null;
+  }
+
   function initialChunks(list) {
+    const initial = explicitInitial(list);
+    if (initial && Array.isArray(initial.retrieved_chunks)) return initial.retrieved_chunks;
     for (const trace of list) {
       if (Array.isArray(trace.previous_retrieved_chunks)) return trace.previous_retrieved_chunks;
     }
@@ -290,6 +343,8 @@
   }
 
   function initialAnswer(list, applied) {
+    const initial = explicitInitial(list);
+    if (initial && initial.answer != null) return String(initial.answer);
     for (const trace of list) {
       if (trace.previous_answer != null && String(trace.previous_answer).length) {
         return String(trace.previous_answer);
@@ -301,6 +356,9 @@
   }
 
   function initialEval(list) {
+    const initial = explicitInitial(list);
+    const stored = initial ? evaluationOf(initial.runtime_evaluation) : null;
+    if (stored) return stored;
     const root = list.find((trace) => !trace.parent_run_id) || list[0];
     const firstPass = evaluationOf(root.first_pass_evaluation);
     if (firstPass) return firstPass;
@@ -327,6 +385,11 @@
   }
 
   function initialDiagnosis(list, applied) {
+    const initial = explicitInitial(list);
+    const stored = initial ? dict(initial.diagnosis) : null;
+    if (stored && (stored.failure_class || stored.rationale)) {
+      return stored.failure_class ? String(stored.failure_class) : String(stored.rationale);
+    }
     if (!applied) {
       const diagnosis = dict(list[0].diagnosis);
       return diagnosis.failure_class ? String(diagnosis.failure_class) : "Diagnosis not yet attributed.";

@@ -272,6 +272,109 @@ test("abstention is labeled and not dropped", () => {
   assert.ok(flight.phases.some((phase) => phase.action === "abstain"));
 });
 
+test("explicit mode and attempt answers replace inference", () => {
+  const flight = buildFlight([
+    {
+      run_id: "v2",
+      run_mode: "loop",
+      query: "Hours?",
+      model: "gpt-4o-mini",
+      answer: "answer C",
+      trace_schema_version: 2,
+      initial: {
+        query: "Hours?",
+        answer: "answer A",
+        retrieved_chunks: [chunk("old", 0.2)],
+        runtime_evaluation: { evidence_sufficient: false, answer_supported: null },
+        diagnosis: {
+          failure_class: null,
+          rationale: "Evidence was judged insufficient. retrieval_miss vs evidence_insufficiency is not diagnosed on the first pass.",
+        },
+      },
+      first_pass_evaluation: { evidence_sufficient: false, answer_supported: null },
+      runtime_evaluation: { evidence_sufficient: true, answer_supported: true },
+      retrieved_chunks: [chunk("new", 0.8)],
+      recovery: { action: "expand", source: "policy" },
+      recovery_status: "applied",
+      verification: { outcome: "improved" },
+      recovery_attempts: [
+        {
+          index: 0,
+          action: "rewrite",
+          source: "policy",
+          answer: "answer B",
+          answer_relation: "generated",
+          evidence_relation: "replaced",
+          runtime_evaluation: { evidence_sufficient: false, answer_supported: false },
+          evaluation_source: "judge",
+          verification: { outcome: "still_failing" },
+          rewritten_query: "library hours",
+          executed: true,
+        },
+        {
+          index: 1,
+          action: "expand",
+          source: "policy",
+          answer: "answer C",
+          answer_relation: "generated",
+          evidence_relation: "widened",
+          runtime_evaluation: { evidence_sufficient: true, answer_supported: true },
+          evaluation_source: "judge",
+          verification: { outcome: "improved" },
+          top_k: 12,
+          executed: true,
+        },
+      ],
+    },
+  ]);
+  assert.equal(flight.runMode, "loop");
+  assert.equal(flight.before.answer, "answer A");
+  assert.equal(flight.before.chunks[0].chunk_id, "old");
+  assert.match(flight.before.diagnosis, /not diagnosed on the first pass/);
+  assert.equal(flight.attempts[0].answer, "answer B");
+  assert.equal(flight.attempts[0].verification, "still_failing");
+  assert.equal(flight.attempts[1].answer, "answer C");
+  assert.equal(flight.attempts[1].verification, "improved");
+  const rewrite = flight.phases.find((phase) => phase.action === "rewrite");
+  assert.ok(rewrite.steps.some((step) => step.detail.includes("answer B")));
+  assert.ok(rewrite.steps.some((step) => step.outcome === "still_failing"));
+});
+
+test("a kept answer is not shown as generated from the new evidence", () => {
+  const flight = buildFlight([
+    {
+      run_id: "kept",
+      run_mode: "loop",
+      query: "Hours?",
+      model: "gpt-4o-mini",
+      answer: "Saturday hours.",
+      initial: {
+        answer: "Saturday hours.",
+        retrieved_chunks: [chunk("old", 0.4)],
+        diagnosis: { failure_class: null, rationale: "thin" },
+      },
+      recovery: { action: "rewrite", source: "policy" },
+      recovery_status: "applied",
+      verification: { outcome: "still_failing" },
+      retrieved_chunks: [chunk("new", 0.2)],
+      recovery_attempts: [
+        {
+          action: "rewrite",
+          source: "policy",
+          answer: "Saturday hours.",
+          answer_relation: "kept_previous",
+          evidence_relation: "replaced",
+          verification: { outcome: "still_failing" },
+          executed: true,
+        },
+      ],
+    },
+  ]);
+  const rewrite = flight.phases.find((phase) => phase.action === "rewrite");
+  assert.ok(rewrite.steps.some((step) => step.title === "Kept previous answer"));
+  assert.equal(rewrite.steps.some((step) => step.title === "Answer"), false);
+});
+
 test("mode notes do not promise unlimited healing", () => {
   assert.match(modeNote("loop"), /configured recovery limit/);
   assert.match(modeNote("loop_confirm"), /until you confirm/);
