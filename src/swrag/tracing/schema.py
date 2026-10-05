@@ -38,11 +38,20 @@ _CHANGED_EVIDENCE = frozenset({EVIDENCE_REPLACED, EVIDENCE_WIDENED})
 
 
 def schema_version(payload: dict[str, Any]) -> int:
-    """1 when the file predates versioning or the field is null."""
+    """1 when the file predates versioning or the field is null.
+
+    A later integer is returned as itself. Callers must not treat a version
+    above :data:`SCHEMA_VERSION` as version 2.
+    """
     value = payload.get("trace_schema_version")
     if isinstance(value, bool) or not isinstance(value, int) or value < 1:
         return 1
     return value
+
+
+def future_schema(payload: dict[str, Any]) -> bool:
+    """True when the file names a schema this code does not interpret."""
+    return schema_version(payload) > SCHEMA_VERSION
 
 
 def initial_snapshot(
@@ -117,7 +126,7 @@ def attempt_record(
     search_query: str | None = None,
     retrieved_chunks: list[dict[str, Any]] | None = None,
     probe_evaluation: dict[str, Any] | None = None,
-    usage: dict[str, int] | None = None,
+    usage: dict[str, int | bool | None] | None = None,
 ) -> dict[str, Any]:
     """One completed recovery attempt. Step verification stays on ``verification``.
 
@@ -168,8 +177,14 @@ def first_pass_diagnosis(payload: dict[str, Any]) -> dict[str, Any] | None:
     class is not treated as the first pass. A confirm parent with no attempts
     still has its first-pass diagnosis on the top level.
     """
+    if future_schema(payload):
+        return None
     initial = payload.get("initial")
-    if isinstance(initial, dict) and isinstance(initial.get("diagnosis"), dict):
+    if (
+        schema_version(payload) == SCHEMA_VERSION
+        and isinstance(initial, dict)
+        and isinstance(initial.get("diagnosis"), dict)
+    ):
         return initial["diagnosis"]
     if payload.get("parent_run_id"):
         return None
@@ -182,6 +197,8 @@ def first_pass_diagnosis(payload: dict[str, Any]) -> dict[str, Any] | None:
 
 def evidence_for_attempt(payload: dict[str, Any], index: int) -> list[dict[str, Any]]:
     """Chunks that produced the attempt, walking unchanged evidence backward."""
+    if future_schema(payload):
+        return []
     attempts = [item for item in payload.get("recovery_attempts") or [] if isinstance(item, dict)]
     if index < 0 or index >= len(attempts):
         return []
@@ -190,9 +207,10 @@ def evidence_for_attempt(payload: dict[str, Any], index: int) -> list[dict[str, 
         if attempt.get("evidence_relation") in _CHANGED_EVIDENCE:
             chunks = attempt.get("retrieved_chunks")
             return list(chunks) if isinstance(chunks, list) else []
-    initial = payload.get("initial")
-    if isinstance(initial, dict) and isinstance(initial.get("retrieved_chunks"), list):
-        return list(initial["retrieved_chunks"])
+    if schema_version(payload) == SCHEMA_VERSION:
+        initial = payload.get("initial")
+        if isinstance(initial, dict) and isinstance(initial.get("retrieved_chunks"), list):
+            return list(initial["retrieved_chunks"])
     previous = payload.get("previous_retrieved_chunks")
     if isinstance(previous, list):
         return list(previous)

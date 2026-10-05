@@ -20,7 +20,7 @@ from swrag.retrieval.memory_index import InMemoryIndex
 from swrag.retrieval.openai_embedder import OpenAIEmbedder
 from swrag.tracing.schema import SCHEMA_VERSION
 from swrag.tracing.tracer import write_trace
-from swrag.usage import peek_usage
+from swrag.usage import usage_for_trace
 from swrag.types import (
     BaselineRunResult,
     Diagnosis,
@@ -220,7 +220,7 @@ def write_run(
             trace_schema_version=SCHEMA_VERSION,
             run_mode=run_mode,
             initial=dict(initial) if initial else None,
-            usage=peek_usage(),
+            usage=usage_for_trace(),
         ),
         output_dir,
     )

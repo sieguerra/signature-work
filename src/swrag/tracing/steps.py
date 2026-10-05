@@ -14,6 +14,18 @@ def trace_to_steps(payload: dict[str, Any]) -> list[dict[str, Any]]:
     """Derive ordered steps from a ``TraceRecord`` JSON dict."""
     steps: list[dict[str, Any]] = []
     query = str(payload.get("query") or "")
+    version = payload.get("trace_schema_version")
+    if isinstance(version, int) and not isinstance(version, bool) and version > 2:
+        return [
+            _step(
+                "query",
+                "query",
+                "Query",
+                query or "(empty)",
+                "ok",
+                {"query": query, "unsupported_schema": True},
+            )
+        ]
     rewritten = payload.get("rewritten_query")
     previous_answer = payload.get("previous_answer")
     previous_chunks = payload.get("previous_retrieved_chunks")
@@ -96,7 +108,7 @@ def trace_to_steps(payload: dict[str, Any]) -> list[dict[str, Any]]:
         if after_retrieve is not None:
             steps.append(after_retrieve)
         steps.append(
-            _generate_after(answer, model, generate_skipped)
+            _generate_after(answer, model, generate_skipped, payload)
         )
         _append_evaluate(steps, payload, after_recovery=True)
         _append_diagnose(steps, payload, after_recovery=True)
@@ -121,6 +133,15 @@ def trace_to_steps(payload: dict[str, Any]) -> list[dict[str, Any]]:
     _append_recover(steps, payload, rewritten, previous_answer)
     _append_verify(steps, payload)
     return steps
+
+
+def _last_attempt_field(payload: dict[str, Any] | None, key: str) -> Any:
+    if not isinstance(payload, dict):
+        return None
+    attempts = [item for item in payload.get("recovery_attempts") or [] if isinstance(item, dict)]
+    if not attempts:
+        return None
+    return attempts[-1].get(key)
 
 
 def _is_recovered(payload: dict[str, Any]) -> bool:
@@ -171,19 +192,42 @@ def _retrieve_step(
     )
 
 
-def _generate_after(answer: str, model: str, generate_skipped: bool) -> dict[str, Any]:
-    return _step(
-        "generate",
-        "generate",
-        "Generate (after recovery)",
-        "skipped" if generate_skipped else (answer.splitlines()[0][:96] if answer else "(empty)"),
-        "skipped" if generate_skipped else ("ok" if answer.strip() else "empty"),
-        {
-            "answer": answer,
-            "model": model,
-            "pass": "after_recovery",
-        },
-    )
+def _generate_after(
+    answer: str,
+    model: str,
+    generate_skipped: bool,
+    payload: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    relation = _last_attempt_field(payload, "answer_relation")
+    executed = _last_attempt_field(payload, "executed")
+    if executed is False:
+        title = "Selected, not executed"
+        status = "skipped"
+        detail = "the controller selected a recovery and it did not run"
+    elif relation == "kept_previous":
+        title = "Kept previous answer"
+        status = "ok" if answer.strip() else "empty"
+        detail = answer.splitlines()[0][:96] if answer else "(empty)"
+    elif relation == "abstained":
+        title = "Abstained"
+        status = "warn"
+        detail = answer.splitlines()[0][:96] if answer else "(empty)"
+    elif relation in {"unchanged", "none"}:
+        title = "Answer unchanged"
+        status = "ok" if answer.strip() else "empty"
+        detail = answer.splitlines()[0][:96] if answer else "(empty)"
+    else:
+        title = "Generate (after recovery)"
+        status = "skipped" if generate_skipped else ("ok" if answer.strip() else "empty")
+        detail = "skipped" if generate_skipped else (answer.splitlines()[0][:96] if answer else "(empty)")
+    body = {
+        "answer": answer,
+        "model": model,
+        "pass": "after_recovery",
+    }
+    if relation:
+        body["answer_relation"] = relation
+    return _step("generate", "generate", title, detail, status, body)
 
 
 def _append_evaluate(
@@ -203,12 +247,18 @@ def _append_evaluate(
     title = "Evaluate"
     if after_recovery:
         title = "Evaluate (after recovery)"
-        eval_payload["note"] = "flags are from the last judge call (after recovery)"
-        if payload.get("rewritten_query") and supported is None:
+        source = _last_attempt_field(payload, "evaluation_source")
+        if source == "carried":
+            eval_payload["note"] = "flags were carried forward; this was not a new judge call"
+        elif source == "judge":
+            eval_payload["note"] = "flags are from the judge call on this attempt's answer"
+        elif source == "probe" or (payload.get("rewritten_query") and supported is None):
             eval_payload["note"] = (
                 "flags are from the rewrite retrieve probe "
                 "(no answer was generated on that retrieve)"
             )
+        else:
+            eval_payload["note"] = "flags are from the last judge call (after recovery)"
         probe = payload.get("probe_evaluation")
         if isinstance(probe, dict):
             eval_payload["probe_evaluation"] = probe

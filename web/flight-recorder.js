@@ -26,12 +26,19 @@
     return MODE_NOTES[mode] || "";
   }
 
+  function schemaVersion(trace) {
+    const value = trace && trace.trace_schema_version;
+    if (typeof value !== "number" || !Number.isInteger(value) || value < 1) return 1;
+    return value;
+  }
+
   function buildFlight(traces) {
     const list = (Array.isArray(traces) ? traces : []).filter((item) => item && typeof item === "object");
     if (!list.length) return null;
+    if (list.some((trace) => schemaVersion(trace) > 2)) return unsupportedFlight(list);
     const pending = pendingRecovery(list);
     const attempts = attemptRecords(list);
-    const applied = attempts.length > 0;
+    const applied = attempts.some((item) => item.executed !== false);
     const beforeChunks = initialChunks(list);
     const afterChunks = finalChunks(list);
     const beforeEval = initialEval(list);
@@ -50,7 +57,7 @@
       attemptCount: attempts.length,
       pending,
       verification,
-      status: runStatus(list, pending, applied, verification, afterAnswer),
+      status: runStatus(list, pending, applied, verification, afterAnswer, attempts),
       before: {
         query: String(list[0].query || ""),
         chunks: beforeChunks,
@@ -300,6 +307,7 @@
     );
     if (stored.length) {
       return stored
+        .filter((item) => item.executed !== false)
         .map((item) => actionName(item.action))
         .filter((action) => action && action !== "accept" && action !== "none");
     }
@@ -311,6 +319,7 @@
 
   function explicitInitial(list) {
     for (const trace of list) {
+      if (schemaVersion(trace) !== 2) continue;
       if (trace.initial && typeof trace.initial === "object") return trace.initial;
     }
     return null;
@@ -459,17 +468,47 @@
     return stored.some((item) => item && item.trigger === "retrieval_signal");
   }
 
-  function runStatus(list, pending, applied, verification, afterAnswer) {
+  function runStatus(list, pending, applied, verification, afterAnswer, attempts) {
     if (pending) return "recovery_proposed";
     if (isAbstention(afterAnswer, list[list.length - 1]) && applied) return verification || "abstained";
     if (verification) return verification;
     if (!applied) {
+      if (attempts && attempts.length) return "not_executed";
       const evaluation = evaluationOf(list[0].runtime_evaluation) || evaluationOf(list[0].first_pass_evaluation);
       if (!evaluation && !String(list[0].answer || "").trim()) return "retrieve_only";
       if (!evaluation) return "baseline";
       return "no_recovery_needed";
     }
     return "applied";
+  }
+
+  function unsupportedFlight(list) {
+    const last = list[list.length - 1];
+    return {
+      query: String(list[0].query || ""),
+      traceIds: list.map((trace) => String(trace.run_id || "")).filter(Boolean),
+      joined: list.length > 1,
+      topK: null,
+      latencyMs: null,
+      attempts: [],
+      attemptCount: 0,
+      pending: null,
+      verification: null,
+      status: "unsupported_schema",
+      before: {
+        query: String(list[0].query || ""),
+        chunks: [],
+        answer: String((last && last.answer) || ""),
+        evaluation: null,
+        diagnosis: "Unsupported trace schema.",
+      },
+      after: null,
+      evidence: null,
+      retrievalWarning: null,
+      phases: [],
+      runMode: null,
+      unsupportedSchema: true,
+    };
   }
 
   function diffChunks(before, after) {

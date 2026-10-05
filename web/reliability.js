@@ -35,7 +35,10 @@
     if (filter === "required") return Boolean(run.recovery_required);
     if (filter === "none") return !run.recovery_required;
     if (filter === "pending") return Boolean(run.recovery_pending);
-    if (filter === "applied") return (run.recovery || []).length > 0;
+    if (filter === "applied") {
+      if (typeof run.recovery_applied === "boolean") return run.recovery_applied;
+      return (run.recovery || []).length > 0;
+    }
     return true;
   }
 
@@ -75,7 +78,7 @@
     if (!run) return "";
     if (run.recovery_pending && !(run.recovery || []).length) return "Recovery pending";
     const path = recoveryPath(run);
-    if (path) return path;
+    if (path) return run.recovery_applied === false ? `${path} (not executed)` : path;
     return "No recovery";
   }
 

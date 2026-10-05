@@ -1,0 +1,69 @@
+{
+  "trace_schema_version": 2,
+  "run_mode": "loop",
+  "query": "When is the library open?",
+  "answer": "answer B",
+  "model": "scripted",
+  "top_k": 4,
+  "chunk_ids": [
+    "harbor-library-2019-notice::c000",
+    "saltmarsh-annex-library::c000",
+    "harbor-library::c000",
+    "tideline-shuttle::c001"
+  ],
+  "runtime_evaluation": {
+    "evidence_sufficient": true,
+    "answer_supported": true
+  },
+  "verification": "improved",
+  "recovery_action": "rewrite",
+  "recovery_status": "applied",
+  "recovery_source": "policy",
+  "parent_run_id": null,
+  "initial": {
+    "query": "When is the library open?",
+    "answer": "answer A",
+    "chunk_ids": [
+      "tideline-shuttle::c001",
+      "tideline-shuttle::c000",
+      "saltmarsh-annex-library::c000",
+      "south-jetty-lab::c000"
+    ],
+    "runtime_evaluation": {
+      "evidence_sufficient": false,
+      "answer_supported": false
+    },
+    "diagnosis_class": null
+  },
+  "attempts": [
+    {
+      "index": 0,
+      "action": "rewrite",
+      "source": "policy",
+      "executed": true,
+      "answer": "answer B",
+      "answer_relation": "generated",
+      "evidence_relation": "replaced",
+      "evaluation_source": "judge",
+      "search_query": "library saturday hours",
+      "rewritten_query": "library saturday hours",
+      "top_k": 4,
+      "chunk_ids": [
+        "harbor-library-2019-notice::c000",
+        "saltmarsh-annex-library::c000",
+        "harbor-library::c000",
+        "tideline-shuttle::c001"
+      ],
+      "runtime_evaluation": {
+        "evidence_sufficient": true,
+        "answer_supported": true
+      },
+      "probe_evaluation": {
+        "evidence_sufficient": true,
+        "answer_supported": null
+      },
+      "verification": "improved",
+      "diagnosis_class": null
+    }
+  ]
+}

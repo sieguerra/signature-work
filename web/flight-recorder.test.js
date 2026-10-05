@@ -1,4 +1,6 @@
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
 const test = require("node:test");
 const { buildFlight, modeNote } = require("./flight-recorder.js");
 
@@ -380,4 +382,77 @@ test("mode notes do not promise unlimited healing", () => {
   assert.match(modeNote("loop_confirm"), /until you confirm/);
   assert.match(modeNote("baseline"), /No recovery/);
   assert.match(modeNote("retrieve_only"), /without generating/);
+});
+
+test("an unexecuted attempt is not a successful recovery", () => {
+  const flight = buildFlight([
+    {
+      run_id: "r",
+      trace_schema_version: 2,
+      run_mode: "loop",
+      query: "When is the library open?",
+      answer: "Saturday hours.",
+      model: "scripted",
+      runtime_evaluation: { evidence_sufficient: true, answer_supported: true },
+      initial: {
+        answer: "Saturday hours.",
+        retrieved_chunks: [chunk("a", 0.01)],
+        diagnosis: { failure_class: null, rationale: "weak retrieval" },
+        runtime_evaluation: { evidence_sufficient: true, answer_supported: true },
+      },
+      verification: { outcome: "unchanged" },
+      recovery_attempts: [
+        {
+          action: "expand",
+          executed: false,
+          answer: "Saturday hours.",
+          answer_relation: "unchanged",
+          evidence_relation: "unchanged",
+          evaluation_source: "carried",
+        },
+      ],
+    },
+  ]);
+  assert.equal(flight.status, "not_executed");
+  assert.equal(flight.attemptCount, 1);
+  assert.equal(flight.attempts[0].executed, false);
+  assert.equal(flight.after, null);
+  assert.ok(flight.phases.some((phase) => phase.steps.some((step) => step.title === "Not executed")));
+});
+
+test("a future schema is not interpreted as version 2", () => {
+  const flight = buildFlight([
+    {
+      run_id: "future",
+      trace_schema_version: 999,
+      query: "When is the library open?",
+      answer: "Saturday hours.",
+      initial: { answer: "do not use", diagnosis: { failure_class: "invented_class" } },
+      recovery_attempts: [{ action: "rewrite", answer_relation: "generated", executed: true }],
+    },
+  ]);
+  assert.equal(flight.unsupportedSchema, true);
+  assert.equal(flight.status, "unsupported_schema");
+  assert.equal(flight.attemptCount, 0);
+  assert.equal(flight.before.diagnosis, "Unsupported trace schema.");
+});
+
+test("legacy corpus files still build a flight", () => {
+  const corpus = JSON.parse(
+    fs.readFileSync(path.join(__dirname, "../tests/fixtures/traces/legacy_corpus.json"), "utf8")
+  );
+  const byName = Object.fromEntries(corpus.map((item) => [item.name, item.trace]));
+  const parent = buildFlight([byName.confirm_parent, byName.confirm_child]);
+  assert.equal(parent.joined, true);
+  assert.equal(parent.attempts[0].action, "regenerate");
+  assert.equal(parent.attempts[0].sourceRaw, "operator");
+  const multi = buildFlight([byName.multi_attempt]);
+  assert.deepEqual(multi.attempts.map((item) => item.action), ["rewrite", "expand"]);
+  const nullSupport = buildFlight([byName.null_answer_supported]);
+  assert.equal(nullSupport.before.evaluation.answer_supported, null);
+  const abstain = buildFlight([byName.abstain]);
+  assert.equal(abstain.after.abstained, true);
+  for (const item of corpus) {
+    assert.ok(buildFlight([item.trace]), item.name);
+  }
 });

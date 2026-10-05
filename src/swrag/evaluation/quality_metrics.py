@@ -20,6 +20,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, Protocol
 
+from swrag.tracing.schema import SCHEMA_VERSION, schema_version
 from swrag.usage import record_chat
 
 METRICS_VERSION = 1
@@ -188,8 +189,12 @@ def score_trace(payload: dict[str, Any], *, client: _ChatClient, model: str) -> 
 
 
 def _was_recovered(payload: dict[str, Any]) -> bool:
-    if payload.get("recovery_attempts"):
-        return True
+    raw = payload.get("trace_schema_version")
+    if isinstance(raw, int) and not isinstance(raw, bool) and schema_version(payload) > SCHEMA_VERSION:
+        return False
+    attempts = [item for item in payload.get("recovery_attempts") or [] if isinstance(item, dict)]
+    if attempts:
+        return any(item.get("executed") is not False for item in attempts)
     recovery = payload.get("recovery") if isinstance(payload.get("recovery"), dict) else {}
     return payload.get("recovery_status") != "proposed" and recovery.get("action") not in (None, "accept")
 

@@ -1,0 +1,230 @@
+[
+  {
+    "name": "baseline",
+    "trace": {
+      "run_id": "legacy-baseline",
+      "timestamp": "2026-01-01T00:00:00+00:00",
+      "query": "When is the library open?",
+      "answer": "Saturday hours.",
+      "model": "scripted",
+      "retrieved_chunks": [{"chunk_id": "hours::c000", "doc_id": "hours", "text": "Saturday 10:00-16:00"}],
+      "runtime_evaluation": null,
+      "diagnosis": null,
+      "recovery": null
+    }
+  },
+  {
+    "name": "retrieve_only",
+    "trace": {
+      "run_id": "legacy-retrieve",
+      "timestamp": "2026-01-01T00:00:01+00:00",
+      "query": "When is the library open?",
+      "answer": "",
+      "model": "none",
+      "retrieved_chunks": [{"chunk_id": "hours::c000", "doc_id": "hours", "text": "Saturday 10:00-16:00"}]
+    }
+  },
+  {
+    "name": "accepted_loop",
+    "trace": {
+      "run_id": "legacy-accept",
+      "timestamp": "2026-01-01T00:00:02+00:00",
+      "query": "When is the library open?",
+      "answer": "Saturday hours.",
+      "model": "scripted",
+      "retrieved_chunks": [{"chunk_id": "hours::c000", "doc_id": "hours", "text": "Saturday 10:00-16:00"}],
+      "runtime_evaluation": {"evidence_sufficient": true, "answer_supported": true},
+      "first_pass_evaluation": {"evidence_sufficient": true, "answer_supported": true},
+      "diagnosis": {"failure_class": null, "rationale": "no failure"},
+      "recovery": {"action": "accept", "reason": "no first-pass failure"},
+      "recovery_status": "applied"
+    }
+  },
+  {
+    "name": "regenerate",
+    "trace": {
+      "run_id": "legacy-regenerate",
+      "timestamp": "2026-01-01T00:00:03+00:00",
+      "query": "When is the library open?",
+      "answer": "Saturday 10:00-16:00",
+      "previous_answer": "On the moon.",
+      "model": "regen",
+      "retrieved_chunks": [{"chunk_id": "hours::c000", "doc_id": "hours", "text": "Saturday 10:00-16:00"}],
+      "previous_retrieved_chunks": [{"chunk_id": "hours::c000", "doc_id": "hours", "text": "Saturday 10:00-16:00"}],
+      "runtime_evaluation": {"evidence_sufficient": true, "answer_supported": true},
+      "first_pass_evaluation": {"evidence_sufficient": true, "answer_supported": false},
+      "diagnosis": {"failure_class": null, "rationale": "recovered"},
+      "recovery": {"action": "regenerate", "trigger": "judge", "source": "policy"},
+      "recovery_status": "applied",
+      "verification": {"outcome": "improved"},
+      "recovery_attempts": [{"index": 0, "action": "regenerate", "trigger": "judge", "source": "policy", "verification": {"outcome": "improved"}}]
+    }
+  },
+  {
+    "name": "rewrite",
+    "trace": {
+      "run_id": "legacy-rewrite",
+      "timestamp": "2026-01-01T00:00:04+00:00",
+      "query": "When is the library open?",
+      "answer": "Saturday hours.",
+      "previous_answer": "Saturday hours.",
+      "rewritten_query": "library saturday hours",
+      "model": "scripted",
+      "retrieved_chunks": [{"chunk_id": "hours::c001", "doc_id": "hours", "text": "Open Saturday."}],
+      "previous_retrieved_chunks": [{"chunk_id": "other::c000", "doc_id": "other", "text": "Unrelated."}],
+      "runtime_evaluation": {"evidence_sufficient": false, "answer_supported": true},
+      "diagnosis": {"failure_class": "retrieval_miss", "rationale": "after rewrite"},
+      "recovery": {"action": "rewrite", "trigger": "judge", "source": "policy"},
+      "recovery_status": "applied",
+      "verification": {"outcome": "still_failing"},
+      "probe_evaluation": {"evidence_sufficient": false, "answer_supported": null},
+      "recovery_attempts": [{"index": 0, "action": "rewrite", "rewritten_query": "library saturday hours", "verification": {"outcome": "still_failing"}}]
+    }
+  },
+  {
+    "name": "expand",
+    "trace": {
+      "run_id": "legacy-expand",
+      "timestamp": "2026-01-01T00:00:05+00:00",
+      "query": "When is the library open?",
+      "answer": "Saturday hours.",
+      "top_k": 12,
+      "model": "scripted",
+      "retrieved_chunks": [{"chunk_id": "hours::c000", "doc_id": "hours", "text": "Saturday."}],
+      "runtime_evaluation": {"evidence_sufficient": true, "answer_supported": true},
+      "recovery": {"action": "expand", "trigger": "retrieval_signal", "source": "policy"},
+      "recovery_status": "applied",
+      "verification": {"outcome": "unchanged"},
+      "recovery_attempts": [{"index": 0, "action": "expand", "top_k": 12, "verification": {"outcome": "unchanged"}}]
+    }
+  },
+  {
+    "name": "confirm_parent",
+    "trace": {
+      "run_id": "legacy-parent",
+      "timestamp": "2026-01-01T00:00:06+00:00",
+      "query": "When is the library open?",
+      "answer": "On the moon.",
+      "model": "scripted",
+      "retrieved_chunks": [{"chunk_id": "hours::c000", "doc_id": "hours", "text": "Saturday."}],
+      "runtime_evaluation": {"evidence_sufficient": false, "answer_supported": false},
+      "diagnosis": {"failure_class": null, "rationale": "not diagnosed on the first pass"},
+      "recovery": {"action": "rewrite", "trigger": "judge", "source": "policy", "reason": "first-pass evidence insufficient"},
+      "recovery_status": "proposed"
+    }
+  },
+  {
+    "name": "confirm_child",
+    "trace": {
+      "run_id": "legacy-child",
+      "timestamp": "2026-01-01T00:00:07+00:00",
+      "parent_run_id": "legacy-parent",
+      "query": "When is the library open?",
+      "answer": "Saturday 10:00-16:00",
+      "previous_answer": "On the moon.",
+      "model": "regen",
+      "retrieved_chunks": [{"chunk_id": "hours::c000", "doc_id": "hours", "text": "Saturday."}],
+      "runtime_evaluation": {"evidence_sufficient": true, "answer_supported": true},
+      "recovery": {"action": "regenerate", "trigger": "judge", "source": "operator"},
+      "recovery_status": "applied",
+      "verification": {"outcome": "improved"},
+      "recovery_attempts": [{"index": 0, "action": "regenerate", "source": "operator", "verification": {"outcome": "improved"}}]
+    }
+  },
+  {
+    "name": "abstain",
+    "trace": {
+      "run_id": "legacy-abstain",
+      "timestamp": "2026-01-01T00:00:08+00:00",
+      "query": "What is the late-return fine?",
+      "answer": "I do not know based on the retrieved documents.",
+      "model": "abstain",
+      "retrieved_chunks": [{"chunk_id": "fine::c000", "doc_id": "fine", "text": "Unrelated."}],
+      "runtime_evaluation": {"evidence_sufficient": false, "answer_supported": null},
+      "recovery": {"action": "abstain", "source": "policy"},
+      "recovery_status": "applied",
+      "verification": {"outcome": "still_failing"},
+      "recovery_attempts": [{"index": 0, "action": "abstain"}]
+    }
+  },
+  {
+    "name": "multi_attempt",
+    "trace": {
+      "run_id": "legacy-multi",
+      "timestamp": "2026-01-01T00:00:09+00:00",
+      "query": "When is the library open?",
+      "answer": "Saturday hours.",
+      "previous_answer": "answer A",
+      "rewritten_query": "library saturday hours",
+      "model": "scripted",
+      "retrieved_chunks": [{"chunk_id": "hours::c002", "doc_id": "hours", "text": "Wider."}],
+      "runtime_evaluation": {"evidence_sufficient": true, "answer_supported": true},
+      "diagnosis": {"failure_class": null, "rationale": "final"},
+      "recovery": {"action": "expand", "source": "policy"},
+      "recovery_status": "applied",
+      "verification": {"outcome": "improved"},
+      "recovery_attempts": [
+        {"index": 0, "action": "rewrite", "rewritten_query": "library saturday hours", "verification": {"outcome": "still_failing"}},
+        {"index": 1, "action": "expand", "top_k": 12, "verification": {"outcome": "improved"}}
+      ]
+    }
+  },
+  {
+    "name": "missing_first_pass_evaluation",
+    "trace": {
+      "run_id": "legacy-no-first-eval",
+      "timestamp": "2026-01-01T00:00:10+00:00",
+      "query": "When is the library open?",
+      "answer": "Saturday hours.",
+      "model": "scripted",
+      "retrieved_chunks": [],
+      "runtime_evaluation": {"evidence_sufficient": true, "answer_supported": true},
+      "diagnosis": {"failure_class": "retrieval_miss", "rationale": "final only"},
+      "recovery": {"action": "rewrite"},
+      "recovery_status": "applied",
+      "recovery_attempts": [{"index": 0, "action": "rewrite"}]
+    }
+  },
+  {
+    "name": "missing_recovery_attempts",
+    "trace": {
+      "run_id": "legacy-no-attempts",
+      "timestamp": "2026-01-01T00:00:11+00:00",
+      "query": "When is the library open?",
+      "answer": "Saturday hours.",
+      "model": "scripted",
+      "retrieved_chunks": [],
+      "runtime_evaluation": {"evidence_sufficient": false, "answer_supported": false},
+      "recovery": {"action": "rewrite", "trigger": "judge", "source": "policy"},
+      "recovery_status": "applied",
+      "verification": {"outcome": "still_failing"}
+    }
+  },
+  {
+    "name": "null_answer_supported",
+    "trace": {
+      "run_id": "legacy-null-support",
+      "timestamp": "2026-01-01T00:00:12+00:00",
+      "query": "When is the library open?",
+      "answer": "Saturday hours.",
+      "model": "scripted",
+      "retrieved_chunks": [],
+      "runtime_evaluation": {"evidence_sufficient": false, "answer_supported": null},
+      "diagnosis": {"failure_class": null, "rationale": "support was not judged"}
+    }
+  },
+  {
+    "name": "missing_diagnosis",
+    "trace": {
+      "run_id": "legacy-no-diagnosis",
+      "timestamp": "2026-01-01T00:00:13+00:00",
+      "query": "When is the library open?",
+      "answer": "Saturday hours.",
+      "model": "scripted",
+      "retrieved_chunks": [],
+      "runtime_evaluation": {"evidence_sufficient": true, "answer_supported": false},
+      "recovery": {"action": "accept"},
+      "recovery_status": "applied"
+    }
+  }
+]

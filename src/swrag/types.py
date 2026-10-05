@@ -204,7 +204,7 @@ class TraceRecord:
     trace_schema_version: int | None = field(default=None)
     run_mode: str | None = field(default=None)
     initial: dict[str, Any] | None = field(default=None)
-    usage: dict[str, int] | None = field(default=None)
+    usage: dict[str, int | bool | None] | None = field(default=None)
 
 
 @dataclass(frozen=True)
