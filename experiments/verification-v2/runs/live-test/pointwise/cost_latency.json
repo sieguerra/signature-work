@@ -1,0 +1,13 @@
+{
+  "completion_tokens_total": 2869,
+  "estimated_cost_usd": 0.00593625,
+  "latency_ms_p50": 3904.6454170020297,
+  "latency_ms_p95": 4626.046124991262,
+  "model": "gpt-4o-mini",
+  "model_calls_mean": 2.0,
+  "model_calls_total": 44,
+  "n": 22,
+  "price_note": "List-rate estimate from protocol.PRICE_PER_MILLION. Not an invoice.",
+  "prompt_tokens_total": 28099,
+  "tokens_observed": true
+}
