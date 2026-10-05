@@ -587,7 +587,7 @@ function metricsOverview(runs, progress) {
     return metricTile(metric, value, { note: `average of ${n} run${n === 1 ? "" : "s"}` });
   }).join("");
   return `<div class="mts">${tiles}</div>
-    <div class="mt-foot"><p class="chart-note">Averages over ${scored.length} scored run${scored.length === 1 ? "" : "s"}, using the answer the user got. Runs that said \u201cI do not know\u201d have no faithfulness or answer-relevance score and are left out of those two averages.</p>${button}</div>`;
+    <div class="mt-foot"><p class="chart-note">Averages over ${scored.length} scored run${scored.length === 1 ? "" : "s"}, using the answer the user got. Runs that said \u201cI do not know\u201d have no faithfulness or answer-relevance score and are left out of those two averages. These averages are model scores. The loop does not use them, and a person has not checked them against human ratings.</p>${button}</div>`;
 }
 
 // ---------- Quality check: the judge's verdicts in plain words ----------
