@@ -40,6 +40,24 @@ def _iter_trace_paths(traces_dir: str | Path):
         yield path
 
 
+def load_trace_payloads(traces_dir: str | Path) -> list[dict[str, Any]]:
+    """Full trace objects under ``traces_dir``.
+
+    Skips ``summary.json``, ``comparison.json``, and ``config.json``. A file
+    is a trace only when it has ``run_id`` and ``query``.
+    """
+    items: list[dict[str, Any]] = []
+    for path in _iter_trace_paths(traces_dir):
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        if not _is_trace_payload(payload):
+            continue
+        items.append(payload)
+    return items
+
+
 def list_traces(traces_dir: str | Path) -> list[dict[str, Any]]:
     """Newest-first summaries of every trace file under ``traces_dir``."""
     root = Path(traces_dir)
