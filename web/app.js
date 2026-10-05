@@ -38,6 +38,7 @@ const state = {
   flightTraces: null,
   relFocus: null,
   relFilters: { verification: "all", recovery: "all", action: "all", diagnosis: "all", query: "" },
+  keepReadOnly: false,
 };
 
 const CHAT_MODELS = ["gpt-4o-mini", "gpt-4o", "gpt-4.1-mini", "gpt-4.1"];
@@ -512,13 +513,14 @@ async function loadCorpora() {
     return;
   }
   const activeIsWorkspace = workspaces.some((item) => item.id === active);
-  select.innerHTML = workspaces
+  const readOnly = state.corpora.filter((item) => !item.writable);
+  select.innerHTML = [...workspaces, ...readOnly]
     .map((item) => {
       const selected = item.id === active ? " selected" : "";
       return `<option value="${escapeHtml(item.id)}"${selected}>${escapeHtml(item.label)}</option>`;
     })
     .join("");
-  if (!activeIsWorkspace) {
+  if (!activeIsWorkspace && !state.keepReadOnly) {
     await switchCorpus(workspaces[0].id);
   }
 }
@@ -3553,6 +3555,8 @@ function bind() {
   const deleteAll = $("delete-all-runs");
   if (deleteAll) deleteAll.addEventListener("click", () => deleteAllRuns().catch((error) => showError(error.message)));
   $("corpus").addEventListener("change", (event) => {
+    const chosen = state.corpora.find((item) => item.id === event.target.value);
+    state.keepReadOnly = Boolean(chosen && !chosen.writable);
     switchCorpus(event.target.value).catch((error) => showError(error.message));
   });
   const question = $("question");

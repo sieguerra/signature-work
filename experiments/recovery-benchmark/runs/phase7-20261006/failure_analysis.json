@@ -1,0 +1,191 @@
+{
+  "method": "Groups are the observed outcome, action, and stored diagnosis. Narrative categories are written only after the examples are read.",
+  "failure_groups": [
+    {
+      "outcome": "unchanged",
+      "action": "multi",
+      "diagnosis_class": "null",
+      "n": 40,
+      "logical_ids": [
+        "dku:first-pass-fail.jsonl:dku-057",
+        "dku:questions.jsonl:dku-031",
+        "dku:questions.jsonl:dku-033",
+        "dku:questions.jsonl:dku-034",
+        "dku:questions.jsonl:dku-035",
+        "dku:questions.jsonl:dku-036",
+        "dku:questions.jsonl:dku-037",
+        "dku:questions.jsonl:dku-038",
+        "dku:questions.jsonl:dku-040",
+        "dku:recovery.jsonl:dku-050",
+        "dku:recovery.jsonl:dku-051",
+        "dku:recovery.jsonl:dku-052",
+        "harbor:questions.jsonl:gold-027",
+        "harbor:questions.jsonl:gold-028",
+        "harbor:questions.jsonl:gold-031",
+        "harbor:questions.jsonl:seed-010",
+        "kestrel-aero:first-pass-fail.jsonl:ka-023",
+        "kestrel-aero:first-pass-fail.jsonl:ka-024",
+        "kestrel-aero:questions.jsonl:ka-015",
+        "kestrel-aero:questions.jsonl:ka-016",
+        "kestrel-aero:recovery.jsonl:ka-019",
+        "lumen-streetcar:questions.jsonl:ls-013",
+        "lumen-streetcar:questions.jsonl:ls-014",
+        "lumen-streetcar:questions.jsonl:ls-015",
+        "marlow-clinic:questions.jsonl:mc-014",
+        "marlow-clinic:questions.jsonl:mc-015",
+        "marlow-clinic:questions.jsonl:mc-016",
+        "nimbus-seed:questions.jsonl:ns-013",
+        "nimbus-seed:questions.jsonl:ns-014",
+        "nimbus-seed:questions.jsonl:ns-015",
+        "nimbus-seed:questions.jsonl:ns-016",
+        "northhaven-water:questions.jsonl:nw-014",
+        "northhaven-water:questions.jsonl:nw-016",
+        "porthaven-port:questions.jsonl:pp-013",
+        "porthaven-port:questions.jsonl:pp-014",
+        "porthaven-port:questions.jsonl:pp-015",
+        "saltwind-coop:questions.jsonl:sw-013",
+        "saltwind-coop:questions.jsonl:sw-014",
+        "saltwind-coop:questions.jsonl:sw-015",
+        "saltwind-coop:questions.jsonl:sw-016"
+      ]
+    },
+    {
+      "outcome": "unchanged",
+      "action": "expand",
+      "diagnosis_class": "null",
+      "n": 8,
+      "logical_ids": [
+        "dku:questions.jsonl:dku-004",
+        "dku:questions.jsonl:dku-014",
+        "harbor:questions.jsonl:seed-004",
+        "nimbus-seed:questions.jsonl:ns-010",
+        "northhaven-water:questions.jsonl:nw-003",
+        "orion-grid:questions.jsonl:og-003",
+        "porthaven-port:questions.jsonl:pp-002",
+        "porthaven-port:questions.jsonl:pp-003"
+      ]
+    },
+    {
+      "outcome": "still_failing",
+      "action": "multi",
+      "diagnosis_class": "null",
+      "n": 4,
+      "logical_ids": [
+        "harbor:questions.jsonl:gold-030",
+        "northhaven-water:questions.jsonl:nw-015",
+        "orion-grid:questions.jsonl:og-004",
+        "orion-grid:questions.jsonl:og-016"
+      ]
+    },
+    {
+      "outcome": "degraded",
+      "action": "multi",
+      "diagnosis_class": "null",
+      "n": 2,
+      "logical_ids": [
+        "dku:questions.jsonl:dku-032",
+        "lumen-streetcar:questions.jsonl:ls-016"
+      ]
+    },
+    {
+      "outcome": "degraded",
+      "action": "expand",
+      "diagnosis_class": "null",
+      "n": 1,
+      "logical_ids": [
+        "dku:questions.jsonl:dku-008"
+      ]
+    }
+  ],
+  "success_groups": [
+    {
+      "outcome": "improved",
+      "action": "multi",
+      "diagnosis_class": "null",
+      "n": 4,
+      "logical_ids": [
+        "dku:first-pass-fail.jsonl:dku-053",
+        "dku:first-pass-fail.jsonl:dku-055",
+        "dku:questions.jsonl:dku-012",
+        "harbor:questions.jsonl:seed-009"
+      ]
+    },
+    {
+      "outcome": "improved",
+      "action": "expand",
+      "diagnosis_class": "null",
+      "n": 1,
+      "logical_ids": [
+        "dku:recovery.jsonl:dku-045"
+      ]
+    }
+  ],
+  "categories": [
+    {
+      "name": "already_abstained",
+      "n_logical_runs": 39,
+      "what_happened": "Unanswerable questions whose first answer already abstained. Recovery ran, and the final answer still abstained. The primary rank stays correct on both sides, so the label is unchanged.",
+      "example": "dku:questions.jsonl:dku-031"
+    },
+    {
+      "name": "already_correct",
+      "n_logical_runs": 9,
+      "what_happened": "Answerable questions whose first answer already contained the gold span. Recovery left that answer in place. The label is unchanged.",
+      "example": "dku:questions.jsonl:dku-004"
+    },
+    {
+      "name": "expand_found_the_passage",
+      "n_logical_runs": 4,
+      "what_happened": "The first answer missed the fact. On three of these, rewrite still abstained, and the expand step then quoted the gold span. On dku-045, expand alone replaced a superseded phone number with the current one.",
+      "examples": [
+        "dku:first-pass-fail.jsonl:dku-053",
+        "dku:first-pass-fail.jsonl:dku-055",
+        "dku:questions.jsonl:dku-012",
+        "dku:recovery.jsonl:dku-045"
+      ]
+    },
+    {
+      "name": "abstain_replaced_a_specific_wrong_price",
+      "n_logical_runs": 1,
+      "what_happened": "The first answer named a meal price the question did not ask for in a form the gold treats as unanswerable. The final controller abstention is the improved state.",
+      "example": "harbor:questions.jsonl:seed-009"
+    },
+    {
+      "name": "refusal_lost_the_abstention_marker",
+      "n_logical_runs": 4,
+      "what_happened": "The reply still says the corpus does not contain the fact, but the wording no longer matches the abstention heuristic, or it never did. The frozen label then says degraded or still failing. Read dku-032, ls-016, nw-015, and og-016 before treating those labels as a worse answer.",
+      "examples": [
+        "dku:questions.jsonl:dku-032",
+        "lumen-streetcar:questions.jsonl:ls-016",
+        "northhaven-water:questions.jsonl:nw-015",
+        "orion-grid:questions.jsonl:og-016"
+      ]
+    },
+    {
+      "name": "span_match_missed_a_reworded_time",
+      "n_logical_runs": 1,
+      "what_happened": "dku-008 changed 14:00-18:00 to 14:00 to 18:00. The frozen contains-answer rule calls that degraded. The token-F1 comparison label agreed. A person reading the two answers would not call the second one worse.",
+      "example": "dku:questions.jsonl:dku-008"
+    },
+    {
+      "name": "related_fact_instead_of_abstention",
+      "n_logical_runs": 1,
+      "what_happened": "gold-030 is unanswerable. Both answers explain that Saltmarsh Annex has no group rooms, and neither is an abstention. Recovery did not change that. The label is still failing.",
+      "example": "harbor:questions.jsonl:gold-030"
+    },
+    {
+      "name": "refusal_on_an_answerable_time_span",
+      "n_logical_runs": 1,
+      "what_happened": "og-004 asks when the 2023 night rate started. Gold's span is 22:00. Both answers refuse because they read the question as asking for a calendar date. Recovery did not add 22:00. The label is still failing.",
+      "example": "orion-grid:questions.jsonl:og-004"
+    }
+  ],
+  "success_notes": [
+    "Rewrite was the first step in 50 of 60 recovered runs. In the three DKU cases that became correct after rewrite>expand, the rewrite step was still an abstention. The expand step is what quoted the gold span.",
+    "Expand alone improved dku-045, replacing the 2021 handbook phone number with the number on the current hours page.",
+    "The one abstention success is seed-009. The final answer is the canonical abstention. Verification v1 stored still_failing for that run because a final abstention with insufficient evidence is overridden to still failing.",
+    "Regenerate did not occur in any recovered run. The benchmark cannot say whether regenerate works.",
+    "Stored initial diagnosis_class is null on all 60 recovered runs. First-pass insufficiency selects rewrite from the judge flag, not from a failure class. No retrieval_miss or evidence_insufficiency count is reported, because none was stored on the initial state."
+  ],
+  "not_a_preregistered_taxonomy": true
+}

@@ -1,0 +1,36 @@
+{
+  "role": "visual_demo",
+  "benchmark": false,
+  "corpus_id": "recovery-demo",
+  "top_k": 4,
+  "max_recoveries": 2,
+  "mode": "loop",
+  "note": "These questions are for Test Console inspection. The benchmark runner must ignore them.",
+  "cases": [
+    {
+      "question_id": "rdemo-accept",
+      "expected_path": "accept",
+      "purpose": "No recovery required"
+    },
+    {
+      "question_id": "rdemo-rewrite",
+      "expected_path": "rewrite",
+      "purpose": "Rewrite toward the lockout plate"
+    },
+    {
+      "question_id": "rdemo-expand",
+      "expected_path": "expand",
+      "purpose": "Widen retrieval until the hours card appears"
+    },
+    {
+      "question_id": "rdemo-regen",
+      "expected_path": "regenerate",
+      "purpose": "Same evidence, a better supported answer"
+    },
+    {
+      "question_id": "rdemo-absent",
+      "expected_path": "abstain",
+      "purpose": "Information is absent"
+    }
+  ]
+}

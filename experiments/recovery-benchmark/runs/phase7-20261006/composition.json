@@ -1,0 +1,222 @@
+{
+  "all_runnable": {
+    "n": 225,
+    "answerable": 167,
+    "unanswerable": 58,
+    "by_corpus": {
+      "dku": 57,
+      "harbor": 32,
+      "kestrel-aero": 24,
+      "lumen-streetcar": 16,
+      "marlow-clinic": 16,
+      "nimbus-seed": 16,
+      "northhaven-water": 16,
+      "orion-grid": 16,
+      "porthaven-port": 16,
+      "saltwind-coop": 16
+    },
+    "by_domain": {
+      "University campus (public facts)": {
+        "n": 57,
+        "answerable": 43,
+        "unanswerable": 14
+      },
+      "Fictional research campus": {
+        "n": 32,
+        "answerable": 22,
+        "unanswerable": 10
+      },
+      "Aerospace machining": {
+        "n": 24,
+        "answerable": 18,
+        "unanswerable": 6
+      },
+      "Urban streetcar / transit": {
+        "n": 16,
+        "answerable": 12,
+        "unanswerable": 4
+      },
+      "Outpatient clinic": {
+        "n": 16,
+        "answerable": 12,
+        "unanswerable": 4
+      },
+      "Plant genetic resources": {
+        "n": 16,
+        "answerable": 12,
+        "unanswerable": 4
+      },
+      "Municipal water utility": {
+        "n": 16,
+        "answerable": 12,
+        "unanswerable": 4
+      },
+      "Rural electric cooperative": {
+        "n": 16,
+        "answerable": 12,
+        "unanswerable": 4
+      },
+      "Seaport / marine terminals": {
+        "n": 16,
+        "answerable": 12,
+        "unanswerable": 4
+      },
+      "Commercial fishing cooperative": {
+        "n": 16,
+        "answerable": 12,
+        "unanswerable": 4
+      }
+    },
+    "by_source": {
+      "first-pass-fail.jsonl": 10,
+      "questions.jsonl": 200,
+      "recovery.jsonl": 15
+    }
+  },
+  "analysis": {
+    "n": 186,
+    "answerable": 137,
+    "unanswerable": 49,
+    "by_corpus": {
+      "dku": 54,
+      "harbor": 30,
+      "kestrel-aero": 18,
+      "lumen-streetcar": 13,
+      "marlow-clinic": 9,
+      "nimbus-seed": 15,
+      "northhaven-water": 13,
+      "orion-grid": 11,
+      "porthaven-port": 12,
+      "saltwind-coop": 11
+    },
+    "by_domain": {
+      "University campus (public facts)": {
+        "n": 54,
+        "answerable": 41,
+        "unanswerable": 13
+      },
+      "Fictional research campus": {
+        "n": 30,
+        "answerable": 20,
+        "unanswerable": 10
+      },
+      "Aerospace machining": {
+        "n": 18,
+        "answerable": 14,
+        "unanswerable": 4
+      },
+      "Urban streetcar / transit": {
+        "n": 13,
+        "answerable": 9,
+        "unanswerable": 4
+      },
+      "Outpatient clinic": {
+        "n": 9,
+        "answerable": 6,
+        "unanswerable": 3
+      },
+      "Plant genetic resources": {
+        "n": 15,
+        "answerable": 11,
+        "unanswerable": 4
+      },
+      "Municipal water utility": {
+        "n": 13,
+        "answerable": 10,
+        "unanswerable": 3
+      },
+      "Rural electric cooperative": {
+        "n": 11,
+        "answerable": 10,
+        "unanswerable": 1
+      },
+      "Seaport / marine terminals": {
+        "n": 12,
+        "answerable": 9,
+        "unanswerable": 3
+      },
+      "Commercial fishing cooperative": {
+        "n": 11,
+        "answerable": 7,
+        "unanswerable": 4
+      }
+    },
+    "by_source": {
+      "first-pass-fail.jsonl": 10,
+      "questions.jsonl": 161,
+      "recovery.jsonl": 15
+    }
+  },
+  "future_holdout": {
+    "n": 39,
+    "answerable": 30,
+    "unanswerable": 9,
+    "by_corpus": {
+      "dku": 3,
+      "harbor": 2,
+      "kestrel-aero": 6,
+      "lumen-streetcar": 3,
+      "marlow-clinic": 7,
+      "nimbus-seed": 1,
+      "northhaven-water": 3,
+      "orion-grid": 5,
+      "porthaven-port": 4,
+      "saltwind-coop": 5
+    },
+    "by_domain": {
+      "University campus (public facts)": {
+        "n": 3,
+        "answerable": 2,
+        "unanswerable": 1
+      },
+      "Fictional research campus": {
+        "n": 2,
+        "answerable": 2,
+        "unanswerable": 0
+      },
+      "Aerospace machining": {
+        "n": 6,
+        "answerable": 4,
+        "unanswerable": 2
+      },
+      "Urban streetcar / transit": {
+        "n": 3,
+        "answerable": 3,
+        "unanswerable": 0
+      },
+      "Outpatient clinic": {
+        "n": 7,
+        "answerable": 6,
+        "unanswerable": 1
+      },
+      "Plant genetic resources": {
+        "n": 1,
+        "answerable": 1,
+        "unanswerable": 0
+      },
+      "Municipal water utility": {
+        "n": 3,
+        "answerable": 2,
+        "unanswerable": 1
+      },
+      "Rural electric cooperative": {
+        "n": 5,
+        "answerable": 2,
+        "unanswerable": 3
+      },
+      "Seaport / marine terminals": {
+        "n": 4,
+        "answerable": 3,
+        "unanswerable": 1
+      },
+      "Commercial fishing cooperative": {
+        "n": 5,
+        "answerable": 5,
+        "unanswerable": 0
+      }
+    },
+    "by_source": {
+      "questions.jsonl": 39
+    }
+  }
+}

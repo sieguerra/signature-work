@@ -140,6 +140,20 @@
         "Which Saltwind vessel is named Storm Petrel?",
         "What is the ex-vessel price for Dungeness at Saltwind?"
       ]
+    },
+    {
+      "id": "recovery-demo",
+      "label": "Recovery demo (not a benchmark)",
+      "industry": "Visual demonstration only",
+      "group": "Demo",
+      "corpus_dir": "datasets/recovery-demo/corpus",
+      "gold_path": "datasets/recovery-demo/gold/questions.jsonl",
+      "fictional": true,
+      "examples": [
+        "What is the weekday opening time at the Northport Workshop?",
+        "What password does the Northport Workshop use for the red cabinet?",
+        "What is the Northport Workshop espresso machine model?"
+      ]
     }
   ]
 }

@@ -37,6 +37,9 @@ experiments/projects/*
 !experiments/projects/.gitkeep
 experiments/verification-v2/cache/
 experiments/verification-v2/traces/
+experiments/recovery-benchmark/traces/
+experiments/recovery-benchmark/cache/
+experiments/recovery-benchmark/demo-runs/
 datasets/generated/
 
 # Secrets
