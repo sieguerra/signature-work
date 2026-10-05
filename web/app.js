@@ -32,6 +32,8 @@ const state = {
   runView: "diagram",
   quality: {},
   scoringProgress: null,
+  overview: null,
+  overviewError: "",
 };
 
 const CHAT_MODELS = ["gpt-4o-mini", "gpt-4o", "gpt-4.1-mini", "gpt-4.1"];
@@ -971,6 +973,7 @@ async function loadTraces() {
   await loadEval();
   renderRunList();
   renderShell();
+  await loadOverview();
 }
 
 function setEvalTab(tab) {
@@ -3476,6 +3479,14 @@ function bindCanvas() {
 
 
 function bind() {
+  const overview = $("overview-body");
+  if (overview) {
+    overview.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-inspect-run]");
+      if (!button) return;
+      inspectOverviewRun(button.dataset.inspectRun).catch((error) => showError(error.message));
+    });
+  }
   $("run-btn").addEventListener("click", runQuestion);
   $("refresh-runs").addEventListener("click", () => loadTraces().catch((error) => showError(error.message)));
   $("delete-all-runs").addEventListener("click", () => deleteAllRuns().catch((error) => showError(error.message)));
@@ -3964,6 +3975,325 @@ function bind() {
     selectCitation(cite.dataset.chunkId, cite.dataset.citePass || null);
   });
   bindCanvas();
+}
+
+const OV_ACTIONS = {
+  rewrite: "Rewrite",
+  expand: "Expand",
+  regenerate: "Regenerate",
+  abstain: "Abstain",
+};
+
+const OV_DIAGNOSES = {
+  unsupported_generation: "Unsupported generation",
+  retrieval_miss: "Retrieval miss",
+  evidence_insufficiency: "Evidence insufficiency",
+};
+
+const OV_STATES = {
+  not_judged: "Not judged",
+  evidence_insufficient: "Evidence insufficient",
+  answer_unsupported: "Answer unsupported",
+  answer_supported: "Answer supported",
+  evidence_sufficient: "Evidence sufficient",
+};
+
+const OV_OUTCOMES = {
+  improved: "Improved",
+  unchanged: "Unchanged",
+  still_failing: "Still failing",
+  degraded: "Degraded",
+};
+
+async function loadOverview() {
+  const root = $("overview-body");
+  if (!root) return;
+  try {
+    state.overview = await api("/api/overview");
+    state.overviewError = "";
+  } catch (error) {
+    state.overview = null;
+    state.overviewError = error.message || "Overview could not be loaded.";
+  }
+  renderOverview();
+}
+
+async function inspectOverviewRun(runId) {
+  if (!runId) return;
+  setEvalTab("runs");
+  if (location.hash !== "#reliability") location.hash = "#reliability";
+  applyView();
+  await selectRun(runId);
+}
+
+function renderOverview() {
+  const root = $("overview-body");
+  const lead = $("overview-lead");
+  if (!root) return;
+  if (state.overviewError && !state.overview) {
+    if (lead) lead.textContent = "Overview could not be loaded.";
+    root.innerHTML = `<p class="ov-empty">${escapeHtml(state.overviewError)}</p>`;
+    return;
+  }
+  const data = state.overview;
+  if (!data) {
+    if (lead) lead.textContent = "How reliable this RAG system is right now.";
+    root.innerHTML = "";
+    return;
+  }
+  if (lead) lead.textContent = data.summary || "How reliable this RAG system is right now.";
+  const judged = data.judged_runs || 0;
+  const observed = data.observed_runs || 0;
+  root.innerHTML = `
+    ${overviewMetrics(data)}
+    ${observed && !judged ? `<p class="ov-note">Recorded runs so far were not judged. Run a loop test to measure runtime reliability.</p>` : ""}
+    <section class="ov-panel">
+      <h2>Needs attention</h2>
+      ${overviewAttention(data)}
+    </section>
+    <div class="ov-grid">
+      <section class="ov-panel">
+        <h2>Recovery outcomes</h2>
+        ${overviewOutcomes(data)}
+      </section>
+      <section class="ov-panel">
+        <h2>Runtime signals <span class="ov-kicker">Initial → final</span></h2>
+        ${overviewSignals(data)}
+      </section>
+    </div>
+    <div class="ov-grid">
+      <section class="ov-panel">
+        <h2>Failure diagnoses</h2>
+        ${overviewDiagnoses(data)}
+      </section>
+      <section class="ov-panel">
+        <h2>Applied recovery actions</h2>
+        ${overviewActions(data)}
+      </section>
+    </div>
+    <section class="ov-panel">
+      <div class="ov-panel-head">
+        <h2>Recent activity</h2>
+        ${overviewLatency(data.latency)}
+      </div>
+      ${overviewActivity(data)}
+    </section>
+    ${judged ? "" : `<p class="ov-note"><a href="#test">Run a loop test</a> to begin measuring runtime reliability.</p>`}
+  `;
+}
+
+function overviewMetrics(data) {
+  const required = data.recovery_required || {};
+  const verified = data.verified_improved || {};
+  return `<div class="ov-metrics">
+    ${metric("Judged runs", String(data.judged_runs || 0), data.judged_runs ? "Runtime evaluations" : "No judged runs yet")}
+    ${rateMetric("Recovery required", required, "of judged runs", "No judged runs")}
+    ${rateMetric("Verified improved", verified, "of applied recoveries", "No applied recoveries")}
+    ${metric(
+      "Unresolved",
+      String(data.unresolved || 0),
+      "Pending, still failing, or degraded",
+      data.unresolved ? "is-attention" : ""
+    )}
+  </div>`;
+}
+
+function metric(label, value, sub, tone = "") {
+  return `<div class="ov-metric ${tone}">
+    <div class="ov-metric-k">${escapeHtml(label)}</div>
+    <div class="ov-metric-v">${escapeHtml(value)}</div>
+    <div class="ov-metric-s">${escapeHtml(sub)}</div>
+  </div>`;
+}
+
+function rateMetric(label, bucket, ofLabel, emptyLabel) {
+  const total = bucket.total || 0;
+  const count = bucket.count || 0;
+  if (!total) {
+    return metric(label, "—", emptyLabel);
+  }
+  const percent = formatPercent(bucket.rate);
+  return metric(label, `${count} of ${total}`, percent ? `${percent} ${ofLabel}` : ofLabel);
+}
+
+function overviewAttention(data) {
+  const items = data.needs_attention || [];
+  if (!items.length) return `<p class="ov-empty">No unresolved recovery runs.</p>`;
+  return `<ul class="ov-list">${items.map((item) => `<li class="ov-row">
+      <div class="ov-row-main">
+        <div class="ov-query" title="${escapeHtml(item.query || "")}">${escapeHtml(item.query || "Untitled run")}</div>
+        <div class="ov-sub">${escapeHtml(attentionLine(item))}</div>
+      </div>
+      <div class="ov-row-side">
+        ${outcomeBadge(item.pending ? "pending" : item.verification)}
+        <span class="ov-time">${escapeHtml(formatStamp(item.timestamp))}</span>
+        <button type="button" class="btn btn-ghost btn-sm" data-inspect-run="${escapeHtml(item.inspect_run_id)}">Inspect</button>
+      </div>
+    </li>`).join("")}</ul>`;
+}
+
+function attentionLine(item) {
+  const diagnosis = (item.diagnoses || []).map(labelDiagnosis).filter(Boolean).join(", ");
+  if (item.pending) {
+    const proposal = `Recovery proposed: ${labelAction(item.action)} → awaiting confirmation`;
+    return diagnosis ? `${diagnosis} → ${proposal}` : proposal;
+  }
+  const actions = (item.actions || []).map(labelAction).join(" → ");
+  const outcome = OV_OUTCOMES[item.verification] || "";
+  return [diagnosis, actions, outcome].filter(Boolean).join(" → ");
+}
+
+function overviewOutcomes(data) {
+  const outcomes = data.outcomes || {};
+  const total = outcomes.with_outcome || 0;
+  if (!outcomes.applied) return `<p class="ov-empty">No recovery attempts yet.</p>`;
+  if (!total) return `<p class="ov-empty">Recovery was applied, but none of those runs have a verification outcome yet.</p>`;
+  const rows = ["improved", "unchanged", "still_failing", "degraded"]
+    .map((name) => barRow(OV_OUTCOMES[name], outcomes[name] || 0, total, name))
+    .join("");
+  const other = outcomes.other
+    ? barRow("Other", outcomes.other, total, "other")
+    : "";
+  const missing = (outcomes.applied || 0) - total;
+  const note = missing > 0 ? `<p class="ov-sub">${missing} applied ${missing === 1 ? "recovery has" : "recoveries have"} no verification outcome and ${missing === 1 ? "is" : "are"} not in this split.</p>` : "";
+  return `${rows}${other}<p class="ov-sub">${total} applied ${total === 1 ? "recovery" : "recoveries"} with a final verification outcome.</p>${note}`;
+}
+
+function overviewSignals(data) {
+  const judged = data.judged_runs || 0;
+  if (!judged) return `<p class="ov-empty">No judged runs yet.</p>`;
+  const signals = data.signals || {};
+  return `${signalRow("Evidence sufficient", signals.evidence_sufficient)}
+    ${signalRow("Answer supported", signals.answer_supported)}
+    <p class="ov-sub">Runtime judge signals, not ground-truth accuracy. A null answer-supported flag is omitted, not treated as false.</p>`;
+}
+
+function signalRow(label, pair) {
+  const initial = (pair && pair.initial) || {};
+  const final = (pair && pair.final) || {};
+  return `<div class="ov-signal">
+    <div class="ov-signal-name">${escapeHtml(label)}</div>
+    <div class="ov-signal-values">
+      <span>${escapeHtml(signalPercent(initial))}</span>
+      <span class="ov-arrow" aria-hidden="true">→</span>
+      <span>${escapeHtml(signalPercent(final))}</span>
+    </div>
+    <div class="ov-sub">${escapeHtml(signalCount(initial))} → ${escapeHtml(signalCount(final))}</div>
+  </div>`;
+}
+
+function signalPercent(bucket) {
+  if (!bucket || !bucket.total) return "—";
+  return formatPercent(bucket.rate) || "—";
+}
+
+function signalCount(bucket) {
+  if (!bucket || !bucket.total) return "no judged value";
+  return `${bucket.true} of ${bucket.total}`;
+}
+
+function overviewDiagnoses(data) {
+  const rows = data.diagnoses || [];
+  if (!rows.length) return `<p class="ov-empty">No failure diagnoses yet.</p>`;
+  const max = Math.max(...rows.map((row) => row.count || 0), 1);
+  return `${rows.map((row) => barRow(labelDiagnosis(row.name), row.count || 0, max, "diagnosis")).join("")}
+    <p class="ov-sub">Observed failure classes. Retrieval miss and evidence insufficiency can be assigned after a rewrite.</p>`;
+}
+
+function overviewActions(data) {
+  const rows = data.applied_actions || [];
+  const pending = data.pending_actions || [];
+  if (!rows.length && !pending.length) return `<p class="ov-empty">No recovery attempts yet.</p>`;
+  const max = Math.max(1, ...rows.map((row) => row.count || 0));
+  const bars = rows.length
+    ? rows.map((row) => barRow(labelAction(row.name), row.count || 0, max, "action")).join("")
+    : `<p class="ov-empty">No applied recoveries yet.</p>`;
+  const pendingLine = pending.length
+    ? `<p class="ov-sub">Pending, not applied: ${escapeHtml(pending.map((row) => `${labelAction(row.name)} ${row.count}`).join(" · "))}</p>`
+    : "";
+  return `${bars}${pendingLine}<p class="ov-sub">Applied actions only. A final improvement is not credited separately to each action in a chain.</p>`;
+}
+
+function overviewActivity(data) {
+  const rows = data.recent_activity || [];
+  if (!rows.length) return `<p class="ov-empty">No runs yet.</p>`;
+  return `<table class="ov-table">
+    <thead><tr>
+      <th>Question</th><th>Initial</th><th>Recovery</th><th>Verification</th><th>Latency</th><th></th>
+    </tr></thead>
+    <tbody>${rows.map((row) => `<tr>
+      <td><div class="ov-query" title="${escapeHtml(row.query || "")}">${escapeHtml(row.query || "Untitled run")}</div><div class="ov-sub">${escapeHtml(formatStamp(row.timestamp))}</div></td>
+      <td>${escapeHtml(OV_STATES[row.initial_state] || "Not judged")}</td>
+      <td>${escapeHtml(recoveryCell(row))}</td>
+      <td>${verificationCell(row)}</td>
+      <td>${escapeHtml(formatLatency(row.latency_ms))}</td>
+      <td><button type="button" class="btn btn-ghost btn-sm" data-inspect-run="${escapeHtml(row.inspect_run_id)}">Inspect</button></td>
+    </tr>`).join("")}</tbody>
+  </table>`;
+}
+
+function recoveryCell(row) {
+  if (row.recovery_pending) return `Pending: ${labelAction(row.recovery_pending)}`;
+  if (row.recovery && row.recovery.length) return row.recovery.map(labelAction).join(" → ");
+  return "No recovery";
+}
+
+function verificationCell(row) {
+  if (row.recovery_pending) return outcomeBadge("pending");
+  if (row.verification) return outcomeBadge(row.verification);
+  return `<span class="ov-quiet">—</span>`;
+}
+
+function overviewLatency(latency) {
+  if (!latency || latency.median_ms == null) return `<p class="ov-sub">No latency recorded.</p>`;
+  const runs = latency.runs || 0;
+  return `<p class="ov-sub" title="${escapeHtml(latency.definition || "")}">Median ${escapeHtml(formatLatency(latency.median_ms))} across ${runs} ${runs === 1 ? "run" : "runs"}</p>`;
+}
+
+function barRow(label, count, total, tone) {
+  const width = total > 0 ? Math.max(0, Math.min(100, (count / total) * 100)) : 0;
+  return `<div class="ov-bar">
+    <span class="ov-bar-label">${escapeHtml(label)}</span>
+    <span class="ov-bar-track"><span class="ov-bar-fill is-${escapeHtml(tone)}" style="width:${width}%"></span></span>
+    <span class="ov-bar-count">${count}</span>
+  </div>`;
+}
+
+function outcomeBadge(name) {
+  const label = name === "pending" ? "Recovery pending" : OV_OUTCOMES[name] || name || "—";
+  const tone = name === "pending" ? "pending" : name || "neutral";
+  const glyph = { improved: "check", unchanged: "minus", pending: "clock", still_failing: "alert-circle", degraded: "x" }[name] || "minus";
+  return `<span class="ov-badge is-${escapeHtml(tone)}">${icon(glyph, 12)} ${escapeHtml(label)}</span>`;
+}
+
+function labelAction(name) {
+  if (!name) return "Recovery";
+  return OV_ACTIONS[name] || String(name).replaceAll("_", " ");
+}
+
+function labelDiagnosis(name) {
+  if (!name) return "";
+  return OV_DIAGNOSES[name] || String(name).replaceAll("_", " ");
+}
+
+function formatPercent(rate) {
+  if (rate == null || Number.isNaN(Number(rate))) return "";
+  return `${Math.round(Number(rate) * 100)}%`;
+}
+
+function formatLatency(ms) {
+  if (ms == null || Number.isNaN(Number(ms))) return "—";
+  const value = Number(ms);
+  if (value >= 10000) return `${Math.round(value / 1000)}s`;
+  if (value >= 1000) return `${(value / 1000).toFixed(1)}s`;
+  return `${Math.round(value)}ms`;
+}
+
+function formatStamp(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+  return date.toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
 }
 
 async function boot() {
