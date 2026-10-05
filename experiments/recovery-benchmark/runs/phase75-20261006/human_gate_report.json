@@ -1,0 +1,5 @@
+{
+  "human_labels_collected": false,
+  "reviewer_count": 0,
+  "note": "Place human_labels.jsonl in this directory and run this script again. Rates were not filled in."
+}
