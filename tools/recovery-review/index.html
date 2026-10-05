@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Recovery review</title>
+  <style>
+    :root { color-scheme: light; }
+    body { margin: 0; font: 16px/1.45 system-ui, sans-serif; background: #f4f1ea; color: #1c1915; }
+    header, main { max-width: 1100px; margin: 0 auto; padding: 20px; }
+    header { display: flex; justify-content: space-between; gap: 16px; align-items: end; }
+    h1 { font-size: 22px; margin: 0 0 4px; }
+    p { margin: 0; }
+    .progress { font-variant-numeric: tabular-nums; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    article { background: white; border: 1px solid #d9d2c5; border-radius: 8px; padding: 14px; }
+    h2 { margin: 0 0 8px; font-size: 15px; letter-spacing: 0.04em; text-transform: uppercase; }
+    pre { white-space: pre-wrap; font: 14px/1.4 ui-monospace, monospace; background: #f7f5f0; padding: 10px; border-radius: 6px; max-height: 280px; overflow: auto; }
+    form { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    button, label.choice { border: 1px solid #1c1915; background: white; border-radius: 999px; padding: 8px 12px; cursor: pointer; }
+    button.primary { background: #1c1915; color: white; }
+    textarea { width: 100%; min-height: 72px; margin-top: 8px; font: inherit; }
+    .warn { color: #8a3b12; }
+    @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } header { display: block; } }
+  </style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Blinded recovery review</h1>
+    <p>Compare before and after. The page has no automatic label and no recovery action.</p>
+  </div>
+  <p class="progress" id="progress">Load a blinded JSONL file.</p>
+</header>
+<main>
+  <p><input id="file" type="file" accept=".jsonl,application/jsonl,application/json"></p>
+  <p id="error" class="warn"></p>
+  <section id="card" hidden>
+    <p id="question"></p>
+    <div class="grid">
+      <article>
+        <h2>Before evidence</h2>
+        <pre id="before-evidence"></pre>
+        <h2>Before answer</h2>
+        <pre id="before-answer"></pre>
+      </article>
+      <article>
+        <h2>After evidence</h2>
+        <pre id="after-evidence"></pre>
+        <h2>After answer</h2>
+        <pre id="after-answer"></pre>
+      </article>
+    </div>
+    <form id="choices"></form>
+    <textarea id="comment" placeholder="Optional comment"></textarea>
+    <p>
+      <button type="button" id="prev">Previous</button>
+      <button type="button" id="next">Next</button>
+      <button type="button" class="primary" id="export">Download labels</button>
+    </p>
+  </section>
+</main>
+<script>
+const LABELS = [
+  ["improved", "Improved"],
+  ["unchanged", "Unchanged"],
+  ["still_failing", "Still failing"],
+  ["degraded", "Degraded"],
+  ["unclear", "Unclear / cannot determine"]
+];
+const FORBIDDEN = ["gold_label","outcome","v1_outcome","v2_outcome","action","actions","path","answerable","answers","diagnosis_class"];
+const STORAGE = "recovery-review-v1";
+let items = [];
+let index = 0;
+let saved = loadSaved();
+
+function loadSaved() {
+  try { return JSON.parse(localStorage.getItem(STORAGE) || "{}"); }
+  catch { return {}; }
+}
+function persist() { localStorage.setItem(STORAGE, JSON.stringify(saved)); }
+
+document.getElementById("file").addEventListener("change", async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+  const text = await file.text();
+  try {
+    items = text.split(/\n/).map((line) => line.trim()).filter(Boolean).map((line) => JSON.parse(line));
+    items.forEach(checkBlind);
+    index = items.findIndex((item) => !saved[item.review_id] || !saved[item.review_id].label);
+    if (index < 0) index = 0;
+    document.getElementById("error").textContent = "";
+    document.getElementById("card").hidden = false;
+    render();
+  } catch (error) {
+    document.getElementById("error").textContent = error.message;
+  }
+});
+
+function checkBlind(item) {
+  FORBIDDEN.forEach((key) => {
+    if (Object.prototype.hasOwnProperty.call(item, key)) {
+      throw new Error("This file is not blinded. It contains " + key + ".");
+    }
+  });
+  ["review_id","question","before_evidence","before_answer","after_evidence","after_answer"].forEach((key) => {
+    if (!Object.prototype.hasOwnProperty.call(item, key)) throw new Error("Missing " + key);
+  });
+}
+
+function render() {
+  const item = items[index];
+  const done = items.filter((row) => saved[row.review_id] && saved[row.review_id].label).length;
+  document.getElementById("progress").textContent = (done) + " labeled / " + items.length + " · showing " + (index + 1);
+  document.getElementById("question").textContent = item.question;
+  document.getElementById("before-evidence").textContent = item.before_evidence || "";
+  document.getElementById("before-answer").textContent = item.before_answer || "";
+  document.getElementById("after-evidence").textContent = item.after_evidence || "";
+  document.getElementById("after-answer").textContent = item.after_answer || "";
+  const current = saved[item.review_id] || {};
+  document.getElementById("comment").value = current.comment || "";
+  const form = document.getElementById("choices");
+  form.innerHTML = "";
+  LABELS.forEach(([value, name]) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = name;
+    if (current.label === value) button.className = "primary";
+    button.addEventListener("click", () => choose(value));
+    form.appendChild(button);
+  });
+}
+
+function choose(label) {
+  const item = items[index];
+  saved[item.review_id] = { label, comment: document.getElementById("comment").value };
+  persist();
+  if (index < items.length - 1) index += 1;
+  render();
+}
+
+document.getElementById("comment").addEventListener("change", () => {
+  const item = items[index];
+  const current = saved[item.review_id] || {};
+  current.comment = document.getElementById("comment").value;
+  saved[item.review_id] = current;
+  persist();
+});
+document.getElementById("prev").addEventListener("click", () => { if (index > 0) { index -= 1; render(); } });
+document.getElementById("next").addEventListener("click", () => { if (index < items.length - 1) { index += 1; render(); } });
+document.getElementById("export").addEventListener("click", () => {
+  const lines = items.map((item) => JSON.stringify({
+    review_id: item.review_id,
+    label: (saved[item.review_id] && saved[item.review_id].label) || "",
+    comment: (saved[item.review_id] && saved[item.review_id].comment) || ""
+  }));
+  const blob = new Blob([lines.join("\n") + "\n"], { type: "application/jsonl" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "human_labels.jsonl";
+  link.click();
+});
+</script>
+</body>
+</html>
