@@ -80,6 +80,7 @@ class ProjectConfigRequest(BaseModel):
     instructions: str = ""
     chat_model: str = "gpt-4o-mini"
     top_k: int = Field(default=4, ge=1, le=20)
+    behavior: dict[str, Any] | None = None
 
 
 class ProjectKeyCreateRequest(BaseModel):

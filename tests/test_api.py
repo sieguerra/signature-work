@@ -234,7 +234,9 @@ def test_index_page_and_assets_are_served(tmp_path: Path) -> None:
         assert page.status_code == 200
         assert "Trace explorer" in page.text
         assert "delete-all-runs" in page.text
-        assert "Playground" in page.text
+        assert "Test Console" in page.text
+        assert 'href="#overview"' in page.text
+        assert 'href="#test"' in page.text
         assert 'id="view-playground"' in page.text
         assert 'id="pg-canvas"' in page.text
         assert 'id="pg-palette"' in page.text
@@ -263,6 +265,11 @@ def test_index_page_and_assets_are_served(tmp_path: Path) -> None:
         assert "deleteAllRuns" in js.text
         assert "switchCorpus" in js.text
         assert "readTopK" in js.text
+        assert 'playground: "test"' in js.text
+        assert 'evaluation: "reliability"' in js.text
+        assert 'knowledge: "data"' in js.text
+        assert 'agent: "configuration"' in js.text
+        assert 'api: "integrations"' in js.text
         assert "createPlaygroundProject" in js.text
         assert "savePlaygroundConfig" in js.text
         assert "resetPlaygroundChat" in js.text

@@ -10,7 +10,7 @@ const state = {
   childRunId: null,
   loading: false,
   recovering: false,
-  view: "playground",
+  view: "overview",
   documents: [],
   openDocument: null,
   messages: [],
@@ -19,8 +19,14 @@ const state = {
   navCollapsed: false,
   uploads: [],
   draftConfig: { instructions: "", chat_model: "gpt-4o-mini", top_k: 4 },
+  savedAgent: { instructions: "", chat_model: "gpt-4o-mini", top_k: 4, behavior: null },
+  agentBehavior: null,
+  agentUi: { advancedOpen: false, ruleMenu: false, editingRule: null },
+  agentSaving: false,
+  agentSaveError: false,
   keys: [],
   revealedKey: null,
+  apiLang: "curl",
   evalTab: "overview",
   evalPayload: null,
   runView: "diagram",
@@ -65,17 +71,43 @@ function showError(message) {
   });
 }
 
-const VIEWS = ["playground", "knowledge", "agent", "evaluation", "api"];
+const VIEWS = ["overview", "test", "reliability", "data", "configuration", "integrations"];
+
+const VIEW_ALIASES = {
+  playground: "test",
+  evaluation: "reliability",
+  knowledge: "data",
+  agent: "configuration",
+  api: "integrations",
+};
+
+const VIEW_PANELS = {
+  overview: "overview",
+  test: "playground",
+  reliability: "evaluation",
+  data: "knowledge",
+  configuration: "agent",
+  integrations: "api",
+};
+
+function canonicalView(raw) {
+  const hash = String(raw || "").replace(/^#/, "");
+  if (VIEW_ALIASES[hash]) return VIEW_ALIASES[hash];
+  if (VIEWS.includes(hash)) return hash;
+  return "overview";
+}
 
 function currentView() {
-  const hash = location.hash.replace("#", "");
-  return VIEWS.includes(hash) ? hash : "playground";
+  return canonicalView(location.hash);
 }
 
 function applyView() {
-  state.view = currentView();
+  const raw = location.hash.replace(/^#/, "");
+  const view = canonicalView(raw);
+  if (raw !== view) history.replaceState(null, "", `#${view}`);
+  state.view = view;
   const app = document.getElementById("app");
-  app.dataset.view = state.view;
+  app.dataset.view = VIEW_PANELS[view];
   app.classList.toggle("inspect-collapsed", state.inspectCollapsed);
   app.classList.toggle("library-collapsed", state.libraryCollapsed);
   app.classList.toggle("nav-collapsed", state.navCollapsed);
@@ -108,8 +140,323 @@ function applyView() {
     navCollapse.classList.toggle("is-on", open);
     navCollapse.setAttribute("aria-pressed", open ? "true" : "false");
     navCollapse.setAttribute("aria-label", label);
-    navCollapse.title = label;
+    navCollapse.dataset.tip = `${open ? "Collapse" : "Expand"} sidebar  ⌘B`;
   }
+  renderShell();
+}
+
+// ---------- App shell: breadcrumb, environment status, run state, command palette ----------
+
+const VIEW_TITLES = {
+  overview: "Overview",
+  test: "Test Console",
+  reliability: "Reliability",
+  data: "Data",
+  configuration: "Configuration",
+  integrations: "Integrations",
+};
+
+const VIEW_ICONS = {
+  overview: "activity",
+  test: "play",
+  reliability: "shield-check",
+  data: "database",
+  configuration: "sliders",
+  integrations: "code",
+};
+
+function renderShell() {
+  const meta = state.meta || {};
+  const label = meta.corpus_label || "Workspace";
+  const sub = $("brand-sub");
+  if (sub) sub.textContent = label;
+  const crumbWs = $("crumb-ws");
+  if (crumbWs) crumbWs.textContent = label;
+  const avatar = $("ws-avatar");
+  if (avatar) avatar.textContent = (label.trim()[0] || "W").toUpperCase();
+  const page = $("crumb-page");
+  if (page) page.textContent = VIEW_TITLES[state.view] || "";
+  const mode = $("crumb-mode");
+  if (mode) {
+    const pgMode = $("pg-mode");
+    mode.textContent = state.view === "test" && pgMode ? modeLabel(pgMode.value) : "";
+  }
+  const docs = $("nav-doc-count");
+  if (docs) docs.textContent = meta.doc_count ? String(meta.doc_count) : "";
+  const runs = $("nav-run-count");
+  if (runs) runs.textContent = state.traces.length ? String(state.traces.length) : "";
+  document.title = `${VIEW_TITLES[state.view] || "swrag"} · ${label} · swrag`;
+}
+
+function renderRunState() {
+  const root = $("run-state");
+  if (!root) return;
+  if (state.loading) {
+    root.innerHTML = `<span class="pulse" aria-hidden="true"></span>Running · waiting on the core`;
+  } else if (state.recovering) {
+    root.innerHTML = `<span class="pulse" aria-hidden="true"></span>Applying recovery`;
+  } else {
+    root.textContent = "";
+  }
+}
+
+function renderEnvStatus() {
+  const meta = state.meta;
+  const dot = $("env-dot");
+  const summary = $("top-meta");
+  const pop = $("env-pop");
+  if (!meta) {
+    if (dot) dot.className = "env-dot is-error";
+    if (summary) summary.textContent = "Backend unreachable";
+    return;
+  }
+  const keyOn = Boolean(meta.api_key_present);
+  const provider = meta.official_openai ? "OpenAI" : "custom backend";
+  if (dot) dot.className = `env-dot ${keyOn ? "is-ok" : "is-warn"}`;
+  if (summary) summary.textContent = keyOn ? meta.configured_chat_model || "Connected" : "No API key";
+  const btn = $("env-btn");
+  if (btn) btn.dataset.tip = keyOn ? `${meta.configured_chat_model} · ${provider}` : "No API key: retrieve only";
+  if (!pop) return;
+  const row = (iconName, key, value, tone = "") =>
+    value == null || value === ""
+      ? ""
+      : `<li>${icon(iconName, 14)}<span class="k">${escapeHtml(key)}</span><span class="v ${tone}" title="${escapeHtml(String(value))}">${escapeHtml(String(value))}</span></li>`;
+  pop.innerHTML = `<div class="env-pop-head">Environment</div>
+    <ul class="env-rows">
+      ${row("server", "Backend", "Connected", "ok")}
+      ${row("key", "API key", keyOn ? "Present" : "Missing", keyOn ? "ok" : "warn")}
+      ${row("zap", "Provider", provider)}
+      ${row("sparkles", "Chat model", meta.configured_chat_model)}
+      ${row("database", "Embedding", meta.configured_embedding_model)}
+      ${row("file-text", "Documents", meta.doc_count)}
+      ${row("folder", "Domain", !meta.writable ? meta.corpus_industry : "")}
+      ${row("layers", "Access", meta.writable ? "Editable system" : "Read-only")}
+    </ul>
+    ${keyOn ? "" : `<p class="env-note">Without a key Test Console can only retrieve. Add OPENAI_API_KEY to .env and restart.</p>`}`;
+}
+
+function toggleEnvPop(force) {
+  const pop = $("env-pop");
+  const btn = $("env-btn");
+  if (!pop || !btn) return;
+  const open = force === undefined ? pop.hidden : force;
+  pop.hidden = !open;
+  btn.setAttribute("aria-expanded", open ? "true" : "false");
+}
+
+function toast(message) {
+  const root = $("toasts");
+  if (!root) return;
+  const item = document.createElement("div");
+  item.className = "toast";
+  item.innerHTML = `${icon("check-circle", 15)}<span>${escapeHtml(message)}</span>`;
+  root.appendChild(item);
+  window.setTimeout(() => item.classList.add("is-out"), 2200);
+  window.setTimeout(() => item.remove(), 2500);
+}
+
+function setNavCollapsed(collapsed) {
+  state.navCollapsed = collapsed;
+  try {
+    localStorage.setItem("swrag.navCollapsed", collapsed ? "1" : "0");
+  } catch {
+    /* storage unavailable: keep the in-memory value */
+  }
+  applyView();
+  if (typeof frameCanvas === "function") window.setTimeout(() => frameCanvas(), 260);
+}
+
+function initialNavCollapsed() {
+  try {
+    const saved = localStorage.getItem("swrag.navCollapsed");
+    if (saved === "1" || saved === "0") return saved === "1";
+  } catch {
+    /* fall through to the viewport default */
+  }
+  return window.innerWidth < 1200;
+}
+
+const cmdk = { items: [], index: 0 };
+
+function commandList() {
+  const items = Object.keys(VIEW_TITLES).map((view) => ({
+    group: "Go to",
+    label: VIEW_TITLES[view],
+    icon: VIEW_ICONS[view],
+    hint: state.view === view ? "Current" : "",
+    run: () => {
+      location.hash = `#${view}`;
+    },
+  }));
+  items.push(
+    {
+      group: "Actions",
+      label: "Run test query",
+      icon: "play",
+      hint: "⌘↵",
+      run: () => {
+        location.hash = "#test";
+        const field = $("pg-question");
+        if (field && field.value.trim()) {
+          runQuestion(true).catch((error) => showError(error.message));
+        } else if (field) {
+          window.setTimeout(() => field.focus(), 0);
+        }
+      },
+    },
+    {
+      group: "Actions",
+      label: "Create system",
+      icon: "plus",
+      run: () => {
+        if (state.navCollapsed) setNavCollapsed(false);
+        const form = $("new-workspace-form");
+        form.hidden = false;
+        window.setTimeout(() => $("new-workspace-name").focus(), 0);
+      },
+    },
+    {
+      group: "Actions",
+      label: state.navCollapsed ? "Expand sidebar" : "Collapse sidebar",
+      icon: "panel-left",
+      hint: "⌘B",
+      run: () => setNavCollapsed(!state.navCollapsed),
+    },
+    {
+      group: "Actions",
+      label: "Refresh runs",
+      icon: "refresh-cw",
+      run: () => loadTraces().catch((error) => showError(error.message)),
+    }
+  );
+  const activeId = state.meta && state.meta.corpus_id;
+  state.corpora
+    .filter((item) => item.writable && item.id !== activeId)
+    .forEach((item) => {
+      items.push({
+        group: "Switch system",
+        label: item.label,
+        icon: "folder",
+        run: () => {
+          $("corpus").value = item.id;
+          switchCorpus(item.id).catch((error) => showError(error.message));
+        },
+      });
+    });
+  return items;
+}
+
+function renderCmdk() {
+  const list = $("cmdk-list");
+  const query = $("cmdk-input").value.trim().toLowerCase();
+  cmdk.items = commandList().filter(
+    (item) => !query || item.label.toLowerCase().includes(query) || item.group.toLowerCase().includes(query)
+  );
+  cmdk.index = Math.min(cmdk.index, Math.max(0, cmdk.items.length - 1));
+  if (!cmdk.items.length) {
+    list.innerHTML = `<li class="cmdk-empty">No matching commands</li>`;
+    $("cmdk-input").removeAttribute("aria-activedescendant");
+    return;
+  }
+  let lastGroup = "";
+  list.innerHTML = cmdk.items
+    .map((item, index) => {
+      const header = item.group !== lastGroup ? `<li class="cmdk-group" role="presentation">${escapeHtml(item.group)}</li>` : "";
+      lastGroup = item.group;
+      const selected = index === cmdk.index;
+      return `${header}<li class="cmdk-item" role="option" id="cmdk-opt-${index}" data-cmdk="${index}" aria-selected="${selected}">${icon(item.icon, 15)}<span>${escapeHtml(item.label)}</span>${item.hint ? `<span class="hint">${escapeHtml(item.hint)}</span>` : ""}</li>`;
+    })
+    .join("");
+  $("cmdk-input").setAttribute("aria-activedescendant", `cmdk-opt-${cmdk.index}`);
+  const active = $(`cmdk-opt-${cmdk.index}`);
+  if (active) active.scrollIntoView({ block: "nearest" });
+}
+
+function openCmdk() {
+  const root = $("cmdk");
+  cmdk.returnFocus = document.activeElement;
+  root.hidden = false;
+  $("cmdk-input").value = "";
+  cmdk.index = 0;
+  renderCmdk();
+  $("cmdk-input").focus();
+}
+
+function closeCmdk() {
+  const root = $("cmdk");
+  if (root.hidden) return;
+  root.hidden = true;
+  if (cmdk.returnFocus && cmdk.returnFocus.focus) cmdk.returnFocus.focus();
+}
+
+function runCmdk(index) {
+  const item = cmdk.items[index];
+  if (!item) return;
+  closeCmdk();
+  item.run();
+}
+
+function bindShell() {
+  ["open-cmdk", "topbar-cmdk"].forEach((id) => {
+    const button = $(id);
+    if (button) button.addEventListener("click", openCmdk);
+  });
+  $("cmdk").addEventListener("mousedown", (event) => {
+    if (event.target.id === "cmdk") closeCmdk();
+  });
+  $("cmdk-input").addEventListener("input", () => {
+    cmdk.index = 0;
+    renderCmdk();
+  });
+  $("cmdk-input").addEventListener("keydown", (event) => {
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      event.preventDefault();
+      const n = cmdk.items.length || 1;
+      cmdk.index = (cmdk.index + (event.key === "ArrowDown" ? 1 : n - 1)) % n;
+      renderCmdk();
+    } else if (event.key === "Enter") {
+      event.preventDefault();
+      runCmdk(cmdk.index);
+    } else if (event.key === "Escape") {
+      event.preventDefault();
+      closeCmdk();
+    } else if (event.key === "Tab") {
+      event.preventDefault();
+    }
+  });
+  $("cmdk-list").addEventListener("mousemove", (event) => {
+    const item = event.target.closest("[data-cmdk]");
+    if (!item || Number(item.dataset.cmdk) === cmdk.index) return;
+    cmdk.index = Number(item.dataset.cmdk);
+    renderCmdk();
+  });
+  $("cmdk-list").addEventListener("click", (event) => {
+    const item = event.target.closest("[data-cmdk]");
+    if (item) runCmdk(Number(item.dataset.cmdk));
+  });
+  $("env-btn").addEventListener("click", (event) => {
+    event.stopPropagation();
+    toggleEnvPop();
+  });
+  document.addEventListener("click", (event) => {
+    if (!event.target.closest("#env")) toggleEnvPop(false);
+  });
+  $("pg-mode").addEventListener("change", renderShell);
+  window.addEventListener("keydown", (event) => {
+    const mod = event.metaKey || event.ctrlKey;
+    if (mod && event.key.toLowerCase() === "k") {
+      event.preventDefault();
+      if ($("cmdk").hidden) openCmdk();
+      else closeCmdk();
+      return;
+    }
+    if (mod && event.key.toLowerCase() === "b") {
+      event.preventDefault();
+      setNavCollapsed(!state.navCollapsed);
+      return;
+    }
+    if (event.key === "Escape") toggleEnvPop(false);
+  });
 }
 
 async function api(path, options) {
@@ -129,18 +476,8 @@ async function api(path, options) {
 
 async function loadMeta() {
   state.meta = await api("/api/meta");
-  const official = state.meta.official_openai ? "OpenAI" : "custom backend";
-  const key = state.meta.api_key_present ? "key on" : "no key";
-  const docs = state.meta.doc_count != null ? `${state.meta.doc_count} docs` : "";
-  const industry =
-    !state.meta.writable && state.meta.corpus_industry ? `${state.meta.corpus_industry} · ` : "";
-  $("top-meta").textContent =
-    `${industry}${docs} · ${state.meta.configured_chat_model} · ${official} · ${key}`.replace(
-      /^ · /,
-      ""
-    );
-  const sub = $("brand-sub");
-  if (sub) sub.textContent = state.meta.corpus_label || "Workspace";
+  renderEnvStatus();
+  renderShell();
   if (!state.meta.api_key_present) {
     $("mode").value = "retrieve_only";
     if ($("pg-mode")) $("pg-mode").value = "retrieve_only";
@@ -156,7 +493,7 @@ async function loadCorpora() {
   const active = payload.active_id || (state.meta && state.meta.corpus_id) || "";
   const workspaces = state.corpora.filter((item) => item.writable);
   if (!workspaces.length) {
-    select.innerHTML = `<option value="">No workspace yet</option>`;
+    select.innerHTML = `<option value="">No system yet</option>`;
     const form = $("new-workspace-form");
     if (form) form.hidden = false;
     return;
@@ -613,6 +950,7 @@ function stringify(value) {
 }
 
 function render() {
+  renderRunState();
   renderRunList();
   renderAnswer();
   renderRecoverBar();
@@ -632,6 +970,7 @@ async function loadTraces() {
   state.traces = payload.traces || [];
   await loadEval();
   renderRunList();
+  renderShell();
 }
 
 function setEvalTab(tab) {
@@ -817,6 +1156,7 @@ async function applyRecovery(action) {
   showError("");
   state.recovering = true;
   renderRecoverBar();
+  renderRunState();
   try {
     const payload = await api(`/api/runs/${encodeURIComponent(state.selectedId)}/recover`, {
       method: "POST",
@@ -829,7 +1169,7 @@ async function applyRecovery(action) {
     state.steps = payload.steps || [];
     state.selectedStep = state.steps.find((step) => step.id === "recover") || state.steps[0] || null;
     state.childRunId = payload.child_run_id || null;
-    if (state.view === "playground") {
+    if (state.view === "test") {
       state.messages.push({
         role: "assistant",
         text: (payload.trace && payload.trace.answer) || payload.answer || retrieveFallback(payload),
@@ -841,6 +1181,7 @@ async function applyRecovery(action) {
   } catch (error) {
     state.recovering = false;
     renderRecoverBar();
+    renderRunState();
     showError(error.message || String(error));
   }
 }
@@ -902,6 +1243,7 @@ async function runQuestion(fromPlayground) {
     if (fromPlayground) {
       state.messages.push({ role: "assistant", text: error.message || String(error), error: true });
     }
+    renderRunState();
     renderWaterfall();
     renderPlaygroundChat();
     renderPlaygroundInspect();
@@ -958,6 +1300,7 @@ async function copyRevealedKey() {
   if (!state.revealedKey) return;
   try {
     await navigator.clipboard.writeText(state.revealedKey);
+    toast("API key copied");
   } catch {
     showError("Could not copy the key. Select it and copy manually.");
   }
@@ -1037,7 +1380,7 @@ async function deleteDocument(name) {
 async function deletePlaygroundProject() {
   const id = state.meta && state.meta.corpus_id;
   if (!id || !state.meta.writable) return;
-  const ok = window.confirm(`Delete workspace ${state.meta.corpus_label} and its documents?`);
+  const ok = window.confirm(`Delete system ${state.meta.corpus_label} and its documents?`);
   if (!ok) return;
   await api(`/api/projects/${encodeURIComponent(id)}`, { method: "DELETE" });
   clearSelection();
@@ -1065,10 +1408,12 @@ async function savePlaygroundConfig() {
     body: JSON.stringify(state.draftConfig),
   });
   if (payload.project && payload.project.config) {
+    const saved = payload.project.config;
     state.draftConfig = {
-      instructions: payload.project.config.instructions || "",
-      chat_model: payload.project.config.chat_model || "gpt-4o-mini",
-      top_k: Number(payload.project.config.top_k) || 4,
+      instructions: saved.instructions || "",
+      chat_model: saved.chat_model || "gpt-4o-mini",
+      top_k: Number(saved.top_k) || 4,
+      behavior: saved.behavior || null,
     };
   }
   await loadMeta();
@@ -1077,10 +1422,20 @@ async function savePlaygroundConfig() {
 
 function syncDraftConfig() {
   const config = (state.meta && state.meta.agent_config) || {};
+  const instructions = config.instructions || "";
+  const behavior = AgentConfig.hydrate(config.behavior, instructions);
+  state.agentBehavior = behavior;
   state.draftConfig = {
-    instructions: config.instructions || "",
+    instructions,
     chat_model: config.chat_model || "gpt-4o-mini",
     top_k: Number(config.top_k) || 4,
+    behavior: AgentConfig.serialize(behavior),
+  };
+  state.savedAgent = {
+    instructions,
+    chat_model: state.draftConfig.chat_model,
+    top_k: state.draftConfig.top_k,
+    behavior: AgentConfig.serialize(behavior),
   };
   if ($("pg-top-k") && state.meta && state.meta.writable) {
     $("pg-top-k").value = String(state.draftConfig.top_k);
@@ -1088,10 +1443,12 @@ function syncDraftConfig() {
 }
 
 function captureDraftConfig() {
-  const instructions = $("pg-instructions");
   const model = $("pg-chat-model");
   const topK = $("pg-config-top-k");
-  if (instructions) state.draftConfig.instructions = instructions.value;
+  if (state.agentBehavior && state.agentBehavior.mode === "raw") {
+    const instructions = $("pg-instructions");
+    if (instructions) state.draftConfig.instructions = instructions.value;
+  }
   if (model) state.draftConfig.chat_model = model.value;
   if (topK) {
     const parsed = Number(topK.value);
@@ -1099,6 +1456,7 @@ function captureDraftConfig() {
       state.draftConfig.top_k = parsed;
     }
   }
+  if (state.agentBehavior) state.draftConfig.behavior = AgentConfig.serialize(state.agentBehavior);
 }
 
 function retrieveFallback(payload) {
@@ -1119,6 +1477,23 @@ function renderPlaygroundKnowledge() {
   }
 }
 
+function formatBytes(size) {
+  const bytes = Number(size) || 0;
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) {
+    const kb = bytes / 1024;
+    return `${kb >= 10 ? Math.round(kb) : kb.toFixed(1)} KB`;
+  }
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function uploadStatusLabel(item) {
+  if (!item) return "";
+  if (item.status === "indexing") return "Uploading…";
+  if (item.status === "ready") return "Uploaded";
+  return item.error || "Upload failed";
+}
+
 function renderKnowledge() {
   const knowledge = $("pg-knowledge");
   if (!knowledge) return;
@@ -1126,71 +1501,375 @@ function renderKnowledge() {
   const docs = state.documents || [];
   const open = state.openDocument;
   const showing = open && docs.some((item) => item.name === open.name) ? open : null;
-  const docItems = docs
-    .map(
-      (item) => `<li class="${showing && showing.name === item.name ? "is-open" : ""}">
-        <button type="button" class="doc-open" data-doc-open="${escapeHtml(item.name)}">
-          <span class="doc-name">${escapeHtml(item.name)}</span>
-          <span class="doc-size">${item.size} B</span>
-        </button>
-        ${
+  const total = docs.reduce((sum, item) => sum + (Number(item.size) || 0), 0);
+  const label = (state.meta && state.meta.corpus_label) || "Workspace";
+  const workspaceId = (state.meta && state.meta.corpus_id) || "";
+  const rows = docs
+    .map((item) => {
+      const selected = showing && showing.name === item.name;
+      const type = String(item.suffix || "").replace(/^\./, "").toUpperCase() || "FILE";
+      return `<tr class="${selected ? "is-open" : ""}">
+        <td>
+          <button type="button" class="kn-open" data-doc-open="${escapeHtml(item.name)}">
+            ${icon("file-text", 16)}
+            <span>${escapeHtml(item.name)}</span>
+          </button>
+        </td>
+        <td>${escapeHtml(type)}</td>
+        <td class="kn-size">${escapeHtml(formatBytes(item.size))}</td>
+        <td class="kn-actions">${
           writable
             ? `<button type="button" class="ghost danger" data-doc-del="${escapeHtml(item.name)}">Remove</button>`
             : ""
-        }
-      </li>`
-    )
-    .join("");
-  const uploads = (state.uploads || [])
-    .map((item) => {
-      const kind = item.status === "failed" ? "error" : item.status === "ready" ? "ok" : "warn";
-      const detail = item.error || item.status;
-      return `<li class="${kind}">${escapeHtml(item.name)} — ${escapeHtml(detail)}</li>`;
+        }</td>
+      </tr>`;
     })
     .join("");
-  knowledge.innerHTML = `${
+  const upload = (state.uploads || [])[0];
+  const uploadClass = upload
+    ? upload.status === "failed"
+      ? "is-bad"
+      : upload.status === "ready"
+        ? "is-ok"
+        : "is-busy"
+    : "";
+  const dropzone = writable
+    ? `<div class="dropzone${upload && upload.status === "indexing" ? " is-busy" : ""}" id="pg-drop" role="button" tabindex="0">
+        ${icon("upload", 16)}
+        <span><b>Drop files here or browse</b><small>TXT · PDF · up to 32 MB</small></span>
+        <input id="pg-file" type="file" accept=".txt,.pdf,text/plain,application/pdf" multiple />
+      </div>
+      ${
+        upload
+          ? `<p class="kn-upload ${uploadClass}">${escapeHtml(upload.name)} — ${escapeHtml(uploadStatusLabel(upload))}</p>`
+          : ""
+      }`
+    : "";
+  const reader = showing
+    ? `<article class="kn-reader">
+        <div class="kn-reader-bar">
+          <h3>${escapeHtml(showing.name)}</h3>
+          <button type="button" class="ghost" data-doc-close>Close</button>
+        </div>
+        <p class="kn-reader-meta">${escapeHtml(formatBytes(docs.find((item) => item.name === showing.name).size))} · file text</p>
+        <pre class="doc-text">${showing.text ? escapeHtml(showing.text) : "This file has no extracted text."}</pre>
+      </article>`
+    : `<p class="kn-aside-note">Select a source to read the text stored for that file. Chunks are built at retrieve time and are not listed here.</p>`;
+  const sources = docs.length
+    ? `<table class="kn-table">
+        <thead><tr><th>Name</th><th>Type</th><th>Size</th><th></th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`
+    : `<div class="kn-empty">
+        <h2>No sources yet</h2>
+        <p>${writable ? "Add documents this system is allowed to retrieve from." : "This demo is read-only. Create a system to upload files."}</p>
+        ${writable ? dropzone : ""}
+      </div>`;
+  knowledge.innerHTML = `<div class="kn-page">
+    <header class="kn-head">
+      <div>
+        <div class="kn-kicker"><span class="agent-swatch is-retrieval"></span> Data</div>
+        <h1>Data</h1>
+        <p>What this RAG system can retrieve from.</p>
+      </div>
+      ${
+        writable
+          ? `<button type="button" class="primary" id="kn-add-source">${icon("plus", 14)} Add source</button>`
+          : ""
+      }
+    </header>
+    ${
       writable
         ? ""
-        : `<p class="recover-note">This workspace is read-only. Add a workspace to upload your own files.</p>`
+        : `<p class="kn-readonly">This demo is read-only. Create a system to upload and remove files.</p>`
     }
-    <form class="project-form" id="pg-project-form">
-      <input id="pg-project-name" maxlength="80" placeholder="New workspace name" aria-label="New workspace name" />
-      <button type="submit" class="ghost">Add workspace</button>
-    </form>
+    <dl class="kn-summary">
+      <div><dt>Sources</dt><dd>${docs.length}</dd></div>
+      <div><dt>Total size</dt><dd>${escapeHtml(formatBytes(total))}</dd></div>
+      <div><dt>Accepted formats</dt><dd>TXT · PDF</dd></div>
+    </dl>
+    <div class="kn-grid${docs.length ? "" : " is-empty"}">
+      <section class="kn-sources" aria-label="Sources">
+        <h2>Sources</h2>
+        ${sources}
+      </section>
+      ${
+        docs.length
+          ? `<aside class="kn-side" aria-label="Source text">
+              ${dropzone ? `<h2>Add source</h2>${dropzone}` : ""}
+              <h2>Source text</h2>
+              ${reader}
+            </aside>`
+          : ""
+      }
+    </div>
+    <section class="kn-settings">
+      <h2>System</h2>
+      <p>The name is chosen when the system is created. This page cannot rename it.</p>
+      <dl class="kn-summary kn-id">
+        <div><dt>Name</dt><dd>${escapeHtml(label)}</dd></div>
+        <div><dt>Id</dt><dd class="kn-mono">${escapeHtml(workspaceId)}</dd></div>
+      </dl>
+      <form class="project-form" id="pg-project-form">
+        <label for="pg-project-name">New system</label>
+        <input id="pg-project-name" maxlength="80" placeholder="Name" aria-label="New system name" />
+        <button type="submit" class="ghost">Create</button>
+      </form>
+    </section>
     ${
       writable
-        ? `<div class="dropzone" id="pg-drop" role="button" tabindex="0">
-            Drop .txt or .pdf here, or click to choose
-            <input id="pg-file" type="file" accept=".txt,.pdf,text/plain,application/pdf" multiple />
-          </div>`
+        ? `<section class="kn-danger">
+            <h2>Danger zone</h2>
+            <div>
+              <b>Delete system</b>
+              <p>Permanently delete ${escapeHtml(label)} and its documents. You will be asked to confirm.</p>
+            </div>
+            <button type="button" class="ghost danger" id="pg-delete-project">Delete system</button>
+          </section>`
         : ""
     }
-    ${uploads ? `<ul class="upload-status">${uploads}</ul>` : ""}
-    ${
-      docs.length
-        ? `<div class="knowledge-split${showing ? " has-reader" : ""}">
-            <ul class="doc-list">${docItems}</ul>
-            ${
-              showing
-                ? `<article class="doc-reader">
-                    <div class="doc-reader-bar">
-                      <h2>${escapeHtml(showing.name)}</h2>
-                      <button type="button" class="ghost" data-doc-close>Close</button>
-                    </div>
-                    <pre class="doc-text">${escapeHtml(showing.text)}</pre>
-                  </article>`
-                : ""
-            }
-          </div>`
-        : `<div class="empty"><strong>No documents yet</strong>${
-            writable ? "Upload a notice or guide to give the agent something to retrieve." : "Add a workspace, then upload a file."
-          }</div>`
+  </div>`;
+}
+
+function agentSourceCount() {
+  if (Array.isArray(state.documents)) return state.documents.length;
+  const count = state.meta && state.meta.doc_count;
+  return typeof count === "number" ? count : 0;
+}
+
+function agentStageFlags() {
+  const mode = currentPlaygroundMode();
+  const loop = mode === "loop" || mode === "loop_confirm";
+  return {
+    retrieve: true,
+    generate: mode !== "retrieve_only",
+    judge: loop,
+    recover: loop,
+    verify: loop,
+  };
+}
+
+function agentDirty() {
+  const saved = state.savedAgent || {};
+  const model = ($("pg-chat-model") && $("pg-chat-model").value) || state.draftConfig.chat_model;
+  const topField = $("pg-config-top-k");
+  const parsed = topField ? Number(topField.value) : Number(state.draftConfig.top_k);
+  const top = Number.isInteger(parsed) && parsed >= 1 && parsed <= 20 ? parsed : Number(saved.top_k) || 4;
+  const instructions = state.agentBehavior && state.agentBehavior.mode === "raw" && $("pg-instructions")
+    ? $("pg-instructions").value
+    : state.draftConfig.instructions || "";
+  return instructions !== (saved.instructions || "")
+    || model !== (saved.chat_model || "gpt-4o-mini")
+    || top !== (Number(saved.top_k) || 4)
+    || !AgentConfig.sameBehavior(state.agentBehavior, saved.behavior);
+}
+
+function syncInstructionMirrors(text) {
+  const node = $("pg-node-instructions");
+  if (node && document.activeElement !== node) node.value = text;
+  if (typeof updateNodeSubtitle === "function") updateNodeSubtitle("instructions");
+}
+
+function commitBehavior(next) {
+  state.agentUi.editingRule = null;
+  state.agentUi.ruleMenu = false;
+  state.agentBehavior = AgentConfig.normalize(next);
+  const text = AgentConfig.effectiveInstructions(state.agentBehavior, state.draftConfig.instructions);
+  state.draftConfig.instructions = text;
+  state.draftConfig.behavior = AgentConfig.serialize(state.agentBehavior);
+  syncInstructionMirrors(text);
+  renderAgent();
+}
+
+function adoptRawInstructions(text, force) {
+  const current = state.agentBehavior
+    ? AgentConfig.effectiveInstructions(state.agentBehavior, state.draftConfig.instructions)
+    : state.draftConfig.instructions || "";
+  if (!force && state.agentBehavior && state.agentBehavior.mode !== "raw" && text === current) {
+    state.draftConfig.instructions = text;
+    return;
+  }
+  state.agentBehavior = AgentConfig.rawBehavior();
+  state.draftConfig.instructions = text;
+  state.draftConfig.behavior = AgentConfig.serialize(state.agentBehavior);
+  state.agentUi.advancedOpen = true;
+  state.agentUi.ruleMenu = false;
+  const field = $("pg-instructions");
+  if (field && document.activeElement !== field) field.value = text;
+  syncInstructionMirrors(text);
+}
+
+const AGENT_SUGGESTIONS = [
+  { group: "Grounding", items: [
+    { label: "Only answer from retrieved knowledge", apply: ["grounding", "evidence"] },
+    { label: "Cite sources", apply: ["grounding", "cite"] },
+    { label: "Acknowledge missing evidence", apply: ["grounding", "admit"] },
+    { label: "Avoid unsupported assumptions", rule: "Do not state assumptions the retrieved evidence does not support." },
+  ]},
+  { group: "Response style", items: [
+    { label: "Keep answers concise", apply: ["detail", "concise"] },
+    { label: "Explain things step-by-step", apply: ["explanation", "step"] },
+    { label: "Use bullet points when useful", apply: ["formatting", "bullets"] },
+    { label: "Define technical terms", rule: "Define technical terms the first time they appear." },
+    { label: "Give the direct answer first", apply: ["formatting", "summaryFirst"] },
+  ]},
+  { group: "Tone", items: [
+    { label: "Professional", apply: ["tone", "professional"] },
+    { label: "Friendly", apply: ["tone", "friendly"] },
+    { label: "Casual", apply: ["tone", "casual"] },
+    { label: "Academic", apply: ["tone", "academic"] },
+  ]},
+];
+
+function addOwnAgentRule() {
+  const field = $("agent-own-rule");
+  const text = field ? field.value.trim() : "";
+  if (!text) return;
+  applyAgentSuggestion({ rule: text });
+}
+
+function applyAgentSuggestion(item) {
+  const next = AgentConfig.clone(state.agentBehavior);
+  next.mode = "guided";
+  next.legacyText = null;
+  if (item.rule) {
+    if (!next.customRules.includes(item.rule)) next.customRules.push(item.rule);
+  } else {
+    const [group, value] = item.apply;
+    if (group === "formatting" || group === "grounding") next[group][value] = true;
+    else next[group] = value;
+  }
+  next.preset = AgentConfig.detectPreset(next);
+  state.agentUi.ruleMenu = false;
+  commitBehavior(next);
+}
+
+function setAgentChoice(group, value) {
+  const next = AgentConfig.clone(state.agentBehavior);
+  next.mode = "guided";
+  next.legacyText = null;
+  if (group === "formatting" || group === "grounding") next[group][value] = !next[group][value];
+  else next[group] = next[group] === value ? "" : value;
+  next.preset = AgentConfig.detectPreset(next);
+  commitBehavior(next);
+}
+
+function switchAgentToRaw() {
+  const text = AgentConfig.effectiveInstructions(state.agentBehavior, state.draftConfig.instructions);
+  adoptRawInstructions(text, true);
+  renderAgent();
+  const field = $("pg-instructions");
+  if (field) {
+    field.value = text;
+    field.focus();
+  }
+}
+
+function switchAgentToGuided() {
+  const text = ($("pg-instructions") && $("pg-instructions").value) || state.draftConfig.instructions || "";
+  const parsed = AgentConfig.parseAgentInstructions(text);
+  if (!parsed.ok) {
+    const ok = window.confirm("These raw instructions can't be represented as guided settings. Keep the whole text as one custom rule? It stays exact until you change a setting.");
+    if (!ok) return;
+    state.agentUi.advancedOpen = true;
+    commitBehavior(AgentConfig.legacyBehavior(text));
+    return;
+  }
+  state.agentUi.advancedOpen = false;
+  commitBehavior(parsed.behavior);
+}
+
+function refreshAgentChrome() {
+  const status = $("agent-save-state");
+  if (status) {
+    const dirty = agentDirty();
+    const saving = state.agentSaving;
+    const failed = Boolean(state.agentSaveError) && !saving;
+    status.className = `agent-state${saving ? " is-saving" : failed ? " is-failed" : dirty ? " is-dirty" : " is-clean"}`;
+    status.innerHTML = saving
+      ? `${icon("loader", 14)} Saving…`
+      : failed
+        ? `${icon("alert-circle", 14)} Save failed`
+        : dirty
+          ? `<span class="agent-dot" aria-hidden="true"></span> Unsaved changes`
+          : `${icon("check", 14)} Saved`;
+  }
+  const save = $("pg-agent-save");
+  if (save) {
+    save.disabled = state.agentSaving;
+    save.textContent = state.agentSaving ? "Saving…" : "Save";
+  }
+  const behavior = state.agentBehavior || AgentConfig.emptyBehavior();
+  const text = behavior.mode === "raw" && $("pg-instructions")
+    ? $("pg-instructions").value
+    : AgentConfig.effectiveInstructions(behavior, state.draftConfig.instructions);
+  const count = $("agent-count");
+  if (count) count.textContent = `${text.length.toLocaleString()} / 8,000`;
+  const generated = $("agent-generated");
+  if (generated) generated.textContent = text.trim() ? text : "No extra instructions yet. Runs use the grounding prompt only.";
+  const summary = $("agent-summary");
+  if (summary) {
+    summary.innerHTML = AgentConfig.summaryChips(behavior).map((chip) => `<li>${escapeHtml(chip)}</li>`).join("");
+  }
+  const rulesNote = $("agent-rules-note");
+  if (rulesNote) {
+    const countRules = (behavior.customRules || []).length;
+    rulesNote.textContent = countRules ? `${countRules} saved with the instructions` : "None yet";
+  }
+  const modelName = ($("pg-chat-model") && $("pg-chat-model").value) || state.draftConfig.chat_model || "gpt-4o-mini";
+  const topField = $("pg-config-top-k");
+  const topValue = topField && topField.value ? topField.value : String(state.draftConfig.top_k || 4);
+  const modelOut = $("agent-ov-model");
+  if (modelOut) modelOut.textContent = modelName;
+  const topOut = $("agent-ov-topk");
+  if (topOut) topOut.textContent = topValue;
+  const genDetail = $("agent-stage-generate");
+  if (genDetail) genDetail.textContent = `${modelName} · temperature 0`;
+  const mode = currentPlaygroundMode();
+  const modeOut = $("agent-run-mode");
+  if (modeOut && document.activeElement !== modeOut) modeOut.value = mode;
+  const recoverDetail = $("agent-stage-recover");
+  if (recoverDetail) {
+    recoverDetail.textContent = mode === "loop_confirm" ? "Waits for you to confirm" : mode === "loop" ? "Automatic, up to 2 fixes" : "Off in this mode";
+  }
+  const verifyDetail = $("agent-stage-verify");
+  if (verifyDetail) {
+    verifyDetail.textContent = mode === "loop" || mode === "loop_confirm" ? "Judge checks the result again" : "Off in this mode";
+  }
+  const flags = agentStageFlags();
+  document.querySelectorAll("[data-agent-stage]").forEach((node) => {
+    node.classList.toggle("is-off", !flags[node.dataset.agentStage]);
+  });
+  const checks = $("agent-grounding");
+  if (checks) {
+    const rows = [
+      ["evidence", "Retrieved evidence"],
+      ["cite", "Cite sources"],
+      ["admit", "Admit gaps"],
+      ["uncertainty", "Explain uncertainty"],
+    ];
+    if (behavior.mode === "raw" || behavior.legacyText != null) {
+      checks.innerHTML = `<p>${behavior.mode === "raw" ? "Raw instructions are saved as written." : "Existing instructions are unchanged until you edit a setting."}</p>`;
+    } else {
+      checks.innerHTML = rows.map(([key, label]) => {
+        const on = Boolean(behavior.grounding[key]);
+        return `<li class="${on ? "is-on" : ""}">${icon(on ? "check" : "minus", 14)} ${escapeHtml(label)}</li>`;
+      }).join("");
     }
-    ${
-      writable
-        ? `<div class="pg-knowledge-head"><button type="button" class="ghost danger" id="pg-delete-project">Delete workspace</button></div>`
-        : ""
-    }`;
+  }
+}
+
+function agentSeg(group, value, label, current) {
+  const on = current === value ? " is-on" : "";
+  const pressed = current === value ? "true" : "false";
+  return `<button type="button" class="seg-btn${on}" data-choice="${group}" data-value="${value}" aria-pressed="${pressed}">${escapeHtml(label)}</button>`;
+}
+
+function agentCheck(group, key, title, detail, on) {
+  return `<label class="check-row">
+    <input type="checkbox" data-choice="${group}" data-value="${key}" ${on ? "checked" : ""} />
+    <span><b>${escapeHtml(title)}</b><small>${escapeHtml(detail)}</small></span>
+  </label>`;
 }
 
 function renderAgent() {
@@ -1198,33 +1877,296 @@ function renderAgent() {
   if (!root) return;
   const writable = Boolean(state.meta && state.meta.writable);
   if (!writable) {
-    root.innerHTML = `<div class="empty"><strong>Workspaces only</strong>Add a workspace to set instructions and a model.</div>`;
+    root.innerHTML = `<div class="agent-studio is-locked">
+      <div class="agent-locked">
+        <div class="agent-kicker">${icon("sliders", 14)} Configuration</div>
+        <h1>Response settings are saved on a system you own</h1>
+        <p>This demo is read-only. Create a system to set how it responds, which model it uses, and how many passages it retrieves.</p>
+        <button type="button" class="primary" id="agent-new-workspace">${icon("plus", 14)} New system</button>
+      </div>
+    </div>`;
     return;
   }
-  const modelOptions = CHAT_MODELS.map((model) => {
-    const selected = model === state.draftConfig.chat_model ? " selected" : "";
-    return `<option value="${escapeHtml(model)}"${selected}>${escapeHtml(model)}</option>`;
+  if (!state.agentBehavior) state.agentBehavior = AgentConfig.hydrate(null, state.draftConfig.instructions || "");
+  const behavior = state.agentBehavior;
+  const guided = behavior.mode !== "raw";
+  const presetOptions = Object.entries(AgentConfig.PRESETS).map(([id, preset]) => {
+    const selected = id === (behavior.preset || "custom") ? " selected" : "";
+    return `<option value="${id}"${selected}>${escapeHtml(preset.label)}</option>`;
   }).join("");
-  root.innerHTML = `<form class="pg-config" id="pg-config-form">
-      <label class="sr-only" for="pg-instructions">Instructions</label>
-      <textarea id="pg-instructions" maxlength="8000" placeholder="How this agent should answer, on top of grounding.">${escapeHtml(
-        state.draftConfig.instructions || ""
-      )}</textarea>
-      <button type="submit" class="primary">Save</button>
-      <details>
-        <summary>Advanced</summary>
-        <label class="mode">
-          Model
-          <select id="pg-chat-model">${modelOptions}</select>
-        </label>
-        <label class="mode">
-          Default top_k
-          <input id="pg-config-top-k" type="number" min="1" max="20" step="1" value="${escapeHtml(
-            String(state.draftConfig.top_k || 4)
-          )}" />
-        </label>
-      </details>
-    </form>`;
+  const preset = AgentConfig.PRESETS[behavior.preset] || AgentConfig.PRESETS.custom;
+  const model = state.draftConfig.chat_model || "gpt-4o-mini";
+  const modelOptions = CHAT_MODELS.map((item) => `<option value="${escapeHtml(item)}"${item === model ? " selected" : ""}>${escapeHtml(item)}</option>`).join("");
+  const topK = String(state.draftConfig.top_k || 4);
+  const embed = (state.meta && state.meta.configured_embedding_model) || "In-memory index";
+  const label = (state.meta && state.meta.corpus_label) || "Workspace";
+  const sources = agentSourceCount();
+  const sourceNames = (state.documents || []).slice(0, 3).map((item) => item.name).filter(Boolean);
+  const sourceDetail = sourceNames.length
+    ? escapeHtml(sourceNames.join(", ")) + ((state.documents || []).length > 3 ? ` +${state.documents.length - 3}` : "")
+    : "No documents yet";
+  const mode = currentPlaygroundMode();
+  const modeOptions = [
+    ["loop", "Loop · auto recover"],
+    ["loop_confirm", "Loop · confirm recovery"],
+    ["baseline", "Baseline RAG"],
+    ["retrieve_only", "Retrieve only"],
+  ].map(([value, text]) => `<option value="${value}"${value === mode ? " selected" : ""}>${text}</option>`).join("");
+  const legacy = guided && behavior.legacyText != null
+    ? `<p class="agent-legacy">These instructions were already saved as free text. They stay exactly as written until you change a setting. The text is kept below as a custom rule.</p>`
+    : "";
+  const toneRow = ["professional", "friendly", "casual", "academic", "custom"]
+    .map((value) => agentSeg("tone", value, value === "custom" ? "Custom" : value[0].toUpperCase() + value.slice(1), behavior.tone))
+    .join("");
+  const detailRow = ["concise", "balanced", "detailed"]
+    .map((value) => agentSeg("detail", value, value[0].toUpperCase() + value.slice(1), behavior.detail))
+    .join("");
+  const explainRow = [["direct", "Direct"], ["step", "Step-by-step"], ["explanatory", "Explanatory"]]
+    .map(([value, name]) => agentSeg("explanation", value, name, behavior.explanation))
+    .join("");
+  const customTone = behavior.tone === "custom"
+    ? `<label class="agent-field agent-custom-tone"><span>Custom tone</span><input id="agent-custom-tone" maxlength="240" value="${escapeHtml(behavior.customTone)}" placeholder="Short description, such as warm and direct" /></label>`
+    : "";
+  const rules = behavior.customRules.map((rule, index) => {
+    if (state.agentUi.editingRule === index) {
+      return `<li class="agent-rule is-editing">
+        <textarea id="agent-rule-draft" rows="2" maxlength="2000">${escapeHtml(rule)}</textarea>
+        <button type="button" class="primary" data-rule-done="${index}">Done</button>
+      </li>`;
+    }
+    return `<li class="agent-rule">
+      <p>${escapeHtml(rule)}</p>
+      <span class="agent-rule-actions">
+        <button type="button" data-rule-up="${index}" aria-label="Move rule up" ${index === 0 ? "disabled" : ""}>${icon("arrow-up", 14)}</button>
+        <button type="button" data-rule-down="${index}" aria-label="Move rule down" ${index === behavior.customRules.length - 1 ? "disabled" : ""}>${icon("arrow-down", 14)}</button>
+        <button type="button" data-rule-edit="${index}">Edit</button>
+        <button type="button" data-rule-del="${index}" aria-label="Remove rule">${icon("x", 14)}</button>
+      </span>
+    </li>`;
+  }).join("");
+  const suggestionGroups = AGENT_SUGGESTIONS.map((group) => {
+    const items = group.items.map((item, index) => `<button type="button" data-suggestion="${group.group}:${index}">${escapeHtml(item.label)}</button>`).join("");
+    return `<div class="agent-suggest-group"><div>${escapeHtml(group.group)}</div>${items}</div>`;
+  }).join("");
+  const guidedBody = `<section class="agent-section">
+      <h2>Start with a template</h2>
+      <p class="agent-section-lead">A template fills in tone, detail, and grounding. It does not change the model, and you can edit every choice after.</p>
+      <label class="agent-field">
+        <span class="sr-only">Template</span>
+        <select id="agent-preset">${presetOptions}</select>
+        <small id="agent-preset-blurb">${escapeHtml(behavior.legacyText != null ? "Existing free text is kept as a custom rule." : preset.blurb)}</small>
+      </label>
+    </section>
+    <section class="agent-section">
+      <h2>Response behavior</h2>
+      <div class="agent-setting">
+        <div class="agent-setting-label">Tone</div>
+        <div class="seg" role="group" aria-label="Tone">${toneRow}</div>
+        ${customTone}
+      </div>
+      <div class="agent-setting">
+        <div class="agent-setting-label">Detail</div>
+        <div class="seg" role="group" aria-label="Response detail">${detailRow}</div>
+      </div>
+      <div class="agent-setting">
+        <div class="agent-setting-label">Explanation</div>
+        <div class="seg" role="group" aria-label="Explanation style">${explainRow}</div>
+      </div>
+      <div class="agent-setting">
+        <div class="agent-setting-label">Formatting</div>
+        <div class="check-list">
+          ${agentCheck("formatting", "bullets", "Bullet points when useful", "Use bullets when a list is easier to scan.", behavior.formatting.bullets)}
+          ${agentCheck("formatting", "numbered", "Numbered steps for procedures", "Ask for numbered steps when the question is a procedure.", behavior.formatting.numbered)}
+          ${agentCheck("formatting", "tables", "Tables for comparisons", "Ask for a table when the answer is comparing items.", behavior.formatting.tables)}
+          ${agentCheck("formatting", "summaryFirst", "Short answer first", "Lead with the answer, then the detail.", behavior.formatting.summaryFirst)}
+        </div>
+      </div>
+    </section>
+    <section class="agent-section">
+      <h2>Grounding</h2>
+      <p class="agent-section-lead">These are instructions to the model. The judge still checks whether an answer is backed by the passages. They are not a guarantee the model will comply.</p>
+      <div class="check-list">
+        ${agentCheck("grounding", "evidence", "Base claims on retrieved evidence", "Prefer retrieved sources over unsupported claims.", behavior.grounding.evidence)}
+        ${agentCheck("grounding", "cite", "Cite supporting sources", "Cite a source when an answer uses a retrieved document.", behavior.grounding.cite)}
+        ${agentCheck("grounding", "admit", "Admit when evidence is not enough", "Say so when the retrieved sources do not contain the answer.", behavior.grounding.admit)}
+        ${agentCheck("grounding", "uncertainty", "Explain uncertainty", "Say briefly why the evidence may be incomplete or ambiguous.", behavior.grounding.uncertainty)}
+      </div>
+    </section>
+    <section class="agent-section">
+      <div class="agent-section-head">
+        <h2>Custom rules</h2>
+        <button type="button" class="ghost" id="agent-add-rule" aria-expanded="${state.agentUi.ruleMenu ? "true" : "false"}">${icon("plus", 14)} Add rule</button>
+      </div>
+      ${state.agentUi.ruleMenu ? `<div class="agent-suggest" id="agent-rule-menu">
+        ${suggestionGroups}
+        <div class="agent-suggest-own">
+          <label class="sr-only" for="agent-own-rule">Your rule</label>
+          <input id="agent-own-rule" maxlength="2000" placeholder="Write my own rule…" />
+          <button type="button" class="primary" id="agent-own-add">Add</button>
+        </div>
+      </div>` : ""}
+      ${rules ? `<ul class="agent-rules">${rules}</ul>` : `<p class="agent-empty-rules">No custom rules. The choices above are the whole instruction.</p>`}
+    </section>`;
+  const rawBody = `<section class="agent-section">
+      <h2>Raw instructions</h2>
+      <p class="agent-section-lead">This text is what gets saved. Guided settings will not change it until you switch back.</p>
+      <div class="agent-editor">
+        <div class="agent-editor-bar"><span>Saved on the project</span><span id="agent-count"></span></div>
+        <label class="sr-only" for="pg-instructions">Raw instructions</label>
+        <textarea id="pg-instructions" maxlength="8000">${escapeHtml(state.draftConfig.instructions || "")}</textarea>
+      </div>
+      <button type="button" class="ghost" id="agent-use-guided">Switch to guided settings</button>
+    </section>`;
+  const instructionsField = guided
+    ? `<textarea id="pg-instructions" class="sr-only" tabindex="-1" readonly aria-hidden="true">${escapeHtml(AgentConfig.effectiveInstructions(behavior, state.draftConfig.instructions))}</textarea>`
+    : "";
+  root.innerHTML = `<div class="agent-studio">
+    <form class="pg-config agent-main" id="pg-config-form">
+      <header class="agent-head">
+        <div class="agent-head-row">
+          <div>
+            <div class="agent-kicker"><span class="agent-swatch is-generation"></span> Configuration</div>
+            <h1>How this system responds</h1>
+            <p>Response behavior, grounding, retrieval defaults, and the model. Recovery policy stays fixed.</p>
+          </div>
+          <div class="agent-save">
+            <span class="agent-state is-clean" id="agent-save-state"></span>
+            <button type="submit" class="primary" id="pg-agent-save">Save</button>
+          </div>
+        </div>
+      </header>
+      ${legacy}
+      ${guided ? guidedBody : rawBody}
+      ${instructionsField}
+      <section class="agent-section">
+        <h2>Retrieval and model</h2>
+        <div class="agent-fields">
+          <label class="agent-field">
+            <span>Model</span>
+            <select id="pg-chat-model">${modelOptions}</select>
+            <small>Used for generation, the judge, and recovery.</small>
+          </label>
+          <label class="agent-field">
+            <span>Default top_k</span>
+            <input id="pg-config-top-k" type="number" min="1" max="20" step="1" value="${escapeHtml(topK)}" />
+            <small>Passages retrieved, unless a Test Console run overrides it.</small>
+          </label>
+          <div class="agent-fixed">
+            <span>Temperature</span>
+            <b>0</b>
+            <small>Fixed for generation, the judge, and recovery.</small>
+          </div>
+          <div class="agent-fixed">
+            <span>Embedding</span>
+            <b>${escapeHtml(embed)}</b>
+            <small>Fixed for this server. Retrieval uses it to rank passages.</small>
+          </div>
+        </div>
+      </section>
+      <section class="agent-section">
+        <button type="button" class="agent-advanced-toggle" id="agent-advanced-toggle" aria-expanded="${state.agentUi.advancedOpen ? "true" : "false"}">
+          ${icon(state.agentUi.advancedOpen ? "chevron-down" : "chevron-right", 16)}
+          Advanced · generated instructions
+        </button>
+        ${state.agentUi.advancedOpen ? `<div class="agent-raw">
+          <p>This is the instruction text the next saved run will prepend to the grounding prompt. The grounding rules still come first and cannot be removed.</p>
+          <pre id="agent-generated"></pre>
+          <div class="agent-raw-actions">
+            <button type="button" class="ghost" id="agent-copy">${icon("copy", 14)} Copy</button>
+            ${guided ? `<button type="button" class="ghost" id="agent-edit-raw">Edit raw instructions</button>` : ""}
+          </div>
+        </div>` : `<pre id="agent-generated" class="sr-only"></pre>`}
+      </section>
+    </form>
+    <aside class="agent-side" aria-label="Current settings">
+      <div class="agent-kicker">Current settings</div>
+      <h2>${escapeHtml(label)}</h2>
+      <p class="agent-side-lead">A loop run retrieves, generates, then judges. Recovery runs only when the judge or the retrieval signal asks for it.</p>
+      <ol class="agent-pipe">
+        <li data-agent-stage="retrieve"><span class="agent-swatch is-retrieval"></span><span class="agent-pipe-copy"><b>Retrieve</b><small>${escapeHtml(embed)}</small></span></li>
+        <li data-agent-stage="generate"><span class="agent-swatch is-generation"></span><span class="agent-pipe-copy"><b>Generate</b><small id="agent-stage-generate"></small></span></li>
+        <li data-agent-stage="judge"><span class="agent-swatch is-judge"></span><span class="agent-pipe-copy"><b>Judge</b><small>Grounding flags, same model</small></span></li>
+        <li data-agent-stage="recover"><span class="agent-swatch is-recovery"></span><span class="agent-pipe-copy"><b>Recover</b><small id="agent-stage-recover"></small></span></li>
+        <li data-agent-stage="verify"><span class="agent-swatch is-success"></span><span class="agent-pipe-copy"><b>Verify</b><small id="agent-stage-verify"></small></span></li>
+      </ol>
+      <div class="agent-overview-block">
+        <div class="agent-setting-label">Current behavior</div>
+        <ul class="agent-chips" id="agent-summary"></ul>
+      </div>
+      <div class="agent-overview-block">
+        <div class="agent-setting-label">Grounding</div>
+        <ul class="agent-checks" id="agent-grounding"></ul>
+      </div>
+      <dl class="agent-spec">
+        <div><dt>Model</dt><dd id="agent-ov-model"></dd></div>
+        <div><dt>Sources</dt><dd><a href="#data" id="agent-ov-sources">${sources}</a><small>${sourceDetail}</small></dd></div>
+        <div><dt>Top K</dt><dd id="agent-ov-topk" class="agent-num"></dd></div>
+        <div><dt>Temperature</dt><dd>0 <small>Fixed</small></dd></div>
+      </dl>
+      <label class="agent-field agent-mode-field">
+        <span>Test Console run mode</span>
+        <select id="agent-run-mode" aria-label="Test Console run mode">${modeOptions}</select>
+        <small>Not saved with these settings. Test Console uses the saved instructions, not unsaved edits on this page.</small>
+      </label>
+      <a class="agent-playground-link" href="#test">Run a test query</a>
+    </aside>
+  </div>`;
+  refreshAgentChrome();
+  const draft = $("agent-rule-draft");
+  if (draft) draft.focus();
+}
+
+function apiOrigin() {
+  if (typeof location !== "undefined" && location.origin && location.origin !== "null") return location.origin;
+  return "http://127.0.0.1:8000";
+}
+
+function apiExample(lang) {
+  const origin = apiOrigin();
+  const url = `${origin}/api/v1/evaluations`;
+  const body = `{
+  "query": "When is the library open?",
+  "answer": "Saturday 10:00-16:00.",
+  "contexts": [{ "text": "Saturday 10:00-16:00." }]
+}`;
+  if (lang === "js") {
+    return `const response = await fetch(${JSON.stringify(url)}, {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer swr_your_key",
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify(${body})
+});
+const evaluation = await response.json();`;
+  }
+  if (lang === "py") {
+    return `import json
+import urllib.request
+
+body = json.dumps(${body}).encode()
+request = urllib.request.Request(
+    ${JSON.stringify(url)},
+    data=body,
+    headers={
+        "Authorization": "Bearer swr_your_key",
+        "Content-Type": "application/json",
+    },
+    method="POST",
+)
+print(urllib.request.urlopen(request).read().decode())`;
+  }
+  return `curl -s ${url} \\
+  -H "Authorization: Bearer swr_your_key" \\
+  -H "Content-Type: application/json" \\
+  -d '${body}'`;
+}
+
+function formatStamp(value) {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+  return date.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
 }
 
 function renderApiPanel() {
@@ -1232,49 +2174,165 @@ function renderApiPanel() {
   if (!root) return;
   const writable = Boolean(state.meta && state.meta.writable);
   if (!writable) {
-    root.innerHTML = `<div class="empty"><strong>Workspaces only</strong>Add a workspace to issue an API key.</div>`;
+    root.innerHTML = `<div class="api-page">
+      <header class="kn-head">
+        <div>
+          <div class="kn-kicker"><span class="agent-swatch is-generation"></span> Integrations</div>
+          <h1>Integrations</h1>
+          <p>Evaluate responses from an external RAG application.</p>
+        </div>
+      </header>
+      <div class="kn-empty">
+        <h2>Keys belong to a system you own</h2>
+        <p>Create a system to issue an API key. Demo corpora are read-only and cannot have keys.</p>
+      </div>
+    </div>`;
     return;
   }
   root.innerHTML = renderProjectKeys();
 }
 
 function renderProjectKeys() {
-  const rows = (state.keys || [])
+  const lang = ["curl", "js", "py"].includes(state.apiLang) ? state.apiLang : "curl";
+  const sample = apiExample(lang);
+  const keys = state.keys || [];
+  const rows = keys
     .map((item) => {
-      const revoked = item.revoked_at ? " · revoked" : "";
-      const action = item.revoked_at
-        ? ""
-        : `<button type="button" class="ghost danger" data-key-revoke="${escapeHtml(item.id)}">Revoke</button>`;
-      return `<li>
-        <span>${escapeHtml(item.prefix || item.id)}${revoked}</span>
-        ${action}
-      </li>`;
+      const revoked = Boolean(item.revoked_at);
+      return `<tr class="${revoked ? "is-revoked" : ""}">
+        <td><code>${escapeHtml(item.prefix || item.id)}</code></td>
+        <td>${escapeHtml(item.scope || "evaluations")}</td>
+        <td>${escapeHtml(formatStamp(item.created_at))}</td>
+        <td>${revoked ? escapeHtml(formatStamp(item.revoked_at)) : "Active"}</td>
+        <td>${
+          revoked
+            ? ""
+            : `<button type="button" class="ghost danger" data-key-revoke="${escapeHtml(item.id)}">Revoke</button>`
+        }</td>
+      </tr>`;
     })
     .join("");
   const revealed = state.revealedKey
-    ? `<div class="revealed-key">
-        <div>Copy this key now. It is not stored in plaintext and will not be shown again.</div>
-        <code>${escapeHtml(state.revealedKey)}</code>
-        <button type="button" class="ghost" id="pg-copy-key">Copy</button>
-      </div>
-      <pre class="key-sample">curl -s http://127.0.0.1:8000/api/v1/evaluations \\
-  -H "Authorization: Bearer ${escapeHtml(state.revealedKey)}" \\
-  -H "Content-Type: application/json" \\
-  -d '{"query":"When is the library open?","answer":"Saturday 10:00-16:00.","contexts":[{"text":"Saturday 10:00-16:00."}]}'</pre>`
+    ? `<div class="api-dialog" role="dialog" aria-modal="true" aria-labelledby="api-key-title">
+        <div class="api-dialog-card">
+          <h2 id="api-key-title">API key created</h2>
+          <p>Copy this key now. It is not stored in plaintext and will not be shown again.</p>
+          <code>${escapeHtml(state.revealedKey)}</code>
+          <div class="api-dialog-actions">
+            <button type="button" class="primary" id="pg-copy-key">${icon("copy", 14)} Copy key</button>
+            <button type="button" class="ghost" data-key-done>Done</button>
+          </div>
+        </div>
+      </div>`
     : "";
-  return `<div class="pg-keys">
-      <p class="recover-note">Keys authenticate POST /api/v1/evaluations for this project. Rewrite and expand are proposed, not applied, on external runs.</p>
-      <button type="button" class="primary" id="pg-create-key">Create key</button>
-      ${revealed}
-      ${rows ? `<ul class="doc-list">${rows}</ul>` : `<div class="empty">No keys yet.</div>`}
-    </div>`;
+  const tabs = [
+    ["curl", "cURL"],
+    ["js", "JavaScript"],
+    ["py", "Python"],
+  ]
+    .map(
+      ([id, name]) =>
+        `<button type="button" class="seg-btn${lang === id ? " is-on" : ""}" data-api-lang="${id}" aria-pressed="${lang === id ? "true" : "false"}">${name}</button>`
+    )
+    .join("");
+  return `<div class="api-page pg-keys">
+    ${revealed}
+    <header class="kn-head">
+      <div>
+        <div class="kn-kicker"><span class="agent-swatch is-generation"></span> Integrations</div>
+        <h1>Integrations</h1>
+        <p>Evaluate responses from an external RAG application. This endpoint judges the answer and contexts you send. It does not retrieve from this system, and it does not apply rewrite or expand.</p>
+      </div>
+      <button type="button" class="primary" id="pg-create-key">${icon("plus", 14)} Create API key</button>
+    </header>
+    <div class="api-grid">
+      <section class="api-quick" aria-label="Quick start">
+        <h2>Quick start</h2>
+        <p class="api-lead"><code>POST</code> <span>/api/v1/evaluations</span></p>
+        <p class="api-note">Required body fields are <code>query</code>, <code>answer</code>, and <code>contexts</code>. Each context needs <code>text</code>. Optional context fields: <code>chunk_id</code>, <code>doc_id</code>, <code>title</code>, <code>score</code>, <code>page</code>. Optional body field: <code>metadata</code>.</p>
+        <div class="seg" role="tablist" aria-label="Example language">${tabs}</div>
+        <div class="api-code">
+          <button type="button" class="ghost" id="api-copy-sample">${icon("copy", 14)} Copy</button>
+          <pre id="api-sample">${escapeHtml(sample)}</pre>
+        </div>
+      </section>
+      <aside class="api-side" aria-label="Endpoint">
+        <h2>Endpoint</h2>
+        <dl>
+          <div><dt>Method</dt><dd><code>POST</code> /api/v1/evaluations</dd></div>
+          <div><dt>Read one run</dt><dd><code>GET</code> /api/v1/evaluations/{run_id}</dd></div>
+          <div><dt>Authentication</dt><dd><code>Authorization: Bearer</code> or <code>X-Api-Key</code>. Keys start with <code>swr_</code>.</dd></div>
+          <div><dt>What it does</dt><dd>Judges the answer you send against the contexts you send. It does not retrieve from this system.</dd></div>
+          <div><dt>Recovery</dt><dd>Proposed, not applied. <code>recovery_status</code> is <code>proposed</code>. <code>rewrite</code> and <code>expand</code> are unavailable because they need a corpus index this endpoint does not have.</dd></div>
+        </dl>
+        <h3>Response shape</h3>
+        <p class="api-note">These are the fields the endpoint returns. The values are illustrative, not a live run.</p>
+        <pre class="api-shape">{
+  "run_id": "string",
+  "project_id": "string",
+  "answer": "string",
+  "evaluation": {
+    "evidence_sufficient": true,
+    "answer_supported": true,
+    "sufficiency_rationale": "string",
+    "support_rationale": "string",
+    "judge": "string",
+    "model": "string"
+  },
+  "diagnosis": {
+    "failure_class": null,
+    "rationale": "string",
+    "detector": "first-pass-runtime"
+  },
+  "retrieval_signal": {
+    "top_score": null,
+    "runner_up_score": null,
+    "relative_margin": null,
+    "weak_top": false,
+    "ambiguous_top": false,
+    "reason": "string",
+    "detector": "retrieval-score"
+  },
+  "recovery": {
+    "action": "accept",
+    "reason": "string",
+    "attributed_class": null,
+    "source": "policy",
+    "outcome_note": "",
+    "trigger": "string"
+  },
+  "recovery_status": "proposed",
+  "unavailable_actions": {
+    "rewrite": "rewrite needs a corpus index; this evaluation was submitted without one",
+    "expand": "expand needs a corpus index; this evaluation was submitted without one"
+  },
+  "note": "Recovery is proposed, not applied. rewrite and expand need a corpus index this endpoint does not have."
+}</pre>
+      </aside>
+    </div>
+    <section class="api-keys" aria-label="API keys">
+      <h2>API keys</h2>
+      ${
+        rows
+          ? `<table class="kn-table">
+              <thead><tr><th>Prefix</th><th>Scope</th><th>Created</th><th>Status</th><th></th></tr></thead>
+              <tbody>${rows}</tbody>
+            </table>`
+          : `<div class="kn-empty">
+              <h2>No API keys yet</h2>
+              <p>Create a key to authenticate external evaluation requests.</p>
+              <button type="button" class="primary" data-create-key>${icon("plus", 14)} Create API key</button>
+            </div>`
+      }
+    </section>
+  </div>`;
 }
 
 function renderPlaygroundChat() {
   const transcript = $("pg-transcript");
   if (!transcript) return;
   if (!state.messages.length && !state.loading) {
-    transcript.innerHTML = `<div class="empty"><strong>Ask the agent</strong>Answers and sources show up after you send a question.</div>`;
+    transcript.innerHTML = `<div class="empty"><strong>Run a test query</strong>The trace shows what the system retrieved, answered, and verified.</div>`;
     return;
   }
   const rows = state.messages.map((item) => {
@@ -1282,10 +2340,10 @@ function renderPlaygroundChat() {
       return `<div class="pg-msg user"><div class="who">You</div>${escapeHtml(item.text)}</div>`;
     }
     const parsed = formatAnswerHtml(item.text || "(empty)");
-    return `<div class="pg-msg"><div class="who">${item.error ? "Error" : "Agent"}</div><div class="block">${parsed.html}</div></div>`;
+    return `<div class="pg-msg"><div class="who">${item.error ? "Error" : "Result"}</div><div class="block">${parsed.html}</div></div>`;
   });
   if (state.loading) {
-    rows.push(`<div class="pg-msg"><div class="who">Agent</div>Retrieving and evaluating…</div>`);
+    rows.push(`<div class="pg-msg"><div class="who">Result</div>Retrieving and evaluating…</div>`);
   }
   transcript.innerHTML = rows.join("");
   transcript.scrollTop = transcript.scrollHeight;
@@ -1457,7 +2515,7 @@ function nodeCopy(id) {
     const files = count === 1 ? "1 file" : `${count} files`;
     return {
       summary: clipText(count ? `${label} · ${files}` : label, 42),
-      meta: (state.meta && state.meta.corpus_industry) || (state.meta && state.meta.writable ? "Project" : "Read-only workspace"),
+      meta: (state.meta && state.meta.corpus_industry) || (state.meta && state.meta.writable ? "Project" : "Read-only system"),
     };
   }
   if (id === "retriever") {
@@ -1715,7 +2773,7 @@ function renderPalette() {
   const generateOn = mode !== "retrieve_only";
   const evalOn = mode === "loop" || mode === "loop_confirm";
   root.innerHTML = `<div class="pane-label">Blocks</div>
-    <p class="palette-note">Drag a block onto the canvas. The run mode updates to match.</p>
+    <p class="palette-note">These blocks match the test mode. Adding one switches the mode for the next query.</p>
     ${paletteItem("generate", "Generate", "Instructions and model", generateOn)}
     ${paletteItem("evaluation", "Evaluation", "Judge and recover", evalOn)}
     <p class="palette-fixed">On every run: Input, Corpus, Retriever, Output.</p>`;
@@ -2031,10 +3089,10 @@ function corpusInspector() {
     .map((item) => `<li><span>${escapeHtml(item.name)}</span></li>`)
     .join("");
   const note = writableProject()
-    ? "Drop .txt or .pdf files in the left column. This project indexes them for retrieval."
-    : "Add a workspace to upload files.";
+    ? "Add .txt or .pdf files on the Data page. The next query retrieves from them."
+    : "Create a system to upload files.";
   return `<p class="recover-note">${note}</p>
-    ${names ? `<ul class="doc-list">${names}</ul>` : `<div class="empty">No documents indexed.</div>`}`;
+    ${names ? `<ul class="doc-list">${names}</ul>` : `<div class="empty">No documents yet.</div>`}`;
 }
 
 function retrieverInspector() {
@@ -2052,10 +3110,10 @@ function retrieverInspector() {
 
 function instructionsInspector() {
   if (!writableProject()) {
-    return `<p class="recover-note">This workspace uses the grounding prompt. Add a workspace to write instructions. Saved instructions are prepended and still cannot invent facts.</p>`;
+    return `<p class="recover-note">This system uses the grounding prompt. Create a system to write instructions. Saved instructions are prepended and still cannot invent facts.</p>`;
   }
   return `<label class="sr-only" for="pg-node-instructions">Instructions</label>
-    <textarea id="pg-node-instructions" maxlength="8000" placeholder="How this agent should answer, on top of grounding.">${escapeHtml(state.draftConfig.instructions || "")}</textarea>
+    <textarea id="pg-node-instructions" maxlength="8000" placeholder="How this system should answer, on top of grounding.">${escapeHtml(state.draftConfig.instructions || "")}</textarea>
     <p class="recover-note">Save to prepend this text to the grounding prompt on the next run.</p>
     <button type="button" class="ghost" id="pg-node-save">Save configuration</button>`;
 }
@@ -2063,7 +3121,7 @@ function instructionsInspector() {
 function modelInspector() {
   const model = activeChatModel();
   if (!writableProject()) {
-    return `<p class="recover-note">This workspace uses ${escapeHtml(model)}. Temperature is 0 for generation, the judge, and recovery. Add a workspace to choose another allowed model.</p>`;
+    return `<p class="recover-note">This system uses ${escapeHtml(model)}. Temperature is 0 for generation, the judge, and recovery. Create a system to choose another allowed model.</p>`;
   }
   const options = CHAT_MODELS.map((item) => {
     const selected = item === state.draftConfig.chat_model ? " selected" : "";
@@ -2148,11 +3206,7 @@ function applyInspectorDraft() {
   const instructions = $("pg-node-instructions");
   const model = $("pg-node-model");
   const topK = $("pg-node-topk");
-  if (instructions) {
-    state.draftConfig.instructions = instructions.value;
-    const existing = $("pg-instructions");
-    if (existing) existing.value = instructions.value;
-  }
+  if (instructions) adoptRawInstructions(instructions.value);
   if (model) {
     state.draftConfig.chat_model = model.value;
     const existing = $("pg-chat-model");
@@ -2400,15 +3454,10 @@ function bindCanvas() {
       }
       return;
     }
-    if (event.target.id === "pg-node-instructions") {
-      state.draftConfig.instructions = event.target.value;
-      const existing = $("pg-instructions");
-      if (existing) existing.value = event.target.value;
-      updateNodeSubtitle("instructions");
-    }
+    if (event.target.id === "pg-node-instructions") adoptRawInstructions(event.target.value);
   });
   window.addEventListener("keydown", (event) => {
-    if (state.view !== "playground") return;
+    if (state.view !== "test") return;
     if (event.key !== "Delete" && event.key !== "Backspace") return;
     if (document.activeElement !== canvas) return;
     if (canvasState.selectedEdge) {
@@ -2542,17 +3591,34 @@ function bind() {
     form.hidden = !form.hidden;
     if (!form.hidden) $("new-workspace-name").focus();
   });
-  $("nav-collapse").addEventListener("click", () => {
-    state.navCollapsed = !state.navCollapsed;
-    applyView();
-    window.setTimeout(() => frameCanvas(), 260);
-  });
+  $("nav-collapse").addEventListener("click", () => setNavCollapsed(!state.navCollapsed));
   document.getElementById("app").addEventListener("submit", (event) => {
     const configForm = event.target.closest("#pg-config-form");
     if (configForm) {
       event.preventDefault();
+      if (state.agentSaving) return;
+      const ownRule = document.activeElement && document.activeElement.id === "agent-own-rule";
+      if (ownRule) {
+        addOwnAgentRule();
+        return;
+      }
+      state.agentUi.editingRule = null;
       captureDraftConfig();
-      savePlaygroundConfig().catch((error) => showError(error.message));
+      state.agentSaving = true;
+      state.agentSaveError = false;
+      refreshAgentChrome();
+      savePlaygroundConfig()
+        .then(() => {
+          state.agentSaveError = false;
+        })
+        .catch((error) => {
+          state.agentSaveError = true;
+          showError(error.message);
+        })
+        .finally(() => {
+          state.agentSaving = false;
+          refreshAgentChrome();
+        });
       return;
     }
     const sidebarForm = event.target.closest("#new-workspace-form");
@@ -2563,7 +3629,7 @@ function bind() {
     const input = sidebarForm ? $("new-workspace-name") : $("pg-project-name");
     const name = input.value.trim();
     if (!name) {
-      showError("Name the workspace first.");
+      showError("Name the system first.");
       return;
     }
     createPlaygroundProject(name)
@@ -2573,18 +3639,238 @@ function bind() {
       })
       .catch((error) => showError(error.message));
   });
+  document.getElementById("app").addEventListener("focusout", (event) => {
+    if (event.target.id !== "agent-rule-draft") return;
+    const next = event.relatedTarget;
+    if (next && next.closest && next.closest(".agent-rule.is-editing")) return;
+    if (state.agentUi.editingRule == null) return;
+    state.agentUi.editingRule = null;
+    commitBehavior(state.agentBehavior);
+  });
   document.getElementById("app").addEventListener("input", (event) => {
+    if (event.target.id === "agent-custom-tone") {
+      const next = AgentConfig.clone(state.agentBehavior);
+      next.mode = "guided";
+      next.legacyText = null;
+      next.tone = "custom";
+      next.customTone = event.target.value;
+      next.preset = AgentConfig.detectPreset(next);
+      state.agentBehavior = next;
+      const text = AgentConfig.effectiveInstructions(next, "");
+      state.draftConfig.instructions = text;
+      state.draftConfig.behavior = AgentConfig.serialize(next);
+      const hidden = $("pg-instructions");
+      if (hidden) hidden.value = text;
+      syncInstructionMirrors(text);
+      refreshAgentChrome();
+      return;
+    }
+    if (event.target.id === "agent-rule-draft") {
+      const index = state.agentUi.editingRule;
+      if (index == null || !state.agentBehavior) return;
+      state.agentBehavior.customRules[index] = event.target.value;
+      state.agentBehavior.legacyText = null;
+      state.agentBehavior.mode = "guided";
+      const text = AgentConfig.buildAgentInstructions(state.agentBehavior);
+      state.draftConfig.instructions = text;
+      const hidden = $("pg-instructions");
+      if (hidden) hidden.value = text;
+      refreshAgentChrome();
+      return;
+    }
     if (!["pg-instructions", "pg-chat-model", "pg-config-top-k"].includes(event.target.id)) return;
     captureDraftConfig();
+    refreshAgentChrome();
+  });
+  document.getElementById("app").addEventListener("change", (event) => {
+    if (event.target.id === "agent-preset") {
+      state.agentUi.ruleMenu = false;
+      state.agentUi.editingRule = null;
+      commitBehavior(AgentConfig.applyPreset(state.agentBehavior, event.target.value));
+      return;
+    }
+    if (event.target.matches("input[data-choice]")) {
+      setAgentChoice(event.target.dataset.choice, event.target.dataset.value);
+      return;
+    }
+    if (event.target.id === "pg-chat-model" || event.target.id === "pg-config-top-k") {
+      captureDraftConfig();
+      refreshAgentChrome();
+      return;
+    }
+    if (event.target.id === "agent-run-mode") {
+      const mode = $("pg-mode");
+      if (mode && mode.value !== event.target.value) {
+        mode.value = event.target.value;
+        mode.dispatchEvent(new Event("change"));
+      }
+      refreshAgentChrome();
+      return;
+    }
+    if (event.target.id === "pg-mode" && $("agent-run-mode")) refreshAgentChrome();
+  });
+  window.addEventListener("keydown", (event) => {
+    if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== "s") return;
+    if (state.view !== "configuration" || !$("pg-config-form")) return;
+    event.preventDefault();
+    $("pg-config-form").requestSubmit();
   });
   document.getElementById("app").addEventListener("click", (event) => {
+    const suggestion = event.target.closest("[data-suggestion]");
+    if (suggestion) {
+      event.preventDefault();
+      const [group, index] = suggestion.dataset.suggestion.split(":");
+      const found = AGENT_SUGGESTIONS.find((item) => item.group === group);
+      const choice = found && found.items[Number(index)];
+      if (choice) applyAgentSuggestion(choice);
+      return;
+    }
+    const ownAdd = event.target.closest("#agent-own-add");
+    if (ownAdd) {
+      event.preventDefault();
+      addOwnAgentRule();
+      return;
+    }
+    const choice = event.target.closest("button[data-choice]");
+    if (choice) {
+      event.preventDefault();
+      setAgentChoice(choice.dataset.choice, choice.dataset.value);
+      return;
+    }
+    const addRule = event.target.closest("#agent-add-rule");
+    if (addRule) {
+      event.preventDefault();
+      state.agentUi.editingRule = null;
+      state.agentUi.ruleMenu = !state.agentUi.ruleMenu;
+      renderAgent();
+      const field = $("agent-own-rule");
+      if (field) field.focus();
+      return;
+    }
+    const ruleEdit = event.target.closest("[data-rule-edit]");
+    if (ruleEdit) {
+      event.preventDefault();
+      state.agentUi.ruleMenu = false;
+      state.agentUi.editingRule = Number(ruleEdit.dataset.ruleEdit);
+      renderAgent();
+      return;
+    }
+    const ruleDone = event.target.closest("[data-rule-done]");
+    if (ruleDone) {
+      event.preventDefault();
+      state.agentUi.editingRule = null;
+      commitBehavior(state.agentBehavior);
+      return;
+    }
+    const ruleDel = event.target.closest("[data-rule-del]");
+    if (ruleDel) {
+      event.preventDefault();
+      const next = AgentConfig.clone(state.agentBehavior);
+      next.customRules.splice(Number(ruleDel.dataset.ruleDel), 1);
+      next.legacyText = null;
+      next.mode = "guided";
+      next.preset = AgentConfig.detectPreset(next);
+      state.agentUi.editingRule = null;
+      commitBehavior(next);
+      return;
+    }
+    const ruleMove = event.target.closest("[data-rule-up], [data-rule-down]");
+    if (ruleMove) {
+      event.preventDefault();
+      const index = Number(ruleMove.dataset.ruleUp != null ? ruleMove.dataset.ruleUp : ruleMove.dataset.ruleDown);
+      const delta = ruleMove.dataset.ruleUp != null ? -1 : 1;
+      const next = AgentConfig.clone(state.agentBehavior);
+      const target = index + delta;
+      if (target >= 0 && target < next.customRules.length) {
+        const current = next.customRules[index];
+        next.customRules[index] = next.customRules[target];
+        next.customRules[target] = current;
+      }
+      next.legacyText = null;
+      next.mode = "guided";
+      next.preset = AgentConfig.detectPreset(next);
+      commitBehavior(next);
+      return;
+    }
+    if (event.target.closest("#agent-edit-raw")) {
+      event.preventDefault();
+      switchAgentToRaw();
+      return;
+    }
+    if (event.target.closest("#agent-use-guided")) {
+      event.preventDefault();
+      switchAgentToGuided();
+      return;
+    }
+    if (event.target.closest("#agent-advanced-toggle")) {
+      event.preventDefault();
+      state.agentUi.advancedOpen = !state.agentUi.advancedOpen;
+      renderAgent();
+      return;
+    }
+    if (event.target.closest("#agent-copy")) {
+      event.preventDefault();
+      const text = state.agentBehavior && state.agentBehavior.mode === "raw" && $("pg-instructions")
+        ? $("pg-instructions").value
+        : AgentConfig.effectiveInstructions(state.agentBehavior, state.draftConfig.instructions);
+      const done = navigator.clipboard && navigator.clipboard.writeText(text);
+      if (done && done.then) done.then(() => toast("Copied instructions")).catch(() => showError("Could not copy instructions."));
+      else showError("Could not copy instructions.");
+      return;
+    }
+    if (state.agentUi.ruleMenu && !event.target.closest("#agent-rule-menu") && !event.target.closest("#agent-add-rule")) {
+      state.agentUi.ruleMenu = false;
+      const menu = $("agent-rule-menu");
+      if (menu) menu.remove();
+      const add = $("agent-add-rule");
+      if (add) add.setAttribute("aria-expanded", "false");
+    }
+    const newWorkspace = event.target.closest("#agent-new-workspace");
+    if (newWorkspace) {
+      event.preventDefault();
+      const form = $("new-workspace-form");
+      form.hidden = false;
+      $("new-workspace-name").focus();
+      return;
+    }
     const delProject = event.target.closest("#pg-delete-project");
     if (delProject) {
       event.preventDefault();
       deletePlaygroundProject().catch((error) => showError(error.message));
       return;
     }
-    const createKey = event.target.closest("#pg-create-key");
+    const addSource = event.target.closest("#kn-add-source");
+    if (addSource) {
+      event.preventDefault();
+      const input = $("pg-file");
+      if (input) input.click();
+      return;
+    }
+    const apiLang = event.target.closest("[data-api-lang]");
+    if (apiLang) {
+      event.preventDefault();
+      state.apiLang = apiLang.dataset.apiLang;
+      renderApiPanel();
+      return;
+    }
+    const copySample = event.target.closest("#api-copy-sample");
+    if (copySample) {
+      event.preventDefault();
+      const sample = $("api-sample");
+      const text = sample ? sample.textContent : "";
+      const done = text && navigator.clipboard && navigator.clipboard.writeText(text);
+      if (done && done.then) done.then(() => toast("Copied example")).catch(() => showError("Could not copy the example."));
+      else showError("Could not copy the example.");
+      return;
+    }
+    const dismissKey = event.target.closest("[data-key-done]");
+    if (dismissKey) {
+      event.preventDefault();
+      state.revealedKey = null;
+      renderApiPanel();
+      return;
+    }
+    const createKey = event.target.closest("#pg-create-key, [data-create-key]");
     if (createKey) {
       event.preventDefault();
       createProjectKey().catch((error) => showError(error.message));
@@ -2681,10 +3967,13 @@ function bind() {
 }
 
 async function boot() {
+  hydrateIcons();
+  state.navCollapsed = initialNavCollapsed();
   applyView();
   applyEvalTab();
   renderExamples();
   bind();
+  bindShell();
   render();
   try {
     await loadMeta();
@@ -2701,6 +3990,7 @@ async function boot() {
     }
     renderPlaygroundKnowledge();
   } catch (error) {
+    if (!state.meta) renderEnvStatus();
     showError(error.message || String(error));
     renderPlaygroundKnowledge();
   }

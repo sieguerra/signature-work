@@ -331,7 +331,7 @@ function runTable(runs) {
 function renderEvalOverview(root, payload, scoringProgress) {
   const runs = (payload && payload.runs) || [];
   if (!runs.length) {
-    root.innerHTML = `<div class="empty">No runs in this workspace yet. Run a question in Playground or Runs, and the charts fill in here.</div>`;
+    root.innerHTML = `<div class="empty">No runs for this system yet. Run a query in Test Console, then open Runs.</div>`;
     return;
   }
   const judged = runs.filter((run) => run.first_sufficient != null);
