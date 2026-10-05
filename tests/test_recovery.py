@@ -375,6 +375,39 @@ def test_failed_rewrite_over_an_abstention_stays_abstained(tmp_path: Path) -> No
     assert payload["recovery"]["outcome_note"] == (
         "rewrite did not improve evidence and the first-pass answer already abstained"
     )
+    assert payload["verification"]["outcome"] == STILL_FAILING
+
+
+def test_confirmed_rewrite_over_an_abstention_is_not_called_degraded(tmp_path: Path) -> None:
+    """The answer never changed, so verification must not report a degradation.
+
+    The probe behind a failed rewrite generates no answer, so its
+    `answer_supported` is null. Comparing a supported first-pass abstention
+    against that null used to read as a lost support flag, and the confirm path
+    wrote `degraded` for a run whose answer was byte-identical before and after.
+    """
+    first = run_first_pass(
+        "Who is the East Archive lab manager?",
+        corpus_dir=CORPUS,
+        output_dir=tmp_path,
+        embedder=FakeEmbedder(),
+        generator=_AbstainingGenerator(),  # type: ignore[arg-type]
+        judge=_SequenceJudge(_eval(sufficient=False, supported=True)),
+    )
+    child = apply_recovery(
+        first.run_id,
+        output_dir=tmp_path,
+        corpus_dir=CORPUS,
+        embedder=FakeEmbedder(),
+        generator=_AbstainingGenerator(),  # type: ignore[arg-type]
+        rewriter=ScriptedRewriter("East Archive wing lab manager"),
+        judge=_SequenceJudge(_eval(sufficient=False, supported=None)),
+    )
+    payload = json.loads(child.trace_path.read_text(encoding="utf-8"))
+    assert payload["previous_answer"] == ABSTAIN_ANSWER
+    assert child.answer == ABSTAIN_ANSWER
+    assert payload["verification"]["outcome"] != DEGRADED
+    assert payload["verification"]["outcome"] == STILL_FAILING
 
 
 class _SequenceJudgeClient:
