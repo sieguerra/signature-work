@@ -1,0 +1,22 @@
+{
+  "trace_schema_version": 2,
+  "run_mode": "baseline",
+  "query": "When is the library open?",
+  "answer": "Saturday hours.",
+  "model": "scripted",
+  "top_k": 4,
+  "chunk_ids": [
+    "tideline-shuttle::c001",
+    "tideline-shuttle::c000",
+    "saltmarsh-annex-library::c000",
+    "south-jetty-lab::c000"
+  ],
+  "runtime_evaluation": null,
+  "verification": null,
+  "recovery_action": null,
+  "recovery_status": null,
+  "recovery_source": null,
+  "parent_run_id": null,
+  "initial": null,
+  "attempts": []
+}

@@ -85,6 +85,19 @@ test("historical single action and abstain still match action filters", () => {
   assert.equal(labelRecovery(abstained), "Safe abstention");
 });
 
+test("an unexecuted selection is required and not applied", () => {
+  const skipped = run({
+    recovery: ["expand"],
+    recovery_required: true,
+    recovery_applied: false,
+    verification: null,
+  });
+  assert.equal(labelRecovery(skipped), "Expand (not executed)");
+  assert.equal(filterLogicalRuns([skipped], { recovery: "required" }).length, 1);
+  assert.equal(filterLogicalRuns([skipped], { recovery: "applied" }).length, 0);
+  assert.equal(filterLogicalRuns([skipped], { verification: "not_applicable" }).length, 1);
+});
+
 test("null answer support stays evidence sufficient, and quality is not a zero", () => {
   assert.equal(labelInitialState("evidence_sufficient"), "Evidence sufficient");
   assert.equal(labelInitialState("answer_unsupported"), "Answer unsupported");

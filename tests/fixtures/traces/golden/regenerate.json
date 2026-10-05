@@ -1,0 +1,61 @@
+{
+  "trace_schema_version": 2,
+  "run_mode": "loop",
+  "query": "When is the Harbor Institute Library open on Saturday?",
+  "answer": "Saturday 10:00-16:00",
+  "model": "regen",
+  "top_k": 4,
+  "chunk_ids": [
+    "saltmarsh-annex-library::c000",
+    "harbor-library::c000",
+    "tideline-shuttle::c000",
+    "harbor-library-2019-notice::c000"
+  ],
+  "runtime_evaluation": {
+    "evidence_sufficient": true,
+    "answer_supported": true
+  },
+  "verification": "improved",
+  "recovery_action": "regenerate",
+  "recovery_status": "applied",
+  "recovery_source": "policy",
+  "parent_run_id": null,
+  "initial": {
+    "query": "When is the Harbor Institute Library open on Saturday?",
+    "answer": "The library is on the moon.",
+    "chunk_ids": [
+      "saltmarsh-annex-library::c000",
+      "harbor-library::c000",
+      "tideline-shuttle::c000",
+      "harbor-library-2019-notice::c000"
+    ],
+    "runtime_evaluation": {
+      "evidence_sufficient": true,
+      "answer_supported": false
+    },
+    "diagnosis_class": "unsupported_generation"
+  },
+  "attempts": [
+    {
+      "index": 0,
+      "action": "regenerate",
+      "source": "policy",
+      "executed": true,
+      "answer": "Saturday 10:00-16:00",
+      "answer_relation": "generated",
+      "evidence_relation": "unchanged",
+      "evaluation_source": "judge",
+      "search_query": null,
+      "rewritten_query": null,
+      "top_k": 4,
+      "chunk_ids": null,
+      "runtime_evaluation": {
+        "evidence_sufficient": true,
+        "answer_supported": true
+      },
+      "probe_evaluation": null,
+      "verification": "improved",
+      "diagnosis_class": null
+    }
+  ]
+}

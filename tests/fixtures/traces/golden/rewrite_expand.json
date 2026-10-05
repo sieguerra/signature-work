@@ -1,0 +1,111 @@
+{
+  "trace_schema_version": 2,
+  "run_mode": "loop",
+  "query": "When is the library open?",
+  "answer": "answer C",
+  "model": "scripted",
+  "top_k": 12,
+  "chunk_ids": [
+    "harbor-library-2019-notice::c000",
+    "saltmarsh-annex-library::c000",
+    "harbor-library::c000",
+    "tideline-shuttle::c001",
+    "tideline-shuttle::c000",
+    "saltmarsh-annex-library::c001",
+    "coastal-memory-group::c001",
+    "storm-ledger-unit::c001",
+    "harbor-library-2019-notice::c001",
+    "tideline-winter-recess::c000",
+    "coastal-memory-group::c000",
+    "east-canteen::c000"
+  ],
+  "runtime_evaluation": {
+    "evidence_sufficient": true,
+    "answer_supported": true
+  },
+  "verification": "improved",
+  "recovery_action": "expand",
+  "recovery_status": "applied",
+  "recovery_source": "policy",
+  "parent_run_id": null,
+  "initial": {
+    "query": "When is the library open?",
+    "answer": "answer A",
+    "chunk_ids": [
+      "tideline-shuttle::c001",
+      "tideline-shuttle::c000",
+      "saltmarsh-annex-library::c000",
+      "south-jetty-lab::c000"
+    ],
+    "runtime_evaluation": {
+      "evidence_sufficient": false,
+      "answer_supported": false
+    },
+    "diagnosis_class": null
+  },
+  "attempts": [
+    {
+      "index": 0,
+      "action": "rewrite",
+      "source": "policy",
+      "executed": true,
+      "answer": "answer B",
+      "answer_relation": "generated",
+      "evidence_relation": "replaced",
+      "evaluation_source": "judge",
+      "search_query": "library saturday hours",
+      "rewritten_query": "library saturday hours",
+      "top_k": 4,
+      "chunk_ids": [
+        "harbor-library-2019-notice::c000",
+        "saltmarsh-annex-library::c000",
+        "harbor-library::c000",
+        "tideline-shuttle::c001"
+      ],
+      "runtime_evaluation": {
+        "evidence_sufficient": false,
+        "answer_supported": false
+      },
+      "probe_evaluation": {
+        "evidence_sufficient": true,
+        "answer_supported": null
+      },
+      "verification": "still_failing",
+      "diagnosis_class": null
+    },
+    {
+      "index": 1,
+      "action": "expand",
+      "source": "policy",
+      "executed": true,
+      "answer": "answer C",
+      "answer_relation": "generated",
+      "evidence_relation": "widened",
+      "evaluation_source": "judge",
+      "search_query": "library saturday hours",
+      "rewritten_query": null,
+      "top_k": 12,
+      "chunk_ids": [
+        "harbor-library-2019-notice::c000",
+        "saltmarsh-annex-library::c000",
+        "harbor-library::c000",
+        "tideline-shuttle::c001",
+        "tideline-shuttle::c000",
+        "saltmarsh-annex-library::c001",
+        "coastal-memory-group::c001",
+        "storm-ledger-unit::c001",
+        "harbor-library-2019-notice::c001",
+        "tideline-winter-recess::c000",
+        "coastal-memory-group::c000",
+        "east-canteen::c000"
+      ],
+      "runtime_evaluation": {
+        "evidence_sufficient": true,
+        "answer_supported": true
+      },
+      "probe_evaluation": null,
+      "verification": "improved",
+      "diagnosis_class": null
+    }
+  ]
+}
