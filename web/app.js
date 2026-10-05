@@ -36,6 +36,8 @@ const state = {
   overviewError: "",
   logicalRuns: [],
   flightTraces: null,
+  relFocus: null,
+  relFilters: { verification: "all", recovery: "all", action: "all", diagnosis: "all", query: "" },
 };
 
 const CHAT_MODELS = ["gpt-4o-mini", "gpt-4o", "gpt-4.1-mini", "gpt-4.1"];
@@ -486,7 +488,8 @@ async function loadMeta() {
   renderEnvStatus();
   renderShell();
   if (!state.meta.api_key_present) {
-    $("mode").value = "retrieve_only";
+    const mode = $("mode");
+    if (mode) mode.value = "retrieve_only";
     if ($("pg-mode")) $("pg-mode").value = "retrieve_only";
   }
   syncDraftConfig();
@@ -518,8 +521,10 @@ async function loadCorpora() {
 }
 
 function renderExamples() {
+  const host = $("example-chips");
+  if (!host) return;
   const examples = (state.meta && state.meta.examples) || [];
-  $("example-chips").innerHTML = examples
+  host.innerHTML = examples
     .map(
       (question) =>
         `<button type="button" class="chip" data-q="${escapeHtml(question)}">${escapeHtml(question)}</button>`
@@ -538,6 +543,8 @@ async function switchCorpus(corpusId) {
       body: JSON.stringify({ id: corpusId }),
     });
     clearSelection();
+    state.flightTraces = null;
+    state.relFocus = null;
     state.messages = [];
     state.uploads = [];
     state.openDocument = null;
@@ -549,11 +556,7 @@ async function switchCorpus(corpusId) {
     });
     state.revealedKey = null;
     await loadKeys();
-    if (state.traces.length) {
-      await selectRun(state.traces[0].run_id);
-    } else {
-      render();
-    }
+    render();
     renderPlaygroundKnowledge();
   } finally {
     $("corpus").disabled = false;
@@ -571,6 +574,7 @@ function renderRunList() {
     deleteAll.disabled = !state.traces.length;
   }
   const root = $("run-list");
+  if (!root) return;
   if (!state.traces.length) {
     root.innerHTML =
       `<div class="empty"><strong>No runs yet</strong>Ask a question to write a trace. Existing files under experiments/output also appear here.</div>`;
@@ -663,6 +667,7 @@ function answerBlock(text, preferredPass) {
 
 function renderAnswer() {
   const bar = $("answer-bar");
+  if (!bar) return;
   if (!state.trace) {
     bar.classList.add("hidden");
     return;
@@ -784,12 +789,13 @@ function renderRecoverBar() {
 
 function renderWaterfall() {
   const root = $("waterfall");
+  if (!root) return;
   if (state.loading) {
     root.innerHTML = `<li class="empty"><strong>Running</strong>Waiting on the core. This can take several seconds.</li>`;
     return;
   }
   if (!state.steps.length) {
-    root.innerHTML = `<li class="empty"><strong>No trace selected</strong>Run a question or pick a run from the left.</li>`;
+    root.innerHTML = `<li class="empty"><strong>No trace steps</strong>Inspect a run to load its steps.</li>`;
     return;
   }
   root.innerHTML = state.steps
@@ -860,6 +866,7 @@ function kv(rows) {
 function renderInspector() {
   const root = $("inspector");
   const label = $("inspector-label");
+  if (!root || !label) return;
   if (!state.selectedStep) {
     label.textContent = "Inspector";
     root.innerHTML = `<div class="empty"><strong>Inspect a step</strong>Click retrieve, evaluate, recover, or verify to see the payload.</div>`;
@@ -971,16 +978,17 @@ function render() {
     renderNodeInspector();
   }
   renderFlight();
+  renderReliability();
 }
 
 async function loadTraces() {
   const payload = await api("/api/traces");
   state.traces = payload.traces || [];
-  await loadEval();
   renderRunList();
   renderShell();
   await loadOverview();
   await loadLogicalRuns();
+  await loadEval();
 }
 
 function setEvalTab(tab) {
@@ -1035,6 +1043,16 @@ async function ensureQuality(runId) {
   if (state.trace && state.trace.run_id === runId) renderRunView();
 }
 
+async function showStoredQuality(runId) {
+  const saved = (await api(`/api/traces/${encodeURIComponent(runId)}/quality`)).quality;
+  if (!saved) {
+    state.quality[runId] = { status: "error", error: "No stored quality score." };
+  } else {
+    state.quality[runId] = { status: "done", data: saved };
+  }
+  renderReliability();
+}
+
 async function scoreRun(runId, { refresh = true } = {}) {
   state.quality[runId] = { status: "loading" };
   if (refresh && state.trace && state.trace.run_id === runId) renderRunView();
@@ -1045,6 +1063,7 @@ async function scoreRun(runId, { refresh = true } = {}) {
     state.quality[runId] = { status: "error", error: error.message };
   }
   if (state.trace && state.trace.run_id === runId) renderRunView();
+  renderReliability();
   loadEval().catch(() => {});
 }
 
@@ -1070,18 +1089,40 @@ async function scoreAllRuns() {
   await loadEval();
 }
 
+function qualityBoardRuns() {
+  const evalRuns = (state.evalPayload && state.evalPayload.runs) || [];
+  const byId = new Map(evalRuns.map((run) => [run.run_id, run]));
+  const logical = state.logicalRuns || [];
+  if (!logical.length) return evalRuns;
+  return logical.map((run) => {
+    const match = byId.get(run.inspect_run_id) || null;
+    const abstained = Boolean(match && match.abstained);
+    return {
+      query: run.query,
+      run_id: (match && match.run_id) || run.inspect_run_id,
+      has_answer: Boolean(match && match.has_answer && !abstained),
+      abstained,
+      quality: match && !abstained ? match.quality : null,
+    };
+  });
+}
+
 function renderEvalCharts() {
   const root = $("eval-overview");
-  if (!root || typeof renderEvalOverview !== "function") return;
-  renderEvalOverview(root, state.evalPayload, state.scoringProgress);
+  if (!root) return;
+  if (typeof renderQualityBoard === "function") {
+    renderQualityBoard(root, { runs: qualityBoardRuns() }, state.scoringProgress);
+    return;
+  }
+  if (typeof renderEvalOverview === "function") renderEvalOverview(root, state.evalPayload, state.scoringProgress);
 }
 
 async function loadEval() {
-  const strip = $("eval-strip");
-  if (!strip) return;
   const payload = await api("/api/eval");
   state.evalPayload = payload;
   renderEvalCharts();
+  const strip = $("eval-strip");
+  if (!strip) return;
   const actions = Object.entries(payload.by_action || {})
     .map(([name, count]) => `${name}=${count}`)
     .join(" · ");
@@ -1129,12 +1170,10 @@ async function deleteRun(runId) {
   const wasSelected = state.selectedId === runId || state.selectedId === childId;
   if (wasSelected) {
     clearSelection();
+    state.flightTraces = null;
+    state.relFocus = null;
   }
   await loadTraces();
-  if (wasSelected && state.traces.length) {
-    await selectRun(state.traces[0].run_id);
-    return;
-  }
   render();
 }
 
@@ -1154,6 +1193,7 @@ async function deleteAllRuns() {
 
 function readTopK(fromPlayground) {
   const field = fromPlayground ? $("pg-top-k") : $("top-k");
+  if (!field) return null;
   const raw = Number(field.value);
   if (!Number.isInteger(raw) || raw < 1 || raw > 20) {
     return null;
@@ -1206,9 +1246,10 @@ async function applyRecovery(action) {
 async function runQuestion(fromPlayground) {
   const questionEl = fromPlayground ? $("pg-question") : $("question");
   const modeEl = fromPlayground ? $("pg-mode") : $("mode");
+  if (!questionEl || !modeEl) return;
   const runButtons = fromPlayground
     ? [$("pg-send"), $("pg-run")].filter(Boolean)
-    : [$("run-btn")];
+    : [$("run-btn")].filter(Boolean);
   const question = questionEl.value.trim();
   if (!question) {
     showError("Enter a question.");
@@ -3502,35 +3543,63 @@ function bind() {
       inspectOverviewRun(button.dataset.inspectRun).catch((error) => showError(error.message));
     });
   }
-  $("run-btn").addEventListener("click", runQuestion);
-  $("refresh-runs").addEventListener("click", () => loadTraces().catch((error) => showError(error.message)));
-  $("delete-all-runs").addEventListener("click", () => deleteAllRuns().catch((error) => showError(error.message)));
+  const runBtn = $("run-btn");
+  if (runBtn) runBtn.addEventListener("click", runQuestion);
+  const refreshRuns = $("refresh-runs");
+  if (refreshRuns) refreshRuns.addEventListener("click", () => loadTraces().catch((error) => showError(error.message)));
+  const deleteAll = $("delete-all-runs");
+  if (deleteAll) deleteAll.addEventListener("click", () => deleteAllRuns().catch((error) => showError(error.message)));
   $("corpus").addEventListener("change", (event) => {
     switchCorpus(event.target.value).catch((error) => showError(error.message));
   });
-  $("question").addEventListener("keydown", (event) => {
-    if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
-      event.preventDefault();
-      runQuestion();
-    }
-  });
-  $("example-chips").addEventListener("click", (event) => {
-    const button = event.target.closest(".chip");
-    if (!button) return;
-    $("question").value = button.dataset.q;
-    $("question").focus();
-  });
-  $("run-list").addEventListener("click", (event) => {
-    const del = event.target.closest(".run-delete");
-    if (del) {
-      event.preventDefault();
-      event.stopPropagation();
-      deleteRun(del.dataset.id).catch((error) => showError(error.message));
-      return;
-    }
-    const item = event.target.closest(".run-item");
-    if (!item) return;
-    selectRun(item.dataset.id).catch((error) => showError(error.message));
+  const question = $("question");
+  if (question) {
+    question.addEventListener("keydown", (event) => {
+      if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+        event.preventDefault();
+        runQuestion();
+      }
+    });
+  }
+  const chips = $("example-chips");
+  if (chips) {
+    chips.addEventListener("click", (event) => {
+      const button = event.target.closest(".chip");
+      if (!button || !question) return;
+      question.value = button.dataset.q;
+      question.focus();
+    });
+  }
+  const runList = $("run-list");
+  if (runList) {
+    runList.addEventListener("click", (event) => {
+      const del = event.target.closest(".run-delete");
+      if (del) {
+        event.preventDefault();
+        event.stopPropagation();
+        deleteRun(del.dataset.id).catch((error) => showError(error.message));
+        return;
+      }
+      const item = event.target.closest(".run-item");
+      if (!item) return;
+      selectRun(item.dataset.id).catch((error) => showError(error.message));
+    });
+  }
+  const relSearch = $("rel-search");
+  if (relSearch) {
+    relSearch.addEventListener("input", () => {
+      state.relFilters.query = relSearch.value;
+      renderReliability();
+    });
+  }
+  ["rel-verification", "rel-recovery", "rel-action", "rel-diagnosis"].forEach((id) => {
+    const field = $(id);
+    if (!field) return;
+    field.addEventListener("change", () => {
+      const key = id.replace("rel-", "");
+      state.relFilters[key] = field.value;
+      renderReliability();
+    });
   });
   $("view-evaluation").addEventListener("click", (event) => {
     const tab = event.target.closest("[data-eval-tab]");
@@ -3538,10 +3607,45 @@ function bind() {
       setEvalTab(tab.dataset.evalTab);
       return;
     }
+    const preset = event.target.closest("[data-rel-preset]");
+    if (preset) {
+      applyRelPreset(preset.dataset.relPreset, preset.dataset.relValue);
+      return;
+    }
+    const open = event.target.closest("[data-rel-open]");
+    if (open) {
+      inspectOverviewRun(open.dataset.relOpen).catch((error) => showError(error.message));
+      return;
+    }
+    const review = event.target.closest("[data-rel-console]");
+    if (review) {
+      const row = (state.logicalRuns || []).find((item) => item.logical_run_id === review.dataset.relConsole);
+      if (row) {
+        openFlight(row.trace_ids || [row.logical_run_id], {
+          stepsFor: row.inspect_run_id || row.logical_run_id,
+        }).catch((error) => showError(error.message));
+      }
+      return;
+    }
+    const remove = event.target.closest("[data-rel-delete]");
+    if (remove) {
+      deleteRun(remove.dataset.relDelete).catch((error) => showError(error.message));
+      return;
+    }
     const runView = event.target.closest("[data-run-view]");
     if (runView) {
       state.runView = runView.dataset.runView;
       renderRunView();
+      return;
+    }
+    const claims = event.target.closest("[data-rel-claims]");
+    if (claims) {
+      showStoredQuality(claims.dataset.relClaims).catch((error) => showError(error.message));
+      return;
+    }
+    const scoreOne = event.target.closest("[data-score-run-id]");
+    if (scoreOne) {
+      scoreRun(scoreOne.dataset.scoreRunId);
       return;
     }
     if (event.target.closest("[data-score-run]")) {
@@ -3554,36 +3658,46 @@ function bind() {
     }
     const bar = event.target.closest("[data-chart-run]");
     if (!bar) return;
-    setEvalTab("runs");
-    state.runView = "diagram";
-    selectRun(bar.dataset.chartRun).catch((error) => showError(error.message));
+    inspectOverviewRun(bar.dataset.chartRun).catch((error) => showError(error.message));
   });
-  $("waterfall").addEventListener("click", (event) => {
-    const button = event.target.closest(".step-btn");
-    if (!button) return;
-    state.selectedStep = state.steps.find((step) => step.id === button.dataset.step) || null;
-    render();
-  });
-  $("recover-bar").addEventListener("click", (event) => {
-    const openChild = event.target.closest("[data-open-child]");
-    if (openChild) {
-      selectRun(openChild.dataset.openChild).catch((error) => showError(error.message));
-      return;
-    }
-    const recover = event.target.closest("[data-recover]");
-    if (!recover) return;
-    applyRecovery(recover.dataset.recover).catch((error) => showError(error.message));
-  });
-  $("answer-text").addEventListener("click", (event) => {
-    const cite = event.target.closest("button.cite");
-    if (!cite) return;
-    selectCitation(cite.dataset.chunkId, cite.dataset.citePass || null);
-  });
-  $("inspector").addEventListener("click", (event) => {
-    const cite = event.target.closest("button.cite");
-    if (!cite) return;
-    selectCitation(cite.dataset.chunkId, cite.dataset.citePass || null);
-  });
+  const waterfall = $("waterfall");
+  if (waterfall) {
+    waterfall.addEventListener("click", (event) => {
+      const button = event.target.closest(".step-btn");
+      if (!button) return;
+      state.selectedStep = state.steps.find((step) => step.id === button.dataset.step) || null;
+      render();
+    });
+  }
+  const recoverBar = $("recover-bar");
+  if (recoverBar) {
+    recoverBar.addEventListener("click", (event) => {
+      const openChild = event.target.closest("[data-open-child]");
+      if (openChild) {
+        selectRun(openChild.dataset.openChild).catch((error) => showError(error.message));
+        return;
+      }
+      const recover = event.target.closest("[data-recover]");
+      if (!recover) return;
+      applyRecovery(recover.dataset.recover).catch((error) => showError(error.message));
+    });
+  }
+  const answerText = $("answer-text");
+  if (answerText) {
+    answerText.addEventListener("click", (event) => {
+      const cite = event.target.closest("button.cite");
+      if (!cite) return;
+      selectCitation(cite.dataset.chunkId, cite.dataset.citePass || null);
+    });
+  }
+  const inspector = $("inspector");
+  if (inspector) {
+    inspector.addEventListener("click", (event) => {
+      const cite = event.target.closest("button.cite");
+      if (!cite) return;
+      selectCitation(cite.dataset.chunkId, cite.dataset.citePass || null);
+    });
+  }
   window.addEventListener("hashchange", () => {
     applyView();
     renderPlaygroundChat();
@@ -4045,6 +4159,270 @@ const OV_OUTCOMES = {
   degraded: "Degraded",
 };
 
+function applyRelPreset(key, value) {
+  if (!key) return;
+  state.relFilters[key] = value;
+  const field = $(`rel-${key}`);
+  if (field) field.value = value;
+  setEvalTab("runs");
+  renderReliability();
+}
+
+function relWhen(value) {
+  const text = String(value || "").trim();
+  if (!text) return "—";
+  return text.replace("T", " ").slice(0, 16);
+}
+
+function relFraction(part) {
+  if (!part || !part.total || part.rate == null) return "—";
+  return `${part.count} / ${part.total} (${Math.round(part.rate * 100)}%)`;
+}
+
+function relSignal(part) {
+  if (!part || !part.total || part.rate == null) return "—";
+  return `${part.true}/${part.total} (${Math.round(part.rate * 100)}%)`;
+}
+
+function renderReliability() {
+  const view = window.ReliabilityView;
+  renderRelSummary(view);
+  renderRelRuns(view);
+  renderRelRecoveries(view);
+  renderRelDetail(view);
+}
+
+function renderRelSummary(view) {
+  const root = $("rel-summary");
+  if (!root) return;
+  const data = state.overview;
+  if (!data) {
+    root.innerHTML = state.overviewError
+      ? `<p class="rel-empty">${escapeHtml(state.overviewError)}</p>`
+      : `<p class="rel-empty">Reliability history is still loading.</p>`;
+    return;
+  }
+  if (!data.observed_runs) {
+    root.innerHTML = `<p class="rel-note">All recorded runs for this system. There is no date filter.</p><p class="rel-empty">No runs recorded yet. Questions are run from Test Console.</p>`;
+    return;
+  }
+  const pending = (state.logicalRuns || []).filter((run) => run.recovery_pending).length;
+  const unattributed = (state.logicalRuns || []).filter((run) => run.judged && !(run.diagnoses || []).length).length;
+  const outcomes = data.outcomes || {};
+  const labels = view || {
+    labelDiagnosis: (name) => name,
+    labelAction: (name) => name,
+  };
+  root.innerHTML = `<p class="rel-note">All recorded runs for this system. There is no date filter. This is the historical pattern, not the live attention snapshot on Overview.</p>
+    <div class="rel-summary">
+      <section>
+        <h2>Reliability volume</h2>
+        ${relStat("Judged logical runs", String(data.judged_runs || 0))}
+        ${relStat("Runs requiring recovery", relFraction(data.recovery_required))}
+        ${relStat("Applied recoveries", String((outcomes.applied) || 0))}
+        ${relStat("Pending recoveries", String(pending))}
+      </section>
+      <section>
+        <h2>Verification outcomes</h2>
+        <p class="rel-note">Unchanged means a recovery was applied and the runtime judge flags did not change. It is not treated as improved, and it is not automatically unresolved.</p>
+        ${relOutcomeRows(outcomes)}
+        ${relStat("Pending, not in the verified denominator", String(pending))}
+        <button type="button" class="ghost" data-rel-preset="verification" data-rel-value="needs">Needs investigation</button>
+      </section>
+      <section>
+        <h2>Failure diagnoses</h2>
+        ${relCountRows(data.diagnoses, (row) => (labels.labelDiagnosis ? labels.labelDiagnosis(row.name) : row.name))}
+        ${unattributed ? relStat("Not attributed", String(unattributed)) : ""}
+        ${!(data.diagnoses || []).length && !unattributed ? `<p class="rel-empty">No stored failure class on these runs.</p>` : ""}
+      </section>
+      <section>
+        <h2>Recovery actions</h2>
+        ${relCountRows(data.applied_actions, (row) => (labels.labelAction ? labels.labelAction(row.name) : row.name))}
+        ${!(data.applied_actions || []).length ? `<p class="rel-empty">No recovery actions applied yet.</p>` : ""}
+      </section>
+      <section>
+        <h2>Runtime judge state</h2>
+        <p class="rel-note">${escapeHtml((data.signals && data.signals.note) || "")}</p>
+        ${relStat("Evidence sufficient, initial → final", `${relSignal(data.signals && data.signals.evidence_sufficient && data.signals.evidence_sufficient.initial)} → ${relSignal(data.signals && data.signals.evidence_sufficient && data.signals.evidence_sufficient.final)}`)}
+        ${relStat("Answer supported, initial → final", `${relSignal(data.signals && data.signals.answer_supported && data.signals.answer_supported.initial)} → ${relSignal(data.signals && data.signals.answer_supported && data.signals.answer_supported.final)}`)}
+      </section>
+      <section>
+        <h2>Latency</h2>
+        ${relLatency(data.latency)}
+      </section>
+    </div>`;
+}
+
+function relStat(label, value) {
+  return `<p class="rel-stat"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></p>`;
+}
+
+function relOutcomeRows(outcomes) {
+  const total = outcomes.with_outcome || 0;
+  if (!total) return `<p class="rel-empty">No verified recoveries yet.</p>`;
+  const names = [
+    ["improved", "Improved"],
+    ["unchanged", "Unchanged"],
+    ["still_failing", "Still failing"],
+    ["degraded", "Degraded"],
+  ];
+  return names
+    .map(([key, label]) => {
+      const count = outcomes[key] || 0;
+      const width = Math.round((count / total) * 100);
+      return `<div class="rel-line"><span>${label}</span><span class="rel-bar"><span style="width:${width}%"></span></span><span>${count}</span></div>`;
+    })
+    .join("");
+}
+
+function relCountRows(rows, labelFor) {
+  return (rows || [])
+    .map((row) => relStat(labelFor(row), String(row.count)))
+    .join("");
+}
+
+function relLatency(latency) {
+  if (!latency || !latency.runs || latency.median_ms == null) {
+    return `<p class="rel-empty">No timed runs yet.</p>`;
+  }
+  return `<p class="rel-note">Median ${escapeHtml(formatFlightLatency(latency.median_ms))} across ${latency.runs} timed run${latency.runs === 1 ? "" : "s"}. A run's latency is the sum of its trace and any recovery child.</p>`;
+}
+
+function renderRelRuns(view) {
+  const root = $("rel-runs");
+  if (!root || !view) return;
+  const runs = state.logicalRuns || [];
+  if (state.relFocus && !runs.some((run) => run.logical_run_id === state.relFocus.logical_run_id)) {
+    state.relFocus = null;
+  }
+  if (!runs.length) {
+    root.innerHTML = `<p class="rel-empty">No runs recorded yet.</p>`;
+    return;
+  }
+  const filtered = view.filterLogicalRuns(runs, state.relFilters);
+  if (!filtered.length) {
+    root.innerHTML = `<p class="rel-empty">No runs match these filters.</p>`;
+    return;
+  }
+  const body = filtered
+    .map((run) => {
+      const diagnosis = !run.judged
+        ? "Not judged"
+        : (run.diagnoses || []).map(view.labelDiagnosis).join(", ") || "Not attributed";
+      const latency = run.latency_ms == null ? "—" : formatFlightLatency(run.latency_ms);
+      return `<tr>
+        <td>${escapeHtml(run.query || "(empty question)")}</td>
+        <td>${escapeHtml(view.labelInitialState(run.initial_state))}</td>
+        <td>${escapeHtml(view.labelRecovery(run))}</td>
+        <td>${escapeHtml(diagnosis)}</td>
+        <td>${escapeHtml(view.labelVerification(run))}</td>
+        <td>${escapeHtml(latency)}</td>
+        <td>${escapeHtml(relWhen(run.timestamp))}</td>
+        <td><button type="button" class="ghost" data-rel-open="${escapeHtml(run.logical_run_id)}">Inspect</button></td>
+      </tr>`;
+    })
+    .join("");
+  root.innerHTML = `<div class="rel-scroll"><table class="rel-table">
+    <thead><tr><th>Question</th><th>Initial state</th><th>Recovery</th><th>Diagnosis</th><th>Verification</th><th>Latency</th><th>When</th><th></th></tr></thead>
+    <tbody>${body}</tbody>
+  </table></div>`;
+}
+
+function renderRelRecoveries(view) {
+  const root = $("rel-recoveries");
+  if (!root || !view) return;
+  const cases = view.recoveryCases(state.logicalRuns || []);
+  if (!cases.length) {
+    root.innerHTML = `<p class="rel-empty">No recovery cases yet. An accepted run, or a run that was never judged, is not listed here.</p>`;
+    return;
+  }
+  const body = cases
+    .map((run) => {
+      const pending = Boolean(run.recovery_pending) && !(run.recovery || []).length;
+      const path = pending ? `${view.recoveryPath(run)} proposed` : view.recoveryPath(run);
+      const diagnosis = !run.judged
+        ? "Not judged"
+        : (run.diagnoses || []).map(view.labelDiagnosis).join(", ") || "Not attributed";
+      return `<tr>
+        <td>${escapeHtml(run.query || "(empty question)")}</td>
+        <td>${escapeHtml(view.labelTrigger(run.trigger) || "—")}</td>
+        <td>${escapeHtml(diagnosis)}</td>
+        <td>${escapeHtml(path || "—")}</td>
+        <td>${escapeHtml(view.labelSource(run.source) || "—")}</td>
+        <td>${escapeHtml(view.labelVerification(run))}</td>
+        <td>${escapeHtml(relWhen(run.timestamp))}</td>
+        <td><button type="button" class="ghost" data-rel-open="${escapeHtml(run.logical_run_id)}">Inspect</button></td>
+      </tr>`;
+    })
+    .join("");
+  root.innerHTML = `<p class="rel-note">How runtime recovery behaved across runs. Pending proposals stay visible here.</p>
+    <div class="rel-scroll"><table class="rel-table">
+      <thead><tr><th>Question</th><th>Trigger</th><th>Diagnosis</th><th>Recovery path</th><th>Source</th><th>Verification</th><th>When</th><th></th></tr></thead>
+      <tbody>${body}</tbody>
+    </table></div>`;
+}
+
+function renderRelDetail(view) {
+  const root = $("rel-detail");
+  const workspace = $("workspace");
+  if (!root) return;
+  const row = state.relFocus;
+  if (!row || !view) {
+    root.innerHTML = "";
+    if (workspace) workspace.classList.remove("is-open");
+    return;
+  }
+  const loaded = new Set((state.flightTraces || []).map((trace) => trace.run_id));
+  const aligned = (row.trace_ids || []).length > 0 && (row.trace_ids || []).every((id) => loaded.has(id));
+  const flight = aligned && window.FlightRecorder ? FlightRecorder.buildFlight(state.flightTraces) : null;
+  const pending = Boolean(row.recovery_pending) && !(row.recovery || []).length;
+  const action = pending
+    ? `<button type="button" class="primary" data-rel-console="${escapeHtml(row.logical_run_id)}">Review recovery</button>`
+    : `<button type="button" class="ghost" data-rel-console="${escapeHtml(row.logical_run_id)}">Open in Test Console</button>`;
+  const usage = row.usage
+    ? `${row.usage.prompt_tokens} prompt tokens · ${row.usage.completion_tokens} completion tokens`
+    : "Token usage not recorded";
+  const latency = row.latency_ms == null ? "Latency not recorded" : formatFlightLatency(row.latency_ms);
+  const config = state.trace && state.trace.agent_config
+    ? `<pre class="rel-config">${escapeHtml(JSON.stringify(state.trace.agent_config, null, 2))}</pre>`
+    : `<p class="rel-note">No agent config snapshot on this run.</p>`;
+  const qualityId = row.inspect_run_id || row.logical_run_id;
+  const saved = state.quality[qualityId];
+  const board = qualityBoardRuns().find((item) => item.run_id === qualityId);
+  const qualityNote = `<p class="rel-note">Post-hoc quality is separate from runtime verification and does not influence recovery.</p>`;
+  let quality = qualityNote;
+  if (saved && saved.status === "done" && typeof metricsCard === "function") {
+    quality += metricsCard(saved, {
+      recovered: (row.recovery || []).length > 0,
+      abstained: Boolean(board && board.abstained),
+      finalChunks: (state.trace && state.trace.retrieved_chunks) || [],
+      hasAnswer: !(board && board.abstained),
+    });
+  } else if (board && view.qualityStatus(board) === "Scored") {
+    quality += `<p class="rel-stat"><span>Quality</span><strong>Scored</strong></p><button type="button" class="ghost" data-rel-claims="${escapeHtml(qualityId)}">Show claim checks</button>`;
+  } else if (board && view.qualityStatus(board) === "Not scored") {
+    quality += `<p class="rel-stat"><span>Quality</span><strong>Not scored</strong></p><button type="button" class="ghost" data-score-run-id="${escapeHtml(qualityId)}">Score this run</button>`;
+  } else {
+    quality += `<p class="rel-stat"><span>Quality</span><strong>Not applicable</strong></p>`;
+  }
+  root.innerHTML = `<article class="rel-detail">
+    <div class="rel-detail-head">
+      <div>
+        <p class="rel-kicker">Logical run</p>
+        <h2>${escapeHtml(row.query || "(empty question)")}</h2>
+      </div>
+      <div class="rel-detail-actions">${action}<button type="button" class="ghost danger" data-rel-delete="${escapeHtml(row.logical_run_id)}">Delete run</button></div>
+    </div>
+    <p class="rel-meta">${escapeHtml(latency)} · ${escapeHtml(usage)}</p>
+    ${flight ? flightHtml(flight, { propose: false }) : `<p class="rel-empty">Loading this run…</p>`}
+    <h3>Post-hoc quality</h3>
+    ${quality}
+    <h3>Agent config</h3>
+    ${config}
+  </article>`;
+  if (workspace) workspace.classList.toggle("is-open", aligned && state.steps.length > 0);
+}
+
 async function loadOverview() {
   const root = $("overview-body");
   if (!root) return;
@@ -4066,9 +4444,11 @@ async function loadLogicalRuns() {
     state.logicalRuns = [];
   }
   renderFlight();
+  renderReliability();
 }
 
-async function openFlight(ids) {
+async function openFlight(ids, options) {
+  const stay = Boolean(options && options.stay);
   const traces = [];
   for (const id of ids) {
     const payload = await api(`/api/traces/${encodeURIComponent(id)}`);
@@ -4081,8 +4461,23 @@ async function openFlight(ids) {
   state.selectedId = focus ? focus.run_id : null;
   state.trace = focus;
   state.steps = [];
+  state.selectedStep = null;
+  if (options && options.stepsFor) {
+    try {
+      const detail = await api(`/api/traces/${encodeURIComponent(options.stepsFor)}`);
+      state.steps = detail.steps || [];
+      state.selectedStep = state.steps[0] || null;
+    } catch (error) {
+      state.steps = [];
+    }
+  }
   state.childRunId = flight && !flight.pending && traces.length > 1 ? traces[traces.length - 1].run_id : null;
-  if (state.view !== "test") {
+  if (stay) {
+    const match = (state.logicalRuns || []).find((run) =>
+      (run.trace_ids || []).some((id) => ids.includes(id))
+    );
+    if (match) state.relFocus = match;
+  } else if (state.view !== "test") {
     if (location.hash !== "#test") location.hash = "#test";
     applyView();
   }
@@ -4143,8 +4538,9 @@ function renderFlightHistory() {
     .join("");
 }
 
-function flightHtml(flight) {
-  return `${flightSummary(flight)}${flightProposal(flight)}${flightWarning(flight)}${flight.phases.map(phaseHtml).join("")}${answerCompare(flight)}${evidenceCompare(flight)}`;
+function flightHtml(flight, options) {
+  const proposal = options && options.propose === false ? "" : flightProposal(flight);
+  return `${flightSummary(flight)}${proposal}${flightWarning(flight)}${flight.phases.map(phaseHtml).join("")}${answerCompare(flight)}${evidenceCompare(flight)}`;
 }
 
 function flightSummary(flight) {
@@ -4367,7 +4763,18 @@ async function inspectOverviewRun(runId) {
   setEvalTab("runs");
   if (location.hash !== "#reliability") location.hash = "#reliability";
   applyView();
-  await selectRun(runId);
+  const row = (state.logicalRuns || []).find(
+    (run) =>
+      run.inspect_run_id === runId ||
+      run.logical_run_id === runId ||
+      (run.trace_ids || []).includes(runId)
+  );
+  if (!row) {
+    await selectRun(runId);
+    return;
+  }
+  state.relFocus = row;
+  await openFlight(row.trace_ids || [runId], { stay: true, stepsFor: row.inspect_run_id || runId });
 }
 
 function renderOverview() {
@@ -4657,11 +5064,7 @@ async function boot() {
       state.documents = [];
     });
     await loadKeys();
-    if (state.traces.length) {
-      await selectRun(state.traces[0].run_id);
-    } else {
-      render();
-    }
+    render();
     renderPlaygroundKnowledge();
   } catch (error) {
     if (!state.meta) renderEnvStatus();

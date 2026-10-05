@@ -822,3 +822,42 @@ function renderRunDiagram(root, trace, quality) {
     <p class="chart-note">Passages are ranked by how closely their wording matches the question; a longer bar is a closer match. That is how the search ranks them, not a quality score. Click a passage to read it.</p>
   `;
 }
+
+function renderQualityBoard(root, payload, scoringProgress) {
+  const runs = (payload && payload.runs) || [];
+  const note = `<p class="rel-note">Runtime verification determines whether recovery changed the runtime judge state. Post-hoc quality scores are separate model-generated analysis and do not influence recovery decisions.</p>`;
+  if (!runs.length) {
+    root.innerHTML = `${note}<p class="chart-empty">No runs for this system yet. Run a test in Test Console, then score it here.</p>`;
+    return;
+  }
+  const rows = runs
+    .map((run) => {
+      const status = window.ReliabilityView
+        ? ReliabilityView.qualityStatus(run)
+        : run.quality
+          ? "Scored"
+          : "Not scored";
+      const scores = status === "Scored"
+        ? METRICS.map((metric) => {
+            const value = run.quality[metric.key];
+            return `${metric.name} ${value == null ? "—" : metricText(value)}`;
+          }).join(" · ")
+        : "";
+      const scoreButton = status === "Not scored"
+        ? `<button type="button" class="ghost" data-score-run-id="${chartEsc(run.run_id)}">Score</button>`
+        : "";
+      return `<tr>
+        <td>${chartEsc(run.query || "(empty)")}</td>
+        <td>${chartEsc(status)}</td>
+        <td>${chartEsc(scores)}</td>
+        <td>${scoreButton}<button type="button" class="ghost" data-chart-run="${chartEsc(run.run_id)}">Inspect</button></td>
+      </tr>`;
+    })
+    .join("");
+  root.innerHTML = `${note}
+    ${metricsOverview(runs, scoringProgress)}
+    <table class="rel-table">
+      <thead><tr><th>Question</th><th>Quality</th><th>Scores</th><th></th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}

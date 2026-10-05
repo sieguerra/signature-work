@@ -283,8 +283,15 @@ def test_index_page_and_assets_are_served(tmp_path: Path) -> None:
         assert 'id="pg-rerun"' in page.text
         assert "pg-config" in css.text
         assert 'id="corpus"' in page.text
-        assert 'id="top-k"' in page.text
+        assert 'id="top-k"' not in page.text
+        assert 'id="pg-top-k"' in page.text
         assert 'id="eval-strip"' in page.text
+        assert 'data-eval-tab="recoveries"' in page.text
+        assert 'data-eval-tab="quality"' in page.text
+        assert 'id="rel-runs"' in page.text
+        assert 'id="question"' not in page.text
+        assert 'id="run-btn"' not in page.text
+        assert "filterLogicalRuns" in client.get("/static/reliability.js").text
         assert "loadEval" in js.text
         assert "answer-split" in js.text
         assert "answer-pills" in js.text
@@ -300,11 +307,11 @@ def test_index_page_and_assets_are_served(tmp_path: Path) -> None:
         assert "Rewrite query and retrieve" in js.text
         assert "Widen retrieval (higher top_k)" in js.text
         assert "recover-bar" in js.text
-        assert 'id="recover-bar"' in page.text
+        assert 'id="recover-bar"' not in page.text
         assert 'value="loop_confirm"' in page.text
-        assert "Loop (confirm recovery)" in page.text
-        assert "Loop (auto recover)" in page.text
-        assert 'value="loop_confirm" selected' in page.text
+        assert "Loop (confirm recovery)" not in page.text
+        assert "Loop (auto recover)" not in page.text
+        assert 'value="loop_confirm" selected' not in page.text
         assert "has recovery" in js.text
         assert "after recovery" in js.text
         assert "child-run" in css.text

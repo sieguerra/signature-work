@@ -1590,8 +1590,14 @@ details > summary:hover {
 @media (max-width: 960px) {
   #app,
   #app.nav-collapsed {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .nav-sheet,
+  #app.nav-collapsed .nav-sheet {
+    min-width: 0;
+    max-width: 100%;
   }
 
   .app-nav,
@@ -1634,12 +1640,23 @@ details > summary:hover {
     padding: 0 28px 0 34px;
   }
 
+  .nav-workspace,
+  #app.nav-collapsed .nav-workspace,
+  .nav-workspace select,
+  #app.nav-collapsed .workspace-picker select {
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
+  }
+
   .view-nav,
   #app.nav-collapsed .view-nav {
     order: 3;
     flex: 1 1 100%;
     flex-direction: row;
     overflow-x: auto;
+    min-width: 0;
+    max-width: 100%;
   }
 
   #app.nav-collapsed .view-label {
@@ -5569,4 +5586,70 @@ button.flow-port:hover,
 
 @media (max-width: 800px) {
   .tc-compare { grid-template-columns: 1fr; }
+}
+
+#app[data-view="evaluation"] #view-evaluation {
+  display: block;
+  overflow: auto;
+}
+
+#view-evaluation,
+#view-evaluation .page-head,
+#view-evaluation .rel-panel,
+#view-evaluation .rel-summary,
+#view-evaluation .rel-summary > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+#view-evaluation .rel-panel { display: none; min-width: 0; padding: 8px 28px 48px; }
+#view-evaluation[data-tab="overview"] .rel-panel[data-rel-panel="overview"],
+#view-evaluation[data-tab="runs"] .rel-panel[data-rel-panel="runs"],
+#view-evaluation[data-tab="recoveries"] .rel-panel[data-rel-panel="recoveries"],
+#view-evaluation[data-tab="quality"] .rel-panel[data-rel-panel="quality"] {
+  display: block;
+}
+
+#view-evaluation .rel-panel .eval-overview { padding: 0; }
+#view-evaluation .rel-trace { display: none; }
+#view-evaluation .rel-trace.is-open {
+  display: grid;
+  margin: 0 28px 32px;
+  min-height: 280px;
+  border: 1px solid var(--line);
+}
+
+.rel-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 32px; margin-top: 12px; }
+.rel-summary h2 { margin: 0 0 8px; font-size: 15px; }
+.rel-note { color: var(--muted); font-size: 13px; max-width: 70ch; margin: 0 0 8px; }
+.rel-empty { color: var(--muted); font-size: 13px; }
+.rel-stat { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 16px; margin: 0; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 13px; min-width: 0; }
+.rel-stat span, .rel-note { min-width: 0; overflow-wrap: anywhere; }
+.rel-stat strong { font-weight: 600; text-align: right; }
+.rel-line { display: grid; grid-template-columns: 9rem 1fr auto; gap: 8px; align-items: center; font-size: 13px; margin: 4px 0; }
+.rel-bar { display: block; height: 6px; background: var(--line); }
+.rel-bar > span { display: block; height: 100%; background: var(--brand); }
+.rel-toolbar { display: flex; justify-content: space-between; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 12px; }
+.rel-filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; }
+.rel-filters label { display: flex; flex-direction: column; gap: 4px; font-size: 11px; color: var(--muted); }
+.rel-filters select, .rel-filters input { min-width: 9rem; }
+.rel-toolbar-actions { display: flex; gap: 8px; }
+.rel-scroll { overflow-x: auto; max-width: 100%; min-width: 0; }
+.rel-table { min-width: 720px; }
+.rel-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.rel-table th, .rel-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.rel-table th { color: var(--muted); font-weight: 600; font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; }
+.rel-detail { margin-top: 18px; padding-top: 12px; border-top: 1px solid var(--line); }
+.rel-detail-head, .rel-detail-actions { display: flex; gap: 12px; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; }
+.rel-detail h2 { margin: 0; font-size: 18px; }
+.rel-kicker, .rel-meta { color: var(--muted); font-size: 12px; }
+.rel-config { overflow: auto; max-height: 240px; font-size: 12px; background: var(--surface-1); padding: 10px; }
+
+@media (max-width: 800px) {
+  #view-evaluation .page-head { flex-wrap: wrap; }
+  #view-evaluation .eval-tabs { max-width: 100%; }
+  #view-evaluation .rel-panel { padding: 8px 16px 32px; }
+  .rel-summary { grid-template-columns: 1fr; }
+  .rel-line { grid-template-columns: 7rem 1fr auto; }
+  #view-evaluation .rel-trace.is-open { margin: 0 16px 24px; grid-template-columns: 1fr; }
 }

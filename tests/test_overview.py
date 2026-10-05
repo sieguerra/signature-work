@@ -367,6 +367,99 @@ def test_logical_run_history_joins_confirm_child_and_skips_summary(tmp_path: Pat
     assert "GOLD_ANSWER_SHOULD_NOT_LEAK" not in json.dumps(history)
 
 
+def test_logical_run_history_keeps_recovery_path_source_and_missing_diagnosis(tmp_path: Path) -> None:
+    traces = [
+        _trace(
+            "parent",
+            query="When does the library close?",
+            runtime_evaluation=_eval(False, None),
+            diagnosis={"failure_class": None},
+            recovery={"action": "rewrite", "source": "policy", "trigger": "judge"},
+            recovery_status="proposed",
+        ),
+        _trace(
+            "child",
+            parent_run_id="parent",
+            query="When does the library close?",
+            runtime_evaluation=_eval(False, False),
+            recovery={"action": "rewrite", "source": "operator", "trigger": "judge"},
+            recovery_status="applied",
+            verification={"outcome": "unchanged"},
+            usage={"prompt_tokens": 10, "completion_tokens": 4},
+        ),
+        _trace(
+            "auto",
+            query="How many seats?",
+            first_pass_evaluation=_eval(True, False),
+            runtime_evaluation=_eval(True, True),
+            recovery={"action": "expand", "source": "policy", "trigger": "retrieval_signal"},
+            recovery_status="applied",
+            recovery_attempts=[
+                {"action": "rewrite", "trigger": "judge", "source": "policy"},
+                {"action": "expand", "trigger": "retrieval_signal", "source": "policy"},
+            ],
+            verification={"outcome": "improved"},
+        ),
+        _trace(
+            "accepted",
+            query="Breakfast?",
+            runtime_evaluation=_eval(True, True),
+            recovery={"action": "accept", "source": "policy"},
+            recovery_status="applied",
+        ),
+        _trace(
+            "historical",
+            query="Annex hours?",
+            runtime_evaluation=_eval(False, None),
+            recovery={"action": "rewrite", "source": "policy", "trigger": "judge"},
+            recovery_status="applied",
+            verification={"outcome": "still_failing"},
+        ),
+        _trace(
+            "degraded",
+            runtime_evaluation=_eval(False, False),
+            recovery={"action": "regenerate"},
+            recovery_status="applied",
+            verification={"outcome": "degraded"},
+        ),
+        _trace(
+            "pending",
+            runtime_evaluation=_eval(False, None),
+            recovery={"action": "expand", "source": "policy", "trigger": "retrieval_signal"},
+            recovery_status="proposed",
+        ),
+        _trace(
+            "null_supported",
+            query="Evidence only?",
+            runtime_evaluation=_eval(True, None),
+        ),
+    ]
+    for payload in traces:
+        _write(tmp_path, payload)
+    rows = {row["logical_run_id"]: row for row in logical_run_history(tmp_path)["runs"]}
+    assert "child" not in rows
+    assert rows["parent"]["trace_ids"] == ["parent", "child"]
+    assert rows["parent"]["recovery"] == ["rewrite"]
+    assert rows["parent"]["source"] == "operator"
+    assert rows["parent"]["diagnoses"] == []
+    assert rows["parent"]["verification"] == "unchanged"
+    assert rows["parent"]["usage"] == {"prompt_tokens": 10, "completion_tokens": 4}
+    assert rows["auto"]["recovery"] == ["rewrite", "expand"]
+    assert rows["auto"]["trigger"] == "judge · retrieval_signal"
+    assert rows["auto"]["source"] == "policy"
+    assert rows["accepted"]["recovery"] == []
+    assert rows["accepted"]["recovery_required"] is False
+    assert rows["accepted"]["recovery_pending"] is None
+    assert rows["historical"]["recovery"] == ["rewrite"]
+    assert rows["historical"]["verification"] == "still_failing"
+    assert rows["degraded"]["verification"] == "degraded"
+    assert rows["pending"]["recovery_pending"] == "expand"
+    assert rows["pending"]["recovery"] == []
+    assert rows["pending"]["verification"] is None
+    assert rows["null_supported"]["initial_state"] == "evidence_sufficient"
+    assert rows["null_supported"]["recovery_required"] is False
+
+
 def test_overview_endpoint_follows_the_active_system(tmp_path: Path) -> None:
     _write(
         tmp_path / "dku",

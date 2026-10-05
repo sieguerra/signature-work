@@ -101,9 +101,16 @@ def logical_run_history(traces_dir: str | Path) -> dict[str, Any]:
     rows = []
     for run in runs:
         row = _activity_row(run)
+        trigger, source = _recovery_meta(run)
         row["trace_ids"] = [
             str(trace.get("run_id") or "") for trace in run.traces if trace.get("run_id")
         ]
+        row["diagnoses"] = _diagnosis_classes(run)
+        row["trigger"] = trigger
+        row["source"] = source
+        row["judged"] = _is_judged(run)
+        row["recovery_required"] = _recovery_required(run)
+        row["usage"] = _usage_totals(run)
         rows.append(row)
     return {"runs": rows}
 
@@ -458,6 +465,57 @@ def _activity_row(run: LogicalRun) -> dict[str, Any]:
         "verification": _final_outcome(run) if actions else None,
         "latency_ms": _latency(run),
     }
+
+
+def _recovery_meta(run: LogicalRun) -> tuple[str | None, str | None]:
+    """Trigger and source actually stored on the recovery, not inferred from flags."""
+    triggers: list[str] = []
+    source: str | None = None
+    for trace in run.traces:
+        attempts = [item for item in trace.get("recovery_attempts") or [] if isinstance(item, dict)]
+        recovery = _recovery(trace)
+        if attempts:
+            for item in attempts:
+                if _action_name(item.get("action")) in _ACCEPT:
+                    continue
+                trigger = str(item.get("trigger") or recovery.get("trigger") or "").strip()
+                if trigger and trigger not in triggers:
+                    triggers.append(trigger)
+                stored = str(item.get("source") or recovery.get("source") or "").strip()
+                if stored:
+                    source = stored
+            continue
+        if not _applied_actions_on_trace(trace) and trace.get("recovery_status") != "proposed":
+            continue
+        if _action_name(recovery.get("action")) in _ACCEPT:
+            continue
+        trigger = str(recovery.get("trigger") or "").strip()
+        if trigger and trigger not in triggers:
+            triggers.append(trigger)
+        stored = str(recovery.get("source") or "").strip()
+        if stored:
+            source = stored
+    return (" · ".join(triggers) or None, source)
+
+
+def _usage_totals(run: LogicalRun) -> dict[str, int] | None:
+    prompt = 0
+    completion = 0
+    found = False
+    for trace in run.traces:
+        usage = trace.get("usage")
+        if not isinstance(usage, dict):
+            continue
+        prompt_tokens = _number(usage.get("prompt_tokens"))
+        completion_tokens = _number(usage.get("completion_tokens"))
+        if prompt_tokens is None and completion_tokens is None:
+            continue
+        found = True
+        prompt += int(prompt_tokens or 0)
+        completion += int(completion_tokens or 0)
+    if not found:
+        return None
+    return {"prompt_tokens": prompt, "completion_tokens": completion}
 
 
 def _inspect_id(run: LogicalRun) -> str:
