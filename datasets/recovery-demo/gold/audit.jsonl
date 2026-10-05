@@ -1,0 +1,6 @@
+# Visual demo audit. Not a benchmark gold set.
+{"question_id": "rdemo-accept", "answerable": true, "span_found": "yes", "file": "hours", "notes": "substring check for the visual demo", "auditor": "substring-search"}
+{"question_id": "rdemo-rewrite", "answerable": true, "span_found": "yes", "file": "plate", "notes": "substring check for the visual demo", "auditor": "substring-search"}
+{"question_id": "rdemo-expand", "answerable": true, "span_found": "yes", "file": "hours-card", "notes": "substring check for the visual demo", "auditor": "substring-search"}
+{"question_id": "rdemo-regen", "answerable": true, "span_found": "yes", "file": "plate", "notes": "substring check for the visual demo", "auditor": "substring-search"}
+{"question_id": "rdemo-absent", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}

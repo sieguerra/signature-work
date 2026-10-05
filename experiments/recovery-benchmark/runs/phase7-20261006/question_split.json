@@ -1,0 +1,4850 @@
+{
+  "seed": 20261006,
+  "holdout_rule": "sha256('20261006:' + lead_logical_id) hex[:8] % 5 == 0",
+  "near_duplicate_jaccard": 0.9,
+  "n_records": 225,
+  "n_analysis": 186,
+  "n_future_holdout": 39,
+  "n_exact_duplicates_dropped": 0,
+  "duplicate_groups": [],
+  "questions": [
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-053",
+      "question": "What is the street address of the DKU Library?",
+      "answerable": true,
+      "answers": [
+        "No. 8 Duke Avenue",
+        "8 Duke Avenue"
+      ],
+      "supporting_doc_ids": [
+        "dku-library-hours"
+      ],
+      "source": "first-pass-fail.jsonl",
+      "gold_path": "datasets/dku/gold/first-pass-fail.jsonl",
+      "logical_id": "dku:first-pass-fail.jsonl:dku-053",
+      "normalized_question": "what is the street address of the dku library?",
+      "panel": "analysis",
+      "panel_reason": "phase6_observed",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-054",
+      "question": "What email is listed for the DKU Library?",
+      "answerable": true,
+      "answers": [
+        "dkulibrary@dukekunshan.edu.cn"
+      ],
+      "supporting_doc_ids": [
+        "dku-library-hours"
+      ],
+      "source": "first-pass-fail.jsonl",
+      "gold_path": "datasets/dku/gold/first-pass-fail.jsonl",
+      "logical_id": "dku:first-pass-fail.jsonl:dku-054",
+      "normalized_question": "what email is listed for the dku library?",
+      "panel": "analysis",
+      "panel_reason": "phase6_observed",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-055",
+      "question": "How large is the DKU campus in acres?",
+      "answerable": true,
+      "answers": [
+        "200 acres",
+        "200"
+      ],
+      "supporting_doc_ids": [
+        "dku-about"
+      ],
+      "source": "first-pass-fail.jsonl",
+      "gold_path": "datasets/dku/gold/first-pass-fail.jsonl",
+      "logical_id": "dku:first-pass-fail.jsonl:dku-055",
+      "normalized_question": "how large is the dku campus in acres?",
+      "panel": "analysis",
+      "panel_reason": "phase6_observed",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-056",
+      "question": "What phone number is listed for CSCC?",
+      "answerable": true,
+      "answers": [
+        "+86 512 36657053",
+        "512 36657053"
+      ],
+      "supporting_doc_ids": [
+        "cscc"
+      ],
+      "source": "first-pass-fail.jsonl",
+      "gold_path": "datasets/dku/gold/first-pass-fail.jsonl",
+      "logical_id": "dku:first-pass-fail.jsonl:dku-056",
+      "normalized_question": "what phone number is listed for cscc?",
+      "panel": "analysis",
+      "panel_reason": "phase6_observed",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-057",
+      "question": "How much is a Conference Center guest room?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "first-pass-fail.jsonl",
+      "gold_path": "datasets/dku/gold/first-pass-fail.jsonl",
+      "logical_id": "dku:first-pass-fail.jsonl:dku-057",
+      "normalized_question": "how much is a conference center guest room?",
+      "panel": "analysis",
+      "panel_reason": "phase6_observed",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-001",
+      "question": "In which month and year was Duke Kunshan University established as a partnership between Duke University and Wuhan University?",
+      "answerable": true,
+      "answers": [
+        "September 2013"
+      ],
+      "supporting_doc_ids": [
+        "dku-about"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-001",
+      "normalized_question": "in which month and year was duke kunshan university established as a partnership between duke university and wuhan university?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-002",
+      "question": "What is Duke Kunshan University's street address?",
+      "answerable": true,
+      "answers": [
+        "No. 8 Duke Avenue",
+        "8 Duke Avenue"
+      ],
+      "supporting_doc_ids": [
+        "dku-about",
+        "dku-library-hours",
+        "cscc"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-002",
+      "normalized_question": "what is duke kunshan university's street address?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-003",
+      "question": "When did Duke Kunshan University welcome its first students?",
+      "answerable": true,
+      "answers": [
+        "August 2014"
+      ],
+      "supporting_doc_ids": [
+        "dku-about"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-003",
+      "normalized_question": "when did duke kunshan university welcome its first students?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-004",
+      "question": "When did Duke Kunshan University's four-year undergraduate bachelor's program begin?",
+      "answerable": true,
+      "answers": [
+        "August 2018"
+      ],
+      "supporting_doc_ids": [
+        "dku-about"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-004",
+      "normalized_question": "when did duke kunshan university's four-year undergraduate bachelor's program begin?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-005",
+      "question": "How many acres is the Duke Kunshan University campus?",
+      "answerable": true,
+      "answers": [
+        "200 acres",
+        "200"
+      ],
+      "supporting_doc_ids": [
+        "dku-about"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-005",
+      "normalized_question": "how many acres is the duke kunshan university campus?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-006",
+      "question": "What are the DKU Library building hours Monday through Sunday, according to the current Locations and Hours page?",
+      "answerable": true,
+      "answers": [
+        "08:00-23:00",
+        "8:00-23:00",
+        "8:00 – 23:00"
+      ],
+      "supporting_doc_ids": [
+        "dku-library-hours"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-006",
+      "normalized_question": "what are the dku library building hours monday through sunday, according to the current locations and hours page?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-007",
+      "question": "According to the current DKU Library Locations and Hours page, what are the 1st floor information desk hours on Saturday?",
+      "answerable": true,
+      "answers": [
+        "14:00-21:00",
+        "14:00 – 21:00"
+      ],
+      "supporting_doc_ids": [
+        "dku-library-hours"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-007",
+      "normalized_question": "according to the current dku library locations and hours page, what are the 1st floor information desk hours on saturday?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-008",
+      "question": "According to the January 2025 DKU Library Guide, what are the 1st floor information desk hours on Saturday?",
+      "answerable": true,
+      "answers": [
+        "14:00-18:00",
+        "14:00 – 18:00"
+      ],
+      "supporting_doc_ids": [
+        "dku-library-guide-202501"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-008",
+      "normalized_question": "according to the january 2025 dku library guide, what are the 1st floor information desk hours on saturday?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-009",
+      "question": "How many seats does the January 2025 DKU Library Guide list?",
+      "answerable": true,
+      "answers": [
+        "560"
+      ],
+      "supporting_doc_ids": [
+        "dku-library-guide-202501"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-009",
+      "normalized_question": "how many seats does the january 2025 dku library guide list?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-010",
+      "question": "According to the January 2025 DKU Library Guide, which floor is the Tea House on?",
+      "answerable": true,
+      "answers": [
+        "3rd floor",
+        "3rd",
+        "Level 3",
+        "3"
+      ],
+      "supporting_doc_ids": [
+        "dku-library-guide-202501"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-010",
+      "normalized_question": "according to the january 2025 dku library guide, which floor is the tea house on?",
+      "panel": "future_holdout",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-011",
+      "question": "What are DVD and equipment loan hours at the DKU Library according to the current Locations and Hours page?",
+      "answerable": true,
+      "answers": [
+        "09:00-17:30",
+        "9:00-17:30"
+      ],
+      "supporting_doc_ids": [
+        "dku-library-hours"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-011",
+      "normalized_question": "what are dvd and equipment loan hours at the dku library according to the current locations and hours page?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-012",
+      "question": "What email does the current DKU Library Locations and Hours page list?",
+      "answerable": true,
+      "answers": [
+        "dkulibrary@dukekunshan.edu.cn"
+      ],
+      "supporting_doc_ids": [
+        "dku-library-hours",
+        "dku-library-handbook-2021"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-012",
+      "normalized_question": "what email does the current dku library locations and hours page list?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-013",
+      "question": "According to the August 2021 DKU student handbook, what phone number is listed for the DKU Library?",
+      "answerable": true,
+      "answers": [
+        "(0512) 3665-7027",
+        "0512-3665-7027",
+        "3665-7027"
+      ],
+      "supporting_doc_ids": [
+        "dku-library-handbook-2021"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-013",
+      "normalized_question": "according to the august 2021 dku student handbook, what phone number is listed for the dku library?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-014",
+      "question": "According to the August 2021 DKU student handbook, where is the DKU Library located?",
+      "answerable": true,
+      "answers": [
+        "Academic Building",
+        "two rooms in the Academic Building"
+      ],
+      "supporting_doc_ids": [
+        "dku-library-handbook-2021"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-014",
+      "normalized_question": "according to the august 2021 dku student handbook, where is the dku library located?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-015",
+      "question": "What are breakfast hours at University Dining in the Academic Building?",
+      "answerable": true,
+      "answers": [
+        "07:00-09:30",
+        "7:00-9:30"
+      ],
+      "supporting_doc_ids": [
+        "academic-building-dining"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-015",
+      "normalized_question": "what are breakfast hours at university dining in the academic building?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-016",
+      "question": "What are lunch hours at Executive Dining in the Academic Building?",
+      "answerable": true,
+      "answers": [
+        "11:00-13:30"
+      ],
+      "supporting_doc_ids": [
+        "academic-building-dining"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-016",
+      "normalized_question": "what are lunch hours at executive dining in the academic building?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-017",
+      "question": "What are dinner hours at Halal Dining at the Conference Center?",
+      "answerable": true,
+      "answers": [
+        "17:00-19:30"
+      ],
+      "supporting_doc_ids": [
+        "conference-center-dining"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-017",
+      "normalized_question": "what are dinner hours at halal dining at the conference center?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-018",
+      "question": "On what date do undergraduate and graduate classes begin in Fall 2026 at Duke Kunshan University?",
+      "answerable": true,
+      "answers": [
+        "24 August 2026",
+        "August 24, 2026",
+        "August 24 2026"
+      ],
+      "supporting_doc_ids": [
+        "registrar-fall-2026"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-018",
+      "normalized_question": "on what date do undergraduate and graduate classes begin in fall 2026 at duke kunshan university?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-019",
+      "question": "On what date do DKU residence halls close for Winter Break in Fall 2026?",
+      "answerable": true,
+      "answers": [
+        "18 December 2026",
+        "December 18, 2026",
+        "December 18 2026"
+      ],
+      "supporting_doc_ids": [
+        "registrar-fall-2026"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-019",
+      "normalized_question": "on what date do dku residence halls close for winter break in fall 2026?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-020",
+      "question": "On what date is graduate and undergraduate commencement at Duke Kunshan University in Spring 2027?",
+      "answerable": true,
+      "answers": [
+        "21 May 2027",
+        "May 21, 2027",
+        "May 21 2027"
+      ],
+      "supporting_doc_ids": [
+        "registrar-spring-2027"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-020",
+      "normalized_question": "on what date is graduate and undergraduate commencement at duke kunshan university in spring 2027?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-021",
+      "question": "How far is Kunshan South Railway Station from Duke Kunshan University according to the commencement visitor guide?",
+      "answerable": true,
+      "answers": [
+        "12 kilometers",
+        "12 km",
+        "12 kilometres"
+      ],
+      "supporting_doc_ids": [
+        "getting-to-dku"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-021",
+      "normalized_question": "how far is kunshan south railway station from duke kunshan university according to the commencement visitor guide?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-022",
+      "question": "How far is Shanghai Pudong International Airport from Kunshan according to the commencement visitor guide?",
+      "answerable": true,
+      "answers": [
+        "92 kilometers",
+        "92 km",
+        "92 kilometres"
+      ],
+      "supporting_doc_ids": [
+        "getting-to-dku"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-022",
+      "normalized_question": "how far is shanghai pudong international airport from kunshan according to the commencement visitor guide?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-023",
+      "question": "About how much does a taxi from Kunshan South Station to the DKU campus cost according to the International Students Zone note?",
+      "answerable": true,
+      "answers": [
+        "30 RMB",
+        "around 30 RMB",
+        "30 yuan"
+      ],
+      "supporting_doc_ids": [
+        "getting-to-dku"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-023",
+      "normalized_question": "about how much does a taxi from kunshan south station to the dku campus cost according to the international students zone note?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-024",
+      "question": "How far is Dayu Bay from the DKU campus according to the commencement visitor guide?",
+      "answerable": true,
+      "answers": [
+        "500 meters",
+        "500 metres",
+        "500 m"
+      ],
+      "supporting_doc_ids": [
+        "dayu-bay"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-024",
+      "normalized_question": "how far is dayu bay from the dku campus according to the commencement visitor guide?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-025",
+      "question": "In what year was the Ziqiang Institute, later connected with Wuhan University, founded?",
+      "answerable": true,
+      "answers": [
+        "1893"
+      ],
+      "supporting_doc_ids": [
+        "wuhan-university"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-025",
+      "normalized_question": "in what year was the ziqiang institute, later connected with wuhan university, founded?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-026",
+      "question": "In what year did the institution officially become Duke University?",
+      "answerable": true,
+      "answers": [
+        "1924"
+      ],
+      "supporting_doc_ids": [
+        "duke-university-durham"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-026",
+      "normalized_question": "in what year did the institution officially become duke university?",
+      "panel": "future_holdout",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-027",
+      "question": "Up to how many guests does the DKU Conference Center auditorium hold?",
+      "answerable": true,
+      "answers": [
+        "300"
+      ],
+      "supporting_doc_ids": [
+        "conference-center"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-027",
+      "normalized_question": "up to how many guests does the dku conference center auditorium hold?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-028",
+      "question": "How many guest rooms does the DKU Conference Center have?",
+      "answerable": true,
+      "answers": [
+        "over 200",
+        "200",
+        "more than 200"
+      ],
+      "supporting_doc_ids": [
+        "conference-center"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-028",
+      "normalized_question": "how many guest rooms does the dku conference center have?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-029",
+      "question": "What is the email address for the Center for the Study of Contemporary China at Duke Kunshan University?",
+      "answerable": true,
+      "answers": [
+        "dku-cscc@dukekunshan.edu.cn"
+      ],
+      "supporting_doc_ids": [
+        "cscc"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-029",
+      "normalized_question": "what is the email address for the center for the study of contemporary china at duke kunshan university?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-030",
+      "question": "What phone number is listed for the Center for the Study of Contemporary China?",
+      "answerable": true,
+      "answers": [
+        "+86 512 36657053",
+        "0512 36657053",
+        "36657053"
+      ],
+      "supporting_doc_ids": [
+        "cscc"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-030",
+      "normalized_question": "what phone number is listed for the center for the study of contemporary china?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-031",
+      "question": "What time does breakfast end at Halal Dining at the Conference Center?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-031",
+      "normalized_question": "what time does breakfast end at halal dining at the conference center?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-032",
+      "question": "What time does breakfast end at Executive Dining in the Academic Building?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-032",
+      "normalized_question": "what time does breakfast end at executive dining in the academic building?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-033",
+      "question": "What are Perkins Library Saturday hours at Duke University in Durham?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-033",
+      "normalized_question": "what are perkins library saturday hours at duke university in durham?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-034",
+      "question": "Which restaurant in Dayu Bay is closest to the DKU campus?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-034",
+      "normalized_question": "which restaurant in dayu bay is closest to the dku campus?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-035",
+      "question": "What is the current weekday shuttle timetable from Kunshan South Station to the DKU campus?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-035",
+      "normalized_question": "what is the current weekday shuttle timetable from kunshan south station to the dku campus?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-036",
+      "question": "What is DKU undergraduate tuition for 2026-2027?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-036",
+      "normalized_question": "what is dku undergraduate tuition for 2026-2027?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-037",
+      "question": "Who is the current chancellor of Duke Kunshan University?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-037",
+      "normalized_question": "who is the current chancellor of duke kunshan university?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-038",
+      "question": "How many undergraduates did Duke Kunshan University enroll in Fall 2023?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-038",
+      "normalized_question": "how many undergraduates did duke kunshan university enroll in fall 2023?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-039",
+      "question": "What are the DKU Library building hours during Chinese New Year 2027?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-039",
+      "normalized_question": "what are the dku library building hours during chinese new year 2027?",
+      "panel": "future_holdout",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-040",
+      "question": "How much does a standard meal cost at University Dining in the Academic Building?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/dku/gold/questions.jsonl",
+      "logical_id": "dku:questions.jsonl:dku-040",
+      "normalized_question": "how much does a standard meal cost at university dining in the academic building?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-041",
+      "question": "How many seats does the DKU Library list?",
+      "answerable": true,
+      "answers": [
+        "560"
+      ],
+      "supporting_doc_ids": [
+        "dku-library-guide-202501"
+      ],
+      "source": "recovery.jsonl",
+      "gold_path": "datasets/dku/gold/recovery.jsonl",
+      "logical_id": "dku:recovery.jsonl:dku-041",
+      "normalized_question": "how many seats does the dku library list?",
+      "panel": "analysis",
+      "panel_reason": "phase6_observed",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-042",
+      "question": "Which floor is the Tea House on?",
+      "answerable": true,
+      "answers": [
+        "3rd floor",
+        "3rd",
+        "Level 3"
+      ],
+      "supporting_doc_ids": [
+        "dku-library-guide-202501"
+      ],
+      "source": "recovery.jsonl",
+      "gold_path": "datasets/dku/gold/recovery.jsonl",
+      "logical_id": "dku:recovery.jsonl:dku-042",
+      "normalized_question": "which floor is the tea house on?",
+      "panel": "analysis",
+      "panel_reason": "phase6_observed",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-043",
+      "question": "What are Saturday information desk hours at the DKU Library?",
+      "answerable": true,
+      "answers": [
+        "14:00-21:00",
+        "14:00 – 21:00"
+      ],
+      "supporting_doc_ids": [
+        "dku-library-hours"
+      ],
+      "source": "recovery.jsonl",
+      "gold_path": "datasets/dku/gold/recovery.jsonl",
+      "logical_id": "dku:recovery.jsonl:dku-043",
+      "normalized_question": "what are saturday information desk hours at the dku library?",
+      "panel": "analysis",
+      "panel_reason": "phase6_observed",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-044",
+      "question": "What are Friday information desk hours at the DKU Library?",
+      "answerable": true,
+      "answers": [
+        "09:00-21:00",
+        "9:00-21:00"
+      ],
+      "supporting_doc_ids": [
+        "dku-library-hours"
+      ],
+      "source": "recovery.jsonl",
+      "gold_path": "datasets/dku/gold/recovery.jsonl",
+      "logical_id": "dku:recovery.jsonl:dku-044",
+      "normalized_question": "what are friday information desk hours at the dku library?",
+      "panel": "analysis",
+      "panel_reason": "phase6_observed",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-045",
+      "question": "What phone number is listed for the DKU Library?",
+      "answerable": true,
+      "answers": [
+        "0512-36658756",
+        "(+86) 0512-36658756",
+        "36658756"
+      ],
+      "supporting_doc_ids": [
+        "dku-library-hours"
+      ],
+      "source": "recovery.jsonl",
+      "gold_path": "datasets/dku/gold/recovery.jsonl",
+      "logical_id": "dku:recovery.jsonl:dku-045",
+      "normalized_question": "what phone number is listed for the dku library?",
+      "panel": "analysis",
+      "panel_reason": "phase6_observed",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-046",
+      "question": "What are DVD and equipment loan hours at the DKU Library?",
+      "answerable": true,
+      "answers": [
+        "09:00-17:30",
+        "9:00-17:30"
+      ],
+      "supporting_doc_ids": [
+        "dku-library-hours"
+      ],
+      "source": "recovery.jsonl",
+      "gold_path": "datasets/dku/gold/recovery.jsonl",
+      "logical_id": "dku:recovery.jsonl:dku-046",
+      "normalized_question": "what are dvd and equipment loan hours at the dku library?",
+      "panel": "analysis",
+      "panel_reason": "phase6_observed",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-047",
+      "question": "How many self and group study rooms does the DKU Library list?",
+      "answerable": true,
+      "answers": [
+        "23"
+      ],
+      "supporting_doc_ids": [
+        "dku-library-guide-202501"
+      ],
+      "source": "recovery.jsonl",
+      "gold_path": "datasets/dku/gold/recovery.jsonl",
+      "logical_id": "dku:recovery.jsonl:dku-047",
+      "normalized_question": "how many self and group study rooms does the dku library list?",
+      "panel": "analysis",
+      "panel_reason": "phase6_observed",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-048",
+      "question": "Which floor is the Meditation Room on?",
+      "answerable": true,
+      "answers": [
+        "4th floor",
+        "4th",
+        "LIB4-16"
+      ],
+      "supporting_doc_ids": [
+        "dku-library-guide-202501"
+      ],
+      "source": "recovery.jsonl",
+      "gold_path": "datasets/dku/gold/recovery.jsonl",
+      "logical_id": "dku:recovery.jsonl:dku-048",
+      "normalized_question": "which floor is the meditation room on?",
+      "panel": "analysis",
+      "panel_reason": "phase6_observed",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-049",
+      "question": "What are breakfast hours at University Dining?",
+      "answerable": true,
+      "answers": [
+        "07:00-09:30",
+        "7:00-9:30"
+      ],
+      "supporting_doc_ids": [
+        "academic-building-dining"
+      ],
+      "source": "recovery.jsonl",
+      "gold_path": "datasets/dku/gold/recovery.jsonl",
+      "logical_id": "dku:recovery.jsonl:dku-049",
+      "normalized_question": "what are breakfast hours at university dining?",
+      "panel": "analysis",
+      "panel_reason": "phase6_observed",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-050",
+      "question": "What time does breakfast end at Halal Dining?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "recovery.jsonl",
+      "gold_path": "datasets/dku/gold/recovery.jsonl",
+      "logical_id": "dku:recovery.jsonl:dku-050",
+      "normalized_question": "what time does breakfast end at halal dining?",
+      "panel": "analysis",
+      "panel_reason": "phase6_observed",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-051",
+      "question": "How much is the DKU Library late-return fine?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "recovery.jsonl",
+      "gold_path": "datasets/dku/gold/recovery.jsonl",
+      "logical_id": "dku:recovery.jsonl:dku-051",
+      "normalized_question": "how much is the dku library late-return fine?",
+      "panel": "analysis",
+      "panel_reason": "phase6_observed",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "dku",
+      "domain": "University campus (public facts)",
+      "group": "Campus",
+      "question_id": "dku-052",
+      "question": "Who is the director of the DKU Library?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "recovery.jsonl",
+      "gold_path": "datasets/dku/gold/recovery.jsonl",
+      "logical_id": "dku:recovery.jsonl:dku-052",
+      "normalized_question": "who is the director of the dku library?",
+      "panel": "analysis",
+      "panel_reason": "phase6_observed",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "harbor",
+      "domain": "Fictional research campus",
+      "group": "Campus",
+      "question_id": "gold-013",
+      "question": "What is the South Jetty Teaching Lab's lab code?",
+      "answerable": true,
+      "answers": [
+        "SJ-07"
+      ],
+      "supporting_doc_ids": [
+        "south-jetty-lab"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/gold/questions.jsonl",
+      "logical_id": "harbor:questions.jsonl:gold-013",
+      "normalized_question": "what is the south jetty teaching lab's lab code?",
+      "panel": "future_holdout",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "harbor",
+      "domain": "Fictional research campus",
+      "group": "Campus",
+      "question_id": "gold-014",
+      "question": "At the South Jetty Teaching Lab, how long is a booking held before it is cancelled if nobody taps in?",
+      "answerable": true,
+      "answers": [
+        "10 minutes",
+        "10"
+      ],
+      "supporting_doc_ids": [
+        "south-jetty-lab"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/gold/questions.jsonl",
+      "logical_id": "harbor:questions.jsonl:gold-014",
+      "normalized_question": "at the south jetty teaching lab, how long is a booking held before it is cancelled if nobody taps in?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "harbor",
+      "domain": "Fictional research campus",
+      "group": "Campus",
+      "question_id": "gold-015",
+      "question": "Who is the lab manager of the South Jetty Teaching Lab?",
+      "answerable": true,
+      "answers": [
+        "Dev Okonkwo"
+      ],
+      "supporting_doc_ids": [
+        "south-jetty-lab"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/gold/questions.jsonl",
+      "logical_id": "harbor:questions.jsonl:gold-015",
+      "normalized_question": "who is the lab manager of the south jetty teaching lab?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "harbor",
+      "domain": "Fictional research campus",
+      "group": "Campus",
+      "question_id": "gold-016",
+      "question": "How many harbor credits does a standard meal cost at the East Canteen?",
+      "answerable": true,
+      "answers": [
+        "3",
+        "3 harbor credits",
+        "3 credits"
+      ],
+      "supporting_doc_ids": [
+        "east-canteen"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/gold/questions.jsonl",
+      "logical_id": "harbor:questions.jsonl:gold-016",
+      "normalized_question": "how many harbor credits does a standard meal cost at the east canteen?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "harbor",
+      "domain": "Fictional research campus",
+      "group": "Campus",
+      "question_id": "gold-017",
+      "question": "What time does the East Canteen kitchen close on Fridays?",
+      "answerable": true,
+      "answers": [
+        "20:00",
+        "8pm",
+        "8:00 pm"
+      ],
+      "supporting_doc_ids": [
+        "east-canteen"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/gold/questions.jsonl",
+      "logical_id": "harbor:questions.jsonl:gold-017",
+      "normalized_question": "what time does the east canteen kitchen close on fridays?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "harbor",
+      "domain": "Fictional research campus",
+      "group": "Campus",
+      "question_id": "gold-018",
+      "question": "How many digitized station reports does the Storm Ledger Unit hold?",
+      "answerable": true,
+      "answers": [
+        "214"
+      ],
+      "supporting_doc_ids": [
+        "storm-ledger-unit"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/gold/questions.jsonl",
+      "logical_id": "harbor:questions.jsonl:gold-018",
+      "normalized_question": "how many digitized station reports does the storm ledger unit hold?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "harbor",
+      "domain": "Fictional research campus",
+      "group": "Campus",
+      "question_id": "gold-019",
+      "question": "How many hours did the 1948 Black Mast Gale last in Harbor Town?",
+      "answerable": true,
+      "answers": [
+        "19 hours",
+        "19"
+      ],
+      "supporting_doc_ids": [
+        "storm-ledger-unit"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/gold/questions.jsonl",
+      "logical_id": "harbor:questions.jsonl:gold-019",
+      "normalized_question": "how many hours did the 1948 black mast gale last in harbor town?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "harbor",
+      "domain": "Fictional research campus",
+      "group": "Campus",
+      "question_id": "gold-020",
+      "question": "How many minutes are there between Tideline runs during winter recess?",
+      "answerable": true,
+      "answers": [
+        "30 minutes",
+        "30"
+      ],
+      "supporting_doc_ids": [
+        "tideline-winter-recess"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/gold/questions.jsonl",
+      "logical_id": "harbor:questions.jsonl:gold-020",
+      "normalized_question": "how many minutes are there between tideline runs during winter recess?",
+      "panel": "future_holdout",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "harbor",
+      "domain": "Fictional research campus",
+      "group": "Campus",
+      "question_id": "gold-021",
+      "question": "What is the Harbor Institute Library's late-return fine per day?",
+      "answerable": true,
+      "answers": [
+        "2 harbor credits",
+        "2 credits",
+        "2"
+      ],
+      "supporting_doc_ids": [
+        "harbor-library"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/gold/questions.jsonl",
+      "logical_id": "harbor:questions.jsonl:gold-021",
+      "normalized_question": "what is the harbor institute library's late-return fine per day?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "harbor",
+      "domain": "Fictional research campus",
+      "group": "Campus",
+      "question_id": "gold-022",
+      "question": "What is the Saltmarsh Annex Library's late-return fine per day?",
+      "answerable": true,
+      "answers": [
+        "1 harbor credit",
+        "1 credit",
+        "1"
+      ],
+      "supporting_doc_ids": [
+        "saltmarsh-annex-library"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/gold/questions.jsonl",
+      "logical_id": "harbor:questions.jsonl:gold-022",
+      "normalized_question": "what is the saltmarsh annex library's late-return fine per day?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "harbor",
+      "domain": "Fictional research campus",
+      "group": "Campus",
+      "question_id": "gold-023",
+      "question": "Which floor of the Saltmarsh Annex Library is the quiet study floor?",
+      "answerable": true,
+      "answers": [
+        "Level 2",
+        "2"
+      ],
+      "supporting_doc_ids": [
+        "saltmarsh-annex-library"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/gold/questions.jsonl",
+      "logical_id": "harbor:questions.jsonl:gold-023",
+      "normalized_question": "which floor of the saltmarsh annex library is the quiet study floor?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "harbor",
+      "domain": "Fictional research campus",
+      "group": "Campus",
+      "question_id": "gold-024",
+      "question": "Who is the lab manager of the North Jetty Teaching Lab?",
+      "answerable": true,
+      "answers": [
+        "Priya Chen"
+      ],
+      "supporting_doc_ids": [
+        "north-jetty-lab"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/gold/questions.jsonl",
+      "logical_id": "harbor:questions.jsonl:gold-024",
+      "normalized_question": "who is the lab manager of the north jetty teaching lab?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "harbor",
+      "domain": "Fictional research campus",
+      "group": "Campus",
+      "question_id": "gold-025",
+      "question": "What were the Harbor Institute Library's Saturday hours during the 2019 East Wing renovation?",
+      "answerable": true,
+      "answers": [
+        "12:00-15:00",
+        "12:00–15:00"
+      ],
+      "supporting_doc_ids": [
+        "harbor-library-2019-notice"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/gold/questions.jsonl",
+      "logical_id": "harbor:questions.jsonl:gold-025",
+      "normalized_question": "what were the harbor institute library's saturday hours during the 2019 east wing renovation?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "harbor",
+      "domain": "Fictional research campus",
+      "group": "Campus",
+      "question_id": "gold-026",
+      "question": "How many hours did the 1921 Green Lamp Flood last according to the Storm Ledger Unit?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/gold/questions.jsonl",
+      "logical_id": "harbor:questions.jsonl:gold-026",
+      "normalized_question": "how many hours did the 1921 green lamp flood last according to the storm ledger unit?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "harbor",
+      "domain": "Fictional research campus",
+      "group": "Campus",
+      "question_id": "gold-027",
+      "question": "On which dates does Tideline winter recess run this year?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/gold/questions.jsonl",
+      "logical_id": "harbor:questions.jsonl:gold-027",
+      "normalized_question": "on which dates does tideline winter recess run this year?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "harbor",
+      "domain": "Fictional research campus",
+      "group": "Campus",
+      "question_id": "gold-028",
+      "question": "At the North Jetty Teaching Lab, are safety glasses required at all times inside the wet bench area?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/gold/questions.jsonl",
+      "logical_id": "harbor:questions.jsonl:gold-028",
+      "normalized_question": "at the north jetty teaching lab, are safety glasses required at all times inside the wet bench area?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "harbor",
+      "domain": "Fictional research campus",
+      "group": "Campus",
+      "question_id": "gold-029",
+      "question": "How many hours did the 1948 Black Mast Gale last according to the Coastal Memory Group?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/gold/questions.jsonl",
+      "logical_id": "harbor:questions.jsonl:gold-029",
+      "normalized_question": "how many hours did the 1948 black mast gale last according to the coastal memory group?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "harbor",
+      "domain": "Fictional research campus",
+      "group": "Campus",
+      "question_id": "gold-030",
+      "question": "How many hours ahead must a group room at the Saltmarsh Annex Library be booked?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/gold/questions.jsonl",
+      "logical_id": "harbor:questions.jsonl:gold-030",
+      "normalized_question": "how many hours ahead must a group room at the saltmarsh annex library be booked?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "harbor",
+      "domain": "Fictional research campus",
+      "group": "Campus",
+      "question_id": "gold-031",
+      "question": "What time does breakfast end at the East Canteen?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/gold/questions.jsonl",
+      "logical_id": "harbor:questions.jsonl:gold-031",
+      "normalized_question": "what time does breakfast end at the east canteen?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "harbor",
+      "domain": "Fictional research campus",
+      "group": "Campus",
+      "question_id": "gold-032",
+      "question": "What room is the Coastal Memory Group office in?",
+      "answerable": true,
+      "answers": [
+        "Room 214",
+        "214"
+      ],
+      "supporting_doc_ids": [
+        "coastal-memory-group"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/gold/questions.jsonl",
+      "logical_id": "harbor:questions.jsonl:gold-032",
+      "normalized_question": "what room is the coastal memory group office in?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "harbor",
+      "domain": "Fictional research campus",
+      "group": "Campus",
+      "question_id": "seed-001",
+      "question": "What is the North Jetty Teaching Lab's lab code?",
+      "answerable": true,
+      "answers": [
+        "NJ-12"
+      ],
+      "supporting_doc_ids": [
+        "north-jetty-lab"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/gold/questions.jsonl",
+      "logical_id": "harbor:questions.jsonl:seed-001",
+      "normalized_question": "what is the north jetty teaching lab's lab code?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "harbor",
+      "domain": "Fictional research campus",
+      "group": "Campus",
+      "question_id": "seed-002",
+      "question": "Which floor of the Harbor Institute Library is the quiet study floor?",
+      "answerable": true,
+      "answers": [
+        "Level 3",
+        "3"
+      ],
+      "supporting_doc_ids": [
+        "harbor-library"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/gold/questions.jsonl",
+      "logical_id": "harbor:questions.jsonl:seed-002",
+      "normalized_question": "which floor of the harbor institute library is the quiet study floor?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "harbor",
+      "domain": "Fictional research campus",
+      "group": "Campus",
+      "question_id": "seed-003",
+      "question": "What is the campus shuttle called?",
+      "answerable": true,
+      "answers": [
+        "Tideline",
+        "the Tideline"
+      ],
+      "supporting_doc_ids": [
+        "tideline-shuttle"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/gold/questions.jsonl",
+      "logical_id": "harbor:questions.jsonl:seed-003",
+      "normalized_question": "what is the campus shuttle called?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "harbor",
+      "domain": "Fictional research campus",
+      "group": "Campus",
+      "question_id": "seed-004",
+      "question": "At the North Jetty Teaching Lab, how long is a booking held before it is cancelled if nobody taps in?",
+      "answerable": true,
+      "answers": [
+        "15 minutes",
+        "15"
+      ],
+      "supporting_doc_ids": [
+        "north-jetty-lab"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/gold/questions.jsonl",
+      "logical_id": "harbor:questions.jsonl:seed-004",
+      "normalized_question": "at the north jetty teaching lab, how long is a booking held before it is cancelled if nobody taps in?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "harbor",
+      "domain": "Fictional research campus",
+      "group": "Campus",
+      "question_id": "seed-005",
+      "question": "How many hours did the 1921 Green Lamp Flood last in Harbor Town?",
+      "answerable": true,
+      "answers": [
+        "31 hours",
+        "31"
+      ],
+      "supporting_doc_ids": [
+        "coastal-memory-group"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/gold/questions.jsonl",
+      "logical_id": "harbor:questions.jsonl:seed-005",
+      "normalized_question": "how many hours did the 1921 green lamp flood last in harbor town?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "harbor",
+      "domain": "Fictional research campus",
+      "group": "Campus",
+      "question_id": "seed-006",
+      "question": "What time does the Tide Canteen kitchen close on Fridays?",
+      "answerable": true,
+      "answers": [
+        "19:00",
+        "7pm",
+        "7:00 pm"
+      ],
+      "supporting_doc_ids": [
+        "tide-canteen"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/gold/questions.jsonl",
+      "logical_id": "harbor:questions.jsonl:seed-006",
+      "normalized_question": "what time does the tide canteen kitchen close on fridays?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "harbor",
+      "domain": "Fictional research campus",
+      "group": "Campus",
+      "question_id": "seed-007",
+      "question": "Which shuttle stop is closest to the boat museum?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/gold/questions.jsonl",
+      "logical_id": "harbor:questions.jsonl:seed-007",
+      "normalized_question": "which shuttle stop is closest to the boat museum?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "harbor",
+      "domain": "Fictional research campus",
+      "group": "Campus",
+      "question_id": "seed-008",
+      "question": "What storm records does the Coastal Memory Group hold from 1955?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/gold/questions.jsonl",
+      "logical_id": "harbor:questions.jsonl:seed-008",
+      "normalized_question": "what storm records does the coastal memory group hold from 1955?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "harbor",
+      "domain": "Fictional research campus",
+      "group": "Campus",
+      "question_id": "seed-009",
+      "question": "How much does a Tide Canteen meal cost in harbor credits?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/gold/questions.jsonl",
+      "logical_id": "harbor:questions.jsonl:seed-009",
+      "normalized_question": "how much does a tide canteen meal cost in harbor credits?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "harbor",
+      "domain": "Fictional research campus",
+      "group": "Campus",
+      "question_id": "seed-010",
+      "question": "Who is the lab manager of the East Archive wing?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/gold/questions.jsonl",
+      "logical_id": "harbor:questions.jsonl:seed-010",
+      "normalized_question": "who is the lab manager of the east archive wing?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "harbor",
+      "domain": "Fictional research campus",
+      "group": "Campus",
+      "question_id": "seed-011",
+      "question": "What are the Saltmarsh Annex Library's Sunday hours?",
+      "answerable": true,
+      "answers": [
+        "12:00-18:00",
+        "12:00–18:00"
+      ],
+      "supporting_doc_ids": [
+        "saltmarsh-annex-library"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/gold/questions.jsonl",
+      "logical_id": "harbor:questions.jsonl:seed-011",
+      "normalized_question": "what are the saltmarsh annex library's sunday hours?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "harbor",
+      "domain": "Fictional research campus",
+      "group": "Campus",
+      "question_id": "seed-012",
+      "question": "What are the Harbor Institute Library's current Saturday hours?",
+      "answerable": true,
+      "answers": [
+        "10:00-16:00",
+        "10:00–16:00"
+      ],
+      "supporting_doc_ids": [
+        "harbor-library"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/gold/questions.jsonl",
+      "logical_id": "harbor:questions.jsonl:seed-012",
+      "normalized_question": "what are the harbor institute library's current saturday hours?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "kestrel-aero",
+      "domain": "Aerospace machining",
+      "group": "Manufacturing",
+      "question_id": "ka-020",
+      "question": "What hours is the tool crib open?",
+      "answerable": true,
+      "answers": [
+        "06:00-14:30"
+      ],
+      "supporting_doc_ids": [
+        "shifts"
+      ],
+      "source": "first-pass-fail.jsonl",
+      "gold_path": "datasets/kestrel-aero/gold/first-pass-fail.jsonl",
+      "logical_id": "kestrel-aero:first-pass-fail.jsonl:ka-020",
+      "normalized_question": "what hours is the tool crib open?",
+      "panel": "analysis",
+      "panel_reason": "phase6_observed",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "kestrel-aero",
+      "domain": "Aerospace machining",
+      "group": "Manufacturing",
+      "question_id": "ka-021",
+      "question": "Which bay houses the traveler office?",
+      "answerable": true,
+      "answers": [
+        "Hangar 2, bay C",
+        "bay C"
+      ],
+      "supporting_doc_ids": [
+        "about"
+      ],
+      "source": "first-pass-fail.jsonl",
+      "gold_path": "datasets/kestrel-aero/gold/first-pass-fail.jsonl",
+      "logical_id": "kestrel-aero:first-pass-fail.jsonl:ka-021",
+      "normalized_question": "which bay houses the traveler office?",
+      "panel": "analysis",
+      "panel_reason": "phase6_observed",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "kestrel-aero",
+      "domain": "Aerospace machining",
+      "group": "Manufacturing",
+      "question_id": "ka-022",
+      "question": "What must Hangar 2 wear at the pickle tank?",
+      "answerable": true,
+      "answers": [
+        "face shield"
+      ],
+      "supporting_doc_ids": [
+        "ppe"
+      ],
+      "source": "first-pass-fail.jsonl",
+      "gold_path": "datasets/kestrel-aero/gold/first-pass-fail.jsonl",
+      "logical_id": "kestrel-aero:first-pass-fail.jsonl:ka-022",
+      "normalized_question": "what must hangar 2 wear at the pickle tank?",
+      "panel": "analysis",
+      "panel_reason": "phase6_observed",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "kestrel-aero",
+      "domain": "Aerospace machining",
+      "group": "Manufacturing",
+      "question_id": "ka-023",
+      "question": "Who answers the traveler desk?",
+      "answerable": true,
+      "answers": [
+        "555-2201"
+      ],
+      "supporting_doc_ids": [
+        "contacts"
+      ],
+      "source": "first-pass-fail.jsonl",
+      "gold_path": "datasets/kestrel-aero/gold/first-pass-fail.jsonl",
+      "logical_id": "kestrel-aero:first-pass-fail.jsonl:ka-023",
+      "normalized_question": "who answers the traveler desk?",
+      "panel": "analysis",
+      "panel_reason": "phase6_observed",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "kestrel-aero",
+      "domain": "Aerospace machining",
+      "group": "Manufacturing",
+      "question_id": "ka-024",
+      "question": "What is the pickle tank chemical supplier?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "first-pass-fail.jsonl",
+      "gold_path": "datasets/kestrel-aero/gold/first-pass-fail.jsonl",
+      "logical_id": "kestrel-aero:first-pass-fail.jsonl:ka-024",
+      "normalized_question": "what is the pickle tank chemical supplier?",
+      "panel": "analysis",
+      "panel_reason": "phase6_observed",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "kestrel-aero",
+      "domain": "Aerospace machining",
+      "group": "Manufacturing",
+      "question_id": "ka-001",
+      "question": "Which building at Kestrel Aero machines titanium bulkheads?",
+      "answerable": true,
+      "answers": [
+        "Hangar 2"
+      ],
+      "supporting_doc_ids": [
+        "about",
+        "hangar-2"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/kestrel-aero/gold/questions.jsonl",
+      "logical_id": "kestrel-aero:questions.jsonl:ka-001",
+      "normalized_question": "which building at kestrel aero machines titanium bulkheads?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "kestrel-aero",
+      "domain": "Aerospace machining",
+      "group": "Manufacturing",
+      "question_id": "ka-002",
+      "question": "What is the active titanium lot on mill M-40?",
+      "answerable": true,
+      "answers": [
+        "KX-441"
+      ],
+      "supporting_doc_ids": [
+        "hangar-2"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/kestrel-aero/gold/questions.jsonl",
+      "logical_id": "kestrel-aero:questions.jsonl:ka-002",
+      "normalized_question": "what is the active titanium lot on mill m-40?",
+      "panel": "future_holdout",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "kestrel-aero",
+      "domain": "Aerospace machining",
+      "group": "Manufacturing",
+      "question_id": "ka-003",
+      "question": "What AMS specification letter does the 2025 traveler require for titanium plate?",
+      "answerable": true,
+      "answers": [
+        "AMS 4911R",
+        "4911R"
+      ],
+      "supporting_doc_ids": [
+        "traveler-2025"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/kestrel-aero/gold/questions.jsonl",
+      "logical_id": "kestrel-aero:questions.jsonl:ka-003",
+      "normalized_question": "what ams specification letter does the 2025 traveler require for titanium plate?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "kestrel-aero",
+      "domain": "Aerospace machining",
+      "group": "Manufacturing",
+      "question_id": "ka-004",
+      "question": "What AMS specification did the 2018 titanium traveler call for?",
+      "answerable": true,
+      "answers": [
+        "AMS 4911N",
+        "4911N"
+      ],
+      "supporting_doc_ids": [
+        "traveler-2018"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/kestrel-aero/gold/questions.jsonl",
+      "logical_id": "kestrel-aero:questions.jsonl:ka-004",
+      "normalized_question": "what ams specification did the 2018 titanium traveler call for?",
+      "panel": "future_holdout",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "kestrel-aero",
+      "domain": "Aerospace machining",
+      "group": "Manufacturing",
+      "question_id": "ka-005",
+      "question": "What are Shift A hours at Kestrel Aero?",
+      "answerable": true,
+      "answers": [
+        "06:00-14:30"
+      ],
+      "supporting_doc_ids": [
+        "shifts"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/kestrel-aero/gold/questions.jsonl",
+      "logical_id": "kestrel-aero:questions.jsonl:ka-005",
+      "normalized_question": "what are shift a hours at kestrel aero?",
+      "panel": "future_holdout",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "kestrel-aero",
+      "domain": "Aerospace machining",
+      "group": "Manufacturing",
+      "question_id": "ka-006",
+      "question": "Which quality standard is Kestrel registered to?",
+      "answerable": true,
+      "answers": [
+        "AS9100D"
+      ],
+      "supporting_doc_ids": [
+        "quality"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/kestrel-aero/gold/questions.jsonl",
+      "logical_id": "kestrel-aero:questions.jsonl:ka-006",
+      "normalized_question": "which quality standard is kestrel registered to?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "kestrel-aero",
+      "domain": "Aerospace machining",
+      "group": "Manufacturing",
+      "question_id": "ka-007",
+      "question": "When is micrometer set T-7 due for calibration?",
+      "answerable": true,
+      "answers": [
+        "1 November 2026",
+        "November 1, 2026"
+      ],
+      "supporting_doc_ids": [
+        "calibration"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/kestrel-aero/gold/questions.jsonl",
+      "logical_id": "kestrel-aero:questions.jsonl:ka-007",
+      "normalized_question": "when is micrometer set t-7 due for calibration?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "kestrel-aero",
+      "domain": "Aerospace machining",
+      "group": "Manufacturing",
+      "question_id": "ka-008",
+      "question": "Which dock do finished titanium parts leave from?",
+      "answerable": true,
+      "answers": [
+        "Dock West"
+      ],
+      "supporting_doc_ids": [
+        "shipping"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/kestrel-aero/gold/questions.jsonl",
+      "logical_id": "kestrel-aero:questions.jsonl:ka-008",
+      "normalized_question": "which dock do finished titanium parts leave from?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "kestrel-aero",
+      "domain": "Aerospace machining",
+      "group": "Manufacturing",
+      "question_id": "ka-009",
+      "question": "Which lot is named on open NCR-88?",
+      "answerable": true,
+      "answers": [
+        "AL-902"
+      ],
+      "supporting_doc_ids": [
+        "ncr-log"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/kestrel-aero/gold/questions.jsonl",
+      "logical_id": "kestrel-aero:questions.jsonl:ka-009",
+      "normalized_question": "which lot is named on open ncr-88?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "kestrel-aero",
+      "domain": "Aerospace machining",
+      "group": "Manufacturing",
+      "question_id": "ka-010",
+      "question": "What is the traveler desk phone number?",
+      "answerable": true,
+      "answers": [
+        "555-2201"
+      ],
+      "supporting_doc_ids": [
+        "contacts"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/kestrel-aero/gold/questions.jsonl",
+      "logical_id": "kestrel-aero:questions.jsonl:ka-010",
+      "normalized_question": "what is the traveler desk phone number?",
+      "panel": "future_holdout",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "kestrel-aero",
+      "domain": "Aerospace machining",
+      "group": "Manufacturing",
+      "question_id": "ka-011",
+      "question": "Does Shop 6 cut titanium?",
+      "answerable": true,
+      "answers": [
+        "no",
+        "does not cut titanium"
+      ],
+      "supporting_doc_ids": [
+        "shop-6"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/kestrel-aero/gold/questions.jsonl",
+      "logical_id": "kestrel-aero:questions.jsonl:ka-011",
+      "normalized_question": "does shop 6 cut titanium?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "kestrel-aero",
+      "domain": "Aerospace machining",
+      "group": "Manufacturing",
+      "question_id": "ka-012",
+      "question": "Where do aluminum end mills live?",
+      "answerable": true,
+      "answers": [
+        "Shop 6, drawer 4",
+        "drawer 4"
+      ],
+      "supporting_doc_ids": [
+        "tool-crib"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/kestrel-aero/gold/questions.jsonl",
+      "logical_id": "kestrel-aero:questions.jsonl:ka-012",
+      "normalized_question": "where do aluminum end mills live?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "kestrel-aero",
+      "domain": "Aerospace machining",
+      "group": "Manufacturing",
+      "question_id": "ka-013",
+      "question": "What is the unit price of a Kestrel bulkhead?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/kestrel-aero/gold/questions.jsonl",
+      "logical_id": "kestrel-aero:questions.jsonl:ka-013",
+      "normalized_question": "what is the unit price of a kestrel bulkhead?",
+      "panel": "future_holdout",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "kestrel-aero",
+      "domain": "Aerospace machining",
+      "group": "Manufacturing",
+      "question_id": "ka-014",
+      "question": "Who owns Kestrel Aero Components?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/kestrel-aero/gold/questions.jsonl",
+      "logical_id": "kestrel-aero:questions.jsonl:ka-014",
+      "normalized_question": "who owns kestrel aero components?",
+      "panel": "future_holdout",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "kestrel-aero",
+      "domain": "Aerospace machining",
+      "group": "Manufacturing",
+      "question_id": "ka-015",
+      "question": "What ITAR exemption number does Kestrel hold?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/kestrel-aero/gold/questions.jsonl",
+      "logical_id": "kestrel-aero:questions.jsonl:ka-015",
+      "normalized_question": "what itar exemption number does kestrel hold?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "kestrel-aero",
+      "domain": "Aerospace machining",
+      "group": "Manufacturing",
+      "question_id": "ka-016",
+      "question": "What does Fay Aerospace charge per hour?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/kestrel-aero/gold/questions.jsonl",
+      "logical_id": "kestrel-aero:questions.jsonl:ka-016",
+      "normalized_question": "what does fay aerospace charge per hour?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "kestrel-aero",
+      "domain": "Aerospace machining",
+      "group": "Manufacturing",
+      "question_id": "ka-017",
+      "question": "What AMS specification does the titanium traveler require?",
+      "answerable": true,
+      "answers": [
+        "AMS 4911R",
+        "4911R"
+      ],
+      "supporting_doc_ids": [
+        "traveler-2025"
+      ],
+      "source": "recovery.jsonl",
+      "gold_path": "datasets/kestrel-aero/gold/recovery.jsonl",
+      "logical_id": "kestrel-aero:recovery.jsonl:ka-017",
+      "normalized_question": "what ams specification does the titanium traveler require?",
+      "panel": "analysis",
+      "panel_reason": "phase6_observed",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "kestrel-aero",
+      "domain": "Aerospace machining",
+      "group": "Manufacturing",
+      "question_id": "ka-018",
+      "question": "What heat-treat condition does the titanium traveler require?",
+      "answerable": true,
+      "answers": [
+        "annealed"
+      ],
+      "supporting_doc_ids": [
+        "traveler-2025"
+      ],
+      "source": "recovery.jsonl",
+      "gold_path": "datasets/kestrel-aero/gold/recovery.jsonl",
+      "logical_id": "kestrel-aero:recovery.jsonl:ka-018",
+      "normalized_question": "what heat-treat condition does the titanium traveler require?",
+      "panel": "analysis",
+      "panel_reason": "phase6_observed",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "kestrel-aero",
+      "domain": "Aerospace machining",
+      "group": "Manufacturing",
+      "question_id": "ka-019",
+      "question": "What is the unit price of a titanium bulkhead?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "recovery.jsonl",
+      "gold_path": "datasets/kestrel-aero/gold/recovery.jsonl",
+      "logical_id": "kestrel-aero:recovery.jsonl:ka-019",
+      "normalized_question": "what is the unit price of a titanium bulkhead?",
+      "panel": "analysis",
+      "panel_reason": "phase6_observed",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "lumen-streetcar",
+      "domain": "Urban streetcar / transit",
+      "group": "Transport",
+      "question_id": "ls-001",
+      "question": "What is the weekday headway on Line Amber?",
+      "answerable": true,
+      "answers": [
+        "12 minutes"
+      ],
+      "supporting_doc_ids": [
+        "line-amber"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/lumen-streetcar/gold/questions.jsonl",
+      "logical_id": "lumen-streetcar:questions.jsonl:ls-001",
+      "normalized_question": "what is the weekday headway on line amber?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "lumen-streetcar",
+      "domain": "Urban streetcar / transit",
+      "group": "Transport",
+      "question_id": "ls-002",
+      "question": "What is the Sunday headway on Line Amber according to the current fact sheet?",
+      "answerable": true,
+      "answers": [
+        "20 minutes"
+      ],
+      "supporting_doc_ids": [
+        "line-amber"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/lumen-streetcar/gold/questions.jsonl",
+      "logical_id": "lumen-streetcar:questions.jsonl:ls-002",
+      "normalized_question": "what is the sunday headway on line amber according to the current fact sheet?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "lumen-streetcar",
+      "domain": "Urban streetcar / transit",
+      "group": "Transport",
+      "question_id": "ls-003",
+      "question": "According to the 2021 booklet, what was the Sunday headway on Line Amber?",
+      "answerable": true,
+      "answers": [
+        "30 minutes"
+      ],
+      "supporting_doc_ids": [
+        "headway-2021"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/lumen-streetcar/gold/questions.jsonl",
+      "logical_id": "lumen-streetcar:questions.jsonl:ls-003",
+      "normalized_question": "according to the 2021 booklet, what was the sunday headway on line amber?",
+      "panel": "future_holdout",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "lumen-streetcar",
+      "domain": "Urban streetcar / transit",
+      "group": "Transport",
+      "question_id": "ls-004",
+      "question": "What is Line Slate's weekday headway?",
+      "answerable": true,
+      "answers": [
+        "15 minutes"
+      ],
+      "supporting_doc_ids": [
+        "line-slate"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/lumen-streetcar/gold/questions.jsonl",
+      "logical_id": "lumen-streetcar:questions.jsonl:ls-004",
+      "normalized_question": "what is line slate's weekday headway?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "lumen-streetcar",
+      "domain": "Urban streetcar / transit",
+      "group": "Transport",
+      "question_id": "ls-005",
+      "question": "Where does Block 14 lay over?",
+      "answerable": true,
+      "answers": [
+        "Quay"
+      ],
+      "supporting_doc_ids": [
+        "line-amber",
+        "block-14"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/lumen-streetcar/gold/questions.jsonl",
+      "logical_id": "lumen-streetcar:questions.jsonl:ls-005",
+      "normalized_question": "where does block 14 lay over?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "lumen-streetcar",
+      "domain": "Urban streetcar / transit",
+      "group": "Transport",
+      "question_id": "ls-006",
+      "question": "What time is the first Amber car?",
+      "answerable": true,
+      "answers": [
+        "05:40"
+      ],
+      "supporting_doc_ids": [
+        "hours"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/lumen-streetcar/gold/questions.jsonl",
+      "logical_id": "lumen-streetcar:questions.jsonl:ls-006",
+      "normalized_question": "what time is the first amber car?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "lumen-streetcar",
+      "domain": "Urban streetcar / transit",
+      "group": "Transport",
+      "question_id": "ls-007",
+      "question": "Which Slate stops remain high-floor until 2027?",
+      "answerable": true,
+      "answers": [
+        "Pine Cut and Old Quarry",
+        "Pine Cut",
+        "Old Quarry"
+      ],
+      "supporting_doc_ids": [
+        "accessibility"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/lumen-streetcar/gold/questions.jsonl",
+      "logical_id": "lumen-streetcar:questions.jsonl:ls-007",
+      "normalized_question": "which slate stops remain high-floor until 2027?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "lumen-streetcar",
+      "domain": "Urban streetcar / transit",
+      "group": "Transport",
+      "question_id": "ls-008",
+      "question": "What is the control phone number?",
+      "answerable": true,
+      "answers": [
+        "555-6600"
+      ],
+      "supporting_doc_ids": [
+        "contacts"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/lumen-streetcar/gold/questions.jsonl",
+      "logical_id": "lumen-streetcar:questions.jsonl:ls-008",
+      "normalized_question": "what is the control phone number?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "lumen-streetcar",
+      "domain": "Urban streetcar / transit",
+      "group": "Transport",
+      "question_id": "ls-009",
+      "question": "What is Ridge Bus Sunday headway?",
+      "answerable": true,
+      "answers": [
+        "40 minutes"
+      ],
+      "supporting_doc_ids": [
+        "ridge-bus"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/lumen-streetcar/gold/questions.jsonl",
+      "logical_id": "lumen-streetcar:questions.jsonl:ls-009",
+      "normalized_question": "what is ridge bus sunday headway?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "lumen-streetcar",
+      "domain": "Urban streetcar / transit",
+      "group": "Transport",
+      "question_id": "ls-010",
+      "question": "Which inspection pit is Amber-only?",
+      "answerable": true,
+      "answers": [
+        "P-2"
+      ],
+      "supporting_doc_ids": [
+        "yard"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/lumen-streetcar/gold/questions.jsonl",
+      "logical_id": "lumen-streetcar:questions.jsonl:ls-010",
+      "normalized_question": "which inspection pit is amber-only?",
+      "panel": "future_holdout",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "lumen-streetcar",
+      "domain": "Urban streetcar / transit",
+      "group": "Transport",
+      "question_id": "ls-011",
+      "question": "How much time does the November bulletin add to the Amber Quay layover?",
+      "answerable": true,
+      "answers": [
+        "2 minutes"
+      ],
+      "supporting_doc_ids": [
+        "weather"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/lumen-streetcar/gold/questions.jsonl",
+      "logical_id": "lumen-streetcar:questions.jsonl:ls-011",
+      "normalized_question": "how much time does the november bulletin add to the amber quay layover?",
+      "panel": "future_holdout",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "lumen-streetcar",
+      "domain": "Urban streetcar / transit",
+      "group": "Transport",
+      "question_id": "ls-012",
+      "question": "What posted transfer time is at Exchange?",
+      "answerable": true,
+      "answers": [
+        "3 minutes"
+      ],
+      "supporting_doc_ids": [
+        "exchange"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/lumen-streetcar/gold/questions.jsonl",
+      "logical_id": "lumen-streetcar:questions.jsonl:ls-012",
+      "normalized_question": "what posted transfer time is at exchange?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "lumen-streetcar",
+      "domain": "Urban streetcar / transit",
+      "group": "Transport",
+      "question_id": "ls-013",
+      "question": "What is the 2026 adult fare on Lumen streetcars?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/lumen-streetcar/gold/questions.jsonl",
+      "logical_id": "lumen-streetcar:questions.jsonl:ls-013",
+      "normalized_question": "what is the 2026 adult fare on lumen streetcars?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "lumen-streetcar",
+      "domain": "Urban streetcar / transit",
+      "group": "Transport",
+      "question_id": "ls-014",
+      "question": "Who is the general manager of Lumen Streetcar Authority?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/lumen-streetcar/gold/questions.jsonl",
+      "logical_id": "lumen-streetcar:questions.jsonl:ls-014",
+      "normalized_question": "who is the general manager of lumen streetcar authority?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "lumen-streetcar",
+      "domain": "Urban streetcar / transit",
+      "group": "Transport",
+      "question_id": "ls-015",
+      "question": "How many riders did Amber carry last year?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/lumen-streetcar/gold/questions.jsonl",
+      "logical_id": "lumen-streetcar:questions.jsonl:ls-015",
+      "normalized_question": "how many riders did amber carry last year?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "lumen-streetcar",
+      "domain": "Urban streetcar / transit",
+      "group": "Transport",
+      "question_id": "ls-016",
+      "question": "What does an Amber charter cost?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/lumen-streetcar/gold/questions.jsonl",
+      "logical_id": "lumen-streetcar:questions.jsonl:ls-016",
+      "normalized_question": "what does an amber charter cost?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "marlow-clinic",
+      "domain": "Outpatient clinic",
+      "group": "Health",
+      "question_id": "mc-001",
+      "question": "What are weekday hours at the River Campus retail pharmacy?",
+      "answerable": true,
+      "answers": [
+        "08:00-18:00"
+      ],
+      "supporting_doc_ids": [
+        "pharmacy-hours"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/marlow-clinic/gold/questions.jsonl",
+      "logical_id": "marlow-clinic:questions.jsonl:mc-001",
+      "normalized_question": "what are weekday hours at the river campus retail pharmacy?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "marlow-clinic",
+      "domain": "Outpatient clinic",
+      "group": "Health",
+      "question_id": "mc-002",
+      "question": "Does Ridge Campus have a retail pharmacy?",
+      "answerable": true,
+      "answers": [
+        "no"
+      ],
+      "supporting_doc_ids": [
+        "ridge-campus",
+        "pharmacy-hours"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/marlow-clinic/gold/questions.jsonl",
+      "logical_id": "marlow-clinic:questions.jsonl:mc-002",
+      "normalized_question": "does ridge campus have a retail pharmacy?",
+      "panel": "future_holdout",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "marlow-clinic",
+      "domain": "Outpatient clinic",
+      "group": "Health",
+      "question_id": "mc-003",
+      "question": "What are Ridge infusion hours on weekdays?",
+      "answerable": true,
+      "answers": [
+        "07:00-15:30"
+      ],
+      "supporting_doc_ids": [
+        "ridge-campus",
+        "infusion"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/marlow-clinic/gold/questions.jsonl",
+      "logical_id": "marlow-clinic:questions.jsonl:mc-003",
+      "normalized_question": "what are ridge infusion hours on weekdays?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "marlow-clinic",
+      "domain": "Outpatient clinic",
+      "group": "Health",
+      "question_id": "mc-004",
+      "question": "Is theophylline on the 2026 outpatient formulary?",
+      "answerable": true,
+      "answers": [
+        "no",
+        "dropped theophylline"
+      ],
+      "supporting_doc_ids": [
+        "formulary-2026"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/marlow-clinic/gold/questions.jsonl",
+      "logical_id": "marlow-clinic:questions.jsonl:mc-004",
+      "normalized_question": "is theophylline on the 2026 outpatient formulary?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "marlow-clinic",
+      "domain": "Outpatient clinic",
+      "group": "Health",
+      "question_id": "mc-005",
+      "question": "Did the 2024 formulary list theophylline tablets?",
+      "answerable": true,
+      "answers": [
+        "yes"
+      ],
+      "supporting_doc_ids": [
+        "formulary-2024"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/marlow-clinic/gold/questions.jsonl",
+      "logical_id": "marlow-clinic:questions.jsonl:mc-005",
+      "normalized_question": "did the 2024 formulary list theophylline tablets?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "marlow-clinic",
+      "domain": "Outpatient clinic",
+      "group": "Health",
+      "question_id": "mc-006",
+      "question": "What are Cedar Urgent hours?",
+      "answerable": true,
+      "answers": [
+        "10:00-22:00"
+      ],
+      "supporting_doc_ids": [
+        "cedar-urgent"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/marlow-clinic/gold/questions.jsonl",
+      "logical_id": "marlow-clinic:questions.jsonl:mc-006",
+      "normalized_question": "what are cedar urgent hours?",
+      "panel": "future_holdout",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "marlow-clinic",
+      "domain": "Outpatient clinic",
+      "group": "Health",
+      "question_id": "mc-007",
+      "question": "When is the records window open at River?",
+      "answerable": true,
+      "answers": [
+        "Tuesday and Thursday 10:00-14:00"
+      ],
+      "supporting_doc_ids": [
+        "records"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/marlow-clinic/gold/questions.jsonl",
+      "logical_id": "marlow-clinic:questions.jsonl:mc-007",
+      "normalized_question": "when is the records window open at river?",
+      "panel": "future_holdout",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "marlow-clinic",
+      "domain": "Outpatient clinic",
+      "group": "Health",
+      "question_id": "mc-008",
+      "question": "What is the Ridge infusion phone number?",
+      "answerable": true,
+      "answers": [
+        "555-7702"
+      ],
+      "supporting_doc_ids": [
+        "contacts"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/marlow-clinic/gold/questions.jsonl",
+      "logical_id": "marlow-clinic:questions.jsonl:mc-008",
+      "normalized_question": "what is the ridge infusion phone number?",
+      "panel": "future_holdout",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "marlow-clinic",
+      "domain": "Outpatient clinic",
+      "group": "Health",
+      "question_id": "mc-009",
+      "question": "Which fridge stores infusion pre-meds?",
+      "answerable": true,
+      "answers": [
+        "Fridge R-2",
+        "R-2"
+      ],
+      "supporting_doc_ids": [
+        "infusion"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/marlow-clinic/gold/questions.jsonl",
+      "logical_id": "marlow-clinic:questions.jsonl:mc-009",
+      "normalized_question": "which fridge stores infusion pre-meds?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "marlow-clinic",
+      "domain": "Outpatient clinic",
+      "group": "Health",
+      "question_id": "mc-010",
+      "question": "Are both campuses closed on 25 December 2026?",
+      "answerable": true,
+      "answers": [
+        "yes"
+      ],
+      "supporting_doc_ids": [
+        "hours-holiday"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/marlow-clinic/gold/questions.jsonl",
+      "logical_id": "marlow-clinic:questions.jsonl:mc-010",
+      "normalized_question": "are both campuses closed on 25 december 2026?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "marlow-clinic",
+      "domain": "Outpatient clinic",
+      "group": "Health",
+      "question_id": "mc-011",
+      "question": "Where is River Campus?",
+      "answerable": true,
+      "answers": [
+        "8 River Walk"
+      ],
+      "supporting_doc_ids": [
+        "river-campus"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/marlow-clinic/gold/questions.jsonl",
+      "logical_id": "marlow-clinic:questions.jsonl:mc-011",
+      "normalized_question": "where is river campus?",
+      "panel": "future_holdout",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "marlow-clinic",
+      "domain": "Outpatient clinic",
+      "group": "Health",
+      "question_id": "mc-012",
+      "question": "Which lot is Ridge infusion parking?",
+      "answerable": true,
+      "answers": [
+        "Lot G"
+      ],
+      "supporting_doc_ids": [
+        "parking"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/marlow-clinic/gold/questions.jsonl",
+      "logical_id": "marlow-clinic:questions.jsonl:mc-012",
+      "normalized_question": "which lot is ridge infusion parking?",
+      "panel": "future_holdout",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "marlow-clinic",
+      "domain": "Outpatient clinic",
+      "group": "Health",
+      "question_id": "mc-013",
+      "question": "What is the copay for an infusion at Ridge Campus?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/marlow-clinic/gold/questions.jsonl",
+      "logical_id": "marlow-clinic:questions.jsonl:mc-013",
+      "normalized_question": "what is the copay for an infusion at ridge campus?",
+      "panel": "future_holdout",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "marlow-clinic",
+      "domain": "Outpatient clinic",
+      "group": "Health",
+      "question_id": "mc-014",
+      "question": "Who is the chief of medicine at Marlow?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/marlow-clinic/gold/questions.jsonl",
+      "logical_id": "marlow-clinic:questions.jsonl:mc-014",
+      "normalized_question": "who is the chief of medicine at marlow?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "marlow-clinic",
+      "domain": "Outpatient clinic",
+      "group": "Health",
+      "question_id": "mc-015",
+      "question": "Is there a Saturday clinic on New Year's Day?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/marlow-clinic/gold/questions.jsonl",
+      "logical_id": "marlow-clinic:questions.jsonl:mc-015",
+      "normalized_question": "is there a saturday clinic on new year's day?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "marlow-clinic",
+      "domain": "Outpatient clinic",
+      "group": "Health",
+      "question_id": "mc-016",
+      "question": "Which insurers does Marlow accept?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/marlow-clinic/gold/questions.jsonl",
+      "logical_id": "marlow-clinic:questions.jsonl:mc-016",
+      "normalized_question": "which insurers does marlow accept?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "nimbus-seed",
+      "domain": "Plant genetic resources",
+      "group": "Agriculture",
+      "question_id": "ns-001",
+      "question": "Which crop is accession NB-1882?",
+      "answerable": true,
+      "answers": [
+        "barley",
+        "six-row barley"
+      ],
+      "supporting_doc_ids": [
+        "about",
+        "nb-1882"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/nimbus-seed/gold/questions.jsonl",
+      "logical_id": "nimbus-seed:questions.jsonl:ns-001",
+      "normalized_question": "which crop is accession nb-1882?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "nimbus-seed",
+      "domain": "Plant genetic resources",
+      "group": "Agriculture",
+      "question_id": "ns-002",
+      "question": "Which crop is accession NW-4401?",
+      "answerable": true,
+      "answers": [
+        "wheat",
+        "hard red wheat"
+      ],
+      "supporting_doc_ids": [
+        "nw-4401"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/nimbus-seed/gold/questions.jsonl",
+      "logical_id": "nimbus-seed:questions.jsonl:ns-002",
+      "normalized_question": "which crop is accession nw-4401?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "nimbus-seed",
+      "domain": "Plant genetic resources",
+      "group": "Agriculture",
+      "question_id": "ns-003",
+      "question": "What viability did the 2025 test report for NB-1882?",
+      "answerable": true,
+      "answers": [
+        "94%"
+      ],
+      "supporting_doc_ids": [
+        "viability-2025"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/nimbus-seed/gold/questions.jsonl",
+      "logical_id": "nimbus-seed:questions.jsonl:ns-003",
+      "normalized_question": "what viability did the 2025 test report for nb-1882?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "nimbus-seed",
+      "domain": "Plant genetic resources",
+      "group": "Agriculture",
+      "question_id": "ns-004",
+      "question": "What viability did the 2022 test list for NB-1882?",
+      "answerable": true,
+      "answers": [
+        "81%"
+      ],
+      "supporting_doc_ids": [
+        "viability-2022"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/nimbus-seed/gold/questions.jsonl",
+      "logical_id": "nimbus-seed:questions.jsonl:ns-004",
+      "normalized_question": "what viability did the 2022 test list for nb-1882?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "nimbus-seed",
+      "domain": "Plant genetic resources",
+      "group": "Agriculture",
+      "question_id": "ns-005",
+      "question": "What temperature is the Nimbus long-term cold room?",
+      "answerable": true,
+      "answers": [
+        "4 C",
+        "4°C"
+      ],
+      "supporting_doc_ids": [
+        "cold-room"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/nimbus-seed/gold/questions.jsonl",
+      "logical_id": "nimbus-seed:questions.jsonl:ns-005",
+      "normalized_question": "what temperature is the nimbus long-term cold room?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "nimbus-seed",
+      "domain": "Plant genetic resources",
+      "group": "Agriculture",
+      "question_id": "ns-006",
+      "question": "On which day do NB-1882 research samples ship?",
+      "answerable": true,
+      "answers": [
+        "Tuesdays",
+        "Tuesday"
+      ],
+      "supporting_doc_ids": [
+        "distribution"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/nimbus-seed/gold/questions.jsonl",
+      "logical_id": "nimbus-seed:questions.jsonl:ns-006",
+      "normalized_question": "on which day do nb-1882 research samples ship?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "nimbus-seed",
+      "domain": "Plant genetic resources",
+      "group": "Agriculture",
+      "question_id": "ns-007",
+      "question": "Which field block holds NB-1882 regeneration plots?",
+      "answerable": true,
+      "answers": [
+        "Block A"
+      ],
+      "supporting_doc_ids": [
+        "field-book"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/nimbus-seed/gold/questions.jsonl",
+      "logical_id": "nimbus-seed:questions.jsonl:ns-007",
+      "normalized_question": "which field block holds nb-1882 regeneration plots?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "nimbus-seed",
+      "domain": "Plant genetic resources",
+      "group": "Agriculture",
+      "question_id": "ns-008",
+      "question": "How many NB-1882 seeds are in the cold room according to the inventory snapshot?",
+      "answerable": true,
+      "answers": [
+        "12400",
+        "12,400"
+      ],
+      "supporting_doc_ids": [
+        "inventory"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/nimbus-seed/gold/questions.jsonl",
+      "logical_id": "nimbus-seed:questions.jsonl:ns-008",
+      "normalized_question": "how many nb-1882 seeds are in the cold room according to the inventory snapshot?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "nimbus-seed",
+      "domain": "Plant genetic resources",
+      "group": "Agriculture",
+      "question_id": "ns-009",
+      "question": "What label color is barley at Nimbus?",
+      "answerable": true,
+      "answers": [
+        "blue"
+      ],
+      "supporting_doc_ids": [
+        "labels",
+        "nb-1882"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/nimbus-seed/gold/questions.jsonl",
+      "logical_id": "nimbus-seed:questions.jsonl:ns-009",
+      "normalized_question": "what label color is barley at nimbus?",
+      "panel": "future_holdout",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "nimbus-seed",
+      "domain": "Plant genetic resources",
+      "group": "Agriculture",
+      "question_id": "ns-010",
+      "question": "What is the cold room alarm number?",
+      "answerable": true,
+      "answers": [
+        "555-5500"
+      ],
+      "supporting_doc_ids": [
+        "contacts"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/nimbus-seed/gold/questions.jsonl",
+      "logical_id": "nimbus-seed:questions.jsonl:ns-010",
+      "normalized_question": "what is the cold room alarm number?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "nimbus-seed",
+      "domain": "Plant genetic resources",
+      "group": "Agriculture",
+      "question_id": "ns-011",
+      "question": "Does Prairie Gene Trust hold NB-1882?",
+      "answerable": true,
+      "answers": [
+        "no"
+      ],
+      "supporting_doc_ids": [
+        "prairie-gene"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/nimbus-seed/gold/questions.jsonl",
+      "logical_id": "nimbus-seed:questions.jsonl:ns-011",
+      "normalized_question": "does prairie gene trust hold nb-1882?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "nimbus-seed",
+      "domain": "Plant genetic resources",
+      "group": "Agriculture",
+      "question_id": "ns-012",
+      "question": "What isolation distance is listed for barley regeneration?",
+      "answerable": true,
+      "answers": [
+        "10 meters",
+        "10 m"
+      ],
+      "supporting_doc_ids": [
+        "field-book"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/nimbus-seed/gold/questions.jsonl",
+      "logical_id": "nimbus-seed:questions.jsonl:ns-012",
+      "normalized_question": "what isolation distance is listed for barley regeneration?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "nimbus-seed",
+      "domain": "Plant genetic resources",
+      "group": "Agriculture",
+      "question_id": "ns-013",
+      "question": "How much does a commercial packet of NB-1882 cost?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/nimbus-seed/gold/questions.jsonl",
+      "logical_id": "nimbus-seed:questions.jsonl:ns-013",
+      "normalized_question": "how much does a commercial packet of nb-1882 cost?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "nimbus-seed",
+      "domain": "Plant genetic resources",
+      "group": "Agriculture",
+      "question_id": "ns-014",
+      "question": "Who is the curator of Nimbus Seed Bank?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/nimbus-seed/gold/questions.jsonl",
+      "logical_id": "nimbus-seed:questions.jsonl:ns-014",
+      "normalized_question": "who is the curator of nimbus seed bank?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "nimbus-seed",
+      "domain": "Plant genetic resources",
+      "group": "Agriculture",
+      "question_id": "ns-015",
+      "question": "What are the GPS coordinates of the station?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/nimbus-seed/gold/questions.jsonl",
+      "logical_id": "nimbus-seed:questions.jsonl:ns-015",
+      "normalized_question": "what are the gps coordinates of the station?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "nimbus-seed",
+      "domain": "Plant genetic resources",
+      "group": "Agriculture",
+      "question_id": "ns-016",
+      "question": "What is the phytosanitary test fee?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/nimbus-seed/gold/questions.jsonl",
+      "logical_id": "nimbus-seed:questions.jsonl:ns-016",
+      "normalized_question": "what is the phytosanitary test fee?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "northhaven-water",
+      "domain": "Municipal water utility",
+      "group": "Utilities",
+      "question_id": "nw-001",
+      "question": "What are Saturday walk-in hours at the Cedar Street billing desk according to the current notice?",
+      "answerable": true,
+      "answers": [
+        "09:00-13:00",
+        "9:00-13:00"
+      ],
+      "supporting_doc_ids": [
+        "billing-desk-current"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/northhaven-water/gold/questions.jsonl",
+      "logical_id": "northhaven-water:questions.jsonl:nw-001",
+      "normalized_question": "what are saturday walk-in hours at the cedar street billing desk according to the current notice?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "northhaven-water",
+      "domain": "Municipal water utility",
+      "group": "Utilities",
+      "question_id": "nw-002",
+      "question": "According to the 2023 Cedar Street billing notice, what were Saturday walk-in hours?",
+      "answerable": true,
+      "answers": [
+        "10:00-12:00"
+      ],
+      "supporting_doc_ids": [
+        "billing-desk-2023"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/northhaven-water/gold/questions.jsonl",
+      "logical_id": "northhaven-water:questions.jsonl:nw-002",
+      "normalized_question": "according to the 2023 cedar street billing notice, what were saturday walk-in hours?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "northhaven-water",
+      "domain": "Municipal water utility",
+      "group": "Utilities",
+      "question_id": "nw-003",
+      "question": "What fluoride residual does the March 2026 water quality sheet list?",
+      "answerable": true,
+      "answers": [
+        "0.7 mg/L",
+        "0.7"
+      ],
+      "supporting_doc_ids": [
+        "water-quality-2026"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/northhaven-water/gold/questions.jsonl",
+      "logical_id": "northhaven-water:questions.jsonl:nw-003",
+      "normalized_question": "what fluoride residual does the march 2026 water quality sheet list?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "northhaven-water",
+      "domain": "Municipal water utility",
+      "group": "Utilities",
+      "question_id": "nw-004",
+      "question": "What fluoride residual did the 2021 water quality report list?",
+      "answerable": true,
+      "answers": [
+        "1.2 mg/L",
+        "1.2"
+      ],
+      "supporting_doc_ids": [
+        "water-quality-2021"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/northhaven-water/gold/questions.jsonl",
+      "logical_id": "northhaven-water:questions.jsonl:nw-004",
+      "normalized_question": "what fluoride residual did the 2021 water quality report list?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "northhaven-water",
+      "domain": "Municipal water utility",
+      "group": "Utilities",
+      "question_id": "nw-005",
+      "question": "On what date was the Zone 4 boil water advisory lifted?",
+      "answerable": true,
+      "answers": [
+        "12 March 2026",
+        "March 12, 2026"
+      ],
+      "supporting_doc_ids": [
+        "boil-advisories"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/northhaven-water/gold/questions.jsonl",
+      "logical_id": "northhaven-water:questions.jsonl:nw-005",
+      "normalized_question": "on what date was the zone 4 boil water advisory lifted?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "northhaven-water",
+      "domain": "Municipal water utility",
+      "group": "Utilities",
+      "question_id": "nw-006",
+      "question": "What is the 24-hour operations line for Northhaven Water District?",
+      "answerable": true,
+      "answers": [
+        "555-0140"
+      ],
+      "supporting_doc_ids": [
+        "contacts",
+        "emergency-plan"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/northhaven-water/gold/questions.jsonl",
+      "logical_id": "northhaven-water:questions.jsonl:nw-006",
+      "normalized_question": "what is the 24-hour operations line for northhaven water district?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "northhaven-water",
+      "domain": "Municipal water utility",
+      "group": "Utilities",
+      "question_id": "nw-007",
+      "question": "What is the design capacity of Plover Plant?",
+      "answerable": true,
+      "answers": [
+        "8 million gallons per day",
+        "8 million gallons"
+      ],
+      "supporting_doc_ids": [
+        "plover-plant"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/northhaven-water/gold/questions.jsonl",
+      "logical_id": "northhaven-water:questions.jsonl:nw-007",
+      "normalized_question": "what is the design capacity of plover plant?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "northhaven-water",
+      "domain": "Municipal water utility",
+      "group": "Utilities",
+      "question_id": "nw-008",
+      "question": "Which well is the weekday duty well at Brine Wellfield?",
+      "answerable": true,
+      "answers": [
+        "Well 7"
+      ],
+      "supporting_doc_ids": [
+        "brine-wellfield"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/northhaven-water/gold/questions.jsonl",
+      "logical_id": "northhaven-water:questions.jsonl:nw-008",
+      "normalized_question": "which well is the weekday duty well at brine wellfield?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "northhaven-water",
+      "domain": "Municipal water utility",
+      "group": "Utilities",
+      "question_id": "nw-009",
+      "question": "Where is the Cedar Street billing office?",
+      "answerable": true,
+      "answers": [
+        "14 Cedar Street"
+      ],
+      "supporting_doc_ids": [
+        "about"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/northhaven-water/gold/questions.jsonl",
+      "logical_id": "northhaven-water:questions.jsonl:nw-009",
+      "normalized_question": "where is the cedar street billing office?",
+      "panel": "future_holdout",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "northhaven-water",
+      "domain": "Municipal water utility",
+      "group": "Utilities",
+      "question_id": "nw-010",
+      "question": "What are Saturday counter hours at Redcliff Water Alliance?",
+      "answerable": true,
+      "answers": [
+        "08:00-11:00",
+        "8:00-11:00"
+      ],
+      "supporting_doc_ids": [
+        "redcliff-alliance"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/northhaven-water/gold/questions.jsonl",
+      "logical_id": "northhaven-water:questions.jsonl:nw-010",
+      "normalized_question": "what are saturday counter hours at redcliff water alliance?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "northhaven-water",
+      "domain": "Municipal water utility",
+      "group": "Utilities",
+      "question_id": "nw-011",
+      "question": "Is Zone 9 still under a boil water advisory as of 12 March 2026?",
+      "answerable": true,
+      "answers": [
+        "yes",
+        "remains under a boil water advisory"
+      ],
+      "supporting_doc_ids": [
+        "boil-advisories"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/northhaven-water/gold/questions.jsonl",
+      "logical_id": "northhaven-water:questions.jsonl:nw-011",
+      "normalized_question": "is zone 9 still under a boil water advisory as of 12 march 2026?",
+      "panel": "future_holdout",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "northhaven-water",
+      "domain": "Municipal water utility",
+      "group": "Utilities",
+      "question_id": "nw-012",
+      "question": "Which truck stays at Brine Wellfield overnight?",
+      "answerable": true,
+      "answers": [
+        "W-9",
+        "wellfield truck W-9"
+      ],
+      "supporting_doc_ids": [
+        "fleet"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/northhaven-water/gold/questions.jsonl",
+      "logical_id": "northhaven-water:questions.jsonl:nw-012",
+      "normalized_question": "which truck stays at brine wellfield overnight?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "northhaven-water",
+      "domain": "Municipal water utility",
+      "group": "Utilities",
+      "question_id": "nw-013",
+      "question": "Who is the general manager of Northhaven Water District?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/northhaven-water/gold/questions.jsonl",
+      "logical_id": "northhaven-water:questions.jsonl:nw-013",
+      "normalized_question": "who is the general manager of northhaven water district?",
+      "panel": "future_holdout",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "northhaven-water",
+      "domain": "Municipal water utility",
+      "group": "Utilities",
+      "question_id": "nw-014",
+      "question": "What is the residential price per gallon of water in Northhaven?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/northhaven-water/gold/questions.jsonl",
+      "logical_id": "northhaven-water:questions.jsonl:nw-014",
+      "normalized_question": "what is the residential price per gallon of water in northhaven?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "northhaven-water",
+      "domain": "Municipal water utility",
+      "group": "Utilities",
+      "question_id": "nw-015",
+      "question": "When will the Zone 9 boil advisory be lifted?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/northhaven-water/gold/questions.jsonl",
+      "logical_id": "northhaven-water:questions.jsonl:nw-015",
+      "normalized_question": "when will the zone 9 boil advisory be lifted?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "northhaven-water",
+      "domain": "Municipal water utility",
+      "group": "Utilities",
+      "question_id": "nw-016",
+      "question": "What fee does the district charge for a backflow test?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/northhaven-water/gold/questions.jsonl",
+      "logical_id": "northhaven-water:questions.jsonl:nw-016",
+      "normalized_question": "what fee does the district charge for a backflow test?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "orion-grid",
+      "domain": "Rural electric cooperative",
+      "group": "Utilities",
+      "question_id": "og-001",
+      "question": "What voltage is Magpie Substation?",
+      "answerable": true,
+      "answers": [
+        "69 kV",
+        "69"
+      ],
+      "supporting_doc_ids": [
+        "magpie-sub"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/orion-grid/gold/questions.jsonl",
+      "logical_id": "orion-grid:questions.jsonl:og-001",
+      "normalized_question": "what voltage is magpie substation?",
+      "panel": "future_holdout",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "orion-grid",
+      "domain": "Rural electric cooperative",
+      "group": "Utilities",
+      "question_id": "og-002",
+      "question": "What voltage is Saddle Substation?",
+      "answerable": true,
+      "answers": [
+        "12.47 kV",
+        "12.47"
+      ],
+      "supporting_doc_ids": [
+        "saddle-sub"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/orion-grid/gold/questions.jsonl",
+      "logical_id": "orion-grid:questions.jsonl:og-002",
+      "normalized_question": "what voltage is saddle substation?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "orion-grid",
+      "domain": "Rural electric cooperative",
+      "group": "Utilities",
+      "question_id": "og-003",
+      "question": "When does the 2026 night rate start according to the current tariff card?",
+      "answerable": true,
+      "answers": [
+        "21:00"
+      ],
+      "supporting_doc_ids": [
+        "tariff-2026"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/orion-grid/gold/questions.jsonl",
+      "logical_id": "orion-grid:questions.jsonl:og-003",
+      "normalized_question": "when does the 2026 night rate start according to the current tariff card?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "orion-grid",
+      "domain": "Rural electric cooperative",
+      "group": "Utilities",
+      "question_id": "og-004",
+      "question": "When did the 2023 night rate start?",
+      "answerable": true,
+      "answers": [
+        "22:00"
+      ],
+      "supporting_doc_ids": [
+        "tariff-2023"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/orion-grid/gold/questions.jsonl",
+      "logical_id": "orion-grid:questions.jsonl:og-004",
+      "normalized_question": "when did the 2023 night rate start?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "orion-grid",
+      "domain": "Rural electric cooperative",
+      "group": "Utilities",
+      "question_id": "og-005",
+      "question": "What does outage code GREY-7 mean?",
+      "answerable": true,
+      "answers": [
+        "vegetation on Feeder 12"
+      ],
+      "supporting_doc_ids": [
+        "outage-codes",
+        "magpie-sub"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/orion-grid/gold/questions.jsonl",
+      "logical_id": "orion-grid:questions.jsonl:og-005",
+      "normalized_question": "what does outage code grey-7 mean?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "orion-grid",
+      "domain": "Rural electric cooperative",
+      "group": "Utilities",
+      "question_id": "og-006",
+      "question": "What is the Orion after-hours dispatch number?",
+      "answerable": true,
+      "answers": [
+        "555-3300"
+      ],
+      "supporting_doc_ids": [
+        "dispatch"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/orion-grid/gold/questions.jsonl",
+      "logical_id": "orion-grid:questions.jsonl:og-006",
+      "normalized_question": "what is the orion after-hours dispatch number?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "orion-grid",
+      "domain": "Rural electric cooperative",
+      "group": "Utilities",
+      "question_id": "og-007",
+      "question": "When is Feeder 12 next due for a trim?",
+      "answerable": true,
+      "answers": [
+        "August 2027"
+      ],
+      "supporting_doc_ids": [
+        "tree-cycle"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/orion-grid/gold/questions.jsonl",
+      "logical_id": "orion-grid:questions.jsonl:og-007",
+      "normalized_question": "when is feeder 12 next due for a trim?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "orion-grid",
+      "domain": "Rural electric cooperative",
+      "group": "Utilities",
+      "question_id": "og-008",
+      "question": "When does Willow Power District's night rate start?",
+      "answerable": true,
+      "answers": [
+        "20:00"
+      ],
+      "supporting_doc_ids": [
+        "willow-power"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/orion-grid/gold/questions.jsonl",
+      "logical_id": "orion-grid:questions.jsonl:og-008",
+      "normalized_question": "when does willow power district's night rate start?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "orion-grid",
+      "domain": "Rural electric cooperative",
+      "group": "Utilities",
+      "question_id": "og-009",
+      "question": "Are Saturday walk-ins open at the Orion member office?",
+      "answerable": true,
+      "answers": [
+        "no",
+        "Saturday closed"
+      ],
+      "supporting_doc_ids": [
+        "member-office"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/orion-grid/gold/questions.jsonl",
+      "logical_id": "orion-grid:questions.jsonl:og-009",
+      "normalized_question": "are saturday walk-ins open at the orion member office?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "orion-grid",
+      "domain": "Rural electric cooperative",
+      "group": "Utilities",
+      "question_id": "og-010",
+      "question": "What is the second restore priority in the storm plan after Magpie Substation?",
+      "answerable": true,
+      "answers": [
+        "Feeder 12 grain elevators"
+      ],
+      "supporting_doc_ids": [
+        "storm-plan"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/orion-grid/gold/questions.jsonl",
+      "logical_id": "orion-grid:questions.jsonl:og-010",
+      "normalized_question": "what is the second restore priority in the storm plan after magpie substation?",
+      "panel": "future_holdout",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "orion-grid",
+      "domain": "Rural electric cooperative",
+      "group": "Utilities",
+      "question_id": "og-011",
+      "question": "How often do Feeder 12 interval meters report?",
+      "answerable": true,
+      "answers": [
+        "every 15 minutes",
+        "15 minutes"
+      ],
+      "supporting_doc_ids": [
+        "metering"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/orion-grid/gold/questions.jsonl",
+      "logical_id": "orion-grid:questions.jsonl:og-011",
+      "normalized_question": "how often do feeder 12 interval meters report?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "orion-grid",
+      "domain": "Rural electric cooperative",
+      "group": "Utilities",
+      "question_id": "og-012",
+      "question": "Which radio channel do Feeder 12 tree crews use?",
+      "answerable": true,
+      "answers": [
+        "Orion-C"
+      ],
+      "supporting_doc_ids": [
+        "radio"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/orion-grid/gold/questions.jsonl",
+      "logical_id": "orion-grid:questions.jsonl:og-012",
+      "normalized_question": "which radio channel do feeder 12 tree crews use?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "orion-grid",
+      "domain": "Rural electric cooperative",
+      "group": "Utilities",
+      "question_id": "og-013",
+      "question": "What does Orion charge per kWh on the night rate?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/orion-grid/gold/questions.jsonl",
+      "logical_id": "orion-grid:questions.jsonl:og-013",
+      "normalized_question": "what does orion charge per kwh on the night rate?",
+      "panel": "future_holdout",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "orion-grid",
+      "domain": "Rural electric cooperative",
+      "group": "Utilities",
+      "question_id": "og-014",
+      "question": "Who is the board chair of Orion Grid Cooperative?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/orion-grid/gold/questions.jsonl",
+      "logical_id": "orion-grid:questions.jsonl:og-014",
+      "normalized_question": "who is the board chair of orion grid cooperative?",
+      "panel": "future_holdout",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "orion-grid",
+      "domain": "Rural electric cooperative",
+      "group": "Utilities",
+      "question_id": "og-015",
+      "question": "How many members does Orion have?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/orion-grid/gold/questions.jsonl",
+      "logical_id": "orion-grid:questions.jsonl:og-015",
+      "normalized_question": "how many members does orion have?",
+      "panel": "future_holdout",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "orion-grid",
+      "domain": "Rural electric cooperative",
+      "group": "Utilities",
+      "question_id": "og-016",
+      "question": "What is the generator rental price in the storm plan?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/orion-grid/gold/questions.jsonl",
+      "logical_id": "orion-grid:questions.jsonl:og-016",
+      "normalized_question": "what is the generator rental price in the storm plan?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "porthaven-port",
+      "domain": "Seaport / marine terminals",
+      "group": "Transport",
+      "question_id": "pp-001",
+      "question": "Which Porthaven berth handles containers?",
+      "answerable": true,
+      "answers": [
+        "Berth 4"
+      ],
+      "supporting_doc_ids": [
+        "about",
+        "berth-4"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/porthaven-port/gold/questions.jsonl",
+      "logical_id": "porthaven-port:questions.jsonl:pp-001",
+      "normalized_question": "which porthaven berth handles containers?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "porthaven-port",
+      "domain": "Seaport / marine terminals",
+      "group": "Transport",
+      "question_id": "pp-002",
+      "question": "Which berth handles dry bulk at Porthaven?",
+      "answerable": true,
+      "answers": [
+        "Berth 9"
+      ],
+      "supporting_doc_ids": [
+        "about",
+        "berth-9"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/porthaven-port/gold/questions.jsonl",
+      "logical_id": "porthaven-port:questions.jsonl:pp-002",
+      "normalized_question": "which berth handles dry bulk at porthaven?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "porthaven-port",
+      "domain": "Seaport / marine terminals",
+      "group": "Transport",
+      "question_id": "pp-003",
+      "question": "What is the current flood-tide inbound pilot window at Porthaven?",
+      "answerable": true,
+      "answers": [
+        "tide +45 minutes",
+        "+45 minutes"
+      ],
+      "supporting_doc_ids": [
+        "pilot-current"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/porthaven-port/gold/questions.jsonl",
+      "logical_id": "porthaven-port:questions.jsonl:pp-003",
+      "normalized_question": "what is the current flood-tide inbound pilot window at porthaven?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "porthaven-port",
+      "domain": "Seaport / marine terminals",
+      "group": "Transport",
+      "question_id": "pp-004",
+      "question": "What flood-tide inbound window did the 2019 circular use?",
+      "answerable": true,
+      "answers": [
+        "tide +20 minutes",
+        "+20 minutes"
+      ],
+      "supporting_doc_ids": [
+        "pilot-2019"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/porthaven-port/gold/questions.jsonl",
+      "logical_id": "porthaven-port:questions.jsonl:pp-004",
+      "normalized_question": "what flood-tide inbound window did the 2019 circular use?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "porthaven-port",
+      "domain": "Seaport / marine terminals",
+      "group": "Transport",
+      "question_id": "pp-005",
+      "question": "What are Gate 2 truck hours?",
+      "answerable": true,
+      "answers": [
+        "05:00-21:00"
+      ],
+      "supporting_doc_ids": [
+        "gate-2"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/porthaven-port/gold/questions.jsonl",
+      "logical_id": "porthaven-port:questions.jsonl:pp-005",
+      "normalized_question": "what are gate 2 truck hours?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "porthaven-port",
+      "domain": "Seaport / marine terminals",
+      "group": "Transport",
+      "question_id": "pp-006",
+      "question": "Which gantry cranes are assigned to Berth 4?",
+      "answerable": true,
+      "answers": [
+        "G-1 and G-2",
+        "G-1",
+        "G-2"
+      ],
+      "supporting_doc_ids": [
+        "berth-4"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/porthaven-port/gold/questions.jsonl",
+      "logical_id": "porthaven-port:questions.jsonl:pp-006",
+      "normalized_question": "which gantry cranes are assigned to berth 4?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "porthaven-port",
+      "domain": "Seaport / marine terminals",
+      "group": "Transport",
+      "question_id": "pp-007",
+      "question": "At what sustained wind do gantry operations stop?",
+      "answerable": true,
+      "answers": [
+        "22 m/s"
+      ],
+      "supporting_doc_ids": [
+        "weather-limit"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/porthaven-port/gold/questions.jsonl",
+      "logical_id": "porthaven-port:questions.jsonl:pp-007",
+      "normalized_question": "at what sustained wind do gantry operations stop?",
+      "panel": "future_holdout",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "porthaven-port",
+      "domain": "Seaport / marine terminals",
+      "group": "Transport",
+      "question_id": "pp-008",
+      "question": "What is the harbor master phone number?",
+      "answerable": true,
+      "answers": [
+        "555-4400"
+      ],
+      "supporting_doc_ids": [
+        "contacts"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/porthaven-port/gold/questions.jsonl",
+      "logical_id": "porthaven-port:questions.jsonl:pp-008",
+      "normalized_question": "what is the harbor master phone number?",
+      "panel": "future_holdout",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "porthaven-port",
+      "domain": "Seaport / marine terminals",
+      "group": "Transport",
+      "question_id": "pp-009",
+      "question": "What are Lark Private Terminal gate hours?",
+      "answerable": true,
+      "answers": [
+        "07:00-19:00"
+      ],
+      "supporting_doc_ids": [
+        "lark-terminal"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/porthaven-port/gold/questions.jsonl",
+      "logical_id": "porthaven-port:questions.jsonl:pp-009",
+      "normalized_question": "what are lark private terminal gate hours?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "porthaven-port",
+      "domain": "Seaport / marine terminals",
+      "group": "Transport",
+      "question_id": "pp-010",
+      "question": "Which rail track do unit grain trains use?",
+      "answerable": true,
+      "answers": [
+        "Track 9"
+      ],
+      "supporting_doc_ids": [
+        "rail"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/porthaven-port/gold/questions.jsonl",
+      "logical_id": "porthaven-port:questions.jsonl:pp-010",
+      "normalized_question": "which rail track do unit grain trains use?",
+      "panel": "future_holdout",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "porthaven-port",
+      "domain": "Seaport / marine terminals",
+      "group": "Transport",
+      "question_id": "pp-011",
+      "question": "Where are reefer plugs?",
+      "answerable": true,
+      "answers": [
+        "Yard C"
+      ],
+      "supporting_doc_ids": [
+        "gate-2"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/porthaven-port/gold/questions.jsonl",
+      "logical_id": "porthaven-port:questions.jsonl:pp-011",
+      "normalized_question": "where are reefer plugs?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "porthaven-port",
+      "domain": "Seaport / marine terminals",
+      "group": "Transport",
+      "question_id": "pp-012",
+      "question": "What example high water is posted on the tide board?",
+      "answerable": true,
+      "answers": [
+        "03.2 meters at 14:10",
+        "03.2 meters"
+      ],
+      "supporting_doc_ids": [
+        "tide-board"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/porthaven-port/gold/questions.jsonl",
+      "logical_id": "porthaven-port:questions.jsonl:pp-012",
+      "normalized_question": "what example high water is posted on the tide board?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "porthaven-port",
+      "domain": "Seaport / marine terminals",
+      "group": "Transport",
+      "question_id": "pp-013",
+      "question": "What do Porthaven stevedores earn per hour?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/porthaven-port/gold/questions.jsonl",
+      "logical_id": "porthaven-port:questions.jsonl:pp-013",
+      "normalized_question": "what do porthaven stevedores earn per hour?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "porthaven-port",
+      "domain": "Seaport / marine terminals",
+      "group": "Transport",
+      "question_id": "pp-014",
+      "question": "Who is the port director?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/porthaven-port/gold/questions.jsonl",
+      "logical_id": "porthaven-port:questions.jsonl:pp-014",
+      "normalized_question": "who is the port director?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "porthaven-port",
+      "domain": "Seaport / marine terminals",
+      "group": "Transport",
+      "question_id": "pp-015",
+      "question": "What is the bunker fuel price at Porthaven?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/porthaven-port/gold/questions.jsonl",
+      "logical_id": "porthaven-port:questions.jsonl:pp-015",
+      "normalized_question": "what is the bunker fuel price at porthaven?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "porthaven-port",
+      "domain": "Seaport / marine terminals",
+      "group": "Transport",
+      "question_id": "pp-016",
+      "question": "What fog visibility limit is on the wind limit card?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/porthaven-port/gold/questions.jsonl",
+      "logical_id": "porthaven-port:questions.jsonl:pp-016",
+      "normalized_question": "what fog visibility limit is on the wind limit card?",
+      "panel": "future_holdout",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "saltwind-coop",
+      "domain": "Commercial fishing cooperative",
+      "group": "Agriculture",
+      "question_id": "sw-001",
+      "question": "On what date does the current Dungeness opener start at Saltwind?",
+      "answerable": true,
+      "answers": [
+        "1 December",
+        "December 1"
+      ],
+      "supporting_doc_ids": [
+        "opener-current"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/saltwind-coop/gold/questions.jsonl",
+      "logical_id": "saltwind-coop:questions.jsonl:sw-001",
+      "normalized_question": "on what date does the current dungeness opener start at saltwind?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "saltwind-coop",
+      "domain": "Commercial fishing cooperative",
+      "group": "Agriculture",
+      "question_id": "sw-002",
+      "question": "According to the 2024 season card, when did Dungeness open?",
+      "answerable": true,
+      "answers": [
+        "15 November",
+        "November 15"
+      ],
+      "supporting_doc_ids": [
+        "opener-2024"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/saltwind-coop/gold/questions.jsonl",
+      "logical_id": "saltwind-coop:questions.jsonl:sw-002",
+      "normalized_question": "according to the 2024 season card, when did dungeness open?",
+      "panel": "future_holdout",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "saltwind-coop",
+      "domain": "Commercial fishing cooperative",
+      "group": "Agriculture",
+      "question_id": "sw-003",
+      "question": "What is the salmon troll opener date on the current card?",
+      "answerable": true,
+      "answers": [
+        "1 May",
+        "May 1"
+      ],
+      "supporting_doc_ids": [
+        "opener-current"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/saltwind-coop/gold/questions.jsonl",
+      "logical_id": "saltwind-coop:questions.jsonl:sw-003",
+      "normalized_question": "what is the salmon troll opener date on the current card?",
+      "panel": "future_holdout",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "saltwind-coop",
+      "domain": "Commercial fishing cooperative",
+      "group": "Agriculture",
+      "question_id": "sw-004",
+      "question": "Is Storm Petrel a crabber or a troller?",
+      "answerable": true,
+      "answers": [
+        "crabber"
+      ],
+      "supporting_doc_ids": [
+        "storm-petrel",
+        "about"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/saltwind-coop/gold/questions.jsonl",
+      "logical_id": "saltwind-coop:questions.jsonl:sw-004",
+      "normalized_question": "is storm petrel a crabber or a troller?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "saltwind-coop",
+      "domain": "Commercial fishing cooperative",
+      "group": "Agriculture",
+      "question_id": "sw-005",
+      "question": "What are ice plant hours during season?",
+      "answerable": true,
+      "answers": [
+        "04:00-14:00"
+      ],
+      "supporting_doc_ids": [
+        "ice-plant"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/saltwind-coop/gold/questions.jsonl",
+      "logical_id": "saltwind-coop:questions.jsonl:sw-005",
+      "normalized_question": "what are ice plant hours during season?",
+      "panel": "future_holdout",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "saltwind-coop",
+      "domain": "Commercial fishing cooperative",
+      "group": "Agriculture",
+      "question_id": "sw-006",
+      "question": "Which hoist do Storm Petrel offloads use?",
+      "answerable": true,
+      "answers": [
+        "H-4"
+      ],
+      "supporting_doc_ids": [
+        "pier-2"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/saltwind-coop/gold/questions.jsonl",
+      "logical_id": "saltwind-coop:questions.jsonl:sw-006",
+      "normalized_question": "which hoist do storm petrel offloads use?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "saltwind-coop",
+      "domain": "Commercial fishing cooperative",
+      "group": "Agriculture",
+      "question_id": "sw-007",
+      "question": "What is the ice plant phone number?",
+      "answerable": true,
+      "answers": [
+        "555-8800"
+      ],
+      "supporting_doc_ids": [
+        "contacts"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/saltwind-coop/gold/questions.jsonl",
+      "logical_id": "saltwind-coop:questions.jsonl:sw-007",
+      "normalized_question": "what is the ice plant phone number?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "saltwind-coop",
+      "domain": "Commercial fishing cooperative",
+      "group": "Agriculture",
+      "question_id": "sw-008",
+      "question": "Where is crab weighed?",
+      "answerable": true,
+      "answers": [
+        "Scale A on Pier 2",
+        "Scale A"
+      ],
+      "supporting_doc_ids": [
+        "scale-house"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/saltwind-coop/gold/questions.jsonl",
+      "logical_id": "saltwind-coop:questions.jsonl:sw-008",
+      "normalized_question": "where is crab weighed?",
+      "panel": "future_holdout",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "saltwind-coop",
+      "domain": "Commercial fishing cooperative",
+      "group": "Agriculture",
+      "question_id": "sw-009",
+      "question": "What is Gull Packers ice window?",
+      "answerable": true,
+      "answers": [
+        "06:00-12:00"
+      ],
+      "supporting_doc_ids": [
+        "gull-packers"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/saltwind-coop/gold/questions.jsonl",
+      "logical_id": "saltwind-coop:questions.jsonl:sw-009",
+      "normalized_question": "what is gull packers ice window?",
+      "panel": "future_holdout",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "saltwind-coop",
+      "domain": "Commercial fishing cooperative",
+      "group": "Agriculture",
+      "question_id": "sw-010",
+      "question": "Where are crab pots stored?",
+      "answerable": true,
+      "answers": [
+        "Loft C"
+      ],
+      "supporting_doc_ids": [
+        "gear"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/saltwind-coop/gold/questions.jsonl",
+      "logical_id": "saltwind-coop:questions.jsonl:sw-010",
+      "normalized_question": "where are crab pots stored?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "saltwind-coop",
+      "domain": "Commercial fishing cooperative",
+      "group": "Agriculture",
+      "question_id": "sw-011",
+      "question": "When is the monthly member meeting?",
+      "answerable": true,
+      "answers": [
+        "first Tuesday, 19:00"
+      ],
+      "supporting_doc_ids": [
+        "meetings"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/saltwind-coop/gold/questions.jsonl",
+      "logical_id": "saltwind-coop:questions.jsonl:sw-011",
+      "normalized_question": "when is the monthly member meeting?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "saltwind-coop",
+      "domain": "Commercial fishing cooperative",
+      "group": "Agriculture",
+      "question_id": "sw-012",
+      "question": "What radio hail does Kelp Wren use?",
+      "answerable": true,
+      "answers": [
+        "Saltwind-Wren"
+      ],
+      "supporting_doc_ids": [
+        "kelp-wren",
+        "radio"
+      ],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/saltwind-coop/gold/questions.jsonl",
+      "logical_id": "saltwind-coop:questions.jsonl:sw-012",
+      "normalized_question": "what radio hail does kelp wren use?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "saltwind-coop",
+      "domain": "Commercial fishing cooperative",
+      "group": "Agriculture",
+      "question_id": "sw-013",
+      "question": "What is the ex-vessel price for Dungeness at Saltwind?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/saltwind-coop/gold/questions.jsonl",
+      "logical_id": "saltwind-coop:questions.jsonl:sw-013",
+      "normalized_question": "what is the ex-vessel price for dungeness at saltwind?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "saltwind-coop",
+      "domain": "Commercial fishing cooperative",
+      "group": "Agriculture",
+      "question_id": "sw-014",
+      "question": "Who is the president of Saltwind Fisheries Co-op?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/saltwind-coop/gold/questions.jsonl",
+      "logical_id": "saltwind-coop:questions.jsonl:sw-014",
+      "normalized_question": "who is the president of saltwind fisheries co-op?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "saltwind-coop",
+      "domain": "Commercial fishing cooperative",
+      "group": "Agriculture",
+      "question_id": "sw-015",
+      "question": "How many quota pounds does Storm Petrel hold?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/saltwind-coop/gold/questions.jsonl",
+      "logical_id": "saltwind-coop:questions.jsonl:sw-015",
+      "normalized_question": "how many quota pounds does storm petrel hold?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    },
+    {
+      "corpus_id": "saltwind-coop",
+      "domain": "Commercial fishing cooperative",
+      "group": "Agriculture",
+      "question_id": "sw-016",
+      "question": "What wave height grounds Storm Petrel?",
+      "answerable": false,
+      "answers": [],
+      "supporting_doc_ids": [],
+      "source": "questions.jsonl",
+      "gold_path": "datasets/saltwind-coop/gold/questions.jsonl",
+      "logical_id": "saltwind-coop:questions.jsonl:sw-016",
+      "normalized_question": "what wave height grounds storm petrel?",
+      "panel": "analysis",
+      "panel_reason": "hash",
+      "duplicate_of": null,
+      "near_duplicate_group": null
+    }
+  ]
+}
