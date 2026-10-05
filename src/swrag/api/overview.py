@@ -91,6 +91,23 @@ def overview_for_traces(traces_dir: str | Path) -> dict[str, Any]:
     return aggregate_overview(runs)
 
 
+def logical_run_history(traces_dir: str | Path) -> dict[str, Any]:
+    """Every logical run, oldest-independent, newest first.
+
+    Confirm-mode children stay inside the parent run. The list is for opening
+    one run in the test console, not for aggregate rates.
+    """
+    runs = group_logical_runs(load_trace_payloads(traces_dir))
+    rows = []
+    for run in runs:
+        row = _activity_row(run)
+        row["trace_ids"] = [
+            str(trace.get("run_id") or "") for trace in run.traces if trace.get("run_id")
+        ]
+        rows.append(row)
+    return {"runs": rows}
+
+
 def group_logical_runs(payloads: list[dict[str, Any]]) -> list[LogicalRun]:
     """Join confirm-mode children onto the parent that started the run.
 

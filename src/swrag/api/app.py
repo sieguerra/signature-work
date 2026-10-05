@@ -15,7 +15,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from swrag.api.credentials import create_api_key, list_api_keys, revoke_api_key
-from swrag.api.overview import overview_for_traces
+from swrag.api.overview import logical_run_history, overview_for_traces
 from swrag.api.store import (
     delete_all_traces,
     delete_trace,
@@ -380,6 +380,10 @@ def create_app(
     @application.get("/api/overview")
     def overview_panel() -> dict[str, Any]:
         return overview_for_traces(application.state.traces_dir)
+
+    @application.get("/api/logical-runs")
+    def logical_runs() -> dict[str, Any]:
+        return logical_run_history(application.state.traces_dir)
 
     @application.get("/api/traces")
     def traces() -> dict[str, Any]:

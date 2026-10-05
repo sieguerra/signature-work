@@ -238,9 +238,12 @@ def test_index_page_and_assets_are_served(tmp_path: Path) -> None:
         assert 'href="#overview"' in page.text
         assert 'href="#test"' in page.text
         assert 'id="view-playground"' in page.text
-        assert 'id="pg-canvas"' in page.text
-        assert 'id="pg-palette"' in page.text
+        assert 'id="tc-flight"' in page.text
         assert 'id="pg-run"' in page.text
+        assert "Run a test query to inspect retrieval, evaluation, recovery, and verification." in page.text
+        assert "How many top passages to retrieve." in page.text
+        assert 'id="pg-canvas"' not in page.text
+        assert 'id="pg-palette"' not in page.text
         assert 'id="nav-knowledge"' in page.text
         assert 'id="view-knowledge"' in page.text
         assert 'id="nav-agent"' in page.text
@@ -252,6 +255,9 @@ def test_index_page_and_assets_are_served(tmp_path: Path) -> None:
         assert "--bg:" in css.text
         assert "view-nav" in css.text
         assert "dropzone" in css.text
+        recorder = client.get("/static/flight-recorder.js")
+        assert recorder.status_code == 200
+        assert "buildFlight" in recorder.text
         charts = client.get("/static/charts.js")
         assert charts.status_code == 200
         assert "No runs scored yet." in charts.text

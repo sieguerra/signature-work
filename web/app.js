@@ -34,6 +34,8 @@ const state = {
   scoringProgress: null,
   overview: null,
   overviewError: "",
+  logicalRuns: [],
+  flightTraces: null,
 };
 
 const CHAT_MODELS = ["gpt-4o-mini", "gpt-4o", "gpt-4.1-mini", "gpt-4.1"];
@@ -443,7 +445,10 @@ function bindShell() {
   document.addEventListener("click", (event) => {
     if (!event.target.closest("#env")) toggleEnvPop(false);
   });
-  $("pg-mode").addEventListener("change", renderShell);
+  $("pg-mode").addEventListener("change", () => {
+    renderShell();
+    renderModeNote();
+  });
   window.addEventListener("keydown", (event) => {
     const mod = event.metaKey || event.ctrlKey;
     if (mod && event.key.toLowerCase() === "k") {
@@ -965,6 +970,7 @@ function render() {
     renderCanvas();
     renderNodeInspector();
   }
+  renderFlight();
 }
 
 async function loadTraces() {
@@ -974,6 +980,7 @@ async function loadTraces() {
   renderRunList();
   renderShell();
   await loadOverview();
+  await loadLogicalRuns();
 }
 
 function setEvalTab(tab) {
@@ -1173,6 +1180,13 @@ async function applyRecovery(action) {
     state.selectedStep = state.steps.find((step) => step.id === "recover") || state.steps[0] || null;
     state.childRunId = payload.child_run_id || null;
     if (state.view === "test") {
+      const parentId = payload.trace && payload.trace.parent_run_id;
+      if (parentId) {
+        const parent = await api(`/api/traces/${encodeURIComponent(parentId)}`);
+        state.flightTraces = [parent.trace, payload.trace];
+      } else {
+        state.flightTraces = [payload.trace];
+      }
       state.messages.push({
         role: "assistant",
         text: (payload.trace && payload.trace.answer) || payload.answer || retrieveFallback(payload),
@@ -1206,10 +1220,9 @@ async function runQuestion(fromPlayground) {
     return;
   }
   showError("");
-  if (fromPlayground) {
-    state.messages.push({ role: "user", text: question });
-    canvasState.note = "";
-  }
+    if (fromPlayground) {
+      state.messages.push({ role: "user", text: question });
+    }
   state.loading = true;
   runButtons.forEach((button) => {
     button.disabled = true;
@@ -1232,12 +1245,12 @@ async function runQuestion(fromPlayground) {
     state.selectedStep = state.steps.find((step) => step.id === "recover") || state.steps[0] || null;
     state.childRunId = payload.child_run_id || null;
     if (fromPlayground) {
+      state.flightTraces = [payload.trace];
       state.messages.push({
         role: "assistant",
         text: (payload.trace && payload.trace.answer) || payload.answer || retrieveFallback(payload),
         runId: payload.run_id,
       });
-      questionEl.value = "";
     }
     await loadTraces();
     render();
@@ -1252,6 +1265,7 @@ async function runQuestion(fromPlayground) {
     renderPlaygroundInspect();
     renderCanvas();
     renderNodeInspector();
+    renderFlight();
     showError(error.message || String(error));
   } finally {
     runButtons.forEach((button) => {
@@ -2383,6 +2397,7 @@ function renderPlaygroundInspect() {
 
 function resetPlaygroundChat() {
   state.messages = [];
+  state.flightTraces = null;
   clearSelection();
   render();
 }
@@ -2449,9 +2464,9 @@ function currentPlaygroundMode() {
 }
 
 function modeLabel(mode) {
-  if (mode === "loop") return "Loop · auto recover";
-  if (mode === "loop_confirm") return "Loop · confirm recovery";
-  if (mode === "baseline") return "Baseline RAG";
+  if (mode === "loop") return "Auto recovery";
+  if (mode === "loop_confirm") return "Confirm recovery";
+  if (mode === "baseline") return "Baseline";
   return "Retrieve only";
 }
 
@@ -3055,7 +3070,7 @@ function writableProject() {
 function renderNodeInspector() {
   const root = $("pg-node-config");
   const title = $("pg-inspector-title");
-  if (!root || !title) return;
+  if (!root || !title || !$("pg-canvas")) return;
   const stages = stagesForMode(currentPlaygroundMode());
   if (!stages.includes(canvasState.selectedId)) canvasState.selectedId = stages[0] || "input";
   const id = canvasState.selectedId;
@@ -3587,16 +3602,21 @@ function bind() {
       runQuestion(true).catch((error) => showError(error.message));
     }
   });
-  $("pg-collapse").addEventListener("click", () => {
-    state.inspectCollapsed = !state.inspectCollapsed;
-    applyView();
-    window.setTimeout(() => frameCanvas(), 260);
-  });
-  $("pg-blocks-toggle").addEventListener("click", () => {
-    state.libraryCollapsed = !state.libraryCollapsed;
-    applyView();
-    window.setTimeout(() => frameCanvas(), 260);
-  });
+  const collapse = $("pg-collapse");
+  if (collapse) {
+    collapse.addEventListener("click", () => {
+      state.inspectCollapsed = !state.inspectCollapsed;
+      applyView();
+    });
+  }
+  const blocks = $("pg-blocks-toggle");
+  if (blocks) {
+    blocks.addEventListener("click", () => {
+      state.libraryCollapsed = !state.libraryCollapsed;
+      applyView();
+      window.setTimeout(() => frameCanvas(), 260);
+    });
+  }
   $("new-workspace").addEventListener("click", () => {
     const form = $("new-workspace-form");
     form.hidden = !form.hidden;
@@ -3954,11 +3974,31 @@ function bind() {
     zone.classList.remove("dragover");
     uploadFiles(event.dataTransfer.files).catch((error) => showError(error.message));
   });
-  $("pg-transcript").addEventListener("click", (event) => {
-    const cite = event.target.closest("button.cite");
-    if (!cite) return;
-    selectCitation(cite.dataset.chunkId, cite.dataset.citePass || null);
-  });
+  const transcript = $("pg-transcript");
+  if (transcript) {
+    transcript.addEventListener("click", (event) => {
+      const cite = event.target.closest("button.cite");
+      if (!cite) return;
+      selectCitation(cite.dataset.chunkId, cite.dataset.citePass || null);
+    });
+  }
+  const history = $("tc-history");
+  if (history) {
+    history.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-flight]");
+      if (!button) return;
+      const ids = (button.dataset.flight || "").split(",").filter(Boolean);
+      openFlight(ids).catch((error) => showError(error.message));
+    });
+  }
+  const flight = $("tc-flight");
+  if (flight) {
+    flight.addEventListener("click", (event) => {
+      const recover = event.target.closest("[data-recover]");
+      if (!recover) return;
+      applyRecovery(recover.dataset.recover).catch((error) => showError(error.message));
+    });
+  }
   $("pg-inspect").addEventListener("click", (event) => {
     const openChild = event.target.closest("[data-open-child]");
     if (openChild) {
@@ -4016,6 +4056,310 @@ async function loadOverview() {
     state.overviewError = error.message || "Overview could not be loaded.";
   }
   renderOverview();
+}
+
+async function loadLogicalRuns() {
+  try {
+    const payload = await api("/api/logical-runs");
+    state.logicalRuns = payload.runs || [];
+  } catch (error) {
+    state.logicalRuns = [];
+  }
+  renderFlight();
+}
+
+async function openFlight(ids) {
+  const traces = [];
+  for (const id of ids) {
+    const payload = await api(`/api/traces/${encodeURIComponent(id)}`);
+    if (payload.trace) traces.push(payload.trace);
+  }
+  state.flightTraces = traces;
+  const flight = window.FlightRecorder ? FlightRecorder.buildFlight(traces) : null;
+  const focusId = (flight && flight.pending && flight.pending.runId) || (traces[traces.length - 1] && traces[traces.length - 1].run_id);
+  const focus = traces.find((trace) => trace.run_id === focusId) || traces[traces.length - 1] || null;
+  state.selectedId = focus ? focus.run_id : null;
+  state.trace = focus;
+  state.steps = [];
+  state.childRunId = flight && !flight.pending && traces.length > 1 ? traces[traces.length - 1].run_id : null;
+  if (state.view !== "test") {
+    if (location.hash !== "#test") location.hash = "#test";
+    applyView();
+  }
+  render();
+}
+
+function renderModeNote() {
+  const note = $("pg-mode-note");
+  const mode = $("pg-mode");
+  if (!note || !mode || !window.FlightRecorder) return;
+  note.textContent = FlightRecorder.modeNote(mode.value);
+}
+
+function renderFlight() {
+  renderModeNote();
+  renderFlightHistory();
+  const root = $("tc-flight");
+  if (!root || !window.FlightRecorder) return;
+  if (state.loading && state.view === "test") {
+    root.innerHTML = `<p class="tc-empty">Running the test…</p>`;
+    return;
+  }
+  const flight = FlightRecorder.buildFlight(state.flightTraces);
+  if (!flight) {
+    root.innerHTML = `<p class="tc-empty">Run a test query to inspect retrieval, evaluation, recovery, and verification.</p>`;
+    const inspect = $("pg-inspect");
+    const title = $("pg-inspector-title");
+    if (title) title.textContent = "Run detail";
+    if (inspect) inspect.innerHTML = `<p class="tc-empty">Retrieved passages and judge flags appear with the run.</p>`;
+    return;
+  }
+  root.innerHTML = flightHtml(flight);
+  renderFlightInspector(flight);
+}
+
+function renderFlightHistory() {
+  const root = $("tc-history");
+  if (!root) return;
+  const open = new Set((state.flightTraces || []).map((trace) => trace.run_id));
+  if (!state.logicalRuns.length) {
+    root.innerHTML = `<p class="tc-empty">No runs yet.</p>`;
+    return;
+  }
+  root.innerHTML = state.logicalRuns
+    .map((run) => {
+      const ids = (run.trace_ids || []).join(",");
+      const on = (run.trace_ids || []).some((id) => open.has(id));
+      const outcome = run.verification
+        ? FlightRecorder.labelOutcome(run.verification)
+        : run.recovery_pending
+          ? "Proposed"
+          : "";
+      return `<button type="button" class="tc-run${on ? " is-on" : ""}" data-flight="${escapeHtml(ids)}">
+        <strong>${escapeHtml(clipFlight(run.query || "(empty)"))}</strong>
+        <small>${escapeHtml([outcome, run.recovery && run.recovery.length ? run.recovery.join(" → ") : ""].filter(Boolean).join(" · "))}</small>
+      </button>`;
+    })
+    .join("");
+}
+
+function flightHtml(flight) {
+  return `${flightSummary(flight)}${flightProposal(flight)}${flightWarning(flight)}${flight.phases.map(phaseHtml).join("")}${answerCompare(flight)}${evidenceCompare(flight)}`;
+}
+
+function flightSummary(flight) {
+  const mode = inferredFlightMode(flight);
+  const parts = [];
+  if (mode) parts.push(mode);
+  if (flight.topK != null) parts.push(`Top K: ${flight.topK}`);
+  if (flight.attemptCount) parts.push(`${flight.attemptCount} recovery attempt${flight.attemptCount === 1 ? "" : "s"}`);
+  parts.push(statusLabel(flight.status));
+  if (flight.latencyMs != null) parts.push(formatFlightLatency(flight.latencyMs));
+  return `<div class="tc-summary">${parts.map((part) => `<span>${escapeHtml(part)}</span>`).join("")}</div>`;
+}
+
+function inferredFlightMode(flight) {
+  if (flight.pending || flight.joined) return "Confirm recovery";
+  if (flight.attemptCount) return "Auto recovery";
+  if (flight.status === "retrieve_only") return "Retrieve only";
+  if (flight.status === "baseline") return "Baseline";
+  if (flight.status === "no_recovery_needed") return "No recovery needed";
+  return "";
+}
+
+function statusLabel(status) {
+  const labels = {
+    retrieve_only: "Retrieve only",
+    baseline: "Baseline",
+    no_recovery_needed: "No recovery needed",
+    recovery_proposed: "Recovery proposed",
+    improved: "Improved",
+    unchanged: "Unchanged",
+    still_failing: "Still failing",
+    degraded: "Degraded",
+    abstained: "Safe abstention",
+    applied: "Recovery applied",
+  };
+  return labels[status] || status || "";
+}
+
+function flightProposal(flight) {
+  const pending = flight.pending;
+  if (!pending) return "";
+  const diagnosis = pending.diagnosis
+    ? diagnosisText(pending.diagnosis)
+    : "Diagnosis not yet attributed.";
+  const others = V1_ACTIONS.filter((action) => action !== pending.action);
+  const overrides = others
+    .map(
+      (action) =>
+        `<button type="button" class="ghost" data-recover="${escapeHtml(action)}">${escapeHtml(ACTION_LABELS[action] || action)}</button>`
+    )
+    .join("");
+  return `<section class="tc-proposal">
+    <h2>Recovery proposed</h2>
+    <p>${escapeHtml(pending.reason || "The reliability check asked for a recovery.")}</p>
+    <p>Diagnosis: ${escapeHtml(diagnosis)}</p>
+    <p>Proposed action: ${escapeHtml(FlightRecorder.labelAction(pending.action))}</p>
+    <p>${escapeHtml(pending.effect || "")}</p>
+    ${pending.source ? `<p>${escapeHtml(pending.source)}</p>` : ""}
+    <div class="tc-actions">
+      <button type="button" class="primary" data-recover="${escapeHtml(pending.action)}">Apply recovery</button>
+      ${overrides}
+    </div>
+  </section>`;
+}
+
+function flightWarning(flight) {
+  const warning = flight.retrievalWarning;
+  if (!warning) return "";
+  let text = "Retrieval looked unreliable.";
+  if (warning.weakTop) text = "Top retrieval scores were weak.";
+  else if (warning.ambiguousTop) text = "Top evidence candidates were ambiguous.";
+  else if (warning.reason) text = warning.reason;
+  if (warning.triggeredRecovery) text += " Recovery was triggered by this retrieval signal.";
+  const scores = [];
+  if (warning.topScore != null) scores.push(`top ${warning.topScore}`);
+  if (warning.runnerUpScore != null) scores.push(`runner-up ${warning.runnerUpScore}`);
+  return `<section class="tc-phase">
+    <h2>Retrieval warning</h2>
+    <p class="tc-step-detail">${escapeHtml(text)}</p>
+    ${scores.length ? `<p class="tc-step-detail">${escapeHtml(scores.join(" · "))}</p>` : ""}
+  </section>`;
+}
+
+function phaseHtml(phase) {
+  const steps = (phase.steps || [])
+    .map(
+      (step) => `<div class="tc-step${step.kind === "verify" ? " is-verify" : ""}">
+        <span class="tc-rail" aria-hidden="true"></span>
+        <div>
+          <div class="tc-step-title">${escapeHtml(step.title || "")}</div>
+          ${step.detail ? `<div class="tc-step-detail">${escapeHtml(diagnosisText(step.detail))}</div>` : ""}
+        </div>
+      </div>`
+    )
+    .join("");
+  return `<section class="tc-phase"><h2>${escapeHtml(phase.title || "")}</h2>${steps}</section>`;
+}
+
+function answerCompare(flight) {
+  if (!flight.after && !flight.before.answer) return "";
+  if (!flight.after) {
+    if (!flight.before.answer) return "";
+    return `<section class="tc-phase"><h2>Answer</h2><p class="tc-step-detail">${escapeHtml(flight.before.answer)}</p></section>`;
+  }
+  const initial = flight.before.answer || "The first answer was not stored on this trace.";
+  const recovered = flight.after.abstained
+    ? `Safe abstention\n${flight.after.answer}`
+    : flight.after.answer || "(empty)";
+  return `<section class="tc-phase">
+    <h2>Answers</h2>
+    <div class="tc-compare">
+      <div><h3>Initial answer</h3><p class="tc-step-detail">${escapeHtml(initial)}</p></div>
+      <div><h3>${flight.after.abstained ? "Safe abstention" : "Recovered answer"}</h3><p class="tc-step-detail">${escapeHtml(recovered)}</p></div>
+    </div>
+  </section>`;
+}
+
+function evidenceCompare(flight) {
+  if (!flight.evidence) {
+    const chunks = flight.before.chunks || [];
+    if (!chunks.length) return "";
+    return `<section class="tc-phase tc-evidence"><h2>Initial evidence</h2>${chunks.map((chunk) => chunkRow(chunk, "")).join("")}</section>`;
+  }
+  const same = !flight.evidence.added.length && !flight.evidence.removed.length;
+  if (same && flight.attempts.some((attempt) => attempt.action === "regenerate") && flight.attempts.every((attempt) => attempt.action === "regenerate")) {
+    return `<section class="tc-phase"><h2>Evidence</h2><p class="tc-step-detail">Same evidence.</p>${flight.evidence.retained.map((chunk) => chunkRow(chunk, "Retained")).join("")}</section>`;
+  }
+  return `<section class="tc-phase tc-evidence">
+    <h2>Evidence</h2>
+    ${evidenceGroup("Initial evidence · retained", flight.evidence.retained, "Retained")}
+    ${evidenceGroup("Removed", flight.evidence.removed, "Removed")}
+    ${evidenceGroup("Recovered evidence · new", flight.evidence.added, "New")}
+  </section>`;
+}
+
+function evidenceGroup(title, chunks, mark) {
+  if (!chunks.length) return `<p class="tc-step-detail">${escapeHtml(title)}: none</p>`;
+  return `<h3>${escapeHtml(title)}</h3>${chunks.map((chunk) => chunkRow(chunk, mark)).join("")}`;
+}
+
+function chunkRow(chunk, mark) {
+  const title = (chunk && (chunk.title || chunk.doc_id)) || "Passage";
+  const id = (chunk && chunk.chunk_id) || "";
+  const score = chunk && typeof chunk.score === "number" ? chunk.score.toFixed(3) : "";
+  const page = chunk && chunk.page != null && chunk.page !== "" ? `p. ${chunk.page}` : "";
+  const text = (chunk && chunk.text) || "";
+  const bits = [mark, title, id, score, page].filter(Boolean).join(" · ");
+  return `<details><summary>${escapeHtml(bits)}</summary><p class="tc-chunk-text">${escapeHtml(text)}</p></details>`;
+}
+
+function renderFlightInspector(flight) {
+  const inspect = $("pg-inspect");
+  const title = $("pg-inspector-title");
+  if (title) title.textContent = "Run detail";
+  if (!inspect) return;
+  const before = judgeLines(flight.before.evaluation);
+  const after = flight.after ? judgeLines(flight.after.evaluation) : "";
+  const outcome = flight.verification ? FlightRecorder.labelOutcome(flight.verification) : "";
+  const judged = Boolean(flight.verification || flight.before.evaluation || (flight.after && flight.after.evaluation));
+  inspect.innerHTML = `<section class="tc-phase">
+    <h2>${judged ? "Runtime verification" : "Run detail"}</h2>
+    ${judged ? `<p class="tc-step-detail">Compares runtime judge flags. Not ground-truth correctness.</p>` : ""}
+    <p>Initial: ${escapeHtml(before || "Not judged")}</p>
+    <p>Final: ${escapeHtml(after || before || "Not judged")}</p>
+    <p>${escapeHtml(outcome || statusLabel(flight.status))}</p>
+    ${technicalFlags(flight)}
+  </section>`;
+}
+
+function judgeLines(evaluation) {
+  if (!evaluation) return "";
+  const evidence = evaluation.evidence_sufficient ? "Evidence sufficient" : "Evidence insufficient";
+  let support = "Answer support not checked";
+  if (evaluation.answer_supported === true) support = "Answer supported";
+  if (evaluation.answer_supported === false) support = "Answer unsupported";
+  return `${evidence}. ${support}.`;
+}
+
+function technicalFlags(flight) {
+  const before = flight.before.evaluation;
+  const after = flight.after && flight.after.evaluation;
+  const lines = [];
+  if (before) {
+    lines.push(`evidence_sufficient: ${before.evidence_sufficient}`);
+    lines.push(`answer_supported: ${before.answer_supported === null ? "null" : before.answer_supported}`);
+  }
+  if (after) {
+    lines.push(`final evidence_sufficient: ${after.evidence_sufficient}`);
+    lines.push(`final answer_supported: ${after.answer_supported === null ? "null" : after.answer_supported}`);
+  }
+  const source = flight.pending && flight.pending.sourceRaw;
+  if (source) lines.push(`source: ${source}`);
+  (flight.attempts || []).forEach((attempt, index) => {
+    if (attempt.sourceRaw) lines.push(`attempt ${index + 1} source: ${attempt.sourceRaw}`);
+    if (attempt.trigger) lines.push(`attempt ${index + 1} trigger: ${attempt.trigger}`);
+  });
+  if (!lines.length) return "";
+  return `<details><summary>Technical detail</summary><p class="tc-chunk-text">${escapeHtml(lines.join("\n"))}</p></details>`;
+}
+
+function diagnosisText(value) {
+  if (!value) return "";
+  if (value === "Diagnosis not yet attributed.") return value;
+  return OV_DIAGNOSES[value] || value;
+}
+
+function clipFlight(value) {
+  const text = String(value || "").replace(/\s+/g, " ").trim();
+  if (text.length <= 72) return text;
+  return `${text.slice(0, 71)}…`;
+}
+
+function formatFlightLatency(ms) {
+  if (ms >= 1000) return `${(ms / 1000).toFixed(1)}s`;
+  return `${Math.round(ms)}ms`;
 }
 
 async function inspectOverviewRun(runId) {

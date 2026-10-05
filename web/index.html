@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>swrag · Reliability</title>
     <meta name="color-scheme" content="dark" />
-    <link rel="stylesheet" href="/static/styles.css?v=50" />
+    <link rel="stylesheet" href="/static/styles.css?v=53" />
   </head>
   <body>
     <div id="app" data-view="overview">
@@ -104,62 +104,38 @@
           <div id="overview-body" class="overview-body"></div>
         </div>
 
-        <div id="view-playground" class="view">
-          <aside class="pg-drawer pg-library">
-            <div class="drawer-clip">
-              <div class="drawer-sheet pg-palette" id="pg-palette"></div>
-            </div>
-            <button type="button" class="drawer-handle" id="pg-blocks-toggle" aria-pressed="true" aria-label="Hide blocks" title="Hide blocks">
-              <span class="drawer-chevron" aria-hidden="true"></span>
-            </button>
+        <div id="view-playground" class="view tc-shell">
+          <aside class="tc-history">
+            <div class="pane-label">Runs</div>
+            <div id="tc-history"></div>
           </aside>
-          <section class="pg-stage">
-            <div class="pg-canvas-bar">
-              <div class="pg-canvas-status" id="pg-canvas-status">Idle</div>
-              <div class="pg-canvas-tools">
-                <button type="button" class="ghost" id="pg-zoom-out" aria-label="Zoom out">−</button>
-                <button type="button" class="ghost" id="pg-zoom-in" aria-label="Zoom in">+</button>
-                <button type="button" class="ghost" id="pg-fit">Fit</button>
-                <button type="button" class="primary" id="pg-run">Run test</button>
+          <section class="tc-main">
+            <form class="tc-controls" id="pg-composer">
+              <label class="sr-only" for="pg-question">Test query</label>
+              <textarea id="pg-question" rows="2" placeholder="Test query"></textarea>
+              <div class="tc-control-row">
+                <label class="tc-field">Run mode
+                  <select id="pg-mode" aria-label="Run mode">
+                    <option value="retrieve_only">Retrieve only</option>
+                    <option value="baseline">Baseline</option>
+                    <option value="loop_confirm">Confirm recovery</option>
+                    <option value="loop" selected>Auto recovery</option>
+                  </select>
+                </label>
+                <label class="tc-field">Retrieval depth
+                  <input id="pg-top-k" type="number" min="1" max="20" value="4" step="1" aria-label="How many top passages to retrieve" />
+                </label>
+                <span class="tc-spacer"></span>
+                <button type="button" class="ghost" id="pg-reset">Reset</button>
+                <button type="button" class="ghost" id="pg-rerun">Rerun</button>
+                <button type="submit" class="primary" id="pg-run">Run test</button>
               </div>
-            </div>
-            <div class="pg-canvas" id="pg-canvas" tabindex="0" aria-label="Test run">
-              <div class="pg-world" id="pg-world">
-                <svg class="pg-edges" id="pg-edges"></svg>
-                <div id="pg-nodes"></div>
-              </div>
-            </div>
-            <div class="pg-dock">
-              <form class="pg-composer" id="pg-composer">
-                <label class="sr-only" for="pg-question">Test query</label>
-                <textarea
-                  id="pg-question"
-                  rows="2"
-                  placeholder="Run a test query…"
-                ></textarea>
-                <div class="pg-composer-row">
-                  <div class="pg-composer-tools">
-                    <button type="button" class="ghost" id="pg-reset">Reset</button>
-                    <button type="button" class="ghost" id="pg-rerun">Rerun</button>
-                  </div>
-                  <label class="mode">
-                    Mode
-                    <select id="pg-mode">
-                      <option value="loop" selected>Loop (auto recover)</option>
-                      <option value="loop_confirm">Loop (confirm recovery)</option>
-                      <option value="baseline">Baseline RAG</option>
-                      <option value="retrieve_only">Retrieve only</option>
-                    </select>
-                  </label>
-                  <label class="mode">
-                    top_k
-                    <input id="pg-top-k" type="number" min="1" max="20" value="4" step="1" aria-label="Test Console top_k" />
-                  </label>
-                  <button type="submit" class="primary" id="pg-send">Run query</button>
-                </div>
-                <div class="banner hidden" id="pg-error" role="alert"></div>
-              </form>
-              <div class="pg-transcript" id="pg-transcript"></div>
+              <p id="pg-mode-note" class="tc-mode-note"></p>
+              <p class="tc-depth-note">How many top passages to retrieve.</p>
+              <div class="banner hidden" id="pg-error" role="alert"></div>
+            </form>
+            <div id="tc-flight" class="tc-flight" aria-live="polite">
+              <p class="tc-empty">Run a test query to inspect retrieval, evaluation, recovery, and verification.</p>
             </div>
           </section>
           <aside class="pg-drawer pg-inspect" id="pg-inspect-pane">
@@ -168,11 +144,8 @@
             </button>
             <div class="drawer-clip">
               <div class="drawer-sheet">
-                <div class="pane-label">
-                  <span id="pg-inspector-title">Input</span>
-                </div>
+                <div class="pane-label"><span id="pg-inspector-title">Run detail</span></div>
                 <div id="pg-node-config"></div>
-                <div class="pane-label pg-sources-label">Sources</div>
                 <div class="inspector" id="pg-inspect"></div>
               </div>
             </div>
@@ -328,7 +301,8 @@
     </div>
     <script src="/static/icons.js?v=43"></script>
     <script src="/static/charts.js?v=44"></script>
+    <script src="/static/flight-recorder.js?v=2"></script>
     <script src="/static/agent-config.js?v=46"></script>
-    <script src="/static/app.js?v=50"></script>
+    <script src="/static/app.js?v=53"></script>
   </body>
 </html>

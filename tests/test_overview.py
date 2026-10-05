@@ -8,7 +8,12 @@ from pathlib import Path
 from fastapi.testclient import TestClient
 
 from swrag.api.app import create_app
-from swrag.api.overview import aggregate_overview, group_logical_runs, overview_for_traces
+from swrag.api.overview import (
+    aggregate_overview,
+    group_logical_runs,
+    logical_run_history,
+    overview_for_traces,
+)
 
 
 def _eval(sufficient: bool, supported: bool | None = True) -> dict:
@@ -329,6 +334,39 @@ def test_initial_and_final_signals_use_first_pass_and_final_state() -> None:
     assert evidence["final"] == {"true": 1, "total": 1, "rate": 1.0}
 
 
+def test_logical_run_history_joins_confirm_child_and_skips_summary(tmp_path: Path) -> None:
+    _write(
+        tmp_path,
+        _trace(
+            "parent",
+            query="Library hours",
+            runtime_evaluation=_eval(False, False),
+            recovery={"action": "rewrite"},
+            recovery_status="proposed",
+        ),
+    )
+    _write(
+        tmp_path,
+        _trace(
+            "child",
+            query="Library hours",
+            parent_run_id="parent",
+            runtime_evaluation=_eval(True, True),
+            recovery={"action": "rewrite"},
+            recovery_status="applied",
+            verification={"outcome": "improved"},
+        ),
+    )
+    (tmp_path / "summary.json").write_text('{"gold_answer":"GOLD_ANSWER_SHOULD_NOT_LEAK"}', encoding="utf-8")
+    history = logical_run_history(tmp_path)
+    assert len(history["runs"]) == 1
+    row = history["runs"][0]
+    assert row["logical_run_id"] == "parent"
+    assert row["trace_ids"] == ["parent", "child"]
+    assert row["verification"] == "improved"
+    assert "GOLD_ANSWER_SHOULD_NOT_LEAK" not in json.dumps(history)
+
+
 def test_overview_endpoint_follows_the_active_system(tmp_path: Path) -> None:
     _write(
         tmp_path / "dku",
@@ -360,6 +398,9 @@ def test_overview_endpoint_follows_the_active_system(tmp_path: Path) -> None:
         assert dku_body["unresolved"] == 1
         assert dku_body["recent_activity"][0]["query"] == "DKU only question"
         assert "batch_summary" not in dku_body
+        history = client.get("/api/logical-runs")
+        assert history.status_code == 200
+        assert history.json()["runs"][0]["trace_ids"] == ["dku-run"]
 
         switched = client.post("/api/corpus", json={"id": "harbor"})
         assert switched.status_code == 200
