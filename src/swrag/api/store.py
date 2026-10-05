@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from swrag.orchestration.loop import ABSTAIN_ANSWER
+from swrag.tracing.schema import SCHEMA_VERSION, schema_version
 
 SKIP_NAMES = frozenset({"summary.json", "comparison.json", "config.json"})
 
@@ -260,6 +261,13 @@ def _dict(value: object) -> dict[str, Any]:
     return value if isinstance(value, dict) else {}
 
 
+def _future_trace_schema(payload: dict[str, Any]) -> bool:
+    raw = payload.get("trace_schema_version")
+    if isinstance(raw, bool) or not isinstance(raw, int):
+        return False
+    return schema_version(payload) > SCHEMA_VERSION
+
+
 def _chart_row(payload: dict[str, Any]) -> dict[str, Any]:
     """One run reduced to what the evaluation charts plot. Runtime signals only, no gold."""
     recovery = _dict(payload.get("recovery"))
@@ -267,16 +275,25 @@ def _chart_row(payload: dict[str, Any]) -> dict[str, Any]:
     first = _dict(payload.get("first_pass_evaluation")) or final
     attempts = [item for item in payload.get("recovery_attempts") or [] if isinstance(item, dict)]
     status = payload.get("recovery_status")
-    if attempts:
-        path = [str(item.get("action")) for item in attempts if item.get("action")]
+    if _future_trace_schema(payload):
+        path = []
+    elif attempts:
+        path = [
+            str(item.get("action"))
+            for item in attempts
+            if item.get("action") and item.get("executed") is not False
+        ]
     elif status != "proposed" and recovery.get("action") not in (None, "accept"):
         path = [str(recovery["action"])]
     else:
         path = []
-    failure_class = next(
-        (item.get("attributed_class") for item in attempts if item.get("attributed_class")),
-        None,
-    ) or recovery.get("attributed_class") or _dict(payload.get("diagnosis")).get("failure_class")
+    if _future_trace_schema(payload):
+        failure_class = None
+    else:
+        failure_class = next(
+            (item.get("attributed_class") for item in attempts if item.get("attributed_class")),
+            None,
+        ) or recovery.get("attributed_class") or _dict(payload.get("diagnosis")).get("failure_class")
     answer = str(payload.get("answer") or "")
     first_answer = str(payload.get("previous_answer") or "") if path and payload.get("previous_answer") is not None else answer
     latency = payload.get("latency_ms")

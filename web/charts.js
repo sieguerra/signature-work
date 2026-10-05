@@ -427,6 +427,7 @@ function runNode(kicker, title, body, tone) {
 }
 
 function attemptDetail(attempt) {
+  if (attempt.executed === false) return "Selected, not executed";
   const params = attempt.parameters || {};
   if (attempt.action === "rewrite") {
     return attempt.rewritten_query ? `New search: \u201c${chartEsc(snippet(attempt.rewritten_query, 120))}\u201d` : "Rewrote the search query";
@@ -440,6 +441,8 @@ function attemptDetail(attempt) {
 }
 
 function runAttempts(trace) {
+  const version = trace && trace.trace_schema_version;
+  if (typeof version === "number" && Number.isInteger(version) && version > 2) return [];
   const attempts = (trace.recovery_attempts || []).filter((item) => item && item.action);
   if (attempts.length) return attempts;
   const recovery = trace.recovery || {};

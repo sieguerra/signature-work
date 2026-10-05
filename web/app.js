@@ -190,7 +190,10 @@ function renderShell() {
   const docs = $("nav-doc-count");
   if (docs) docs.textContent = meta.doc_count ? String(meta.doc_count) : "";
   const runs = $("nav-run-count");
-  if (runs) runs.textContent = state.traces.length ? String(state.traces.length) : "";
+  if (runs) {
+    const count = state.logicalRuns.length ? state.logicalRuns.length : state.traces.length;
+    runs.textContent = count ? String(count) : "";
+  }
   document.title = `${VIEW_TITLES[state.view] || "swrag"} · ${label} · swrag`;
 }
 
@@ -4445,6 +4448,7 @@ async function loadLogicalRuns() {
   }
   renderFlight();
   renderReliability();
+  renderShell();
 }
 
 async function openFlight(ids, options) {
@@ -4572,6 +4576,8 @@ function statusLabel(status) {
     retrieve_only: "Retrieve only",
     baseline: "Baseline",
     no_recovery_needed: "No recovery needed",
+    not_executed: "Selected, not executed",
+    unsupported_schema: "Unsupported trace schema",
     recovery_proposed: "Recovery proposed",
     improved: "Improved",
     unchanged: "Unchanged",

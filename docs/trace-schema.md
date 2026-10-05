@@ -51,4 +51,30 @@ Terminal abstention runs after the recovery budget and makes no judge call. Its 
 
 Gold answers, answerability, gold F1, and benchmark success labels are not written. `question_id` is only the id the experiment runner already passed in. Provider config records `api_key_present`, never the key.
 
-Queries, passage text, and answers are retained. That is required for this local research system. Those fields are the sensitive content if this trace is later stored for a customer.
+Queries, passage text, and answers are retained. That is required for this local research system. Those fields are the sensitive content if this trace is later stored for a customer. Authentication secrets are not. The provider block stores `api_key_present` and never the key, a bearer token, or an `Authorization` header.
+
+## Usage accounting
+
+Trace `usage` is the whole run. Each attempt's `usage` is only that attempt. Consumers must not add them together.
+
+`usage` is omitted when no capture was open, and when a capture was open but no chat or embedding call happened. A call whose provider response omitted `usage` keeps `chat_calls` or `embedding_calls` and sets the token fields to null with `tokens_observed: false`. A numeric zero is written only when a usage object was seen. Missing tokens are not a measured zero.
+
+Confirm mode: the parent file's usage is the first pass. The child file's usage is the applied attempt's capture, which is the child's whole run. The child's attempt usage is that same attempt. Adding parent usage to child usage describes the logical run. Adding the child's top-level usage to its attempt usage double-counts the child.
+
+## Writes
+
+`write_trace` writes a partial file, fsyncs it, then links it to `{run_id}.json`. The link fails if that name exists, so a finished trace is not overwritten and a crash during the write does not leave a truncated `{run_id}.json`. A leftover `.{run_id}.json.partial` is not a `*.json` file, so loaders do not treat it as a completed run. An exception before `write_run` still leaves no trace file. There is no crash journal.
+
+## Schema versions this code does not know
+
+`trace_schema_version: 999` (any integer above 2) is not read as version 2. `initial`, attempt `answer_relation`, and attempt evidence are not interpreted. The file can still be listed from its top-level `run_id`, `query`, and `answer`. The Test Console marks it unsupported and does not build a recovery path from it. There is no migration.
+
+## What a verifier must not assume
+
+`executed: false` means the controller selected the action and the operation did not run. The attempt stays in order. It is not an applied recovery. Overview's verified-improved rate ignores it. A top-level `verification` compares the first pass with the final state; it does not by itself prove that an attempt executed. When nothing executed, that comparison can be `unchanged` because the state did not change.
+
+`evaluation_source: carried` means no new judge call. `answer_supported: null` on that evaluation is still null. A carried abstention is not a fresh judgment that the answer is unsupported.
+
+`probe_evaluation` judged the rewritten evidence before an answer existed. It is not an evaluation of the attempt's answer.
+
+`kept_previous` means the answer text was not generated from the attempt's new evidence. `abstained` is the canonical abstention string, not a generated answer.

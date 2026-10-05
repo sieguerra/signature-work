@@ -16,15 +16,17 @@ judged runs
 
 recovery required
     Judged runs where a non-``accept`` action is still proposed, or where at
-    least one non-``accept`` action was applied.
-    Rate = that count / judged runs. ``accept`` is not recovery.
+    least one non-``accept`` action was selected. A selection with
+    ``executed: false`` still counts as required. ``accept`` is not recovery.
+    Rate = that count / judged runs.
 
 verified improved
-    Applied logical recoveries whose final verification outcome is
-    ``improved``, divided by applied logical recoveries that have a final
-    verification outcome.
-    Pending proposals, ``accept``, and applied recoveries with no outcome
-    are outside the denominator.
+    Applied means the attempt executed (missing ``executed`` counts as
+    executed, so legacy traces stay in the rate). ``executed: false`` is
+    outside the numerator and the denominator.
+    The rate is applied logical recoveries whose final verification outcome
+    is ``improved``, divided by applied logical recoveries that have a final
+    verification outcome. Pending proposals and ``accept`` are outside it.
 
 unresolved
     Logical runs with a still-pending non-``accept`` proposal, or whose
@@ -52,7 +54,7 @@ from pathlib import Path
 from typing import Any
 
 from swrag.api.store import load_trace_payloads
-from swrag.tracing.schema import first_pass_diagnosis
+from swrag.tracing.schema import SCHEMA_VERSION, first_pass_diagnosis, schema_version
 
 _ACCEPT = frozenset({"", "accept", "none"})
 _OUTCOMES = ("improved", "unchanged", "still_failing", "degraded")
@@ -111,6 +113,7 @@ def logical_run_history(traces_dir: str | Path) -> dict[str, Any]:
         row["source"] = source
         row["judged"] = _is_judged(run)
         row["recovery_required"] = _recovery_required(run)
+        row["recovery_applied"] = bool(_applied_actions(run))
         row["usage"] = _usage_totals(run)
         rows.append(row)
     return {"runs": rows}
@@ -281,7 +284,7 @@ def _is_judged(run: LogicalRun) -> bool:
 
 
 def _recovery_required(run: LogicalRun) -> bool:
-    return bool(_applied_actions(run) or _pending_action(run))
+    return bool(_selected_actions(run) or _pending_action(run))
 
 
 def _attention_kind(run: LogicalRun) -> str | None:
@@ -302,20 +305,45 @@ def _applied_actions(run: LogicalRun) -> list[str]:
     return actions
 
 
+def _selected_actions(run: LogicalRun) -> list[str]:
+    actions: list[str] = []
+    for trace in run.traces:
+        actions.extend(_attempt_actions(trace, executed_only=False))
+    return actions
+
+
 def _applied_actions_on_trace(trace: dict[str, Any]) -> list[str]:
+    return _attempt_actions(trace, executed_only=True)
+
+
+def _attempt_actions(trace: dict[str, Any], *, executed_only: bool) -> list[str]:
+    """Non-accept actions. A schema newer than v2 is not read as v2 attempts."""
+    if _future_schema(trace):
+        return []
     attempts = [item for item in trace.get("recovery_attempts") or [] if isinstance(item, dict)]
     if attempts:
-        return [
-            action
-            for item in attempts
-            if (action := _action_name(item.get("action"))) not in _ACCEPT
-        ]
+        names: list[str] = []
+        for item in attempts:
+            if executed_only and item.get("executed") is False:
+                continue
+            action = _action_name(item.get("action"))
+            if action not in _ACCEPT:
+                names.append(action)
+        return names
     if trace.get("recovery_status") == "proposed":
         return []
     action = _action_name(_recovery(trace).get("action"))
     if action in _ACCEPT:
         return []
     return [action]
+
+
+def _future_schema(trace: dict[str, Any]) -> bool:
+    version = schema_version(trace)
+    raw = trace.get("trace_schema_version")
+    if isinstance(raw, bool) or not isinstance(raw, int):
+        return False
+    return version > SCHEMA_VERSION
 
 
 def _pending_action(run: LogicalRun) -> str | None:
@@ -354,7 +382,7 @@ def _outcome(trace: dict[str, Any]) -> str | None:
 
 def _initial_eval(run: LogicalRun) -> dict[str, Any] | None:
     for trace in run.traces:
-        if trace.get("parent_run_id"):
+        if _future_schema(trace) or trace.get("parent_run_id"):
             continue
         evaluation = _evaluation(trace.get("first_pass_evaluation")) or _evaluation(
             trace.get("runtime_evaluation")
@@ -362,6 +390,8 @@ def _initial_eval(run: LogicalRun) -> dict[str, Any] | None:
         if evaluation is not None:
             return evaluation
     for trace in run.traces:
+        if _future_schema(trace):
+            continue
         evaluation = _evaluation(trace.get("first_pass_evaluation"))
         if evaluation is not None:
             return evaluation
@@ -370,6 +400,8 @@ def _initial_eval(run: LogicalRun) -> dict[str, Any] | None:
 
 def _final_eval(run: LogicalRun) -> dict[str, Any] | None:
     for trace in reversed(run.traces):
+        if _future_schema(trace):
+            continue
         evaluation = _evaluation(trace.get("runtime_evaluation"))
         if evaluation is not None:
             return evaluation
@@ -402,6 +434,8 @@ def _signal_rate(runs: list[LogicalRun], key: str, *, initial: bool) -> dict[str
 def _diagnosis_classes(run: LogicalRun) -> list[str]:
     found: set[str] = set()
     for trace in run.traces:
+        if _future_schema(trace):
+            continue
         diagnosis = trace.get("diagnosis")
         if isinstance(diagnosis, dict):
             _add_class(found, diagnosis.get("failure_class"))
@@ -456,7 +490,8 @@ def _attention_row(run: LogicalRun) -> dict[str, Any]:
 
 
 def _activity_row(run: LogicalRun) -> dict[str, Any]:
-    actions = _applied_actions(run)
+    selected = _selected_actions(run)
+    applied = _applied_actions(run)
     pending = _pending_action(run)
     return {
         "logical_run_id": run.root_id,
@@ -464,9 +499,9 @@ def _activity_row(run: LogicalRun) -> dict[str, Any]:
         "query": _query(run),
         "timestamp": _latest_timestamp(run),
         "initial_state": _initial_state(run),
-        "recovery": actions,
+        "recovery": selected,
         "recovery_pending": pending,
-        "verification": _final_outcome(run) if actions else None,
+        "verification": _final_outcome(run) if applied else None,
         "latency_ms": _latency(run),
     }
 
@@ -476,6 +511,8 @@ def _recovery_meta(run: LogicalRun) -> tuple[str | None, str | None]:
     triggers: list[str] = []
     source: str | None = None
     for trace in run.traces:
+        if _future_schema(trace):
+            continue
         attempts = [item for item in trace.get("recovery_attempts") or [] if isinstance(item, dict)]
         recovery = _recovery(trace)
         if attempts:

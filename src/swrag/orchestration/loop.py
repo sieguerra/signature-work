@@ -49,7 +49,7 @@ from swrag.tracing.schema import (
     initial_from_trace,
     initial_snapshot,
 )
-from swrag.usage import peek_usage, usage_delta
+from swrag.usage import usage_checkpoint, usage_delta
 from swrag.retrieval.memory_index import InMemoryIndex
 from swrag.recovery.expand import next_top_k
 from swrag.recovery.policy import (
@@ -190,7 +190,7 @@ def run_with_recovery(
     while _should_apply(current_decision.action, attempts_so_far=len(attempts)):
         if len(attempts) >= max_recoveries:
             break
-        usage_before = peek_usage()
+        usage_before = usage_checkpoint()
         attempt_started = time.perf_counter()
         applied = _apply_action(
             state,
@@ -208,7 +208,7 @@ def run_with_recovery(
             search_query=search_query,
         )
         attempt_latency = _elapsed_ms(attempt_started)
-        attempt_usage = usage_delta(usage_before, peek_usage())
+        attempt_usage = usage_delta(usage_before, usage_checkpoint())
         last_applied = applied
         state = applied.state
         used.append(current_decision.action)
@@ -251,11 +251,11 @@ def run_with_recovery(
         current_decision = nxt
 
     if last_applied is not None and _needs_terminal_abstain(last_applied.decision, state):
-        usage_before = peek_usage()
+        usage_before = usage_checkpoint()
         attempt_started = time.perf_counter()
         applied = _terminal_abstain(state, last_applied.decision)
         attempt_latency = _elapsed_ms(attempt_started)
-        attempt_usage = usage_delta(usage_before, peek_usage())
+        attempt_usage = usage_delta(usage_before, usage_checkpoint())
         last_applied = applied
         state = applied.state
         used.append(ABSTAIN)
@@ -385,7 +385,7 @@ def apply_recovery(
     decision = _decision_to_apply(proposed, chosen)
     state = _query_state_from_trace(parent)
     resolved_index = index if index is not None else build_corpus_index(corpus_dir, embedder)
-    usage_before = peek_usage()
+    usage_before = usage_checkpoint()
     attempt_started = time.perf_counter()
     applied = _apply_action(
         state,
@@ -405,7 +405,7 @@ def apply_recovery(
         0,
         applied,
         latency_ms=_elapsed_ms(attempt_started),
-        usage=usage_delta(usage_before, peek_usage()),
+        usage=usage_delta(usage_before, usage_checkpoint()),
     )
     parent_eval = _evaluation_from_payload(parent.get("runtime_evaluation"))
     return write_run(
@@ -555,7 +555,7 @@ def _attempt_payload(
     applied: _Applied,
     *,
     latency_ms: float,
-    usage: dict[str, int] | None,
+    usage: dict[str, int | bool | None] | None,
 ) -> dict[str, Any]:
     decision = applied.decision
     retrieval = applied.state.retrieval
