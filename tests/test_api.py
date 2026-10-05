@@ -250,6 +250,12 @@ def test_index_page_and_assets_are_served(tmp_path: Path) -> None:
         assert "--bg:" in css.text
         assert "view-nav" in css.text
         assert "dropzone" in css.text
+        charts = client.get("/static/charts.js")
+        assert charts.status_code == 200
+        assert "No runs scored yet." in charts.text
+        assert "These averages are model scores." in charts.text
+        assert "The loop does not use them, and a person has not checked them against human ratings." in charts.text
+        assert "they have not been checked against human ratings yet." in charts.text
         js = client.get("/static/app.js")
         assert js.status_code == 200
         assert "example-chips" in js.text
