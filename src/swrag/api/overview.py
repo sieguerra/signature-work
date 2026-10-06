@@ -221,6 +221,8 @@ def aggregate_overview(runs: list[LogicalRun]) -> dict[str, Any]:
         "recovery_required": _rate(len(required), len(judged)),
         "verified_improved": _rate(len(improved), len(verified)),
         "unresolved": len(unresolved),
+        "safe_stops": sum(1 for run in runs if _safe_stop(run)),
+        "conditional_rewrites": sum(1 for run in runs if _conditional_rewrite(run)),
         "unchanged": outcome_counts["unchanged"],
         "summary": _summary(len(judged), len(required), len(improved), len(verified)),
         "outcomes": {
@@ -288,6 +290,14 @@ def _recovery_required(run: LogicalRun) -> bool:
 
 
 def _attention_kind(run: LogicalRun) -> str | None:
+    """Safe stops are intentional terminations, not unresolved failures.
+
+    A verifier may still store ``still_failing`` or ``degraded`` because the
+    support flag changed. That stored outcome stays on the run. It does not
+    put the safe stop in the unresolved count.
+    """
+    if _safe_stop(run):
+        return None
     outcome = _final_outcome(run) if _applied_actions(run) else None
     if outcome == "degraded":
         return "degraded"
@@ -503,6 +513,8 @@ def _activity_row(run: LogicalRun) -> dict[str, Any]:
         "recovery_pending": pending,
         "verification": _final_outcome(run) if applied else None,
         "latency_ms": _latency(run),
+        "recovery_policy": _recovery_policy(run),
+        "safe_stop": _safe_stop(run),
     }
 
 
@@ -539,24 +551,29 @@ def _recovery_meta(run: LogicalRun) -> tuple[str | None, str | None]:
     return (" · ".join(triggers) or None, source)
 
 
-def _usage_totals(run: LogicalRun) -> dict[str, int] | None:
+def _usage_totals(run: LogicalRun) -> dict[str, int | bool] | None:
+    """Sum observed prompt and completion tokens. Unavailable stays None, not zero."""
     prompt = 0
     completion = 0
     found = False
     for trace in run.traces:
         usage = trace.get("usage")
-        if not isinstance(usage, dict):
+        if not isinstance(usage, dict) or usage.get("tokens_observed") is False:
             continue
         prompt_tokens = _number(usage.get("prompt_tokens"))
         completion_tokens = _number(usage.get("completion_tokens"))
-        if prompt_tokens is None and completion_tokens is None:
+        if prompt_tokens is None or completion_tokens is None:
             continue
         found = True
-        prompt += int(prompt_tokens or 0)
-        completion += int(completion_tokens or 0)
+        prompt += int(prompt_tokens)
+        completion += int(completion_tokens)
     if not found:
         return None
-    return {"prompt_tokens": prompt, "completion_tokens": completion}
+    return {
+        "prompt_tokens": prompt,
+        "completion_tokens": completion,
+        "tokens_observed": True,
+    }
 
 
 def _inspect_id(run: LogicalRun) -> str:
@@ -588,6 +605,41 @@ def _initial_state(run: LogicalRun) -> str:
 
 def _query(run: LogicalRun) -> str:
     return str(run.root.get("query") or "").strip()[:140]
+
+
+def _safe_stop(run: LogicalRun) -> bool:
+    """A bounded policy stop, recorded on the attempt. Not an improved answer."""
+    for trace in run.traces:
+        if _future_schema(trace):
+            continue
+        attempts = trace.get("recovery_attempts") if isinstance(trace.get("recovery_attempts"), list) else []
+        for item in attempts:
+            if isinstance(item, dict) and _stop_reason(item):
+                return True
+        if _stop_reason(_recovery(trace)):
+            return True
+    return False
+
+
+def _stop_reason(item: dict[str, Any]) -> bool:
+    if str(item.get("action") or "") != "abstain":
+        return False
+    parameters = item.get("parameters")
+    return isinstance(parameters, dict) and bool(str(parameters.get("stop_reason") or "").strip())
+
+
+def _conditional_rewrite(run: LogicalRun) -> bool:
+    if _recovery_policy(run) != "v2c_gap_aware":
+        return False
+    return "rewrite" in _applied_actions(run)
+
+
+def _recovery_policy(run: LogicalRun) -> str:
+    for trace in run.traces:
+        stored = str(trace.get("recovery_policy") or "").strip()
+        if stored:
+            return stored
+    return "v1"
 
 
 def _recovery(trace: dict[str, Any]) -> dict[str, Any]:

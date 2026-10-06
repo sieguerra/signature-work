@@ -37,7 +37,7 @@ const state = {
   logicalRuns: [],
   flightTraces: null,
   relFocus: null,
-  relFilters: { verification: "all", recovery: "all", action: "all", diagnosis: "all", query: "" },
+  relFilters: { verification: "all", recovery: "all", action: "all", diagnosis: "all", policy: "all", query: "" },
   keepReadOnly: false,
 };
 
@@ -1282,6 +1282,7 @@ async function runQuestion(fromPlayground) {
         question,
         mode: modeEl.value,
         top_k: topK,
+        recovery_policy: selectedRecoveryPolicy(),
       }),
     });
     state.loading = false;
@@ -1475,9 +1476,10 @@ async function savePlaygroundConfig() {
     state.draftConfig = {
       instructions: saved.instructions || "",
       chat_model: saved.chat_model || "gpt-4o-mini",
-      top_k: Number(saved.top_k) || 4,
-      behavior: saved.behavior || null,
-    };
+    top_k: Number(saved.top_k) || 4,
+    behavior: saved.behavior || null,
+    recovery_policy: saved.recovery_policy === "gap_aware" ? "gap_aware" : "v1",
+  };
   }
   await loadMeta();
   renderPlaygroundKnowledge();
@@ -1493,16 +1495,21 @@ function syncDraftConfig() {
     chat_model: config.chat_model || "gpt-4o-mini",
     top_k: Number(config.top_k) || 4,
     behavior: AgentConfig.serialize(behavior),
+    recovery_policy: config.recovery_policy === "gap_aware" ? "gap_aware" : "v1",
   };
   state.savedAgent = {
     instructions,
     chat_model: state.draftConfig.chat_model,
     top_k: state.draftConfig.top_k,
     behavior: AgentConfig.serialize(behavior),
+    recovery_policy: state.draftConfig.recovery_policy,
   };
   if ($("pg-top-k") && state.meta && state.meta.writable) {
     $("pg-top-k").value = String(state.draftConfig.top_k);
   }
+  const policy = $("pg-recovery-policy");
+  if (policy) policy.value = state.draftConfig.recovery_policy || "v1";
+  syncPolicyNote();
 }
 
 function captureDraftConfig() {
@@ -1520,6 +1527,8 @@ function captureDraftConfig() {
     }
   }
   if (state.agentBehavior) state.draftConfig.behavior = AgentConfig.serialize(state.agentBehavior);
+  const policy = $("pg-config-policy") || $("pg-recovery-policy");
+  if (policy) state.draftConfig.recovery_policy = policy.value === "gap_aware" ? "gap_aware" : "v1";
 }
 
 function retrieveFallback(payload) {
@@ -1724,6 +1733,7 @@ function agentDirty() {
   return instructions !== (saved.instructions || "")
     || model !== (saved.chat_model || "gpt-4o-mini")
     || top !== (Number(saved.top_k) || 4)
+    || (state.draftConfig.recovery_policy || "v1") !== (saved.recovery_policy || "v1")
     || !AgentConfig.sameBehavior(state.agentBehavior, saved.behavior);
 }
 
@@ -2090,7 +2100,7 @@ function renderAgent() {
           <div>
             <div class="agent-kicker"><span class="agent-swatch is-generation"></span> Configuration</div>
             <h1>How this system responds</h1>
-            <p>Response behavior, grounding, retrieval defaults, and the model. Recovery policy stays fixed.</p>
+            <p>Response behavior, grounding, retrieval defaults, and the model. Recovery policy is an explicit choice. The default is current v1.</p>
           </div>
           <div class="agent-save">
             <span class="agent-state is-clean" id="agent-save-state"></span>
@@ -2108,6 +2118,14 @@ function renderAgent() {
             <span>Model</span>
             <select id="pg-chat-model">${modelOptions}</select>
             <small>Used for generation, the judge, and recovery.</small>
+          </label>
+          <label class="agent-field">
+            <span>Recovery policy</span>
+            <select id="pg-config-policy">
+              <option value="v1"${(state.draftConfig.recovery_policy || "v1") === "v1" ? " selected" : ""}>Current v1</option>
+              <option value="gap_aware"${state.draftConfig.recovery_policy === "gap_aware" ? " selected" : ""}>Gap-aware (Guarded)</option>
+            </select>
+            <small>Guarded gap-aware recovery is opt-in. It is not the default. Retrieve-only and baseline runs do not apply it.</small>
           </label>
           <label class="agent-field">
             <span>Default top_k</span>
@@ -3599,7 +3617,7 @@ function bind() {
       renderReliability();
     });
   }
-  ["rel-verification", "rel-recovery", "rel-action", "rel-diagnosis"].forEach((id) => {
+    ["rel-verification", "rel-recovery", "rel-action", "rel-diagnosis", "rel-policy"].forEach((id) => {
     const field = $(id);
     if (!field) return;
     field.addEventListener("change", () => {
@@ -3830,7 +3848,7 @@ function bind() {
       refreshAgentChrome();
       return;
     }
-    if (!["pg-instructions", "pg-chat-model", "pg-config-top-k"].includes(event.target.id)) return;
+    if (!["pg-instructions", "pg-chat-model", "pg-config-top-k", "pg-config-policy"].includes(event.target.id)) return;
     captureDraftConfig();
     refreshAgentChrome();
   });
@@ -3845,9 +3863,14 @@ function bind() {
       setAgentChoice(event.target.dataset.choice, event.target.dataset.value);
       return;
     }
-    if (event.target.id === "pg-chat-model" || event.target.id === "pg-config-top-k") {
+    if (event.target.id === "pg-chat-model" || event.target.id === "pg-config-top-k" || event.target.id === "pg-config-policy") {
       captureDraftConfig();
       refreshAgentChrome();
+      return;
+    }
+    if (event.target.id === "pg-recovery-policy") {
+      if (state.draftConfig) state.draftConfig.recovery_policy = selectedRecoveryPolicy();
+      syncPolicyNote();
       return;
     }
     if (event.target.id === "agent-run-mode") {
@@ -4386,9 +4409,7 @@ function renderRelDetail(view) {
   const action = pending
     ? `<button type="button" class="primary" data-rel-console="${escapeHtml(row.logical_run_id)}">Review recovery</button>`
     : `<button type="button" class="ghost" data-rel-console="${escapeHtml(row.logical_run_id)}">Open in Test Console</button>`;
-  const usage = row.usage
-    ? `${row.usage.prompt_tokens} prompt tokens · ${row.usage.completion_tokens} completion tokens`
-    : "Token usage not recorded";
+  const usage = formatUsage(row.usage);
   const latency = row.latency_ms == null ? "Latency not recorded" : formatFlightLatency(row.latency_ms);
   const config = state.trace && state.trace.agent_config
     ? `<pre class="rel-config">${escapeHtml(JSON.stringify(state.trace.agent_config, null, 2))}</pre>`
@@ -4533,14 +4554,19 @@ function renderFlightHistory() {
     .map((run) => {
       const ids = (run.trace_ids || []).join(",");
       const on = (run.trace_ids || []).some((id) => open.has(id));
-      const outcome = run.verification
-        ? FlightRecorder.labelOutcome(run.verification)
-        : run.recovery_pending
-          ? "Proposed"
-          : "";
+      const outcome = run.safe_stop
+        ? "Safe stop"
+        : run.verification
+          ? FlightRecorder.labelOutcome(run.verification)
+          : run.recovery_pending
+            ? "Proposed"
+            : "";
+      const path = (run.recovery || []).map((action) =>
+        run.safe_stop && action === "abstain" ? "safe stop" : action
+      );
       return `<button type="button" class="tc-run${on ? " is-on" : ""}" data-flight="${escapeHtml(ids)}">
         <strong>${escapeHtml(clipFlight(run.query || "(empty)"))}</strong>
-        <small>${escapeHtml([outcome, run.recovery && run.recovery.length ? run.recovery.join(" → ") : ""].filter(Boolean).join(" · "))}</small>
+        <small>${escapeHtml([outcome, path.length ? path.join(" → ") : ""].filter(Boolean).join(" · "))}</small>
       </button>`;
     })
     .join("");
@@ -4556,6 +4582,7 @@ function flightSummary(flight) {
   const parts = [];
   if (mode) parts.push(mode);
   if (flight.topK != null) parts.push(`Top K: ${flight.topK}`);
+  parts.push(flight.recoveryPolicy === "v2c_gap_aware" ? "Gap-aware (Guarded)" : "Current v1");
   if (flight.attemptCount) parts.push(`${flight.attemptCount} recovery attempt${flight.attemptCount === 1 ? "" : "s"}`);
   parts.push(statusLabel(flight.status));
   if (flight.latencyMs != null) parts.push(formatFlightLatency(flight.latencyMs));
@@ -4575,6 +4602,24 @@ function inferredFlightMode(flight) {
   return "";
 }
 
+function selectedRecoveryPolicy() {
+  const field = $("pg-recovery-policy");
+  return field && field.value === "gap_aware" ? "gap_aware" : "v1";
+}
+
+function syncPolicyNote() {
+  const note = $("pg-policy-note");
+  const field = $("pg-recovery-policy");
+  if (!note || !field) return;
+  note.hidden = field.value !== "gap_aware";
+}
+
+function formatUsage(usage) {
+  if (!usage || typeof usage !== "object" || usage.tokens_observed !== true) return "Token usage unavailable";
+  if (usage.prompt_tokens == null || usage.completion_tokens == null) return "Token usage unavailable";
+  return `${usage.prompt_tokens} prompt tokens · ${usage.completion_tokens} completion tokens`;
+}
+
 function statusLabel(status) {
   const labels = {
     retrieve_only: "Retrieve only",
@@ -4587,6 +4632,7 @@ function statusLabel(status) {
     unchanged: "Unchanged",
     still_failing: "Still failing",
     degraded: "Degraded",
+    safe_stop: "Safe stop",
     abstained: "Safe abstention",
     applied: "Recovery applied",
   };
@@ -4660,14 +4706,15 @@ function answerCompare(flight) {
     return `<section class="tc-phase"><h2>Answer</h2><p class="tc-step-detail">${escapeHtml(flight.before.answer)}</p></section>`;
   }
   const initial = flight.before.answer || "The first answer was not stored on this trace.";
+  const stopped = flight.status === "safe_stop";
   const recovered = flight.after.abstained
-    ? `Safe abstention\n${flight.after.answer}`
+    ? `${stopped ? "Safe stop" : "Safe abstention"}\n${flight.after.answer}`
     : flight.after.answer || "(empty)";
   return `<section class="tc-phase">
     <h2>Answers</h2>
     <div class="tc-compare">
       <div><h3>Initial answer</h3><p class="tc-step-detail">${escapeHtml(initial)}</p></div>
-      <div><h3>${flight.after.abstained ? "Safe abstention" : "Recovered answer"}</h3><p class="tc-step-detail">${escapeHtml(recovered)}</p></div>
+      <div><h3>${flight.status === "safe_stop" ? "Safe stop" : flight.after.abstained ? "Safe abstention" : "Recovered answer"}</h3><p class="tc-step-detail">${escapeHtml(recovered)}</p></div>
     </div>
   </section>`;
 }
@@ -4857,8 +4904,13 @@ function overviewMetrics(data) {
     ${metric(
       "Unresolved",
       String(data.unresolved || 0),
-      "Pending, still failing, or degraded",
+      "Pending, still failing, or degraded. Safe stops are not included.",
       data.unresolved ? "is-attention" : ""
+    )}
+    ${metric(
+      "Safe stops",
+      String(data.safe_stops || 0),
+      "Bounded recovery stopped. Not an improved answer."
     )}
   </div>`;
 }

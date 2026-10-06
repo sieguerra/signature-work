@@ -492,3 +492,96 @@ test("legacy corpus files still build a flight", () => {
     assert.ok(buildFlight([item.trace]), item.name);
   }
 });
+
+test("a gap-aware stop shows the decision signals and is not an improved answer", () => {
+  const flight = buildFlight([
+    {
+      run_id: "gap",
+      query: "What is the fee?",
+      run_mode: "loop",
+      recovery_policy: "v2c_gap_aware",
+      model: "gpt-4o-mini",
+      answer: "I do not know based on the retrieved documents. I couldn't find sufficient support for that answer in the available sources.",
+      top_k: 12,
+      retrieved_chunks: [chunk("a", 0.4)],
+      runtime_evaluation: { evidence_sufficient: false, answer_supported: null },
+      verification: { outcome: "still_failing" },
+      recovery_attempts: [
+        { action: "expand", executed: true, top_k: 12, answer_relation: "generated", answer: "maybe" },
+        {
+          action: "abstain",
+          executed: true,
+          answer_relation: "abstained",
+          answer: "I do not know based on the retrieved documents. I couldn't find sufficient support.",
+          parameters: {
+            stop_reason: "the retrieved sources give more than one value and the question does not choose one",
+            conflict_signal: true,
+            neighbor_signal: false,
+            decision_source: "deterministic_b1",
+            recovery_opportunity: "CONFLICT",
+          },
+        },
+      ],
+    },
+  ]);
+  assert.equal(flight.status, "safe_stop");
+  assert.equal(flight.recoveryPolicy, "v2c_gap_aware");
+  assert.equal(flight.after.abstained, true);
+  const stop = flight.phases.find((phase) => phase.title === "Recovery · Safe stop");
+  assert.ok(stop.steps.some((step) => step.title === "Conflict signal"));
+  assert.ok(stop.steps.some((step) => step.title === "Decision source" && step.detail === "deterministic_b1"));
+  const page = fs.readFileSync(path.join(__dirname, "index.html"), "utf8");
+  assert.match(page, /Gap-aware \(Guarded\)/);
+  assert.match(page, /value="v1" selected/);
+  assert.match(page, /not the default/);
+});
+
+test("a conditional rewrite stays a rewrite and missing usage is not shown as zero", () => {
+  const flight = buildFlight([
+    {
+      run_id: "rewrite",
+      query: "bench rental",
+      run_mode: "loop",
+      recovery_policy: "v2c_gap_aware",
+      model: "gpt-4o-mini",
+      answer: "5 reed tokens",
+      top_k: 12,
+      retrieved_chunks: [chunk("bench", 0.8)],
+      runtime_evaluation: { evidence_sufficient: false, answer_supported: false },
+      verification: { outcome: "improved" },
+      recovery_attempts: [
+        {
+          action: "expand",
+          executed: true,
+          top_k: 12,
+          answer_relation: "generated",
+          answer: "not printed",
+        },
+        {
+          action: "rewrite",
+          executed: true,
+          answer_relation: "generated",
+          answer: "5 reed tokens",
+          parameters: {
+            recovery_opportunity: "LIKELY_QUERY_MISMATCH",
+            decision_source: "deterministic_b1",
+          },
+        },
+      ],
+    },
+  ]);
+  const titles = flight.phases.map((phase) => phase.title);
+  assert.ok(titles.includes("Recovery · Rewrite"));
+  assert.equal(titles.includes("Recovery · Safe stop"), false);
+  assert.equal(flight.status, "improved");
+  const source = fs.readFileSync(path.join(__dirname, "app.js"), "utf8");
+  const match = source.match(/function formatUsage\(usage\) \{[\s\S]*?\n\}/);
+  assert.ok(match);
+  const formatUsage = new Function(`${match[0]}; return formatUsage;`)();
+  assert.equal(formatUsage(null), "Token usage unavailable");
+  assert.equal(
+    formatUsage({ tokens_observed: false, prompt_tokens: null, completion_tokens: null }),
+    "Token usage unavailable"
+  );
+  assert.equal(formatUsage({ tokens_observed: true, prompt_tokens: 12, completion_tokens: 4 }), "12 prompt tokens · 4 completion tokens");
+});

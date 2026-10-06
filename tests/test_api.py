@@ -675,8 +675,8 @@ def test_recover_twice_is_409(tmp_path: Path, monkeypatch) -> None:
 def test_loop_confirm_then_recover_writes_a_child(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
 
-    def fake_execute_run(application, question, mode, top_k):
-        del top_k
+    def fake_execute_run(application, question, mode, top_k, recovery_policy=None):
+        del top_k, recovery_policy
         assert mode == "loop_confirm"
         path = write_trace(_proposed_record("confirm_parent"), application.state.traces_dir)
         return BaselineRunResult(
@@ -752,8 +752,8 @@ def test_loop_confirm_then_recover_writes_a_child(tmp_path: Path, monkeypatch) -
 
 
 def _fake_confirm_run(run_id: str):
-    def fake_execute_run(application, question, mode, top_k):
-        del top_k
+    def fake_execute_run(application, question, mode, top_k, recovery_policy=None):
+        del top_k, recovery_policy
         fake_execute_run.seen.append(mode)
         path = write_trace(_proposed_record(run_id), application.state.traces_dir)
         return BaselineRunResult(

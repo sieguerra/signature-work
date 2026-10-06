@@ -205,6 +205,8 @@ class TraceRecord:
     run_mode: str | None = field(default=None)
     initial: dict[str, Any] | None = field(default=None)
     usage: dict[str, int | bool | None] | None = field(default=None)
+    # Internal policy name actually used. Missing on older traces means v1.
+    recovery_policy: str | None = field(default=None)
 
 
 @dataclass(frozen=True)

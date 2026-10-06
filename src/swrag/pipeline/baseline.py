@@ -119,6 +119,7 @@ def run_query(
     index: InMemoryIndex | None = None,
     agent_config: dict | None = None,
     run_mode: str | None = None,
+    recovery_policy: str | None = None,
 ) -> BaselineRunResult:
     """Run baseline RAG on ``query`` and write a JSON trace.
 
@@ -146,6 +147,7 @@ def run_query(
         latency_ms=_elapsed_ms(started),
         agent_config=agent_config,
         run_mode=run_mode,
+        recovery_policy=recovery_policy,
     )
 
 
@@ -168,6 +170,7 @@ def write_run(
     first_pass_evaluation: RuntimeEvaluation | None = None,
     run_mode: str | None = None,
     initial: dict | None = None,
+    recovery_policy: str | None = None,
 ) -> BaselineRunResult:
     """Write a trace for ``state``. Never overwrites an existing file."""
     run_id = _new_run_id()
@@ -221,6 +224,7 @@ def write_run(
             run_mode=run_mode,
             initial=dict(initial) if initial else None,
             usage=usage_for_trace(),
+            recovery_policy=recovery_policy,
         ),
         output_dir,
     )
