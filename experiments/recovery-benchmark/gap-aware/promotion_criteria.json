@@ -1,0 +1,22 @@
+{
+  "written_before_holdout": true,
+  "holdout_opened": false,
+  "phase8a_holdout": "phase8a_holdout_consumed",
+  "uncertain_fallback": "safe_stop",
+  "do_not_use_phase8a_holdout_for": [
+    "policy selection",
+    "gap-policy tuning",
+    "prompt tuning",
+    "threshold tuning",
+    "retrieval experiments"
+  ],
+  "rules": [
+    "Preserve substantive recovery on recoverable development cases.",
+    "Materially reduce rewrite calls on corpus gaps compared with v1.",
+    "Do not increase unsupported substantive answers.",
+    "Neighbor-fact cases must not repeat the other entity's figure.",
+    "Version conflicts must not be silently resolved when the question names no version.",
+    "Use fewer recovery model calls on true gaps than v1.",
+    "Runtime calls must not receive stratum, gold, or answerability fields."
+  ]
+}

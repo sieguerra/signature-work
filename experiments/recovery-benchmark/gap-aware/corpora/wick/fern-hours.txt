@@ -1,0 +1,4 @@
+Fern house hours
+
+The fern house opens at 10:00.
+No closing time is printed for the fern house.

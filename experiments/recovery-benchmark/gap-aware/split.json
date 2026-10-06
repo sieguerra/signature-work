@@ -1,0 +1,68 @@
+{
+  "seed": "20261007-gap",
+  "modulus": 3,
+  "holdout_residue": 0,
+  "status": "sealed_until_candidate_selection",
+  "outcomes_inspected": false,
+  "phase8a_holdout": "phase8a_holdout_consumed",
+  "n": 25,
+  "n_development": 13,
+  "n_holdout": 12,
+  "by_stratum": {
+    "expand_recoverable": {
+      "development": 1,
+      "holdout": 1
+    },
+    "rewrite_recoverable": {
+      "development": 1,
+      "holdout": 1
+    },
+    "corpus_gap": {
+      "development": 3,
+      "holdout": 3
+    },
+    "partial": {
+      "development": 1,
+      "holdout": 1
+    },
+    "neighbor_fact": {
+      "development": 3,
+      "holdout": 1
+    },
+    "version_conflict": {
+      "development": 2,
+      "holdout": 2
+    },
+    "already_supported": {
+      "development": 2,
+      "holdout": 3
+    }
+  },
+  "question_ids": {
+    "wk-cheese": "development",
+    "wk-herb": "holdout",
+    "wk-bench": "development",
+    "wk-linen": "holdout",
+    "dku-holiday": "development",
+    "sw-stipend": "holdout",
+    "nw-backflow": "holdout",
+    "lu-fare": "development",
+    "ph-wage": "development",
+    "wk-electric": "holdout",
+    "sw-meeting-end": "development",
+    "wk-flower-close": "holdout",
+    "nw-brine": "development",
+    "sw-gull": "development",
+    "wk-bramble": "development",
+    "wk-mooring": "holdout",
+    "nw-saturday": "development",
+    "wk-phone": "development",
+    "lu-sunday": "holdout",
+    "sw-opener": "holdout",
+    "nw-saturday-current": "development",
+    "wk-channel": "development",
+    "dku-fall": "holdout",
+    "sw-loft": "holdout",
+    "lu-first": "holdout"
+  }
+}
