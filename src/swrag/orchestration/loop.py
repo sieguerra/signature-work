@@ -56,9 +56,11 @@ from swrag.recovery.policy import (
     ABSTAIN,
     ACCEPT,
     ACTIONS,
+    DEFAULT_POLICY,
     EXPAND,
     REGENERATE,
     REWRITE,
+    normalize_policy,
     select_next_recovery,
     select_recovery,
 )
@@ -140,6 +142,8 @@ def run_with_recovery(
     index: InMemoryIndex | None = None,
     agent_config: dict[str, Any] | None = None,
     run_mode: str = "loop",
+    recovery_policy: str = DEFAULT_POLICY,
+    prepared_state: QueryState | None = None,
 ) -> BaselineRunResult:
     """Run the automatic loop and write one trace. Never overwrites history.
 
@@ -147,18 +151,29 @@ def run_with_recovery(
     successful repair stops early. Default 1 preserves the V1 one-shot loop.
     """
     started = time.perf_counter()
+    policy = normalize_policy(recovery_policy)
     resolved_index = index if index is not None else build_corpus_index(corpus_dir, embedder)
     pass_started = time.perf_counter()
-    state, decision = _first_pass_state(
-        query,
-        corpus_dir=corpus_dir,
-        top_k=top_k,
-        embedder=embedder,
-        generate=generate,
-        generator=generator,
-        judge=judge,
-        index=resolved_index,
-    )
+    if prepared_state is None:
+        state, decision = _first_pass_state(
+            query,
+            corpus_dir=corpus_dir,
+            top_k=top_k,
+            embedder=embedder,
+            generate=generate,
+            generator=generator,
+            judge=judge,
+            index=resolved_index,
+            policy=policy,
+        )
+    else:
+        state = prepared_state
+        decision = select_recovery(
+            state.diagnosis,
+            state.runtime_evaluation,
+            state.retrieval_signal,
+            policy=policy,
+        )
     first_latency = _elapsed_ms(pass_started)
     first_eval = state.runtime_evaluation
     first_answer = state.generation.answer
@@ -243,6 +258,7 @@ def run_with_recovery(
             evaluation=state.runtime_evaluation,
             used=tuple(used),
             current_top_k=current_k,
+            policy=policy,
         )
         if nxt is None:
             break
@@ -439,6 +455,7 @@ def _first_pass_state(
     generator: OpenAIGenerator | None,
     judge: GroundingJudge | None,
     index: InMemoryIndex,
+    policy: str = DEFAULT_POLICY,
 ) -> tuple[QueryState, RecoveryDecision]:
     state = execute_query(
         query,
@@ -454,6 +471,7 @@ def _first_pass_state(
         state.diagnosis,
         state.runtime_evaluation,
         state.retrieval_signal,
+        policy=policy,
     )
 
 
@@ -641,7 +659,11 @@ def _apply_expand(
             f"widened top_k from {state.retrieval.top_k} to {nxt.retrieval.top_k}"
         ),
         trigger=decision.trigger,
-        parameters={"from_k": state.retrieval.top_k, "to_k": nxt.retrieval.top_k},
+        parameters={
+            **(decision.parameters or {}),
+            "from_k": state.retrieval.top_k,
+            "to_k": nxt.retrieval.top_k,
+        },
     )
     next_state = QueryState(
         query=state.query,
@@ -849,6 +871,7 @@ def _apply_action(
             source=decision.source,
             outcome_note=_rewrite_success_note(after, post_eval),
             trigger=decision.trigger,
+            parameters=decision.parameters,
         )
         next_state = QueryState(
             query=state.query,
@@ -906,6 +929,7 @@ def _apply_action(
         source=decision.source,
         outcome_note=outcome_note,
         trigger=decision.trigger,
+        parameters=decision.parameters,
     )
     next_state = QueryState(
         query=state.query,
