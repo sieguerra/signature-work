@@ -40,9 +40,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--freeze", action="store_true")
     parser.add_argument("--retrospective", action="store_true")
     parser.add_argument("--fresh", action="store_true")
+    parser.add_argument("--holdout", action="store_true")
     parser.add_argument("--repeats", type=int, default=3)
     args = parser.parse_args(argv)
-    if not any((args.freeze, args.retrospective, args.fresh)):
+    if not any((args.freeze, args.retrospective, args.fresh, args.holdout)):
         args.freeze = True
         args.retrospective = True
     out = root / "experiments" / "recovery-v2a" / PHASE
@@ -78,6 +79,8 @@ def main(argv: list[str] | None = None) -> int:
         if not (out / "promotion_criteria.json").is_file():
             raise SystemExit("write promotion criteria before fresh runs")
         _fresh(root, out, rows, repeats=args.repeats)
+    if args.holdout:
+        _holdout(root, out)
     return 0
 
 
@@ -339,6 +342,114 @@ def _compact(path: Path, row: dict, policy: str, repeat: int, position: int) -> 
         "usage": payload.get("usage"),
         "trace": str(path),
     }
+
+
+def _holdout(root: Path, out: Path) -> None:
+    """One pass of v1 and the margin policy. No other candidate. No retuning."""
+    if not (out / "promotion_criteria.json").is_file():
+        raise SystemExit("promotion criteria were not frozen")
+    selected = out / "selected_candidate.json"
+    if not selected.is_file():
+        raise SystemExit("select the candidate before opening the holdout")
+    choice = json.loads(selected.read_text(encoding="utf-8"))
+    policy = choice.get("policy")
+    if policy != POLICY_V2A_MARGIN:
+        raise SystemExit("this holdout runner only compares v1 with the margin policy")
+    from dotenv import load_dotenv
+    from openai import OpenAI
+
+    from swrag.config import load_provider_config
+    from swrag.evaluation.llm_judge import LLMJudge
+    from swrag.generation.openai_generator import OpenAIGenerator
+    from swrag.orchestration.loop import run_with_recovery
+    from swrag.pipeline.baseline import build_corpus_index
+    from swrag.recovery.regenerate import ConstrainedRegenerator
+    from swrag.recovery.rewrite import LLMQueryRewriter
+    from swrag.retrieval.openai_embedder import OpenAIEmbedder
+
+    load_dotenv(root / ".env")
+    if not os.environ.get("OPENAI_API_KEY"):
+        raise SystemExit("OPENAI_API_KEY is not set; refusing the holdout run.")
+    split = json.loads(
+        (root / "experiments" / "recovery-benchmark" / "runs" / "phase7-20261006" / "question_split.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    questions = [row for row in split["questions"] if row.get("panel") == "future_holdout"]
+    if len(questions) != 39:
+        raise SystemExit(f"expected 39 holdout questions, found {len(questions)}")
+    entries = {entry.id: entry for entry in load_registry(root=root)}
+    config = load_provider_config()
+    client = OpenAI(base_url=config.base_url, timeout=120.0, max_retries=1)
+    embedder = OpenAIEmbedder(client=client, config=config)
+    generator = OpenAIGenerator(client=client, config=config)
+    judge = LLMJudge(client=client, config=config)
+    rewriter = LLMQueryRewriter(client=client, config=config)
+    regenerator = ConstrainedRegenerator(client=client, config=config)
+    indexes: dict[str, object] = {}
+    log_path = out / "holdout.jsonl"
+    done = set()
+    if log_path.exists():
+        for line in log_path.read_text(encoding="utf-8").splitlines():
+            if line.strip():
+                item = json.loads(line)
+                done.add((item["question_id"], item["policy"]))
+    policies = (POLICY_V1, POLICY_V2A_MARGIN)
+    with log_path.open("a", encoding="utf-8") as handle:
+        for index, row in enumerate(questions):
+            ordered = policies[index % 2 :] + policies[: index % 2]
+            corpus_id = row["corpus_id"]
+            if corpus_id not in indexes:
+                print(f"index {corpus_id}", flush=True)
+                indexes[corpus_id] = build_corpus_index(entries[corpus_id].corpus_dir, embedder)
+            for position, policy in enumerate(ordered):
+                if (row["question_id"], policy) in done:
+                    continue
+                print(f"holdout {row['question_id']} {policy} position {position}", flush=True)
+                result = run_with_recovery(
+                    row["question"],
+                    corpus_dir=entries[corpus_id].corpus_dir,
+                    output_dir=out / "holdout-traces" / policy,
+                    top_k=TOP_K,
+                    max_recoveries=MAX_RECOVERIES,
+                    embedder=embedder,
+                    generator=generator,
+                    judge=judge,
+                    regenerator=regenerator,
+                    rewriter=rewriter,
+                    question_id=row["question_id"],
+                    index=indexes[corpus_id],
+                    recovery_policy=policy,
+                )
+                payload = json.loads(result.trace_path.read_text(encoding="utf-8"))
+                attempts = payload.get("recovery_attempts") or []
+                initial = payload.get("initial") if isinstance(payload.get("initial"), dict) else {}
+                handle.write(
+                    json.dumps(
+                        {
+                            "question_id": row["question_id"],
+                            "corpus_id": corpus_id,
+                            "policy": policy,
+                            "position": position,
+                            "actions": [item.get("action") for item in attempts],
+                            "before_answer": initial.get("answer") if attempts else payload.get("answer"),
+                            "final_answer": payload.get("answer"),
+                            "verification": (payload.get("verification") or {}).get("outcome")
+                            if isinstance(payload.get("verification"), dict)
+                            else None,
+                            "recovery_action": (payload.get("recovery") or {}).get("action"),
+                            "ambiguous_top": (payload.get("retrieval_signal") or {}).get("ambiguous_top"),
+                            "evidence_sufficient": (payload.get("runtime_evaluation") or {}).get("evidence_sufficient")
+                            if not attempts
+                            else (payload.get("initial") or {}).get("runtime_evaluation", {}).get("evidence_sufficient"),
+                            "latency_ms": payload.get("latency_ms"),
+                        },
+                        ensure_ascii=False,
+                    )
+                    + "\n"
+                )
+                handle.flush()
+                done.add((row["question_id"], policy))
 
 
 def _write(path: Path, payload: dict) -> None:

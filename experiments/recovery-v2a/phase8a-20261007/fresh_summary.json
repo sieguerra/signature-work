@@ -1,0 +1,608 @@
+{
+  "fresh_n": 140,
+  "repeat0": {
+    "v2a_expand_first": {
+      "n": 60,
+      "runtime": {
+        "unchanged": 10,
+        "still_failing": 44,
+        "improved": 6
+      },
+      "offline_gold": {
+        "degraded": 3,
+        "improved": 5,
+        "null": 7,
+        "unchanged": 43,
+        "still_failing": 2
+      },
+      "needed_offline_gold": {
+        "improved": 2,
+        "unchanged": 11,
+        "null": 2
+      },
+      "needed_n": 15,
+      "paths": {
+        "expand": 22,
+        "expand>rewrite": 38
+      },
+      "direct_runtime_credit": {
+        "none": 48,
+        "expand": 12
+      },
+      "latency": {
+        "n": 60,
+        "mean": 7393.410738168071,
+        "p50": 8075.526833010372,
+        "p95": 10631.71175000025
+      },
+      "chat_calls": 0,
+      "usd": 0.0
+    },
+    "v2a_combined": {
+      "n": 50,
+      "runtime": {
+        "still_failing": 44,
+        "improved": 6
+      },
+      "offline_gold": {
+        "unchanged": 37,
+        "null": 6,
+        "improved": 4,
+        "degraded": 1,
+        "still_failing": 2
+      },
+      "needed_offline_gold": {
+        "improved": 2,
+        "unchanged": 11,
+        "null": 2
+      },
+      "needed_n": 15,
+      "paths": {
+        "expand>rewrite": 38,
+        "expand": 11,
+        "expand>abstain": 1
+      },
+      "direct_runtime_credit": {
+        "none": 39,
+        "expand": 11
+      },
+      "latency": {
+        "n": 50,
+        "mean": 6706.22130579839,
+        "p50": 7009.362854500068,
+        "p95": 9692.813959001796
+      },
+      "chat_calls": 0,
+      "usd": 0.0
+    }
+  },
+  "spotlight": {
+    "dku-053": [
+      {
+        "policy": "v2a_expand_first",
+        "repeat": 0,
+        "actions": [
+          "expand"
+        ],
+        "runtime": "improved",
+        "gold": "improved",
+        "answer": "The street address of the DKU Library is No. 8 Duke Avenue, Kunshan, Jiangsu Province, China 215316 [dku-library-hours::c001]."
+      },
+      {
+        "policy": "v2a_combined",
+        "repeat": 0,
+        "actions": [
+          "expand"
+        ],
+        "runtime": "improved",
+        "gold": "improved",
+        "answer": "The street address of the DKU Library is No. 8 Duke Avenue, Kunshan, Jiangsu Province, China 215316 [dku-library-hours::c001]."
+      },
+      {
+        "policy": "v2a_combined",
+        "repeat": 1,
+        "actions": [
+          "expand"
+        ],
+        "runtime": "improved",
+        "gold": "improved",
+        "answer": "The street address of the DKU Library is No. 8 Duke Avenue, Kunshan, Jiangsu Province, China 215316 [dku-library-hours::c001]."
+      },
+      {
+        "policy": "v2a_expand_first",
+        "repeat": 1,
+        "actions": [
+          "expand"
+        ],
+        "runtime": "improved",
+        "gold": "improved",
+        "answer": "The street address of the DKU Library is No. 8 Duke Avenue, Kunshan, Jiangsu Province, China 215316 [dku-library-hours::c001]."
+      },
+      {
+        "policy": "v2a_expand_first",
+        "repeat": 2,
+        "actions": [
+          "expand"
+        ],
+        "runtime": "improved",
+        "gold": "improved",
+        "answer": "The street address of the DKU Library is No. 8 Duke Avenue, Kunshan, Jiangsu Province, China 215316 [dku-library-hours::c001]."
+      },
+      {
+        "policy": "v2a_combined",
+        "repeat": 2,
+        "actions": [
+          "expand"
+        ],
+        "runtime": "improved",
+        "gold": "improved",
+        "answer": "The street address of the DKU Library is No. 8 Duke Avenue, Kunshan, Jiangsu Province, China 215316 [dku-library-hours::c001]."
+      }
+    ],
+    "dku-012": [
+      {
+        "policy": "v2a_expand_first",
+        "repeat": 0,
+        "actions": [
+          "expand"
+        ],
+        "runtime": "improved",
+        "gold": "improved",
+        "answer": "The current DKU Library Locations and Hours page lists the email as dkulibrary@dukekunshan.edu.cn [dku-library-hours::c001]."
+      },
+      {
+        "policy": "v2a_combined",
+        "repeat": 0,
+        "actions": [
+          "expand"
+        ],
+        "runtime": "improved",
+        "gold": "improved",
+        "answer": "The current DKU Library Locations and Hours page lists the email as dkulibrary@dukekunshan.edu.cn [dku-library-hours::c001]."
+      },
+      {
+        "policy": "v2a_combined",
+        "repeat": 1,
+        "actions": [
+          "expand"
+        ],
+        "runtime": "improved",
+        "gold": "improved",
+        "answer": "The current DKU Library Locations and Hours page lists the email as dkulibrary@dukekunshan.edu.cn [dku-library-hours::c001]."
+      },
+      {
+        "policy": "v2a_expand_first",
+        "repeat": 1,
+        "actions": [
+          "expand"
+        ],
+        "runtime": "improved",
+        "gold": "improved",
+        "answer": "The current DKU Library Locations and Hours page lists the email as dkulibrary@dukekunshan.edu.cn [dku-library-hours::c001]."
+      },
+      {
+        "policy": "v2a_expand_first",
+        "repeat": 2,
+        "actions": [
+          "expand"
+        ],
+        "runtime": "improved",
+        "gold": "improved",
+        "answer": "The current DKU Library Locations and Hours page lists the email as dkulibrary@dukekunshan.edu.cn [dku-library-hours::c001]."
+      },
+      {
+        "policy": "v2a_combined",
+        "repeat": 2,
+        "actions": [
+          "expand"
+        ],
+        "runtime": "improved",
+        "gold": "improved",
+        "answer": "The current DKU Library Locations and Hours page lists the email as dkulibrary@dukekunshan.edu.cn [dku-library-hours::c001]."
+      }
+    ],
+    "dku-045": [
+      {
+        "policy": "v2a_expand_first",
+        "repeat": 0,
+        "actions": [
+          "expand"
+        ],
+        "runtime": "unchanged",
+        "gold": "improved",
+        "answer": "The phone number listed for the DKU Library is (+86) 0512-36658756 [dku-library-hours::c001]."
+      },
+      {
+        "policy": "v2a_expand_first",
+        "repeat": 1,
+        "actions": [
+          "expand"
+        ],
+        "runtime": "unchanged",
+        "gold": "improved",
+        "answer": "The phone number listed for the DKU Library is (+86) 0512-36658756 [dku-library-hours::c001]."
+      },
+      {
+        "policy": "v2a_expand_first",
+        "repeat": 2,
+        "actions": [
+          "expand"
+        ],
+        "runtime": "unchanged",
+        "gold": "improved",
+        "answer": "The phone number listed for the DKU Library is (+86) 0512-36658756 [dku-library-hours::c001]."
+      }
+    ],
+    "dku-055": [
+      {
+        "policy": "v2a_expand_first",
+        "repeat": 0,
+        "actions": [
+          "expand"
+        ],
+        "runtime": "improved",
+        "gold": "improved",
+        "answer": "The DKU campus covers 200 acres in Kunshan's Yangcheng Lake Science and Technology Park [dku-about::c001]."
+      },
+      {
+        "policy": "v2a_combined",
+        "repeat": 0,
+        "actions": [
+          "expand"
+        ],
+        "runtime": "improved",
+        "gold": "improved",
+        "answer": "The DKU campus covers 200 acres in Kunshan's Yangcheng Lake Science and Technology Park [dku-about::c001]."
+      },
+      {
+        "policy": "v2a_combined",
+        "repeat": 1,
+        "actions": [
+          "expand"
+        ],
+        "runtime": "improved",
+        "gold": "improved",
+        "answer": "The DKU campus covers 200 acres in Kunshan's Yangcheng Lake Science and Technology Park [dku-about::c001]."
+      },
+      {
+        "policy": "v2a_expand_first",
+        "repeat": 1,
+        "actions": [
+          "expand"
+        ],
+        "runtime": "improved",
+        "gold": "improved",
+        "answer": "The DKU campus covers 200 acres in Kunshan's Yangcheng Lake Science and Technology Park [dku-about::c001]."
+      },
+      {
+        "policy": "v2a_expand_first",
+        "repeat": 2,
+        "actions": [
+          "expand"
+        ],
+        "runtime": "improved",
+        "gold": "improved",
+        "answer": "The DKU campus covers 200 acres in Kunshan's Yangcheng Lake Science and Technology Park [dku-about::c001]."
+      },
+      {
+        "policy": "v2a_combined",
+        "repeat": 2,
+        "actions": [
+          "expand"
+        ],
+        "runtime": "improved",
+        "gold": "improved",
+        "answer": "The DKU campus covers 200 acres in Kunshan's Yangcheng Lake Science and Technology Park [dku-about::c001]."
+      }
+    ],
+    "seed-009": [
+      {
+        "policy": "v2a_expand_first",
+        "repeat": 0,
+        "actions": [
+          "expand",
+          "rewrite"
+        ],
+        "runtime": "still_failing",
+        "gold": null,
+        "answer": "A standard meal at the Tide Canteen costs 3 harbor credits, while a large portion costs 4 harbor credits [east-canteen::c001]."
+      },
+      {
+        "policy": "v2a_combined",
+        "repeat": 0,
+        "actions": [
+          "expand",
+          "rewrite"
+        ],
+        "runtime": "still_failing",
+        "gold": null,
+        "answer": "A standard meal at the Tide Canteen costs 3 harbor credits, while a large portion costs 4 harbor credits [east-canteen::c001]."
+      },
+      {
+        "policy": "v2a_combined",
+        "repeat": 1,
+        "actions": [
+          "expand",
+          "rewrite"
+        ],
+        "runtime": "still_failing",
+        "gold": null,
+        "answer": "A standard meal at the Tide Canteen costs 3 harbor credits, while a large portion costs 4 harbor credits [east-canteen::c001]."
+      },
+      {
+        "policy": "v2a_expand_first",
+        "repeat": 1,
+        "actions": [
+          "expand",
+          "rewrite"
+        ],
+        "runtime": "still_failing",
+        "gold": null,
+        "answer": "A standard meal at the Tide Canteen costs 3 harbor credits, while a large portion costs 4 harbor credits [east-canteen::c001]."
+      },
+      {
+        "policy": "v2a_expand_first",
+        "repeat": 2,
+        "actions": [
+          "expand",
+          "rewrite"
+        ],
+        "runtime": "still_failing",
+        "gold": null,
+        "answer": "A standard meal at the Tide Canteen costs 3 harbor credits, while a large portion costs 4 harbor credits [east-canteen::c001]."
+      },
+      {
+        "policy": "v2a_combined",
+        "repeat": 2,
+        "actions": [
+          "expand",
+          "rewrite"
+        ],
+        "runtime": "still_failing",
+        "gold": null,
+        "answer": "A standard meal at the Tide Canteen costs 3 harbor credits, while a large portion costs 4 harbor credits [east-canteen::c001]."
+      }
+    ]
+  },
+  "twelve": {
+    "dku-031": {
+      "v2a_expand_first": {
+        "actions": [
+          "expand",
+          "rewrite"
+        ],
+        "runtime": "still_failing",
+        "gold": "unchanged",
+        "answer": "I do not know based on the retrieved documents."
+      },
+      "v2a_combined": {
+        "actions": [
+          "expand",
+          "rewrite"
+        ],
+        "runtime": "still_failing",
+        "gold": "unchanged",
+        "answer": "I do not know based on the retrieved documents."
+      }
+    },
+    "ns-015": {
+      "v2a_expand_first": {
+        "actions": [
+          "expand",
+          "rewrite"
+        ],
+        "runtime": "still_failing",
+        "gold": "unchanged",
+        "answer": "I do not know based on the retrieved documents."
+      },
+      "v2a_combined": {
+        "actions": [
+          "expand",
+          "rewrite"
+        ],
+        "runtime": "still_failing",
+        "gold": "unchanged",
+        "answer": "I do not know based on the retrieved documents."
+      }
+    },
+    "seed-010": {
+      "v2a_expand_first": {
+        "actions": [
+          "expand",
+          "rewrite"
+        ],
+        "runtime": "still_failing",
+        "gold": null,
+        "answer": "I do not know based on the retrieved documents."
+      },
+      "v2a_combined": {
+        "actions": [
+          "expand",
+          "rewrite"
+        ],
+        "runtime": "still_failing",
+        "gold": null,
+        "answer": "I do not know based on the retrieved documents."
+      }
+    },
+    "ns-014": {
+      "v2a_expand_first": {
+        "actions": [
+          "expand",
+          "rewrite"
+        ],
+        "runtime": "still_failing",
+        "gold": "unchanged",
+        "answer": "I do not know based on the retrieved documents."
+      },
+      "v2a_combined": {
+        "actions": [
+          "expand",
+          "rewrite"
+        ],
+        "runtime": "still_failing",
+        "gold": "unchanged",
+        "answer": "I do not know based on the retrieved documents."
+      }
+    },
+    "dku-052": {
+      "v2a_expand_first": {
+        "actions": [
+          "expand",
+          "rewrite"
+        ],
+        "runtime": "still_failing",
+        "gold": "unchanged",
+        "answer": "I do not know based on the retrieved documents."
+      },
+      "v2a_combined": {
+        "actions": [
+          "expand",
+          "rewrite"
+        ],
+        "runtime": "still_failing",
+        "gold": "unchanged",
+        "answer": "I do not know based on the retrieved documents."
+      }
+    },
+    "sw-015": {
+      "v2a_expand_first": {
+        "actions": [
+          "expand"
+        ],
+        "runtime": "still_failing",
+        "gold": "unchanged",
+        "answer": "I do not know based on the retrieved documents."
+      },
+      "v2a_combined": {
+        "actions": [
+          "expand"
+        ],
+        "runtime": "still_failing",
+        "gold": "unchanged",
+        "answer": "I do not know based on the retrieved documents."
+      }
+    },
+    "sw-014": {
+      "v2a_expand_first": {
+        "actions": [
+          "expand",
+          "rewrite"
+        ],
+        "runtime": "still_failing",
+        "gold": "unchanged",
+        "answer": "I do not know based on the retrieved documents."
+      },
+      "v2a_combined": {
+        "actions": [
+          "expand",
+          "rewrite"
+        ],
+        "runtime": "still_failing",
+        "gold": "unchanged",
+        "answer": "I do not know based on the retrieved documents."
+      }
+    },
+    "pp-014": {
+      "v2a_expand_first": {
+        "actions": [
+          "expand",
+          "rewrite"
+        ],
+        "runtime": "still_failing",
+        "gold": "unchanged",
+        "answer": "I do not know based on the retrieved documents."
+      },
+      "v2a_combined": {
+        "actions": [
+          "expand",
+          "rewrite"
+        ],
+        "runtime": "still_failing",
+        "gold": "unchanged",
+        "answer": "I do not know based on the retrieved documents."
+      }
+    },
+    "gold-031": {
+      "v2a_expand_first": {
+        "actions": [
+          "expand",
+          "rewrite"
+        ],
+        "runtime": "still_failing",
+        "gold": null,
+        "answer": "I do not know based on the retrieved documents."
+      },
+      "v2a_combined": {
+        "actions": [
+          "expand",
+          "rewrite"
+        ],
+        "runtime": "still_failing",
+        "gold": null,
+        "answer": "I do not know based on the retrieved documents."
+      }
+    },
+    "dku-035": {
+      "v2a_expand_first": {
+        "actions": [
+          "expand",
+          "rewrite"
+        ],
+        "runtime": "still_failing",
+        "gold": "unchanged",
+        "answer": "I do not know based on the retrieved documents."
+      },
+      "v2a_combined": {
+        "actions": [
+          "expand",
+          "rewrite"
+        ],
+        "runtime": "still_failing",
+        "gold": "unchanged",
+        "answer": "I do not know based on the retrieved documents."
+      }
+    },
+    "dku-036": {
+      "v2a_expand_first": {
+        "actions": [
+          "expand",
+          "rewrite"
+        ],
+        "runtime": "still_failing",
+        "gold": "unchanged",
+        "answer": "I do not know based on the retrieved documents."
+      },
+      "v2a_combined": {
+        "actions": [
+          "expand",
+          "rewrite"
+        ],
+        "runtime": "still_failing",
+        "gold": "unchanged",
+        "answer": "I do not know based on the retrieved documents."
+      }
+    },
+    "nw-014": {
+      "v2a_expand_first": {
+        "actions": [
+          "expand",
+          "rewrite"
+        ],
+        "runtime": "still_failing",
+        "gold": "unchanged",
+        "answer": "I do not know based on the retrieved documents."
+      },
+      "v2a_combined": {
+        "actions": [
+          "expand",
+          "rewrite"
+        ],
+        "runtime": "still_failing",
+        "gold": "unchanged",
+        "answer": "I do not know based on the retrieved documents."
+      }
+    }
+  },
+  "price_note": "list price estimate, not an invoice"
+}
