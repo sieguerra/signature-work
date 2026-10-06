@@ -52,6 +52,7 @@ from swrag.tracing.schema import (
 from swrag.usage import usage_checkpoint, usage_delta
 from swrag.retrieval.memory_index import InMemoryIndex
 from swrag.recovery.expand import next_top_k
+from swrag.recovery.gap_signal import CONFLICT, GapAssessment, blocking_assessment
 from swrag.recovery.policy import (
     ABSTAIN,
     ACCEPT,
@@ -63,6 +64,7 @@ from swrag.recovery.policy import (
     normalize_policy,
     select_next_recovery,
     select_recovery,
+    uses_gap_block,
 )
 from swrag.recovery.regenerate import ConstrainedRegenerator
 from swrag.recovery.rewrite import LLMQueryRewriter
@@ -180,6 +182,21 @@ def run_with_recovery(
     first_chunks = chunks_payload(state.retrieval)
     first_state = state
 
+    if uses_gap_block(policy) and decision.action == ACCEPT:
+        blocked = blocking_assessment(query, state.generation.answer, _evidence_texts(state))
+        if blocked is not None and blocked.label == CONFLICT:
+            stopped = _policy_stop(state, blocked)
+            return write_run(
+                stopped.state,
+                output_dir=output_dir,
+                question_id=question_id,
+                recovery=stopped.decision,
+                recovery_status=RECOVERY_APPLIED,
+                latency_ms=_elapsed_ms(started),
+                agent_config=agent_config,
+                run_mode=run_mode,
+            )
+
     if max_recoveries < 1 or not _should_apply(decision.action, attempts_so_far=0):
         return write_run(
             state,
@@ -244,6 +261,31 @@ def run_with_recovery(
             )
         )
 
+        if uses_gap_block(policy):
+            blocked = blocking_assessment(
+                query,
+                state.generation.answer,
+                _evidence_texts(state),
+            )
+            if blocked is not None:
+                usage_before = usage_checkpoint()
+                attempt_started = time.perf_counter()
+                applied = _policy_stop(state, blocked)
+                attempt_latency = _elapsed_ms(attempt_started)
+                attempt_usage = usage_delta(usage_before, usage_checkpoint())
+                last_applied = applied
+                state = applied.state
+                used.append(ABSTAIN)
+                attempts.append(
+                    _attempt_payload(
+                        len(attempts),
+                        applied,
+                        latency_ms=attempt_latency,
+                        usage=attempt_usage,
+                    )
+                )
+                break
+
         overall = None
         if first_eval is not None and state.runtime_evaluation is not None:
             overall = verify_runtime(first_eval, state.runtime_evaluation)
@@ -259,6 +301,8 @@ def run_with_recovery(
             used=tuple(used),
             current_top_k=current_k,
             policy=policy,
+            question=query,
+            evidence_texts=_evidence_texts(state),
         )
         if nxt is None:
             break
@@ -544,6 +588,60 @@ def _terminal_abstain(state: QueryState, last: RecoveryDecision) -> _Applied:
     )
 
 
+def _evidence_texts(state: QueryState) -> tuple[str, ...]:
+    return tuple(item.chunk.text for item in state.retrieval.chunks)
+
+
+def _safe_answer(decision: RecoveryDecision) -> str:
+    parameters = decision.parameters or {}
+    text = str(parameters.get("safe_answer") or "").strip()
+    if text.lower().startswith("i do not know"):
+        return text
+    return ABSTAIN_ANSWER
+
+
+def _policy_stop(state: QueryState, assessment: GapAssessment) -> _Applied:
+    """Replace a conflicting or neighbor-fact answer. No extra model call."""
+    decision = RecoveryDecision(
+        action=ABSTAIN,
+        reason=assessment.reason,
+        attributed_class=None,
+        source=SOURCE_POLICY,
+        trigger="",
+        outcome_note="replaced the answer because the retrieved evidence does not settle the question",
+        parameters=assessment.as_parameters(forced_stop=False),
+    )
+    answer = _safe_answer(decision)
+    evaluation = state.runtime_evaluation
+    stopped = QueryState(
+        query=state.query,
+        retrieval=state.retrieval,
+        generation=GenerationResult(answer=answer, model="abstain"),
+        runtime_evaluation=(
+            replace(
+                evaluation,
+                answer_supported=None,
+                support_rationale="The loop abstained, so there is no answer to support.",
+            )
+            if evaluation is not None
+            else None
+        ),
+        diagnosis=state.diagnosis,
+        retrieval_signal=state.retrieval_signal,
+    )
+    return _Applied(
+        stopped,
+        decision,
+        Verification(outcome=STILL_FAILING, rationale=_ABSTAIN_RATIONALE),
+        state.generation.answer,
+        None,
+        None,
+        answer_relation=ANSWER_ABSTAINED,
+        evidence_relation=EVIDENCE_UNCHANGED,
+        evaluation_source=EVAL_CARRIED,
+    )
+
+
 def _should_apply(action: str, *, attempts_so_far: int) -> bool:
     """First-pass abstain stays a recorded stop; escalation abstain is applied."""
     if action in _APPLYABLE:
@@ -722,10 +820,11 @@ def _apply_action(
     if decision.action == ACCEPT:
         return _Applied(state, decision, None, None, None, None, executed=False)
     if decision.action == ABSTAIN:
+        answer = _safe_answer(decision)
         abstained = QueryState(
             query=state.query,
             retrieval=state.retrieval,
-            generation=GenerationResult(answer=ABSTAIN_ANSWER, model="abstain"),
+            generation=GenerationResult(answer=answer, model="abstain"),
             runtime_evaluation=state.runtime_evaluation,
             diagnosis=state.diagnosis,
             retrieval_signal=state.retrieval_signal,
@@ -735,7 +834,7 @@ def _apply_action(
         if judge is not None:
             post_eval = judge.judge(
                 question=query,
-                answer=ABSTAIN_ANSWER,
+                answer=answer,
                 retrieval=state.retrieval,
             )
             post_diag = diagnose_runtime(post_eval)
@@ -744,7 +843,7 @@ def _apply_action(
             abstained = QueryState(
                 query=state.query,
                 retrieval=state.retrieval,
-                generation=GenerationResult(answer=ABSTAIN_ANSWER, model="abstain"),
+                generation=GenerationResult(answer=answer, model="abstain"),
                 runtime_evaluation=post_eval,
                 diagnosis=post_diag,
                 retrieval_signal=state.retrieval_signal,

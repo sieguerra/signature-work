@@ -109,7 +109,9 @@
     attempts.forEach((attempt, index) => {
       phases.push({
         key: `recovery-${index}`,
-        title: `Recovery · ${labelAction(attempt.action)}`,
+        title: attempt.stopReason
+          ? "Recovery · Safe stop"
+          : `Recovery · ${labelAction(attempt.action)}`,
         action: attempt.action,
         steps: attemptSteps(attempt),
       });
@@ -141,6 +143,9 @@
     ];
     if (attempt.reason) {
       steps.push({ kind: "why", title: "Why", detail: attempt.reason });
+    }
+    if (attempt.stopReason) {
+      steps.push({ kind: "why", title: "Recovery decision", detail: attempt.stopReason });
     }
     if (attempt.trigger === "retrieval_signal") {
       steps.push({ kind: "trigger", title: "Trigger", detail: "Retrieval signal" });
@@ -271,6 +276,7 @@
             rewrittenQuery: item.rewritten_query || null,
             topK: numberOrNull(item.top_k),
             reason: String(item.reason || recovery.reason || ""),
+            stopReason: stopReason(item),
             historical: false,
             answer: item.answer != null ? String(item.answer) : "",
             answerRelation: String(item.answer_relation || ""),
@@ -419,6 +425,12 @@
       if (outcome) return outcome;
     }
     return null;
+  }
+
+  function stopReason(item) {
+    const parameters = item && item.parameters;
+    if (!parameters || typeof parameters !== "object") return "";
+    return String(parameters.stop_reason || "");
   }
 
   function rewrittenQuery(list, attempts) {

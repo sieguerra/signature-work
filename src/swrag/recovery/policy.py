@@ -5,6 +5,7 @@ from __future__ import annotations
 from swrag.diagnosis.diagnose import EVIDENCE_INSUFFICIENCY, UNSUPPORTED_GENERATION
 from swrag.evaluation.retrieval_signal import RetrievalSignal
 from swrag.recovery.expand import next_top_k
+from swrag.recovery.gap_signal import assess_evidence
 from swrag.types import Diagnosis, RecoveryDecision, RuntimeEvaluation
 from swrag.verification.runtime import IMPROVED
 
@@ -24,12 +25,16 @@ POLICY_V1 = "v1"
 POLICY_V2A_MARGIN = "v2a_margin"
 POLICY_V2A_EXPAND_FIRST = "v2a_expand_first"
 POLICY_V2A_COMBINED = "v2a_combined"
+POLICY_V2C_EXPAND_STOP = "v2c_expand_stop"
+POLICY_V2C_GAP_AWARE = "v2c_gap_aware"
 POLICIES = frozenset(
     {
         POLICY_V1,
         POLICY_V2A_MARGIN,
         POLICY_V2A_EXPAND_FIRST,
         POLICY_V2A_COMBINED,
+        POLICY_V2C_EXPAND_STOP,
+        POLICY_V2C_GAP_AWARE,
     }
 )
 DEFAULT_POLICY = POLICY_V1
@@ -49,6 +54,17 @@ def uses_margin_gate(policy: str) -> bool:
 
 def uses_expand_first(policy: str) -> bool:
     return normalize_policy(policy) in {POLICY_V2A_EXPAND_FIRST, POLICY_V2A_COMBINED}
+
+
+def opens_with_expand(policy: str) -> bool:
+    """Insufficient evidence expands before any rewrite."""
+    chosen = normalize_policy(policy)
+    return uses_expand_first(chosen) or chosen in {POLICY_V2C_EXPAND_STOP, POLICY_V2C_GAP_AWARE}
+
+
+def uses_gap_block(policy: str) -> bool:
+    """Candidate B replaces a conflicting or neighbor-fact answer with a stop."""
+    return normalize_policy(policy) == POLICY_V2C_GAP_AWARE
 
 
 def margin_only_trigger(
@@ -101,7 +117,7 @@ def select_recovery(
         )
     chosen = normalize_policy(policy)
     if evaluation is not None and not evaluation.evidence_sufficient:
-        if uses_expand_first(chosen):
+        if opens_with_expand(chosen):
             return RecoveryDecision(
                 action=EXPAND,
                 reason=(
@@ -158,6 +174,8 @@ def select_next_recovery(
     used: tuple[str, ...],
     current_top_k: int,
     policy: str = DEFAULT_POLICY,
+    question: str = "",
+    evidence_texts: tuple[str, ...] = (),
 ) -> RecoveryDecision | None:
     """Pick a different action after an attempt that did not repair the run.
 
@@ -220,6 +238,15 @@ def select_next_recovery(
                     "top_k": current_top_k,
                 },
             )
+        if chosen in {POLICY_V2C_EXPAND_STOP, POLICY_V2C_GAP_AWARE} and ABSTAIN not in used_set:
+            return _after_expand_v2c(
+                chosen,
+                trigger=trigger,
+                question=question,
+                evidence_texts=evidence_texts,
+                used=used_set,
+                current_top_k=current_top_k,
+            )
         if ABSTAIN not in used_set:
             return RecoveryDecision(
                 action=ABSTAIN,
@@ -247,3 +274,36 @@ def select_next_recovery(
             trigger=trigger,
         )
     return None
+
+
+def _after_expand_v2c(
+    chosen: str,
+    *,
+    trigger: str,
+    question: str,
+    evidence_texts: tuple[str, ...],
+    used: frozenset[str],
+    current_top_k: int,
+) -> RecoveryDecision:
+    """Expand has already run. Stop, or rewrite only on a query-mismatch signal."""
+    assessment = assess_evidence(question, evidence_texts)
+    forced_stop = chosen == POLICY_V2C_EXPAND_STOP
+    if chosen == POLICY_V2C_GAP_AWARE and assessment.allows_rewrite and REWRITE not in used:
+        return RecoveryDecision(
+            action=REWRITE,
+            reason=assessment.reason,
+            trigger=trigger,
+            parameters={
+                **assessment.as_parameters(forced_stop=False),
+                "policy": chosen,
+                "search_query": "rewritten",
+                "rewrite_top_k": "expanded",
+                "top_k": current_top_k,
+            },
+        )
+    return RecoveryDecision(
+        action=ABSTAIN,
+        reason=assessment.as_parameters(forced_stop=forced_stop)["stop_reason"],
+        trigger=trigger,
+        parameters={**assessment.as_parameters(forced_stop=forced_stop), "policy": chosen},
+    )

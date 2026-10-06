@@ -437,6 +437,42 @@ test("a future schema is not interpreted as version 2", () => {
   assert.equal(flight.before.diagnosis, "Unsupported trace schema.");
 });
 
+test("a safe stop shows the recovery decision without changing a legacy attempt", () => {
+  const flight = buildFlight([
+    {
+      run_id: "stop",
+      query: "What is the fee?",
+      model: "gpt-4o-mini",
+      answer: "I do not know based on the retrieved documents.",
+      top_k: 12,
+      retrieved_chunks: [chunk("a", 0.5)],
+      runtime_evaluation: { evidence_sufficient: false, answer_supported: null },
+      recovery_attempts: [
+        {
+          action: "expand",
+          reason: "expand first",
+          executed: true,
+          top_k: 12,
+          answer_relation: "generated",
+          answer: "maybe",
+        },
+        {
+          action: "abstain",
+          reason: "the retrieved sources say the requested information is not provided",
+          executed: true,
+          answer_relation: "abstained",
+          answer: "I do not know based on the retrieved documents.",
+          parameters: { stop_reason: "the retrieved sources say the requested information is not provided" },
+        },
+      ],
+    },
+  ]);
+  const titles = flight.phases.map((phase) => phase.title);
+  assert.ok(titles.includes("Recovery · Safe stop"));
+  const stop = flight.phases.find((phase) => phase.title === "Recovery · Safe stop");
+  assert.ok(stop.steps.some((step) => step.title === "Recovery decision"));
+});
+
 test("legacy corpus files still build a flight", () => {
   const corpus = JSON.parse(
     fs.readFileSync(path.join(__dirname, "../tests/fixtures/traces/legacy_corpus.json"), "utf8")
