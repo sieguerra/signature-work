@@ -1,8 +1,9 @@
 """Optional OpenAI usage counters for experiment cost reporting.
 
 Wrappers record into a contextvar so tests and one-off CLI runs pay nothing
-unless a caller opens :func:`capture_usage`. Token fields are 0 when a proxy
-omits ``usage`` on the response.
+unless a caller opens :func:`capture_usage`. When a response omits ``usage``,
+token fields stay null and ``tokens_observed`` is false. That is unavailable,
+not a zero-token call.
 """
 
 from __future__ import annotations
@@ -157,6 +158,41 @@ def record_embedding(response: object) -> None:
         return
     counters.usage_observations += 1
     counters.embedding_tokens += _token_count(usage, "total_tokens", "prompt_tokens")
+
+
+# Published list prices. An estimate is not an invoice.
+_LIST_INPUT_PER_MILLION = 0.15
+_LIST_OUTPUT_PER_MILLION = 0.60
+_LIST_EMBEDDING_PER_MILLION = 0.02
+LIST_PRICE_ASSUMPTIONS = (
+    "estimated list price for gpt-4o-mini "
+    "($0.15/1M input, $0.60/1M output) and text-embedding-3-small ($0.02/1M). "
+    "Not an invoice."
+)
+
+
+def estimated_list_cost(usage: dict[str, int | bool | None] | None) -> dict[str, object] | None:
+    """List-price estimate only when the provider actually returned token counts.
+
+    Missing usage stays None. A call count with null tokens is not priced as zero.
+    """
+    if not isinstance(usage, dict) or usage.get("tokens_observed") is not True:
+        return None
+    prompt = usage.get("prompt_tokens")
+    completion = usage.get("completion_tokens")
+    embed = usage.get("embedding_tokens")
+    if not all(isinstance(value, int) for value in (prompt, completion, embed)):
+        return None
+    usd = (
+        int(prompt) * _LIST_INPUT_PER_MILLION
+        + int(completion) * _LIST_OUTPUT_PER_MILLION
+        + int(embed) * _LIST_EMBEDDING_PER_MILLION
+    ) / 1_000_000
+    return {
+        "label": "estimated",
+        "estimated_list_usd": usd,
+        "assumptions": LIST_PRICE_ASSUMPTIONS,
+    }
 
 
 def _token_count(usage: object, *names: str) -> int:

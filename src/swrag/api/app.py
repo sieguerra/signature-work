@@ -52,7 +52,8 @@ from swrag.projects import (
     update_project_config,
     validate_uploaded_file,
 )
-from swrag.recovery.policy import ACTIONS
+from swrag.recovery.policy import ACTIONS, resolve_product_policy
+from swrag.usage import estimated_list_cost
 from swrag.retrieval.fake_embedder import FakeEmbedder
 from swrag.retrieval.memory_index import InMemoryIndex
 from swrag.tracing.steps import trace_to_steps
@@ -64,6 +65,7 @@ class RunRequest(BaseModel):
     question: str = Field(min_length=1)
     mode: str = "loop_confirm"
     top_k: int = Field(default=4, ge=1, le=20)
+    recovery_policy: str | None = None
 
 
 class RecoverRequest(BaseModel):
@@ -83,6 +85,7 @@ class ProjectConfigRequest(BaseModel):
     chat_model: str = "gpt-4o-mini"
     top_k: int = Field(default=4, ge=1, le=20)
     behavior: dict[str, Any] | None = None
+    recovery_policy: str | None = None
 
 
 class ProjectKeyCreateRequest(BaseModel):
@@ -450,7 +453,13 @@ def create_app(
             )
         try:
             with application.state.index_lock, capture_usage():
-                result = _execute_run(application, question, body.mode, body.top_k)
+                result = _execute_run(
+                    application,
+                    question,
+                    body.mode,
+                    body.top_k,
+                    body.recovery_policy,
+                )
         except FileExistsError as error:
             raise HTTPException(status_code=409, detail=str(error)) from error
         except (FileNotFoundError, ValueError) as error:
@@ -464,7 +473,7 @@ def create_app(
         return {
             "run_id": result.run_id,
             "answer": result.answer,
-            **_run_payload(application.state.traces_dir, payload),
+            **_public_run(application.state.traces_dir, payload),
         }
 
     @application.post("/api/runs/{run_id}/recover")
@@ -511,7 +520,7 @@ def create_app(
         return {
             "run_id": result.run_id,
             "answer": result.answer,
-            **_run_payload(application.state.traces_dir, payload),
+            **_public_run(application.state.traces_dir, payload),
         }
 
     application.include_router(build_v1_router())
@@ -558,9 +567,16 @@ def _entry_for_explicit_dir(corpus_dir: Path, root: Path) -> CorpusEntry:
     )
 
 
-def _execute_run(application: FastAPI, question: str, mode: str, top_k: int):
+def _execute_run(
+    application: FastAPI,
+    question: str,
+    mode: str,
+    top_k: int,
+    recovery_policy: str | None,
+):
     retrieve_only = mode == "retrieve_only"
     index = _index_for(application, retrieve_only=retrieve_only)
+    policy = _selected_policy(application, recovery_policy)
     kwargs: dict[str, Any] = {
         "corpus_dir": application.state.corpus_dir,
         "output_dir": application.state.traces_dir,
@@ -570,6 +586,7 @@ def _execute_run(application: FastAPI, question: str, mode: str, top_k: int):
         "embedder": FakeEmbedder() if retrieve_only else None,
         "agent_config": _agent_snapshot(application),
         "run_mode": mode,
+        "recovery_policy": policy,
     }
     if not retrieve_only:
         kwargs["generator"] = _generator_for(application)
@@ -611,6 +628,49 @@ def _default_quality_scorer() -> tuple[Any, str]:
 
     config = load_provider_config()
     return OpenAI(base_url=config.base_url), config.chat_model
+
+
+def _selected_policy(application: FastAPI, requested: str | None) -> str:
+    """Request choice wins. A blank request uses the saved project choice, or v1."""
+    if requested is not None and str(requested).strip():
+        return resolve_product_policy(requested)
+    config = application.state.agent_config
+    stored = config.get("recovery_policy") if isinstance(config, dict) else None
+    return resolve_product_policy(stored if isinstance(stored, str) else None)
+
+
+def _public_run(traces_dir: Path, payload: dict[str, Any]) -> dict[str, Any]:
+    usage = payload.get("usage") if isinstance(payload.get("usage"), dict) else None
+    attempts = payload.get("recovery_attempts") if isinstance(payload.get("recovery_attempts"), list) else []
+    actions = [
+        str(item.get("action"))
+        for item in attempts
+        if isinstance(item, dict) and item.get("action")
+    ]
+    return {
+        **_run_payload(traces_dir, payload),
+        "recovery_policy": payload.get("recovery_policy") or "v1",
+        "recovery_actions": actions,
+        "safe_stop": _payload_safe_stop(payload),
+        "usage": usage,
+        "cost_estimate": estimated_list_cost(usage),
+    }
+
+
+def _payload_safe_stop(payload: dict[str, Any]) -> bool:
+    attempts = payload.get("recovery_attempts") if isinstance(payload.get("recovery_attempts"), list) else []
+    for item in attempts:
+        if isinstance(item, dict) and _has_stop_reason(item):
+            return True
+    recovery = payload.get("recovery")
+    return isinstance(recovery, dict) and _has_stop_reason(recovery)
+
+
+def _has_stop_reason(item: dict[str, Any]) -> bool:
+    if str(item.get("action") or "") != "abstain":
+        return False
+    parameters = item.get("parameters")
+    return isinstance(parameters, dict) and bool(str(parameters.get("stop_reason") or "").strip())
 
 
 def _run_payload(traces_dir: Path, payload: dict[str, Any]) -> dict[str, Any]:

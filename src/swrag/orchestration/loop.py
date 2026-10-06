@@ -58,6 +58,7 @@ from swrag.recovery.policy import (
     ACCEPT,
     ACTIONS,
     DEFAULT_POLICY,
+    canonical_policy,
     EXPAND,
     REGENERATE,
     REWRITE,
@@ -153,7 +154,7 @@ def run_with_recovery(
     successful repair stops early. Default 1 preserves the V1 one-shot loop.
     """
     started = time.perf_counter()
-    policy = normalize_policy(recovery_policy)
+    policy = canonical_policy(recovery_policy)
     resolved_index = index if index is not None else build_corpus_index(corpus_dir, embedder)
     pass_started = time.perf_counter()
     if prepared_state is None:
@@ -195,6 +196,7 @@ def run_with_recovery(
                 latency_ms=_elapsed_ms(started),
                 agent_config=agent_config,
                 run_mode=run_mode,
+                recovery_policy=policy,
             )
 
     if max_recoveries < 1 or not _should_apply(decision.action, attempts_so_far=0):
@@ -207,6 +209,7 @@ def run_with_recovery(
             latency_ms=_elapsed_ms(started),
             agent_config=agent_config,
             run_mode=run_mode,
+            recovery_policy=policy,
         )
 
     attempts: list[dict[str, Any]] = []
@@ -338,6 +341,7 @@ def run_with_recovery(
             latency_ms=_elapsed_ms(started),
             agent_config=agent_config,
             run_mode=run_mode,
+            recovery_policy=policy,
         )
 
     overall_verification = last_applied.verification
@@ -366,6 +370,7 @@ def run_with_recovery(
         recovery_attempts=tuple(attempts),
         first_pass_evaluation=first_eval,
         run_mode=run_mode,
+        recovery_policy=policy,
         initial=_initial_from_state(first_state, first_latency),
     )
 
@@ -384,9 +389,11 @@ def run_first_pass(
     index: InMemoryIndex | None = None,
     agent_config: dict[str, Any] | None = None,
     run_mode: str = "loop_confirm",
+    recovery_policy: str = DEFAULT_POLICY,
 ) -> BaselineRunResult:
     """Evaluate and select a recovery without applying it."""
     started = time.perf_counter()
+    policy = canonical_policy(recovery_policy)
     resolved_index = index if index is not None else build_corpus_index(corpus_dir, embedder)
     state, decision = _first_pass_state(
         query,
@@ -397,6 +404,7 @@ def run_first_pass(
         generator=generator,
         judge=judge,
         index=resolved_index,
+        policy=policy,
     )
     status = RECOVERY_APPLIED if decision.action == ACCEPT else RECOVERY_PROPOSED
     return write_run(
@@ -408,6 +416,7 @@ def run_first_pass(
         latency_ms=_elapsed_ms(started),
         agent_config=agent_config,
         run_mode=run_mode,
+        recovery_policy=policy,
     )
 
 
@@ -486,6 +495,7 @@ def apply_recovery(
         first_pass_evaluation=parent_eval,
         run_mode="loop_confirm",
         initial=initial_from_trace(parent),
+        recovery_policy=normalize_policy(str(parent.get("recovery_policy") or "")) or DEFAULT_POLICY,
     )
 
 

@@ -12,6 +12,12 @@ import shutil
 from pathlib import Path
 
 from swrag.config import ALLOWED_CHAT_MODELS, DEFAULT_CHAT_MODEL
+from swrag.recovery.policy import (
+    POLICY_V2C_GAP_AWARE,
+    PRODUCT_CURRENT,
+    PRODUCT_GAP_AWARE,
+    resolve_product_policy,
+)
 from swrag.corpus_registry import CorpusEntry, get_corpus, load_registry, traces_dir_for
 from swrag.ingestion.pdf import PdfExtractError, extract_pdf_pages
 
@@ -137,6 +143,7 @@ def default_project_config() -> dict[str, object]:
         "instructions": "",
         "chat_model": DEFAULT_CHAT_MODEL,
         "top_k": 4,
+        "recovery_policy": PRODUCT_CURRENT,
     }
 
 
@@ -213,6 +220,14 @@ def sanitize_behavior(raw: object) -> dict[str, object]:
     }
 
 
+def _stored_policy(value: object) -> str:
+    """Persist the product name. Blank and unknown-to-blank stay current v1."""
+    internal = resolve_product_policy(value if isinstance(value, str) else None)
+    if internal == POLICY_V2C_GAP_AWARE:
+        return PRODUCT_GAP_AWARE
+    return PRODUCT_CURRENT
+
+
 def normalize_project_config(raw: object | None) -> dict[str, object]:
     payload = raw if isinstance(raw, dict) else {}
     instructions = str(payload.get("instructions") or "")
@@ -231,6 +246,7 @@ def normalize_project_config(raw: object | None) -> dict[str, object]:
         "instructions": instructions,
         "chat_model": model,
         "top_k": top_k,
+        "recovery_policy": _stored_policy(payload.get("recovery_policy")),
     }
     if payload.get("behavior") is not None:
         config["behavior"] = sanitize_behavior(payload.get("behavior"))

@@ -443,7 +443,11 @@ def test_logical_run_history_keeps_recovery_path_source_and_missing_diagnosis(tm
     assert rows["parent"]["source"] == "operator"
     assert rows["parent"]["diagnoses"] == []
     assert rows["parent"]["verification"] == "unchanged"
-    assert rows["parent"]["usage"] == {"prompt_tokens": 10, "completion_tokens": 4}
+    assert rows["parent"]["usage"] == {
+        "prompt_tokens": 10,
+        "completion_tokens": 4,
+        "tokens_observed": True,
+    }
     assert rows["auto"]["recovery"] == ["rewrite", "expand"]
     assert rows["auto"]["trigger"] == "judge · retrieval_signal"
     assert rows["auto"]["source"] == "policy"

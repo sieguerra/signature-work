@@ -505,7 +505,11 @@ def test_usage_is_not_double_counted_and_missing_tokens_stay_absent(tmp_path: Pa
     assert payload["recovery_attempts"][0]["usage"]["chat_calls"] == 1
     assert payload["recovery_attempts"][0]["usage"]["prompt_tokens"] == 7
     history = logical_run_history(tmp_path / "metered")
-    assert history["runs"][0]["usage"] == {"prompt_tokens": 17, "completion_tokens": 2}
+    assert history["runs"][0]["usage"] == {
+        "prompt_tokens": 17,
+        "completion_tokens": 2,
+        "tokens_observed": True,
+    }
 
 
 def test_future_schema_is_not_read_as_version_2(tmp_path: Path) -> None:

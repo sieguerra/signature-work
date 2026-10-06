@@ -39,6 +39,39 @@ POLICIES = frozenset(
 )
 DEFAULT_POLICY = POLICY_V1
 
+# Product choices. ``gap_aware`` is the guarded opt-in. It maps to the frozen
+# Phase 8C policy and is not the default.
+PRODUCT_CURRENT = "v1"
+PRODUCT_GAP_AWARE = "gap_aware"
+_PRODUCT_TO_INTERNAL = {
+    PRODUCT_CURRENT: POLICY_V1,
+    PRODUCT_GAP_AWARE: POLICY_V2C_GAP_AWARE,
+    POLICY_V2C_GAP_AWARE: POLICY_V2C_GAP_AWARE,
+}
+
+
+def resolve_product_policy(policy: str | None) -> str:
+    """Map an explicit product choice onto the internal policy name.
+
+    A blank value is v1. Research-only names such as the margin gate are
+    rejected here so a product caller cannot turn them on by accident.
+    """
+    if policy is None or str(policy).strip() == "":
+        return POLICY_V1
+    chosen = str(policy).strip()
+    if chosen not in _PRODUCT_TO_INTERNAL:
+        allowed = ", ".join(sorted({PRODUCT_CURRENT, PRODUCT_GAP_AWARE}))
+        raise ValueError(f"recovery_policy must be one of {allowed}")
+    return _PRODUCT_TO_INTERNAL[chosen]
+
+
+def canonical_policy(policy: str | None) -> str:
+    """Accept a product name or an internal research name."""
+    text = "" if policy is None else str(policy).strip()
+    if text in _PRODUCT_TO_INTERNAL:
+        return _PRODUCT_TO_INTERNAL[text]
+    return normalize_policy(policy)
+
 
 def normalize_policy(policy: str | None) -> str:
     """Return a known policy name. Blank means the current product policy."""

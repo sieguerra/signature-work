@@ -137,24 +137,28 @@ def blocking_assessment(
     return None
 
 
+_USER_STOP = (
+    "I do not know based on the retrieved documents. "
+    "I couldn't find sufficient support for that answer in the available sources."
+)
+
+
 def safe_abstention(assessment: GapAssessment, *, forced_stop: bool = False) -> str:
-    """A refusal that starts with the abstention phrase and adds only retrieved text."""
+    """The answer shown to the user. The diagnosis stays on the trace.
+
+    A conflict label is not asserted in this sentence. Phase 8C sometimes
+    stopped safely while naming the wrong reason, so the answer only says
+    that bounded search did not find sufficient support.
+    """
     base = "I do not know based on the retrieved documents."
-    if forced_stop and assessment.label == LIKELY_QUERY_MISMATCH:
-        return base + " Recovery searched the configured evidence budget and did not find sufficient support."
-    if assessment.label == LIKELY_CORPUS_GAP and assessment.excerpt:
+    if assessment.label == LIKELY_CORPUS_GAP and assessment.excerpt and not forced_stop:
         return base + " The retrieved sources say: " + assessment.excerpt
-    if assessment.label == CONFLICT:
-        return (
-            base
-            + " The retrieved sources give more than one value, and the question does not say which one to use."
-        )
-    if assessment.label == NEIGHBOR_FACT:
+    if assessment.label == NEIGHBOR_FACT and not forced_stop:
         return (
             base
             + " The closest figure in the retrieved sources is about a different entity than the question asks."
         )
-    return base + " Recovery searched the configured evidence budget and did not find sufficient support."
+    return _USER_STOP
 
 
 def _contested_values(question: str, chunks: list[str]) -> set[str]:
