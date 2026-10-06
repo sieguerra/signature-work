@@ -6,71 +6,106 @@
   <style>
     :root { color-scheme: light; }
     body { margin: 0; font: 16px/1.45 system-ui, sans-serif; background: #f4f1ea; color: #1c1915; }
-    header, main { max-width: 1100px; margin: 0 auto; padding: 20px; }
+    header, main { max-width: 1100px; margin: 0 auto; padding: 16px 20px; }
     header { display: flex; justify-content: space-between; gap: 16px; align-items: end; }
     h1 { font-size: 22px; margin: 0 0 4px; }
+    h2 { margin: 0 0 8px; font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; }
     p { margin: 0; }
-    .progress { font-variant-numeric: tabular-nums; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .progress { font-variant-numeric: tabular-nums; text-align: right; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
     article { background: white; border: 1px solid #d9d2c5; border-radius: 8px; padding: 14px; }
-    h2 { margin: 0 0 8px; font-size: 15px; letter-spacing: 0.04em; text-transform: uppercase; }
-    pre { white-space: pre-wrap; font: 14px/1.4 ui-monospace, monospace; background: #f7f5f0; padding: 10px; border-radius: 6px; max-height: 280px; overflow: auto; }
-    form { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
-    button, label.choice { border: 1px solid #1c1915; background: white; border-radius: 999px; padding: 8px 12px; cursor: pointer; }
-    button.primary { background: #1c1915; color: white; }
-    textarea { width: 100%; min-height: 72px; margin-top: 8px; font: inherit; }
-    .warn { color: #8a3b12; }
-    @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } header { display: block; } }
+    pre { white-space: pre-wrap; font: 14px/1.4 ui-monospace, monospace; background: #f7f5f0; padding: 10px; border-radius: 6px; max-height: 220px; overflow: auto; }
+    .question { font-size: 18px; margin: 12px 0; }
+    fieldset { border: 0; padding: 0; margin: 14px 0 0; }
+    legend { font-weight: 650; margin-bottom: 8px; }
+    .choices { display: flex; flex-wrap: wrap; gap: 8px; }
+    button, .choice { border: 1px solid #1c1915; background: white; border-radius: 999px; padding: 8px 12px; cursor: pointer; font: inherit; }
+    button.primary, .choice.primary { background: #1c1915; color: white; }
+    button.quiet { border-color: #b7ad9e; }
+    textarea, input[type="text"] { width: 100%; margin-top: 8px; font: inherit; }
+    textarea { min-height: 64px; }
+    .warn { color: #8a3b12; margin-top: 8px; }
+    .keys { color: #5c564c; font-size: 13px; margin-top: 8px; }
+    details { margin-top: 8px; }
+    summary { cursor: pointer; }
+    @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } header { display: block; } .progress { text-align: left; margin-top: 8px; } }
   </style>
 </head>
 <body>
 <header>
   <div>
     <h1>Blinded recovery review</h1>
-    <p>Compare before and after. The page has no automatic label and no recovery action.</p>
+    <p id="intro">One reviewer. Judge the before state, then whether after is better. Nothing on this page is a pre-filled label.</p>
   </div>
-  <p class="progress" id="progress">Load a blinded JSONL file.</p>
+  <p class="progress" id="progress">Load a packet.</p>
 </header>
 <main>
-  <p><input id="file" type="file" accept=".jsonl,application/jsonl,application/json"></p>
+  <p>
+    <button type="button" id="load-triggered">Triggered runs</button>
+    <button type="button" id="load-rest">Runs that did not recover</button>
+    <input id="file" type="file" accept=".jsonl,application/jsonl,application/json">
+  </p>
+  <p><label>Reviewer id <input id="reviewer" type="text" value="reviewer-1"></label></p>
   <p id="error" class="warn"></p>
   <section id="card" hidden>
-    <p id="question"></p>
+    <p class="question" id="question"></p>
     <div class="grid">
       <article>
-        <h2>Before evidence</h2>
-        <pre id="before-evidence"></pre>
+        <h2>Before</h2>
+        <details open>
+          <summary>Passages</summary>
+          <pre id="before-evidence"></pre>
+        </details>
         <h2>Before answer</h2>
         <pre id="before-answer"></pre>
       </article>
-      <article>
-        <h2>After evidence</h2>
-        <pre id="after-evidence"></pre>
+      <article id="after-column">
+        <h2>After</h2>
+        <details open>
+          <summary>Passages</summary>
+          <pre id="after-evidence"></pre>
+        </details>
         <h2>After answer</h2>
         <pre id="after-answer"></pre>
       </article>
     </div>
-    <form id="choices"></form>
-    <textarea id="comment" placeholder="Optional comment"></textarea>
+    <fieldset>
+      <legend>Before state <span class="keys">keys 1–5</span></legend>
+      <div class="choices" id="before-choices"></div>
+    </fieldset>
+    <fieldset id="transition-field">
+      <legend>Transition <span class="keys">keys 6–0</span></legend>
+      <div class="choices" id="transition-choices"></div>
+    </fieldset>
+    <textarea id="comment" placeholder="Optional note"></textarea>
+    <p class="keys">Left and right arrows move between cases. Choices save in this browser. A second reviewer exports a separate file. Do not open the key file.</p>
     <p>
-      <button type="button" id="prev">Previous</button>
-      <button type="button" id="next">Next</button>
+      <button type="button" class="quiet" id="prev">Previous</button>
+      <button type="button" class="quiet" id="next">Next</button>
       <button type="button" class="primary" id="export">Download labels</button>
     </p>
   </section>
 </main>
 <script>
-const LABELS = [
-  ["improved", "Improved"],
-  ["unchanged", "Unchanged"],
-  ["still_failing", "Still failing"],
-  ["degraded", "Degraded"],
-  ["unclear", "Unclear / cannot determine"]
+const BEFORE = [
+  ["1", "correct", "Correct / acceptable"],
+  ["2", "appropriate_abstention", "Appropriate abstention"],
+  ["3", "incorrect", "Incorrect / unsupported"],
+  ["4", "incomplete", "Incomplete but not enough"],
+  ["5", "unclear", "Unclear"]
 ];
-const FORBIDDEN = ["gold_label","outcome","v1_outcome","v2_outcome","action","actions","path","answerable","answers","diagnosis_class"];
-const STORAGE = "recovery-review-v1";
+const TRANSITION = [
+  ["6", "improved", "Improved"],
+  ["7", "unchanged", "Unchanged"],
+  ["8", "still_failing", "Still failing"],
+  ["9", "degraded", "Degraded"],
+  ["0", "unclear", "Unclear"]
+];
+const FORBIDDEN = ["gold_label","gold_label_paraphrase","gold_label_grounded","outcome","v1_outcome","v2_outcome","v2_label","action","actions","path","answerable","answers","expected","recommended","recommended_label","diagnosis_class","logical_id","evidence_sufficient","answer_supported","weak_top","ambiguous_top"];
+const STORAGE = "recovery-review-v2";
 let items = [];
 let index = 0;
+let packet = "custom";
 let saved = loadSaved();
 
 function loadSaved() {
@@ -78,15 +113,36 @@ function loadSaved() {
   catch { return {}; }
 }
 function persist() { localStorage.setItem(STORAGE, JSON.stringify(saved)); }
+function reviewerId() { return document.getElementById("reviewer").value.trim() || "reviewer-1"; }
+function record(item) {
+  const all = saved[packet] || {};
+  return all[item.review_id] || {};
+}
 
+document.getElementById("load-triggered").addEventListener("click", () => loadUrl("packet/triggered.jsonl", "triggered"));
+document.getElementById("load-rest").addEventListener("click", () => loadUrl("packet/nontrigger.jsonl", "nontrigger"));
 document.getElementById("file").addEventListener("change", async (event) => {
   const file = event.target.files[0];
   if (!file) return;
-  const text = await file.text();
+  packet = "file:" + file.name;
+  accept(await file.text());
+});
+
+async function loadUrl(url, name) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    document.getElementById("error").textContent = "Could not load " + url + ". Use the file input, or open this folder with a local web server.";
+    return;
+  }
+  packet = name;
+  accept(await response.text());
+}
+
+function accept(text) {
   try {
     items = text.split(/\n/).map((line) => line.trim()).filter(Boolean).map((line) => JSON.parse(line));
     items.forEach(checkBlind);
-    index = items.findIndex((item) => !saved[item.review_id] || !saved[item.review_id].label);
+    index = items.findIndex((item) => !complete(item));
     if (index < 0) index = 0;
     document.getElementById("error").textContent = "";
     document.getElementById("card").hidden = false;
@@ -94,7 +150,7 @@ document.getElementById("file").addEventListener("change", async (event) => {
   } catch (error) {
     document.getElementById("error").textContent = error.message;
   }
-});
+}
 
 function checkBlind(item) {
   FORBIDDEN.forEach((key) => {
@@ -102,61 +158,110 @@ function checkBlind(item) {
       throw new Error("This file is not blinded. It contains " + key + ".");
     }
   });
-  ["review_id","question","before_evidence","before_answer","after_evidence","after_answer"].forEach((key) => {
+  ["review_id", "question", "before_evidence", "before_answer"].forEach((key) => {
     if (!Object.prototype.hasOwnProperty.call(item, key)) throw new Error("Missing " + key);
   });
 }
 
+function hasAfter(item) {
+  return Object.prototype.hasOwnProperty.call(item, "after_answer");
+}
+
+function complete(item) {
+  const current = record(item);
+  if (!current.before_state) return false;
+  if (hasAfter(item) && !current.transition) return false;
+  return true;
+}
+
 function render() {
   const item = items[index];
-  const done = items.filter((row) => saved[row.review_id] && saved[row.review_id].label).length;
-  document.getElementById("progress").textContent = (done) + " labeled / " + items.length + " · showing " + (index + 1);
+  const done = items.filter(complete).length;
+  document.getElementById("progress").textContent = done + " complete / " + items.length + " · case " + (index + 1);
   document.getElementById("question").textContent = item.question;
   document.getElementById("before-evidence").textContent = item.before_evidence || "";
   document.getElementById("before-answer").textContent = item.before_answer || "";
-  document.getElementById("after-evidence").textContent = item.after_evidence || "";
-  document.getElementById("after-answer").textContent = item.after_answer || "";
-  const current = saved[item.review_id] || {};
+  const after = hasAfter(item);
+  document.getElementById("after-column").hidden = !after;
+  document.getElementById("transition-field").hidden = !after;
+  document.getElementById("intro").textContent = after
+    ? "One reviewer. Judge the before state, then whether after is better. Nothing on this page is a pre-filled label."
+    : "Was the original response acceptable? Only this judgment is needed. Nothing on this page is a pre-filled label.";
+  if (after) {
+    document.getElementById("after-evidence").textContent = item.after_evidence || "";
+    document.getElementById("after-answer").textContent = item.after_answer || "";
+  }
+  const current = record(item);
   document.getElementById("comment").value = current.comment || "";
-  const form = document.getElementById("choices");
-  form.innerHTML = "";
-  LABELS.forEach(([value, name]) => {
+  paint("before-choices", BEFORE, current.before_state, (value) => choose("before_state", value));
+  paint("transition-choices", TRANSITION, current.transition, (value) => choose("transition", value));
+}
+
+function paint(id, labels, selected, onChoose) {
+  const host = document.getElementById(id);
+  host.innerHTML = "";
+  labels.forEach(([key, value, name]) => {
     const button = document.createElement("button");
     button.type = "button";
-    button.textContent = name;
-    if (current.label === value) button.className = "primary";
-    button.addEventListener("click", () => choose(value));
-    form.appendChild(button);
+    button.textContent = key + "  " + name;
+    if (selected === value) button.className = "primary";
+    button.addEventListener("click", () => onChoose(value));
+    host.appendChild(button);
   });
 }
 
-function choose(label) {
+function choose(field, value) {
   const item = items[index];
-  saved[item.review_id] = { label, comment: document.getElementById("comment").value };
+  const current = record(item);
+  current[field] = value;
+  current.comment = document.getElementById("comment").value;
+  const all = saved[packet] || {};
+  all[item.review_id] = current;
+  saved[packet] = all;
   persist();
-  if (index < items.length - 1) index += 1;
+  if (complete(item) && index < items.length - 1) index += 1;
   render();
 }
 
 document.getElementById("comment").addEventListener("change", () => {
   const item = items[index];
-  const current = saved[item.review_id] || {};
+  if (!item) return;
+  const current = record(item);
   current.comment = document.getElementById("comment").value;
-  saved[item.review_id] = current;
+  const all = saved[packet] || {};
+  all[item.review_id] = current;
+  saved[packet] = all;
   persist();
 });
 document.getElementById("prev").addEventListener("click", () => { if (index > 0) { index -= 1; render(); } });
 document.getElementById("next").addEventListener("click", () => { if (index < items.length - 1) { index += 1; render(); } });
+document.addEventListener("keydown", (event) => {
+  if (event.target && (event.target.tagName === "TEXTAREA" || event.target.tagName === "INPUT")) return;
+  if (!items.length) return;
+  const before = BEFORE.find(([key]) => key === event.key);
+  const transition = TRANSITION.find(([key]) => key === event.key);
+  if (before) choose("before_state", before[1]);
+  else if (transition && hasAfter(items[index])) choose("transition", transition[1]);
+  else if (event.key === "ArrowLeft" && index > 0) { index -= 1; render(); }
+  else if (event.key === "ArrowRight" && index < items.length - 1) { index += 1; render(); }
+});
 document.getElementById("export").addEventListener("click", () => {
-  const lines = items.map((item) => JSON.stringify({
-    review_id: item.review_id,
-    label: (saved[item.review_id] && saved[item.review_id].label) || "",
-    comment: (saved[item.review_id] && saved[item.review_id].comment) || ""
-  }));
+  const reviewer = reviewerId();
+  const lines = items.map((item) => {
+    const current = record(item);
+    return JSON.stringify({
+      review_id: item.review_id,
+      reviewer,
+      before_state: current.before_state || "",
+      transition: current.transition || "",
+      comment: current.comment || ""
+    });
+  });
   const blob = new Blob([lines.join("\n") + "\n"], { type: "application/jsonl" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  link.download = "human_labels.jsonl";
+  const suffix = packet === "nontrigger" ? "_nontrigger" : "";
+  link.download = "human_labels_" + reviewer + suffix + ".jsonl";
   link.click();
 });
 </script>
