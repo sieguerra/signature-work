@@ -18,6 +18,7 @@
     if (!verificationMatches(run, spec.verification || "all")) return false;
     if (!recoveryMatches(run, spec.recovery || "all")) return false;
     if (!actionMatches(run, spec.action || "all")) return false;
+    if (!policyMatches(run, spec.policy || "all")) return false;
     if (!diagnosisMatches(run, spec.diagnosis || "all")) return false;
     return true;
   }
@@ -44,8 +45,16 @@
 
   function actionMatches(run, filter) {
     if (filter === "all") return true;
+    if (filter === "safe_stop") return Boolean(run.safe_stop);
     const actions = run.recovery || [];
     return actions.includes(filter) || run.recovery_pending === filter;
+  }
+
+  function policyMatches(run, filter) {
+    if (filter === "all") return true;
+    const stored = String(run.recovery_policy || "v1");
+    if (filter === "gap_aware") return stored === "v2c_gap_aware" || stored === "gap_aware";
+    return stored === filter;
   }
 
   function diagnosisMatches(run, filter) {
@@ -78,7 +87,10 @@
     if (!run) return "";
     if (run.recovery_pending && !(run.recovery || []).length) return "Recovery pending";
     const path = recoveryPath(run);
-    if (path) return run.recovery_applied === false ? `${path} (not executed)` : path;
+    if (path) {
+      const labeled = run.safe_stop ? path.replace(/Safe abstention/g, "Safe stop") : path;
+      return run.recovery_applied === false ? `${labeled} (not executed)` : labeled;
+    }
     return "No recovery";
   }
 

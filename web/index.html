@@ -122,6 +122,12 @@
                     <option value="loop" selected>Auto recovery</option>
                   </select>
                 </label>
+                <label class="tc-field">Recovery policy
+                  <select id="pg-recovery-policy" aria-label="Recovery policy">
+                    <option value="v1" selected>Current v1</option>
+                    <option value="gap_aware">Gap-aware (Guarded)</option>
+                  </select>
+                </label>
                 <label class="tc-field">Retrieval depth
                   <input id="pg-top-k" type="number" min="1" max="20" value="4" step="1" aria-label="How many top passages to retrieve" />
                 </label>
@@ -131,6 +137,7 @@
                 <button type="submit" class="primary" id="pg-run">Run test</button>
               </div>
               <p id="pg-mode-note" class="tc-mode-note"></p>
+              <p id="pg-policy-note" class="tc-mode-note" hidden>Gap-aware recovery expands retrieval first, then conditionally rewrites only when runtime evidence suggests a query mismatch. Otherwise it safely stops instead of continuing futile recovery. This policy is guarded and is not the default.</p>
               <p class="tc-depth-note">How many top passages to retrieve.</p>
               <div class="banner hidden" id="pg-error" role="alert"></div>
             </form>
@@ -229,6 +236,14 @@
                     <option value="expand">Expand</option>
                     <option value="regenerate">Regenerate</option>
                     <option value="abstain">Safe abstention</option>
+                    <option value="safe_stop">Safe stop</option>
+                  </select>
+                </label>
+                <label>Policy
+                  <select id="rel-policy" aria-label="Recovery policy filter">
+                    <option value="all">All</option>
+                    <option value="v1">Current v1</option>
+                    <option value="gap_aware">Gap-aware (Guarded)</option>
                   </select>
                 </label>
                 <label>Diagnosis
@@ -286,6 +301,6 @@
     <script src="/static/flight-recorder.js?v=4"></script>
     <script src="/static/reliability.js?v=2"></script>
     <script src="/static/agent-config.js?v=46"></script>
-    <script src="/static/app.js?v=60"></script>
+    <script src="/static/app.js?v=61"></script>
   </body>
 </html>

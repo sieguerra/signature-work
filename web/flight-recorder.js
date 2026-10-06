@@ -78,6 +78,7 @@
       retrievalWarning: signal,
       phases: phasesFor(list, beforeChunks, beforeAnswer, beforeEval, attempts, verification, applied),
       runMode: explicitMode(list),
+      recoveryPolicy: explicitPolicy(list),
     };
   }
 
@@ -146,6 +147,23 @@
     }
     if (attempt.stopReason) {
       steps.push({ kind: "why", title: "Recovery decision", detail: attempt.stopReason });
+    }
+    if (attempt.conflictSignal) {
+      steps.push({
+        kind: "why",
+        title: "Conflict signal",
+        detail: "Candidate diagnosis recorded on the trace. The answer does not treat it as a proven conflict.",
+      });
+    }
+    if (attempt.neighborSignal) {
+      steps.push({
+        kind: "why",
+        title: "Neighboring evidence",
+        detail: "A retrieved figure appears to be about a different entity than the question.",
+      });
+    }
+    if (attempt.decisionSource) {
+      steps.push({ kind: "source", title: "Decision source", detail: attempt.decisionSource });
     }
     if (attempt.trigger === "retrieval_signal") {
       steps.push({ kind: "trigger", title: "Trigger", detail: "Retrieval signal" });
@@ -277,6 +295,10 @@
             topK: numberOrNull(item.top_k),
             reason: String(item.reason || recovery.reason || ""),
             stopReason: stopReason(item),
+            conflictSignal: signalFlag(item, "conflict_signal"),
+            neighborSignal: signalFlag(item, "neighbor_signal"),
+            decisionSource: signalText(item, "decision_source"),
+            opportunity: signalText(item, "recovery_opportunity"),
             historical: false,
             answer: item.answer != null ? String(item.answer) : "",
             answerRelation: String(item.answer_relation || ""),
@@ -301,6 +323,11 @@
         rewrittenQuery: trace.rewritten_query || null,
         topK: numberOrNull(trace.top_k),
         reason: String(recovery.reason || ""),
+        stopReason: stopReason(recovery),
+        conflictSignal: signalFlag(recovery, "conflict_signal"),
+        neighborSignal: signalFlag(recovery, "neighbor_signal"),
+        decisionSource: signalText(recovery, "decision_source"),
+        opportunity: signalText(recovery, "recovery_opportunity"),
         historical: true,
       });
     }
@@ -482,6 +509,7 @@
 
   function runStatus(list, pending, applied, verification, afterAnswer, attempts) {
     if (pending) return "recovery_proposed";
+    if (applied && (attempts || []).some((attempt) => attempt.stopReason)) return "safe_stop";
     if (isAbstention(afterAnswer, list[list.length - 1]) && applied) return verification || "abstained";
     if (verification) return verification;
     if (!applied) {
@@ -540,7 +568,24 @@
 
   function isAbstention(answer, trace) {
     if (trace && String(trace.model || "") === "abstain") return true;
-    return String(answer || "").trim() === ABSTAIN_ANSWER;
+    return String(answer || "").trim().toLowerCase().startsWith("i do not know");
+  }
+
+  function signalFlag(item, key) {
+    const parameters = item && item.parameters;
+    return Boolean(parameters && typeof parameters === "object" && parameters[key]);
+  }
+
+  function signalText(item, key) {
+    const parameters = item && item.parameters;
+    if (!parameters || typeof parameters !== "object") return "";
+    return String(parameters[key] || "");
+  }
+
+  function explicitPolicy(list) {
+    const root = list.find((trace) => !trace.parent_run_id) || list[0];
+    const stored = String((root && root.recovery_policy) || "").trim();
+    return stored || "v1";
   }
 
   function outcomeOf(value) {

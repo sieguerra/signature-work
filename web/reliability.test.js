@@ -106,3 +106,30 @@ test("null answer support stays evidence sufficient, and quality is not a zero",
   assert.equal(qualityStatus({ has_answer: true, abstained: true, quality: { context_relevance: 0.2 } }), "Not applicable");
   assert.equal(qualityStatus({ has_answer: false }), "Not applicable");
 });
+
+test("gap-aware runs can be filtered without treating a safe stop as a rewrite", () => {
+  const rows = [
+    run({
+      logical_run_id: "gap",
+      recovery_policy: "v2c_gap_aware",
+      recovery: ["expand", "abstain"],
+      safe_stop: true,
+      recovery_required: true,
+      recovery_applied: true,
+      verification: "still_failing",
+    }),
+    run({
+      logical_run_id: "current",
+      recovery_policy: "v1",
+      recovery: ["rewrite"],
+      safe_stop: false,
+      recovery_required: true,
+      recovery_applied: true,
+    }),
+  ];
+  assert.equal(filterLogicalRuns(rows, { policy: "gap_aware" }).length, 1);
+  assert.equal(filterLogicalRuns(rows, { policy: "v1" }).length, 1);
+  assert.equal(filterLogicalRuns(rows, { action: "safe_stop" }).length, 1);
+  assert.equal(labelRecovery(rows[0]), "Expand → Safe stop");
+  assert.equal(filterLogicalRuns(rows, { policy: "all" }).length, 2);
+});
