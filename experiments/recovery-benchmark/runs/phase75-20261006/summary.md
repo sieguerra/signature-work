@@ -40,3 +40,14 @@ Human versus primary gold on 59 decided transitions: 37 matches, 0.627. The para
 Only `ignore_ambiguous_margin` skips any triggered runs without skipping a run the reviewer called bad. It skips 8 decided runs, saves 16 chat calls, about 29 seconds, and about $0.004. It does not skip `dku-053` or `dku-012`.
 
 Stopping explicit abstentions skips all 15 runs the reviewer called bad, including those two. Requiring two warning signals skips 13 of the 15.
+
+## Non-trigger sample
+
+The same reviewer later labeled all 40 prepared runs that did not recover. Every before-state is correct. None are unclear. Sampled missed-recovery rate: 0/40. That sample is not the other 86 accepts.
+
+| Runtime behavior | Intervention needed | Intervention not needed |
+| --- | ---: | ---: |
+| Recovery triggered | 15 | 26 |
+| Recovery did not trigger (40-run sample) | 0 | 40 |
+
+Nineteen triggered cases stay unclear and are outside this table. The margin-only candidate still loses none of the 15 bad runs. It would skip 8 recoveries, including the `dku-045` degradation. `seed-004` and `dku-014` are in that skip list and were labeled improved, and their stored before and after answers are the same sentence. The rule is not applied to the live gate.

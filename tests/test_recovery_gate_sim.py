@@ -7,6 +7,7 @@ import pytest
 from swrag.recovery_benchmark.gate_sim import (
     CANDIDATES,
     adopt,
+    margin_only_effects,
     simulate,
     triggers_current,
     triggers_ignore_margin,
@@ -59,3 +60,33 @@ def test_candidates_and_adoption() -> None:
     assert results["ignore_ambiguous_margin"]["needed_missed"] == 0
     assert results["ignore_ambiguous_margin"]["triggered_runs_skipped"] == 1
     assert adopt(results) == "ignore_ambiguous_margin"
+
+
+def test_margin_only_effect_counts_a_skipped_improvement_separately_from_a_miss() -> None:
+    rows = _rows()
+    rows[1]["transition"] = "degraded"
+    rows.append(
+        {
+            "panel": "analysis",
+            "triggered": True,
+            "logical_id": "already-better",
+            "question_id": "already-better",
+            "before_state": "correct",
+            "transition": "improved",
+            "evidence_sufficient": True,
+            "answer_supported": True,
+            "weak_top": False,
+            "ambiguous_top": True,
+            "before_abstained": False,
+            "added_latency_ms": 10,
+            "attempts": [{"chat_calls": 1, "prompt_tokens": 1, "completion_tokens": 1, "embedding_tokens": 0}],
+        }
+    )
+    effect = margin_only_effects(rows)
+    assert effect["recoveries_prevented"] == 2
+    assert effect["bad_runs_lost"] == []
+    assert effect["degraded_runs_prevented"] == ["margin-ok"]
+    assert effect["improved_runs_skipped"] == ["already-better"]
+    assert effect["implemented"] is False
+    with pytest.raises(ValueError):
+        margin_only_effects([{**rows[0], "panel": "future_holdout"}])

@@ -9,13 +9,16 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from swrag.recovery_benchmark.gate_sim import CANDIDATES, adopt, simulate
+from swrag.recovery_benchmark.gate_sim import CANDIDATES, adopt, margin_only_effects, simulate
 from swrag.recovery_benchmark.necessity import (
     action_on_needed,
+    gate_contingency,
     gating_report,
     miss_report,
     transition_agreement,
+    unchanged_needed_groups,
     unnecessary_cost,
+    validate_label_file,
 )
 from swrag.recovery_benchmark.protocol import RUN_ID
 from swrag.recovery_benchmark.review import cohens_kappa
@@ -42,6 +45,7 @@ def main() -> None:
         )
     }
     labels = _read_optional(out / "human_labels.jsonl")
+    nontrigger = _read_optional(out / "human_labels_nontrigger.jsonl")
     second = _read_optional(out / "human_labels_reviewer2.jsonl")
     if not labels:
         status = {
@@ -52,7 +56,10 @@ def main() -> None:
         _write(out / "human_gate_report.json", status)
         print("no human labels; rates not measured")
         return
-    joined = _join(features, key, labels)
+    if nontrigger:
+        expected = {review_id for review_id, meta in key.items() if meta.get("packet") == "nontrigger"}
+        validate_label_file(nontrigger, expected_ids=expected)
+    joined = _join(features, key, [*labels, *nontrigger])
     report = {
         "human_labels_collected": True,
         "reviewer_count": 1,
@@ -68,6 +75,10 @@ def main() -> None:
         "v1_vs_human": transition_agreement(joined, reference="v1_outcome"),
         "v2_vs_human": transition_agreement(joined, reference="v2_outcome"),
         "candidates": {name: simulate(joined, rule) for name, rule in CANDIDATES.items()},
+        "contingency": gate_contingency(joined),
+        "margin_only": margin_only_effects(joined),
+        "unchanged_needed_groups": unchanged_needed_groups(joined),
+        "nontrigger_file_present": bool(nontrigger),
     }
     report["adopted_candidate"] = adopt(report["candidates"])
     report["adopted_note"] = (
@@ -82,6 +93,8 @@ def main() -> None:
         report["triggered"]["conditional"]["success_rate"],
         "adopted",
         report["adopted_candidate"],
+        "miss",
+        report["nontrigger"]["miss_rate"],
     )
 
 

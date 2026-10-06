@@ -35,12 +35,12 @@
     "human_labels_collected": true
   },
   "nontrigger": {
-    "n_reviewed": 0,
-    "n_decided": 0,
+    "n_reviewed": 40,
+    "n_decided": 40,
     "n_unclear_excluded": 0,
     "n_missing_excluded": 0,
     "needed": 0,
-    "miss_rate": null,
+    "miss_rate": 0.0,
     "note": "This is the reviewed non-trigger sample, not the full set of accepts."
   },
   "unnecessary_cost": {
@@ -81,7 +81,7 @@
     "reference": "gold_label",
     "n_compared": 59,
     "n_unclear_excluded": 1,
-    "n_missing_excluded": 0,
+    "n_missing_excluded": 40,
     "matches": 37,
     "rate": 0.6271186440677966,
     "confusion_human_columns": {
@@ -249,7 +249,7 @@
     "reference": "gold_label_paraphrase",
     "n_compared": 59,
     "n_unclear_excluded": 1,
-    "n_missing_excluded": 0,
+    "n_missing_excluded": 40,
     "matches": 37,
     "rate": 0.6271186440677966,
     "confusion_human_columns": {
@@ -417,7 +417,7 @@
     "reference": "gold_label_grounded",
     "n_compared": 59,
     "n_unclear_excluded": 1,
-    "n_missing_excluded": 0,
+    "n_missing_excluded": 40,
     "matches": 37,
     "rate": 0.6271186440677966,
     "confusion_human_columns": {
@@ -585,7 +585,7 @@
     "reference": "v1_outcome",
     "n_compared": 59,
     "n_unclear_excluded": 1,
-    "n_missing_excluded": 0,
+    "n_missing_excluded": 40,
     "matches": 9,
     "rate": 0.15254237288135594,
     "confusion_human_columns": {
@@ -921,7 +921,7 @@
     "reference": "v2_outcome",
     "n_compared": 57,
     "n_unclear_excluded": 1,
-    "n_missing_excluded": 0,
+    "n_missing_excluded": 40,
     "matches": 40,
     "rate": 0.7017543859649122,
     "confusion_human_columns": {
@@ -1057,7 +1057,7 @@
   },
   "candidates": {
     "current": {
-      "n_decided": 41,
+      "n_decided": 81,
       "n_missing_or_unclear": 19,
       "would_trigger": 41,
       "trigger_precision": 0.36585365853658536,
@@ -1071,7 +1071,7 @@
       "estimated_usd_saved": 0.0
     },
     "stop_explicit_abstention": {
-      "n_decided": 41,
+      "n_decided": 81,
       "n_missing_or_unclear": 19,
       "would_trigger": 17,
       "trigger_precision": 0.0,
@@ -1101,7 +1101,7 @@
       "estimated_usd_saved": 0.015657469999999996
     },
     "ignore_ambiguous_margin": {
-      "n_decided": 41,
+      "n_decided": 81,
       "n_missing_or_unclear": 19,
       "would_trigger": 33,
       "trigger_precision": 0.45454545454545453,
@@ -1115,7 +1115,7 @@
       "estimated_usd_saved": 0.0038682
     },
     "require_two_signals": {
-      "n_decided": 41,
+      "n_decided": 81,
       "n_missing_or_unclear": 19,
       "would_trigger": 3,
       "trigger_precision": 0.6666666666666666,
@@ -1143,6 +1143,57 @@
       "estimated_usd_saved": 0.023762359999999996
     }
   },
+  "contingency": {
+    "triggered_needed": 15,
+    "triggered_not_needed": 26,
+    "not_triggered_needed": 0,
+    "not_triggered_not_needed": 40,
+    "n_unclear_excluded": {
+      "triggered": 19,
+      "not_triggered": 0
+    },
+    "n_missing_excluded": {
+      "triggered": 0,
+      "not_triggered": 0
+    },
+    "sampled_miss_rate": 0.0,
+    "nontrigger_is_a_sample": true
+  },
+  "margin_only": {
+    "recoveries_prevented": 8,
+    "bad_runs_lost": [],
+    "improved_runs_skipped": [
+      "seed-004",
+      "dku-014"
+    ],
+    "degraded_runs_prevented": [
+      "dku-045"
+    ],
+    "chat_calls_saved": 16,
+    "latency_ms_saved": 29265.559458028292,
+    "estimated_usd_saved": 0.0038682,
+    "implemented": false
+  },
+  "unchanged_needed_groups": {
+    "refusal_unchanged_through_expand": [
+      "dku-031",
+      "ns-015",
+      "seed-010",
+      "ns-014",
+      "dku-052",
+      "sw-015",
+      "sw-014",
+      "pp-014",
+      "gold-031"
+    ],
+    "expand_reworded_the_refusal": [
+      "dku-035",
+      "dku-036",
+      "nw-014"
+    ],
+    "other": []
+  },
+  "nontrigger_file_present": true,
   "adopted_candidate": "ignore_ambiguous_margin",
   "adopted_note": "A candidate is returned only when it skips some triggered runs and misses none that the human called bad. Otherwise no rule is selected."
 }

@@ -12,6 +12,7 @@ from swrag.recovery_benchmark.necessity import (
     unnecessary_cost,
     parse_before_label,
 )
+from swrag.recovery_benchmark.review import parse_human_label
 
 
 def triggers_current(row: dict) -> bool:
@@ -110,6 +111,41 @@ def simulate(rows: list[dict], rule) -> dict:
         "estimated_chat_calls_saved": saved["chat_calls"],
         "estimated_latency_ms_saved": saved["added_latency_ms"],
         "estimated_usd_saved": saved["estimated_usd"],
+    }
+
+
+def margin_only_effects(rows: list[dict]) -> dict:
+    """What the frozen margin rule would skip. It does not change the live gate.
+
+    A skipped run whose human transition is improved is reported even when the
+    before state was already acceptable. That is not the same as missing a bad run.
+    """
+    if any(row.get("panel") == "future_holdout" for row in rows):
+        raise ValueError("future holdout cannot be used to score a gate")
+    skipped = []
+    for row in rows:
+        before = parse_before_label(row.get("before_state"))
+        if before is None or before == "unclear":
+            continue
+        if not row.get("triggered") or triggers_ignore_margin(row):
+            continue
+        transition = parse_human_label(row.get("transition"))
+        skipped.append({**row, "before_state": before, "transition": transition})
+    saved = unnecessary_cost(
+        [{**row, "before_state": "correct", "triggered": True} for row in skipped]
+    )
+    def ids(predicate) -> list[str]:
+        return [str(row.get("question_id") or row.get("logical_id") or "") for row in skipped if predicate(row)]
+
+    return {
+        "recoveries_prevented": len(skipped),
+        "bad_runs_lost": ids(lambda row: row["before_state"] in NEEDED_BEFORE),
+        "improved_runs_skipped": ids(lambda row: row.get("transition") == "improved"),
+        "degraded_runs_prevented": ids(lambda row: row.get("transition") == "degraded"),
+        "chat_calls_saved": saved["chat_calls"],
+        "latency_ms_saved": saved["added_latency_ms"],
+        "estimated_usd_saved": saved["estimated_usd"],
+        "implemented": False,
     }
 
 

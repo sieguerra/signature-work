@@ -35,7 +35,7 @@
 <header>
   <div>
     <h1>Blinded recovery review</h1>
-    <p>One reviewer. Judge the before state, then whether after is better. Nothing on this page is a pre-filled label.</p>
+    <p id="intro">One reviewer. Judge the before state, then whether after is better. Nothing on this page is a pre-filled label.</p>
   </div>
   <p class="progress" id="progress">Load a packet.</p>
 </header>
@@ -52,8 +52,8 @@
     <div class="grid">
       <article>
         <h2>Before</h2>
-        <details>
-          <summary>Evidence</summary>
+        <details open>
+          <summary>Passages</summary>
           <pre id="before-evidence"></pre>
         </details>
         <h2>Before answer</h2>
@@ -61,8 +61,8 @@
       </article>
       <article id="after-column">
         <h2>After</h2>
-        <details>
-          <summary>Evidence</summary>
+        <details open>
+          <summary>Passages</summary>
           <pre id="after-evidence"></pre>
         </details>
         <h2>After answer</h2>
@@ -184,6 +184,9 @@ function render() {
   const after = hasAfter(item);
   document.getElementById("after-column").hidden = !after;
   document.getElementById("transition-field").hidden = !after;
+  document.getElementById("intro").textContent = after
+    ? "One reviewer. Judge the before state, then whether after is better. Nothing on this page is a pre-filled label."
+    : "Was the original response acceptable? Only this judgment is needed. Nothing on this page is a pre-filled label.";
   if (after) {
     document.getElementById("after-evidence").textContent = item.after_evidence || "";
     document.getElementById("after-answer").textContent = item.after_answer || "";
@@ -257,7 +260,8 @@ document.getElementById("export").addEventListener("click", () => {
   const blob = new Blob([lines.join("\n") + "\n"], { type: "application/jsonl" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  link.download = "human_labels_" + reviewer + ".jsonl";
+  const suffix = packet === "nontrigger" ? "_nontrigger" : "";
+  link.download = "human_labels_" + reviewer + suffix + ".jsonl";
   link.click();
 });
 </script>

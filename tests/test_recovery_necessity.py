@@ -14,13 +14,16 @@ from swrag.recovery_benchmark.necessity import (
     assert_blind_payload,
     bootstrap_rate,
     credited_action,
+    gate_contingency,
     gating_report,
     miss_report,
     needed_recovery,
     parse_before_label,
     select_nontrigger_ids,
     transition_agreement,
+    unchanged_needed_groups,
     unnecessary_cost,
+    validate_label_file,
 )
 from swrag.recovery_benchmark.review import ReviewContamination, parse_human_label
 
@@ -228,3 +231,76 @@ def test_blind_packet_and_page_hide_automatic_labels() -> None:
             assert FORBIDDEN_REVIEW_KEYS.isdisjoint(row)
             assert "before_state" not in row
             assert "transition" not in row
+
+
+def test_completed_nontrigger_file_matches_ids_and_rejects_gold() -> None:
+    labels = [
+        {"review_id": "N001", "before_state": "correct", "transition": ""},
+        {"review_id": "N002", "before_state": "unclear", "transition": ""},
+    ]
+    validate_label_file(labels, expected_ids={"N001", "N002"})
+    with pytest.raises(ValueError):
+        validate_label_file(labels[:1], expected_ids={"N001", "N002"})
+    with pytest.raises(ReviewContamination):
+        validate_label_file(
+            [{"review_id": "N001", "before_state": "correct", "gold_label": "improved"}],
+            expected_ids={"N001"},
+        )
+
+
+def test_contingency_excludes_unclear_and_keeps_the_sample_separate() -> None:
+    rows = [
+        {"triggered": True, "before_state": "incorrect"},
+        {"triggered": True, "before_state": "correct"},
+        {"triggered": True, "before_state": "unclear"},
+        {"triggered": False, "before_state": "incomplete"},
+        {"triggered": False, "before_state": "appropriate_abstention"},
+        {"triggered": False, "before_state": "unclear"},
+    ]
+    table = gate_contingency(rows)
+    assert table["triggered_needed"] == 1
+    assert table["triggered_not_needed"] == 1
+    assert table["not_triggered_needed"] == 1
+    assert table["not_triggered_not_needed"] == 1
+    assert table["n_unclear_excluded"] == {"triggered": 1, "not_triggered": 1}
+    assert table["sampled_miss_rate"] == 0.5
+    assert table["nontrigger_is_a_sample"] is True
+
+
+def test_unchanged_needed_groups_do_not_credit_a_repeated_refusal() -> None:
+    rows = [
+        {
+            "triggered": True,
+            "before_state": "incorrect",
+            "transition": "unchanged",
+            "question_id": "same",
+            "attempts": [
+                {"action": "rewrite", "after_answer": "I do not know based on the retrieved documents."},
+                {"action": "expand", "after_answer": "I do not know based on the retrieved documents."},
+            ],
+        },
+        {
+            "triggered": True,
+            "before_state": "incorrect",
+            "transition": "unchanged",
+            "question_id": "reworded",
+            "attempts": [
+                {"action": "rewrite", "after_answer": "I do not know based on the retrieved documents."},
+                {"action": "expand", "after_answer": "I do not know the tuition based on the retrieved documents."},
+            ],
+        },
+        {
+            "triggered": True,
+            "before_state": "incorrect",
+            "transition": "improved",
+            "question_id": "fixed",
+            "attempts": [
+                {"action": "rewrite", "after_answer": "I do not know based on the retrieved documents."},
+                {"action": "expand", "after_answer": "No. 8 Duke Avenue"},
+            ],
+        },
+    ]
+    groups = unchanged_needed_groups(rows)
+    assert groups["refusal_unchanged_through_expand"] == ["same"]
+    assert groups["expand_reworded_the_refusal"] == ["reworded"]
+    assert groups["other"] == []

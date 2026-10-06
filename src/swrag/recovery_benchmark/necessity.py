@@ -355,6 +355,87 @@ def action_on_needed(rows: list[dict]) -> dict[str, dict]:
     return report
 
 
+def validate_label_file(labels: list[dict], *, expected_ids: set[str]) -> None:
+    """Check a completed review file against one prepared id set.
+
+    The file must contain each expected id once, a known before-state, and
+    none of the automatic-label fields. Blank is missing, not unclear.
+    """
+    ids = [str(row.get("review_id") or "") for row in labels]
+    if len(ids) != len(set(ids)):
+        raise ValueError("duplicate review ids")
+    if set(ids) != set(expected_ids):
+        missing = sorted(set(expected_ids) - set(ids))
+        extra = sorted(set(ids) - set(expected_ids))
+        raise ValueError(f"review ids do not match: missing {missing[:5]} extra {extra[:5]}")
+    for row in labels:
+        leaked = FORBIDDEN_REVIEW_KEYS & set(row)
+        if leaked:
+            raise ReviewContamination(", ".join(sorted(leaked)))
+        if parse_before_label(row.get("before_state")) is None:
+            raise ValueError(f"missing before_state for {row.get('review_id')}")
+
+
+def gate_contingency(rows: list[dict]) -> dict:
+    """Runtime trigger versus whether the human said intervention was needed.
+
+    Unclear and blank before-states are counted and left out of the four cells.
+    The non-trigger cells are whatever sample was reviewed, not every accept.
+    """
+    cells = {
+        "triggered_needed": 0,
+        "triggered_not_needed": 0,
+        "not_triggered_needed": 0,
+        "not_triggered_not_needed": 0,
+    }
+    unclear = {"triggered": 0, "not_triggered": 0}
+    missing = {"triggered": 0, "not_triggered": 0}
+    for row in rows:
+        before = parse_before_label(row.get("before_state"))
+        side = "triggered" if row.get("triggered") else "not_triggered"
+        if before is None:
+            missing[side] += 1
+            continue
+        if before == "unclear":
+            unclear[side] += 1
+            continue
+        needed = before in NEEDED_BEFORE
+        if side == "triggered":
+            cells["triggered_needed" if needed else "triggered_not_needed"] += 1
+        else:
+            cells["not_triggered_needed" if needed else "not_triggered_not_needed"] += 1
+    decided_nontrigger = cells["not_triggered_needed"] + cells["not_triggered_not_needed"]
+    return {
+        **cells,
+        "n_unclear_excluded": unclear,
+        "n_missing_excluded": missing,
+        "sampled_miss_rate": _rate(cells["not_triggered_needed"], decided_nontrigger),
+        "nontrigger_is_a_sample": True,
+    }
+
+
+def unchanged_needed_groups(rows: list[dict]) -> dict[str, list[str]]:
+    """Group bad runs whose human transition was not an improvement.
+
+    Groups describe the stored attempts. They do not relabel the human.
+    """
+    groups: dict[str, list[str]] = {
+        "refusal_unchanged_through_expand": [],
+        "expand_reworded_the_refusal": [],
+        "other": [],
+    }
+    for row in rows:
+        if not row.get("triggered"):
+            continue
+        before = parse_before_label(row.get("before_state"))
+        transition = parse_human_label(row.get("transition"))
+        if before not in NEEDED_BEFORE or transition != "unchanged":
+            continue
+        name = _refusal_group(row.get("attempts") or [])
+        groups[name].append(str(row.get("question_id") or row.get("logical_id") or ""))
+    return groups
+
+
 def bootstrap_rate(flags: list[bool], *, seed: int = SEED) -> dict:
     """Bootstrap a boolean rate. Empty input has no rate."""
     labels = ["yes" if flag else "no" for flag in flags]
@@ -423,6 +504,19 @@ def _rate(numerator: int, denominator: int) -> float | None:
     if denominator == 0:
         return None
     return numerator / denominator
+
+
+def _refusal_group(attempts: list[dict]) -> str:
+    if not attempts or not all(_is_refusal(attempt.get("after_answer")) for attempt in attempts):
+        return "other"
+    texts = [_norm(attempt.get("after_answer")) for attempt in attempts]
+    if len(set(texts)) == 1:
+        return "refusal_unchanged_through_expand"
+    return "expand_reworded_the_refusal"
+
+
+def _is_refusal(value: object) -> bool:
+    return str(value or "").strip().lower().startswith("i do not know")
 
 
 def _norm(value: object) -> str:
