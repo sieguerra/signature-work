@@ -1,0 +1,23 @@
+{
+  "selected_before_holdout": true,
+  "policy": "v2c_gap_aware",
+  "checks": {
+    "v2c_gap_aware": {
+      "recoverable_not_worse": true,
+      "fewer_gap_recovery_actions": true,
+      "neighbor_not_worse": true,
+      "conflict_not_worse": true,
+      "expand_not_worse": true,
+      "preserved_dku_053_and_dku_012": true
+    },
+    "v2c_expand_stop": {
+      "recoverable_not_worse": true,
+      "fewer_gap_recovery_actions": true,
+      "neighbor_not_worse": true,
+      "conflict_not_worse": true,
+      "expand_not_worse": true,
+      "preserved_dku_053_and_dku_012": true
+    }
+  },
+  "rule": "gap-aware first, then expand-then-stop, and only if every frozen check passes"
+}

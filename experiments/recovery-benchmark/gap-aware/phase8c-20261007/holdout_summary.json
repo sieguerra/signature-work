@@ -1,0 +1,140 @@
+{
+  "v1": {
+    "summary": {
+      "n": 12,
+      "by_stratum": {
+        "expand_recoverable": {
+          "n": 1,
+          "successes": 1,
+          "rate": 1.0
+        },
+        "rewrite_recoverable": {
+          "n": 1,
+          "successes": 1,
+          "rate": 1.0
+        },
+        "corpus_gap": {
+          "n": 3,
+          "successes": 0,
+          "rate": 0.0
+        },
+        "partial": {
+          "n": 1,
+          "successes": 0,
+          "rate": 0.0
+        },
+        "neighbor_fact": {
+          "n": 1,
+          "successes": 1,
+          "rate": 1.0
+        },
+        "version_conflict": {
+          "n": 2,
+          "successes": 0,
+          "rate": 0.0
+        },
+        "already_supported": {
+          "n": 3,
+          "successes": 3,
+          "rate": 1.0
+        }
+      },
+      "answer_recovery": {
+        "n": 2,
+        "successes": 2,
+        "rate": 1.0
+      },
+      "safe_failure": {
+        "n": 4,
+        "successes": 0,
+        "rate": 0.0
+      },
+      "rewrite_calls": 7,
+      "rewrite_direct_successes": 1,
+      "rewrite_direct_success_rate": 0.14285714285714285,
+      "recovery_actions_on_gaps": 8
+    },
+    "latency_ms": {
+      "n": 12,
+      "mean_ms": 5673.187579746203,
+      "p50_ms": 9130.54112502141,
+      "p95_ms": 10470.918415987398
+    },
+    "usage": {
+      "chat_calls": 0,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "embedding_tokens": 0,
+      "estimated_list_usd": 0.0
+    }
+  },
+  "v2c_gap_aware": {
+    "summary": {
+      "n": 12,
+      "by_stratum": {
+        "expand_recoverable": {
+          "n": 1,
+          "successes": 1,
+          "rate": 1.0
+        },
+        "rewrite_recoverable": {
+          "n": 1,
+          "successes": 1,
+          "rate": 1.0
+        },
+        "corpus_gap": {
+          "n": 3,
+          "successes": 3,
+          "rate": 1.0
+        },
+        "partial": {
+          "n": 1,
+          "successes": 1,
+          "rate": 1.0
+        },
+        "neighbor_fact": {
+          "n": 1,
+          "successes": 1,
+          "rate": 1.0
+        },
+        "version_conflict": {
+          "n": 2,
+          "successes": 2,
+          "rate": 1.0
+        },
+        "already_supported": {
+          "n": 3,
+          "successes": 3,
+          "rate": 1.0
+        }
+      },
+      "answer_recovery": {
+        "n": 2,
+        "successes": 2,
+        "rate": 1.0
+      },
+      "safe_failure": {
+        "n": 4,
+        "successes": 4,
+        "rate": 1.0
+      },
+      "rewrite_calls": 1,
+      "rewrite_direct_successes": 1,
+      "rewrite_direct_success_rate": 1.0,
+      "recovery_actions_on_gaps": 4
+    },
+    "latency_ms": {
+      "n": 12,
+      "mean_ms": 4315.289156419264,
+      "p50_ms": 4804.456124984426,
+      "p95_ms": 9247.275625006296
+    },
+    "usage": {
+      "chat_calls": 0,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "embedding_tokens": 0,
+      "estimated_list_usd": 0.0
+    }
+  }
+}

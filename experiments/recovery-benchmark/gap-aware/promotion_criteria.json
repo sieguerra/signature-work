@@ -1,6 +1,6 @@
 {
   "written_before_holdout": true,
-  "holdout_opened": false,
+  "holdout_opened": true,
   "phase8a_holdout": "phase8a_holdout_consumed",
   "uncertain_fallback": "safe_stop",
   "do_not_use_phase8a_holdout_for": [
