@@ -1,0 +1,19 @@
+{
+  "status": "designed_not_opened",
+  "outcomes_inspected": false,
+  "question_ids": [],
+  "create_before": "any Phase 8C retrieval candidate is scored for promotion",
+  "must_include": [
+    "answer-present retrieval misses",
+    "true corpus gaps",
+    "supported answers that should be accepted",
+    "appropriate abstentions",
+    "numeric or version-conflict cases",
+    "more than one corpus"
+  ],
+  "must_not": [
+    "copy or paraphrase the Phase 8B audited questions",
+    "reuse the consumed 39-question Phase 8A holdout",
+    "be opened while a retrieval candidate is still being chosen"
+  ]
+}

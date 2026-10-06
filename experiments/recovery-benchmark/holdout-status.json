@@ -1,0 +1,13 @@
+{
+  "phase8a_holdout": "phase8a_holdout_consumed",
+  "question_count": 39,
+  "consumed_by": "Phase 8A comparison of the current policy and the margin-only candidate",
+  "do_not_use_for": [
+    "hybrid retrieval",
+    "reranking",
+    "multi-query",
+    "new rewrite prompts",
+    "new embedding models",
+    "new recovery policies"
+  ]
+}
