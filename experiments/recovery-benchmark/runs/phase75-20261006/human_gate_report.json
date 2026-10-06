@@ -1,5 +1,1148 @@
 {
-  "human_labels_collected": false,
-  "reviewer_count": 0,
-  "note": "Place human_labels.jsonl in this directory and run this script again. Rates were not filled in."
+  "human_labels_collected": true,
+  "reviewer_count": 1,
+  "single_reviewer": true,
+  "inter_rater": "No inter-rater agreement measured.",
+  "triggered": {
+    "definition": "Needed recovery means the before state is incorrect or materially incomplete. A correct answer and an appropriate abstention do not.",
+    "n_triggered": 60,
+    "n_decided_before": 41,
+    "n_before_unclear_excluded": 19,
+    "n_before_missing_excluded": 0,
+    "needed": 15,
+    "acceptable": 26,
+    "already_correct": 22,
+    "appropriate_abstention": 4,
+    "other_acceptable": 0,
+    "incorrect": 14,
+    "incomplete": 1,
+    "necessity_rate": 0.36585365853658536,
+    "unnecessary_rate": 0.6341463414634146,
+    "gate_precision": 0.36585365853658536,
+    "gate_recall": null,
+    "gate_recall_note": "Triggered runs alone cannot measure recall. Misses are estimated only from the reviewed non-trigger sample.",
+    "conditional": {
+      "n_needed": 15,
+      "n_decided_transition": 15,
+      "n_transition_unclear_excluded": 0,
+      "n_transition_missing_excluded": 0,
+      "improved": 3,
+      "unchanged": 12,
+      "still_failing": 0,
+      "degraded": 0,
+      "success_rate": 0.2
+    },
+    "human_labels_collected": true
+  },
+  "nontrigger": {
+    "n_reviewed": 0,
+    "n_decided": 0,
+    "n_unclear_excluded": 0,
+    "n_missing_excluded": 0,
+    "needed": 0,
+    "miss_rate": null,
+    "note": "This is the reviewed non-trigger sample, not the full set of accepts."
+  },
+  "unnecessary_cost": {
+    "n": 26,
+    "chat_calls": 90,
+    "prompt_tokens": 91799,
+    "completion_tokens": 4094,
+    "embedding_tokens": 238,
+    "added_latency_ms": 165275.97683406202,
+    "mean_added_latency_ms": 6356.768339771616,
+    "estimated_usd": 0.01623101,
+    "price_note": "list price estimate, not an invoice"
+  },
+  "paths_on_needed": {
+    "rewrite>expand": {
+      "n": 12,
+      "improved": 3,
+      "unchanged": 9,
+      "still_failing": 0,
+      "degraded": 0,
+      "credited_action": {
+        "expand": 3,
+        "none": 9
+      }
+    },
+    "rewrite>expand>abstain": {
+      "n": 3,
+      "improved": 0,
+      "unchanged": 3,
+      "still_failing": 0,
+      "degraded": 0,
+      "credited_action": {
+        "none": 3
+      }
+    }
+  },
+  "human_vs_gold": {
+    "reference": "gold_label",
+    "n_compared": 59,
+    "n_unclear_excluded": 1,
+    "n_missing_excluded": 0,
+    "matches": 37,
+    "rate": 0.6271186440677966,
+    "confusion_human_columns": {
+      "improved": {
+        "improved": 2,
+        "unchanged": 0,
+        "still_failing": 0,
+        "degraded": 3
+      },
+      "unchanged": {
+        "improved": 7,
+        "unchanged": 35,
+        "still_failing": 0,
+        "degraded": 6
+      },
+      "still_failing": {
+        "improved": 2,
+        "unchanged": 1,
+        "still_failing": 0,
+        "degraded": 0
+      },
+      "degraded": {
+        "improved": 2,
+        "unchanged": 1,
+        "still_failing": 0,
+        "degraded": 0
+      }
+    },
+    "disagreements": [
+      {
+        "review_id": "R001",
+        "logical_id": "dku:questions.jsonl:dku-008",
+        "human_label": "unchanged",
+        "reference_label": "degraded"
+      },
+      {
+        "review_id": "R002",
+        "logical_id": "lumen-streetcar:questions.jsonl:ls-016",
+        "human_label": "improved",
+        "reference_label": "degraded"
+      },
+      {
+        "review_id": "R003",
+        "logical_id": "dku:recovery.jsonl:dku-045",
+        "human_label": "degraded",
+        "reference_label": "improved"
+      },
+      {
+        "review_id": "R004",
+        "logical_id": "harbor:questions.jsonl:seed-009",
+        "human_label": "degraded",
+        "reference_label": "improved"
+      },
+      {
+        "review_id": "R006",
+        "logical_id": "harbor:questions.jsonl:gold-030",
+        "human_label": "improved",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R007",
+        "logical_id": "orion-grid:questions.jsonl:og-004",
+        "human_label": "improved",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R008",
+        "logical_id": "harbor:questions.jsonl:seed-004",
+        "human_label": "improved",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R009",
+        "logical_id": "saltwind-coop:questions.jsonl:sw-013",
+        "human_label": "degraded",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R010",
+        "logical_id": "kestrel-aero:first-pass-fail.jsonl:ka-023",
+        "human_label": "degraded",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R011",
+        "logical_id": "dku:questions.jsonl:dku-032",
+        "human_label": "improved",
+        "reference_label": "degraded"
+      },
+      {
+        "review_id": "R016",
+        "logical_id": "dku:first-pass-fail.jsonl:dku-055",
+        "human_label": "degraded",
+        "reference_label": "improved"
+      },
+      {
+        "review_id": "R017",
+        "logical_id": "orion-grid:questions.jsonl:og-016",
+        "human_label": "unchanged",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R028",
+        "logical_id": "dku:questions.jsonl:dku-014",
+        "human_label": "improved",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R030",
+        "logical_id": "kestrel-aero:recovery.jsonl:ka-019",
+        "human_label": "degraded",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R042",
+        "logical_id": "northhaven-water:questions.jsonl:nw-016",
+        "human_label": "improved",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R046",
+        "logical_id": "porthaven-port:questions.jsonl:pp-015",
+        "human_label": "degraded",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R047",
+        "logical_id": "dku:questions.jsonl:dku-040",
+        "human_label": "degraded",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R050",
+        "logical_id": "dku:questions.jsonl:dku-034",
+        "human_label": "improved",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R052",
+        "logical_id": "dku:first-pass-fail.jsonl:dku-057",
+        "human_label": "degraded",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R054",
+        "logical_id": "dku:questions.jsonl:dku-033",
+        "human_label": "improved",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R057",
+        "logical_id": "harbor:questions.jsonl:gold-027",
+        "human_label": "improved",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R059",
+        "logical_id": "saltwind-coop:questions.jsonl:sw-016",
+        "human_label": "improved",
+        "reference_label": "unchanged"
+      }
+    ]
+  },
+  "human_vs_paraphrase": {
+    "reference": "gold_label_paraphrase",
+    "n_compared": 59,
+    "n_unclear_excluded": 1,
+    "n_missing_excluded": 0,
+    "matches": 37,
+    "rate": 0.6271186440677966,
+    "confusion_human_columns": {
+      "improved": {
+        "improved": 2,
+        "unchanged": 0,
+        "still_failing": 0,
+        "degraded": 3
+      },
+      "unchanged": {
+        "improved": 7,
+        "unchanged": 35,
+        "still_failing": 0,
+        "degraded": 6
+      },
+      "still_failing": {
+        "improved": 2,
+        "unchanged": 1,
+        "still_failing": 0,
+        "degraded": 0
+      },
+      "degraded": {
+        "improved": 2,
+        "unchanged": 1,
+        "still_failing": 0,
+        "degraded": 0
+      }
+    },
+    "disagreements": [
+      {
+        "review_id": "R001",
+        "logical_id": "dku:questions.jsonl:dku-008",
+        "human_label": "unchanged",
+        "reference_label": "degraded"
+      },
+      {
+        "review_id": "R002",
+        "logical_id": "lumen-streetcar:questions.jsonl:ls-016",
+        "human_label": "improved",
+        "reference_label": "degraded"
+      },
+      {
+        "review_id": "R003",
+        "logical_id": "dku:recovery.jsonl:dku-045",
+        "human_label": "degraded",
+        "reference_label": "improved"
+      },
+      {
+        "review_id": "R004",
+        "logical_id": "harbor:questions.jsonl:seed-009",
+        "human_label": "degraded",
+        "reference_label": "improved"
+      },
+      {
+        "review_id": "R006",
+        "logical_id": "harbor:questions.jsonl:gold-030",
+        "human_label": "improved",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R007",
+        "logical_id": "orion-grid:questions.jsonl:og-004",
+        "human_label": "improved",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R008",
+        "logical_id": "harbor:questions.jsonl:seed-004",
+        "human_label": "improved",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R009",
+        "logical_id": "saltwind-coop:questions.jsonl:sw-013",
+        "human_label": "degraded",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R010",
+        "logical_id": "kestrel-aero:first-pass-fail.jsonl:ka-023",
+        "human_label": "degraded",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R011",
+        "logical_id": "dku:questions.jsonl:dku-032",
+        "human_label": "improved",
+        "reference_label": "degraded"
+      },
+      {
+        "review_id": "R016",
+        "logical_id": "dku:first-pass-fail.jsonl:dku-055",
+        "human_label": "degraded",
+        "reference_label": "improved"
+      },
+      {
+        "review_id": "R017",
+        "logical_id": "orion-grid:questions.jsonl:og-016",
+        "human_label": "unchanged",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R028",
+        "logical_id": "dku:questions.jsonl:dku-014",
+        "human_label": "improved",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R030",
+        "logical_id": "kestrel-aero:recovery.jsonl:ka-019",
+        "human_label": "degraded",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R042",
+        "logical_id": "northhaven-water:questions.jsonl:nw-016",
+        "human_label": "improved",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R046",
+        "logical_id": "porthaven-port:questions.jsonl:pp-015",
+        "human_label": "degraded",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R047",
+        "logical_id": "dku:questions.jsonl:dku-040",
+        "human_label": "degraded",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R050",
+        "logical_id": "dku:questions.jsonl:dku-034",
+        "human_label": "improved",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R052",
+        "logical_id": "dku:first-pass-fail.jsonl:dku-057",
+        "human_label": "degraded",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R054",
+        "logical_id": "dku:questions.jsonl:dku-033",
+        "human_label": "improved",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R057",
+        "logical_id": "harbor:questions.jsonl:gold-027",
+        "human_label": "improved",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R059",
+        "logical_id": "saltwind-coop:questions.jsonl:sw-016",
+        "human_label": "improved",
+        "reference_label": "unchanged"
+      }
+    ]
+  },
+  "human_vs_grounded": {
+    "reference": "gold_label_grounded",
+    "n_compared": 59,
+    "n_unclear_excluded": 1,
+    "n_missing_excluded": 0,
+    "matches": 37,
+    "rate": 0.6271186440677966,
+    "confusion_human_columns": {
+      "improved": {
+        "improved": 2,
+        "unchanged": 0,
+        "still_failing": 0,
+        "degraded": 3
+      },
+      "unchanged": {
+        "improved": 7,
+        "unchanged": 35,
+        "still_failing": 0,
+        "degraded": 6
+      },
+      "still_failing": {
+        "improved": 2,
+        "unchanged": 1,
+        "still_failing": 0,
+        "degraded": 0
+      },
+      "degraded": {
+        "improved": 2,
+        "unchanged": 1,
+        "still_failing": 0,
+        "degraded": 0
+      }
+    },
+    "disagreements": [
+      {
+        "review_id": "R001",
+        "logical_id": "dku:questions.jsonl:dku-008",
+        "human_label": "unchanged",
+        "reference_label": "degraded"
+      },
+      {
+        "review_id": "R002",
+        "logical_id": "lumen-streetcar:questions.jsonl:ls-016",
+        "human_label": "improved",
+        "reference_label": "degraded"
+      },
+      {
+        "review_id": "R003",
+        "logical_id": "dku:recovery.jsonl:dku-045",
+        "human_label": "degraded",
+        "reference_label": "improved"
+      },
+      {
+        "review_id": "R004",
+        "logical_id": "harbor:questions.jsonl:seed-009",
+        "human_label": "degraded",
+        "reference_label": "improved"
+      },
+      {
+        "review_id": "R006",
+        "logical_id": "harbor:questions.jsonl:gold-030",
+        "human_label": "improved",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R007",
+        "logical_id": "orion-grid:questions.jsonl:og-004",
+        "human_label": "improved",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R008",
+        "logical_id": "harbor:questions.jsonl:seed-004",
+        "human_label": "improved",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R009",
+        "logical_id": "saltwind-coop:questions.jsonl:sw-013",
+        "human_label": "degraded",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R010",
+        "logical_id": "kestrel-aero:first-pass-fail.jsonl:ka-023",
+        "human_label": "degraded",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R011",
+        "logical_id": "dku:questions.jsonl:dku-032",
+        "human_label": "improved",
+        "reference_label": "degraded"
+      },
+      {
+        "review_id": "R016",
+        "logical_id": "dku:first-pass-fail.jsonl:dku-055",
+        "human_label": "degraded",
+        "reference_label": "improved"
+      },
+      {
+        "review_id": "R017",
+        "logical_id": "orion-grid:questions.jsonl:og-016",
+        "human_label": "unchanged",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R028",
+        "logical_id": "dku:questions.jsonl:dku-014",
+        "human_label": "improved",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R030",
+        "logical_id": "kestrel-aero:recovery.jsonl:ka-019",
+        "human_label": "degraded",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R042",
+        "logical_id": "northhaven-water:questions.jsonl:nw-016",
+        "human_label": "improved",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R046",
+        "logical_id": "porthaven-port:questions.jsonl:pp-015",
+        "human_label": "degraded",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R047",
+        "logical_id": "dku:questions.jsonl:dku-040",
+        "human_label": "degraded",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R050",
+        "logical_id": "dku:questions.jsonl:dku-034",
+        "human_label": "improved",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R052",
+        "logical_id": "dku:first-pass-fail.jsonl:dku-057",
+        "human_label": "degraded",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R054",
+        "logical_id": "dku:questions.jsonl:dku-033",
+        "human_label": "improved",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R057",
+        "logical_id": "harbor:questions.jsonl:gold-027",
+        "human_label": "improved",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R059",
+        "logical_id": "saltwind-coop:questions.jsonl:sw-016",
+        "human_label": "improved",
+        "reference_label": "unchanged"
+      }
+    ]
+  },
+  "v1_vs_human": {
+    "reference": "v1_outcome",
+    "n_compared": 59,
+    "n_unclear_excluded": 1,
+    "n_missing_excluded": 0,
+    "matches": 9,
+    "rate": 0.15254237288135594,
+    "confusion_human_columns": {
+      "improved": {
+        "improved": 2,
+        "unchanged": 1,
+        "still_failing": 0,
+        "degraded": 1
+      },
+      "unchanged": {
+        "improved": 2,
+        "unchanged": 7,
+        "still_failing": 0,
+        "degraded": 1
+      },
+      "still_failing": {
+        "improved": 9,
+        "unchanged": 29,
+        "still_failing": 0,
+        "degraded": 7
+      },
+      "degraded": {
+        "improved": 0,
+        "unchanged": 0,
+        "still_failing": 0,
+        "degraded": 0
+      }
+    },
+    "disagreements": [
+      {
+        "review_id": "R002",
+        "logical_id": "lumen-streetcar:questions.jsonl:ls-016",
+        "human_label": "improved",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R003",
+        "logical_id": "dku:recovery.jsonl:dku-045",
+        "human_label": "degraded",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R004",
+        "logical_id": "harbor:questions.jsonl:seed-009",
+        "human_label": "degraded",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R006",
+        "logical_id": "harbor:questions.jsonl:gold-030",
+        "human_label": "improved",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R007",
+        "logical_id": "orion-grid:questions.jsonl:og-004",
+        "human_label": "improved",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R008",
+        "logical_id": "harbor:questions.jsonl:seed-004",
+        "human_label": "improved",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R009",
+        "logical_id": "saltwind-coop:questions.jsonl:sw-013",
+        "human_label": "degraded",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R010",
+        "logical_id": "kestrel-aero:first-pass-fail.jsonl:ka-023",
+        "human_label": "degraded",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R011",
+        "logical_id": "dku:questions.jsonl:dku-032",
+        "human_label": "improved",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R015",
+        "logical_id": "dku:questions.jsonl:dku-031",
+        "human_label": "unchanged",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R016",
+        "logical_id": "dku:first-pass-fail.jsonl:dku-055",
+        "human_label": "degraded",
+        "reference_label": "improved"
+      },
+      {
+        "review_id": "R017",
+        "logical_id": "orion-grid:questions.jsonl:og-016",
+        "human_label": "unchanged",
+        "reference_label": "improved"
+      },
+      {
+        "review_id": "R019",
+        "logical_id": "kestrel-aero:first-pass-fail.jsonl:ka-024",
+        "human_label": "unchanged",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R021",
+        "logical_id": "lumen-streetcar:questions.jsonl:ls-013",
+        "human_label": "unchanged",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R023",
+        "logical_id": "marlow-clinic:questions.jsonl:mc-015",
+        "human_label": "unchanged",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R025",
+        "logical_id": "dku:recovery.jsonl:dku-050",
+        "human_label": "unchanged",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R027",
+        "logical_id": "kestrel-aero:questions.jsonl:ka-015",
+        "human_label": "unchanged",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R028",
+        "logical_id": "dku:questions.jsonl:dku-014",
+        "human_label": "improved",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R029",
+        "logical_id": "marlow-clinic:questions.jsonl:mc-016",
+        "human_label": "unchanged",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R030",
+        "logical_id": "kestrel-aero:recovery.jsonl:ka-019",
+        "human_label": "degraded",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R031",
+        "logical_id": "nimbus-seed:questions.jsonl:ns-016",
+        "human_label": "unchanged",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R032",
+        "logical_id": "dku:recovery.jsonl:dku-051",
+        "human_label": "unchanged",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R033",
+        "logical_id": "lumen-streetcar:questions.jsonl:ls-014",
+        "human_label": "unchanged",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R034",
+        "logical_id": "lumen-streetcar:questions.jsonl:ls-015",
+        "human_label": "unchanged",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R035",
+        "logical_id": "nimbus-seed:questions.jsonl:ns-013",
+        "human_label": "unchanged",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R036",
+        "logical_id": "nimbus-seed:questions.jsonl:ns-015",
+        "human_label": "unchanged",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R037",
+        "logical_id": "dku:questions.jsonl:dku-035",
+        "human_label": "unchanged",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R038",
+        "logical_id": "harbor:questions.jsonl:seed-010",
+        "human_label": "unchanged",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R039",
+        "logical_id": "dku:questions.jsonl:dku-036",
+        "human_label": "unchanged",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R040",
+        "logical_id": "nimbus-seed:questions.jsonl:ns-014",
+        "human_label": "unchanged",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R041",
+        "logical_id": "northhaven-water:questions.jsonl:nw-014",
+        "human_label": "unchanged",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R042",
+        "logical_id": "northhaven-water:questions.jsonl:nw-016",
+        "human_label": "improved",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R043",
+        "logical_id": "dku:recovery.jsonl:dku-052",
+        "human_label": "unchanged",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R044",
+        "logical_id": "harbor:questions.jsonl:gold-028",
+        "human_label": "unchanged",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R045",
+        "logical_id": "saltwind-coop:questions.jsonl:sw-015",
+        "human_label": "unchanged",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R046",
+        "logical_id": "porthaven-port:questions.jsonl:pp-015",
+        "human_label": "degraded",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R047",
+        "logical_id": "dku:questions.jsonl:dku-040",
+        "human_label": "degraded",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R048",
+        "logical_id": "marlow-clinic:questions.jsonl:mc-014",
+        "human_label": "unchanged",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R049",
+        "logical_id": "saltwind-coop:questions.jsonl:sw-014",
+        "human_label": "unchanged",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R050",
+        "logical_id": "dku:questions.jsonl:dku-034",
+        "human_label": "improved",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R051",
+        "logical_id": "dku:questions.jsonl:dku-038",
+        "human_label": "unchanged",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R052",
+        "logical_id": "dku:first-pass-fail.jsonl:dku-057",
+        "human_label": "degraded",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R053",
+        "logical_id": "dku:questions.jsonl:dku-037",
+        "human_label": "unchanged",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R054",
+        "logical_id": "dku:questions.jsonl:dku-033",
+        "human_label": "improved",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R055",
+        "logical_id": "porthaven-port:questions.jsonl:pp-014",
+        "human_label": "unchanged",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R056",
+        "logical_id": "harbor:questions.jsonl:gold-031",
+        "human_label": "unchanged",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R057",
+        "logical_id": "harbor:questions.jsonl:gold-027",
+        "human_label": "improved",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R058",
+        "logical_id": "porthaven-port:questions.jsonl:pp-013",
+        "human_label": "unchanged",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R059",
+        "logical_id": "saltwind-coop:questions.jsonl:sw-016",
+        "human_label": "improved",
+        "reference_label": "still_failing"
+      },
+      {
+        "review_id": "R060",
+        "logical_id": "kestrel-aero:questions.jsonl:ka-016",
+        "human_label": "unchanged",
+        "reference_label": "still_failing"
+      }
+    ]
+  },
+  "v2_vs_human": {
+    "reference": "v2_outcome",
+    "n_compared": 57,
+    "n_unclear_excluded": 1,
+    "n_missing_excluded": 0,
+    "matches": 40,
+    "rate": 0.7017543859649122,
+    "confusion_human_columns": {
+      "improved": {
+        "improved": 2,
+        "unchanged": 0,
+        "still_failing": 0,
+        "degraded": 1
+      },
+      "unchanged": {
+        "improved": 10,
+        "unchanged": 36,
+        "still_failing": 0,
+        "degraded": 6
+      },
+      "still_failing": {
+        "improved": 0,
+        "unchanged": 0,
+        "still_failing": 0,
+        "degraded": 0
+      },
+      "degraded": {
+        "improved": 0,
+        "unchanged": 0,
+        "still_failing": 0,
+        "degraded": 2
+      }
+    },
+    "disagreements": [
+      {
+        "review_id": "R002",
+        "logical_id": "lumen-streetcar:questions.jsonl:ls-016",
+        "human_label": "improved",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R007",
+        "logical_id": "orion-grid:questions.jsonl:og-004",
+        "human_label": "improved",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R008",
+        "logical_id": "harbor:questions.jsonl:seed-004",
+        "human_label": "improved",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R009",
+        "logical_id": "saltwind-coop:questions.jsonl:sw-013",
+        "human_label": "degraded",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R010",
+        "logical_id": "kestrel-aero:first-pass-fail.jsonl:ka-023",
+        "human_label": "degraded",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R011",
+        "logical_id": "dku:questions.jsonl:dku-032",
+        "human_label": "improved",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R016",
+        "logical_id": "dku:first-pass-fail.jsonl:dku-055",
+        "human_label": "degraded",
+        "reference_label": "improved"
+      },
+      {
+        "review_id": "R028",
+        "logical_id": "dku:questions.jsonl:dku-014",
+        "human_label": "improved",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R030",
+        "logical_id": "kestrel-aero:recovery.jsonl:ka-019",
+        "human_label": "degraded",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R042",
+        "logical_id": "northhaven-water:questions.jsonl:nw-016",
+        "human_label": "improved",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R046",
+        "logical_id": "porthaven-port:questions.jsonl:pp-015",
+        "human_label": "degraded",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R047",
+        "logical_id": "dku:questions.jsonl:dku-040",
+        "human_label": "degraded",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R050",
+        "logical_id": "dku:questions.jsonl:dku-034",
+        "human_label": "improved",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R052",
+        "logical_id": "dku:first-pass-fail.jsonl:dku-057",
+        "human_label": "degraded",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R054",
+        "logical_id": "dku:questions.jsonl:dku-033",
+        "human_label": "improved",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R057",
+        "logical_id": "harbor:questions.jsonl:gold-027",
+        "human_label": "improved",
+        "reference_label": "unchanged"
+      },
+      {
+        "review_id": "R059",
+        "logical_id": "saltwind-coop:questions.jsonl:sw-016",
+        "human_label": "improved",
+        "reference_label": "unchanged"
+      }
+    ]
+  },
+  "candidates": {
+    "current": {
+      "n_decided": 41,
+      "n_missing_or_unclear": 19,
+      "would_trigger": 41,
+      "trigger_precision": 0.36585365853658536,
+      "needed": 15,
+      "needed_still_triggered": 15,
+      "needed_missed": 0,
+      "missed_ids": [],
+      "triggered_runs_skipped": 0,
+      "estimated_chat_calls_saved": 0,
+      "estimated_latency_ms_saved": 0.0,
+      "estimated_usd_saved": 0.0
+    },
+    "stop_explicit_abstention": {
+      "n_decided": 41,
+      "n_missing_or_unclear": 19,
+      "would_trigger": 17,
+      "trigger_precision": 0.0,
+      "needed": 15,
+      "needed_still_triggered": 0,
+      "needed_missed": 15,
+      "missed_ids": [
+        "dku:questions.jsonl:dku-012",
+        "dku:first-pass-fail.jsonl:dku-053",
+        "dku:questions.jsonl:dku-031",
+        "nimbus-seed:questions.jsonl:ns-015",
+        "dku:questions.jsonl:dku-035",
+        "harbor:questions.jsonl:seed-010",
+        "dku:questions.jsonl:dku-036",
+        "nimbus-seed:questions.jsonl:ns-014",
+        "northhaven-water:questions.jsonl:nw-014",
+        "dku:recovery.jsonl:dku-052",
+        "saltwind-coop:questions.jsonl:sw-015",
+        "saltwind-coop:questions.jsonl:sw-014",
+        "porthaven-port:questions.jsonl:pp-014",
+        "harbor:questions.jsonl:gold-031",
+        "saltwind-coop:questions.jsonl:sw-016"
+      ],
+      "triggered_runs_skipped": 24,
+      "estimated_chat_calls_saved": 96,
+      "estimated_latency_ms_saved": 292336.8798790034,
+      "estimated_usd_saved": 0.015657469999999996
+    },
+    "ignore_ambiguous_margin": {
+      "n_decided": 41,
+      "n_missing_or_unclear": 19,
+      "would_trigger": 33,
+      "trigger_precision": 0.45454545454545453,
+      "needed": 15,
+      "needed_still_triggered": 15,
+      "needed_missed": 0,
+      "missed_ids": [],
+      "triggered_runs_skipped": 8,
+      "estimated_chat_calls_saved": 16,
+      "estimated_latency_ms_saved": 29265.559458028292,
+      "estimated_usd_saved": 0.0038682
+    },
+    "require_two_signals": {
+      "n_decided": 41,
+      "n_missing_or_unclear": 19,
+      "would_trigger": 3,
+      "trigger_precision": 0.6666666666666666,
+      "needed": 15,
+      "needed_still_triggered": 2,
+      "needed_missed": 13,
+      "missed_ids": [
+        "dku:questions.jsonl:dku-012",
+        "dku:questions.jsonl:dku-031",
+        "nimbus-seed:questions.jsonl:ns-015",
+        "dku:questions.jsonl:dku-035",
+        "harbor:questions.jsonl:seed-010",
+        "dku:questions.jsonl:dku-036",
+        "nimbus-seed:questions.jsonl:ns-014",
+        "northhaven-water:questions.jsonl:nw-014",
+        "dku:recovery.jsonl:dku-052",
+        "saltwind-coop:questions.jsonl:sw-015",
+        "saltwind-coop:questions.jsonl:sw-014",
+        "porthaven-port:questions.jsonl:pp-014",
+        "harbor:questions.jsonl:gold-031"
+      ],
+      "triggered_runs_skipped": 38,
+      "estimated_chat_calls_saved": 136,
+      "estimated_latency_ms_saved": 368435.02950208494,
+      "estimated_usd_saved": 0.023762359999999996
+    }
+  },
+  "adopted_candidate": "ignore_ambiguous_margin",
+  "adopted_note": "A candidate is returned only when it skips some triggered runs and misses none that the human called bad. Otherwise no rule is selected."
 }
