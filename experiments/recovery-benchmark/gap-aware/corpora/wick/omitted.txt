@@ -1,0 +1,4 @@
+What the Wick Market folder does not contain
+
+The electricity surcharge, the market clerk's name, and the child token price are omitted on purpose.
+No page in this folder states those figures.

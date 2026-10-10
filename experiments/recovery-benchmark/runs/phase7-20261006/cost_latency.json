@@ -1,0 +1,38 @@
+{
+  "improved": {
+    "n": 5,
+    "mean_baseline_latency_ms": 4472.52761660493,
+    "mean_added_latency_ms": 7079.933433391852,
+    "mean_latency_ms": 11552.461049996782,
+    "chat_calls": 30,
+    "prompt_tokens": 29772,
+    "completion_tokens": 1352,
+    "embedding_tokens": 117,
+    "estimated_usd": 0.00527934,
+    "price_note": "list price estimate, not an invoice"
+  },
+  "not_improved": {
+    "n": 55,
+    "mean_baseline_latency_ms": 9315.334068889073,
+    "mean_added_latency_ms": 8870.464429584204,
+    "mean_latency_ms": 18185.79849847328,
+    "chat_calls": 312,
+    "prompt_tokens": 248882,
+    "completion_tokens": 13117,
+    "embedding_tokens": 1251,
+    "estimated_usd": 0.045227519999999986,
+    "price_note": "list price estimate, not an invoice"
+  },
+  "all_recovered": {
+    "n": 60,
+    "mean_baseline_latency_ms": 8911.766864532061,
+    "mean_added_latency_ms": 8721.253513234842,
+    "mean_latency_ms": 17633.020377766905,
+    "chat_calls": 342,
+    "prompt_tokens": 278654,
+    "completion_tokens": 14469,
+    "embedding_tokens": 1368,
+    "estimated_usd": 0.05050686,
+    "price_note": "list price estimate, not an invoice"
+  }
+}

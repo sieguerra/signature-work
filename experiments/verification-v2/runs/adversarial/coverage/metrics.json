@@ -1,0 +1,814 @@
+{
+  "bootstrap": {
+    "intervals": null,
+    "n": 0,
+    "samples": 0
+  },
+  "breakdowns": {
+    "action": {
+      "rewrite": {
+        "accuracy_decided": 0.7058823529411765,
+        "confusion_matrix": {
+          "degraded": {
+            "degraded": 5,
+            "improved": 0,
+            "still_failing": 0,
+            "unchanged": 0
+          },
+          "improved": {
+            "degraded": 1,
+            "improved": 3,
+            "still_failing": 0,
+            "unchanged": 2
+          },
+          "still_failing": {
+            "degraded": 1,
+            "improved": 1,
+            "still_failing": 2,
+            "unchanged": 0
+          },
+          "unchanged": {
+            "degraded": 0,
+            "improved": 0,
+            "still_failing": 0,
+            "unchanged": 2
+          }
+        },
+        "coverage": 1.0,
+        "false_improvement_rate": 0.25,
+        "improved_precision": 0.75,
+        "improved_recall": 0.5,
+        "macro_f1": 0.6916666666666667,
+        "n": 17,
+        "n_decided": 17,
+        "per_class": {
+          "degraded": {
+            "f1": 0.8333333333333333,
+            "precision": 0.7142857142857143,
+            "recall": 1.0,
+            "support": 5
+          },
+          "improved": {
+            "f1": 0.6,
+            "precision": 0.75,
+            "recall": 0.5,
+            "support": 6
+          },
+          "still_failing": {
+            "f1": 0.6666666666666666,
+            "precision": 1.0,
+            "recall": 0.5,
+            "support": 4
+          },
+          "unchanged": {
+            "f1": 0.6666666666666666,
+            "precision": 0.5,
+            "recall": 1.0,
+            "support": 2
+          }
+        },
+        "strict_accuracy": 0.7058823529411765,
+        "unavailable_rate": 0.0,
+        "uncertainty_rate": 0.0,
+        "v1": {
+          "accuracy": null,
+          "confusion_matrix": {
+            "degraded": {
+              "degraded": 0,
+              "improved": 0,
+              "still_failing": 0,
+              "unchanged": 0
+            },
+            "improved": {
+              "degraded": 0,
+              "improved": 0,
+              "still_failing": 0,
+              "unchanged": 0
+            },
+            "still_failing": {
+              "degraded": 0,
+              "improved": 0,
+              "still_failing": 0,
+              "unchanged": 0
+            },
+            "unchanged": {
+              "degraded": 0,
+              "improved": 0,
+              "still_failing": 0,
+              "unchanged": 0
+            }
+          },
+          "false_improvement_rate": null,
+          "improved_precision": null,
+          "improved_recall": null,
+          "macro_f1": null,
+          "n": 0,
+          "per_class": {
+            "degraded": {
+              "f1": null,
+              "precision": null,
+              "recall": null,
+              "support": 0
+            },
+            "improved": {
+              "f1": null,
+              "precision": null,
+              "recall": null,
+              "support": 0
+            },
+            "still_failing": {
+              "f1": null,
+              "precision": null,
+              "recall": null,
+              "support": 0
+            },
+            "unchanged": {
+              "f1": null,
+              "precision": null,
+              "recall": null,
+              "support": 0
+            }
+          },
+          "weighted_f1": null
+        },
+        "weighted_f1": 0.692156862745098
+      }
+    },
+    "answerable": {
+      "False": {
+        "accuracy_decided": 0.5,
+        "confusion_matrix": {
+          "degraded": {
+            "degraded": 0,
+            "improved": 0,
+            "still_failing": 0,
+            "unchanged": 0
+          },
+          "improved": {
+            "degraded": 1,
+            "improved": 0,
+            "still_failing": 0,
+            "unchanged": 0
+          },
+          "still_failing": {
+            "degraded": 0,
+            "improved": 0,
+            "still_failing": 0,
+            "unchanged": 0
+          },
+          "unchanged": {
+            "degraded": 0,
+            "improved": 0,
+            "still_failing": 0,
+            "unchanged": 1
+          }
+        },
+        "coverage": 1.0,
+        "false_improvement_rate": null,
+        "improved_precision": null,
+        "improved_recall": 0.0,
+        "macro_f1": 0.5,
+        "n": 2,
+        "n_decided": 2,
+        "per_class": {
+          "degraded": {
+            "f1": null,
+            "precision": 0.0,
+            "recall": null,
+            "support": 0
+          },
+          "improved": {
+            "f1": null,
+            "precision": null,
+            "recall": 0.0,
+            "support": 1
+          },
+          "still_failing": {
+            "f1": null,
+            "precision": null,
+            "recall": null,
+            "support": 0
+          },
+          "unchanged": {
+            "f1": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "support": 1
+          }
+        },
+        "strict_accuracy": 0.5,
+        "unavailable_rate": 0.0,
+        "uncertainty_rate": 0.0,
+        "v1": {
+          "accuracy": null,
+          "confusion_matrix": {
+            "degraded": {
+              "degraded": 0,
+              "improved": 0,
+              "still_failing": 0,
+              "unchanged": 0
+            },
+            "improved": {
+              "degraded": 0,
+              "improved": 0,
+              "still_failing": 0,
+              "unchanged": 0
+            },
+            "still_failing": {
+              "degraded": 0,
+              "improved": 0,
+              "still_failing": 0,
+              "unchanged": 0
+            },
+            "unchanged": {
+              "degraded": 0,
+              "improved": 0,
+              "still_failing": 0,
+              "unchanged": 0
+            }
+          },
+          "false_improvement_rate": null,
+          "improved_precision": null,
+          "improved_recall": null,
+          "macro_f1": null,
+          "n": 0,
+          "per_class": {
+            "degraded": {
+              "f1": null,
+              "precision": null,
+              "recall": null,
+              "support": 0
+            },
+            "improved": {
+              "f1": null,
+              "precision": null,
+              "recall": null,
+              "support": 0
+            },
+            "still_failing": {
+              "f1": null,
+              "precision": null,
+              "recall": null,
+              "support": 0
+            },
+            "unchanged": {
+              "f1": null,
+              "precision": null,
+              "recall": null,
+              "support": 0
+            }
+          },
+          "weighted_f1": null
+        },
+        "weighted_f1": 0.5
+      },
+      "True": {
+        "accuracy_decided": 0.7333333333333333,
+        "confusion_matrix": {
+          "degraded": {
+            "degraded": 5,
+            "improved": 0,
+            "still_failing": 0,
+            "unchanged": 0
+          },
+          "improved": {
+            "degraded": 0,
+            "improved": 3,
+            "still_failing": 0,
+            "unchanged": 2
+          },
+          "still_failing": {
+            "degraded": 1,
+            "improved": 1,
+            "still_failing": 2,
+            "unchanged": 0
+          },
+          "unchanged": {
+            "degraded": 0,
+            "improved": 0,
+            "still_failing": 0,
+            "unchanged": 1
+          }
+        },
+        "coverage": 1.0,
+        "false_improvement_rate": 0.25,
+        "improved_precision": 0.75,
+        "improved_recall": 0.6,
+        "macro_f1": 0.6856060606060606,
+        "n": 15,
+        "n_decided": 15,
+        "per_class": {
+          "degraded": {
+            "f1": 0.9090909090909091,
+            "precision": 0.8333333333333334,
+            "recall": 1.0,
+            "support": 5
+          },
+          "improved": {
+            "f1": 0.6666666666666665,
+            "precision": 0.75,
+            "recall": 0.6,
+            "support": 5
+          },
+          "still_failing": {
+            "f1": 0.6666666666666666,
+            "precision": 1.0,
+            "recall": 0.5,
+            "support": 4
+          },
+          "unchanged": {
+            "f1": 0.5,
+            "precision": 0.3333333333333333,
+            "recall": 1.0,
+            "support": 1
+          }
+        },
+        "strict_accuracy": 0.7333333333333333,
+        "unavailable_rate": 0.0,
+        "uncertainty_rate": 0.0,
+        "v1": {
+          "accuracy": null,
+          "confusion_matrix": {
+            "degraded": {
+              "degraded": 0,
+              "improved": 0,
+              "still_failing": 0,
+              "unchanged": 0
+            },
+            "improved": {
+              "degraded": 0,
+              "improved": 0,
+              "still_failing": 0,
+              "unchanged": 0
+            },
+            "still_failing": {
+              "degraded": 0,
+              "improved": 0,
+              "still_failing": 0,
+              "unchanged": 0
+            },
+            "unchanged": {
+              "degraded": 0,
+              "improved": 0,
+              "still_failing": 0,
+              "unchanged": 0
+            }
+          },
+          "false_improvement_rate": null,
+          "improved_precision": null,
+          "improved_recall": null,
+          "macro_f1": null,
+          "n": 0,
+          "per_class": {
+            "degraded": {
+              "f1": null,
+              "precision": null,
+              "recall": null,
+              "support": 0
+            },
+            "improved": {
+              "f1": null,
+              "precision": null,
+              "recall": null,
+              "support": 0
+            },
+            "still_failing": {
+              "f1": null,
+              "precision": null,
+              "recall": null,
+              "support": 0
+            },
+            "unchanged": {
+              "f1": null,
+              "precision": null,
+              "recall": null,
+              "support": 0
+            }
+          },
+          "weighted_f1": null
+        },
+        "weighted_f1": 0.7363636363636362
+      }
+    },
+    "failure_class": {
+      "None": {
+        "accuracy_decided": 0.7058823529411765,
+        "confusion_matrix": {
+          "degraded": {
+            "degraded": 5,
+            "improved": 0,
+            "still_failing": 0,
+            "unchanged": 0
+          },
+          "improved": {
+            "degraded": 1,
+            "improved": 3,
+            "still_failing": 0,
+            "unchanged": 2
+          },
+          "still_failing": {
+            "degraded": 1,
+            "improved": 1,
+            "still_failing": 2,
+            "unchanged": 0
+          },
+          "unchanged": {
+            "degraded": 0,
+            "improved": 0,
+            "still_failing": 0,
+            "unchanged": 2
+          }
+        },
+        "coverage": 1.0,
+        "false_improvement_rate": 0.25,
+        "improved_precision": 0.75,
+        "improved_recall": 0.5,
+        "macro_f1": 0.6916666666666667,
+        "n": 17,
+        "n_decided": 17,
+        "per_class": {
+          "degraded": {
+            "f1": 0.8333333333333333,
+            "precision": 0.7142857142857143,
+            "recall": 1.0,
+            "support": 5
+          },
+          "improved": {
+            "f1": 0.6,
+            "precision": 0.75,
+            "recall": 0.5,
+            "support": 6
+          },
+          "still_failing": {
+            "f1": 0.6666666666666666,
+            "precision": 1.0,
+            "recall": 0.5,
+            "support": 4
+          },
+          "unchanged": {
+            "f1": 0.6666666666666666,
+            "precision": 0.5,
+            "recall": 1.0,
+            "support": 2
+          }
+        },
+        "strict_accuracy": 0.7058823529411765,
+        "unavailable_rate": 0.0,
+        "uncertainty_rate": 0.0,
+        "v1": {
+          "accuracy": null,
+          "confusion_matrix": {
+            "degraded": {
+              "degraded": 0,
+              "improved": 0,
+              "still_failing": 0,
+              "unchanged": 0
+            },
+            "improved": {
+              "degraded": 0,
+              "improved": 0,
+              "still_failing": 0,
+              "unchanged": 0
+            },
+            "still_failing": {
+              "degraded": 0,
+              "improved": 0,
+              "still_failing": 0,
+              "unchanged": 0
+            },
+            "unchanged": {
+              "degraded": 0,
+              "improved": 0,
+              "still_failing": 0,
+              "unchanged": 0
+            }
+          },
+          "false_improvement_rate": null,
+          "improved_precision": null,
+          "improved_recall": null,
+          "macro_f1": null,
+          "n": 0,
+          "per_class": {
+            "degraded": {
+              "f1": null,
+              "precision": null,
+              "recall": null,
+              "support": 0
+            },
+            "improved": {
+              "f1": null,
+              "precision": null,
+              "recall": null,
+              "support": 0
+            },
+            "still_failing": {
+              "f1": null,
+              "precision": null,
+              "recall": null,
+              "support": 0
+            },
+            "unchanged": {
+              "f1": null,
+              "precision": null,
+              "recall": null,
+              "support": 0
+            }
+          },
+          "weighted_f1": null
+        },
+        "weighted_f1": 0.692156862745098
+      }
+    },
+    "level": {
+      "attempt": {
+        "accuracy_decided": 0.7058823529411765,
+        "confusion_matrix": {
+          "degraded": {
+            "degraded": 5,
+            "improved": 0,
+            "still_failing": 0,
+            "unchanged": 0
+          },
+          "improved": {
+            "degraded": 1,
+            "improved": 3,
+            "still_failing": 0,
+            "unchanged": 2
+          },
+          "still_failing": {
+            "degraded": 1,
+            "improved": 1,
+            "still_failing": 2,
+            "unchanged": 0
+          },
+          "unchanged": {
+            "degraded": 0,
+            "improved": 0,
+            "still_failing": 0,
+            "unchanged": 2
+          }
+        },
+        "coverage": 1.0,
+        "false_improvement_rate": 0.25,
+        "improved_precision": 0.75,
+        "improved_recall": 0.5,
+        "macro_f1": 0.6916666666666667,
+        "n": 17,
+        "n_decided": 17,
+        "per_class": {
+          "degraded": {
+            "f1": 0.8333333333333333,
+            "precision": 0.7142857142857143,
+            "recall": 1.0,
+            "support": 5
+          },
+          "improved": {
+            "f1": 0.6,
+            "precision": 0.75,
+            "recall": 0.5,
+            "support": 6
+          },
+          "still_failing": {
+            "f1": 0.6666666666666666,
+            "precision": 1.0,
+            "recall": 0.5,
+            "support": 4
+          },
+          "unchanged": {
+            "f1": 0.6666666666666666,
+            "precision": 0.5,
+            "recall": 1.0,
+            "support": 2
+          }
+        },
+        "strict_accuracy": 0.7058823529411765,
+        "unavailable_rate": 0.0,
+        "uncertainty_rate": 0.0,
+        "v1": {
+          "accuracy": null,
+          "confusion_matrix": {
+            "degraded": {
+              "degraded": 0,
+              "improved": 0,
+              "still_failing": 0,
+              "unchanged": 0
+            },
+            "improved": {
+              "degraded": 0,
+              "improved": 0,
+              "still_failing": 0,
+              "unchanged": 0
+            },
+            "still_failing": {
+              "degraded": 0,
+              "improved": 0,
+              "still_failing": 0,
+              "unchanged": 0
+            },
+            "unchanged": {
+              "degraded": 0,
+              "improved": 0,
+              "still_failing": 0,
+              "unchanged": 0
+            }
+          },
+          "false_improvement_rate": null,
+          "improved_precision": null,
+          "improved_recall": null,
+          "macro_f1": null,
+          "n": 0,
+          "per_class": {
+            "degraded": {
+              "f1": null,
+              "precision": null,
+              "recall": null,
+              "support": 0
+            },
+            "improved": {
+              "f1": null,
+              "precision": null,
+              "recall": null,
+              "support": 0
+            },
+            "still_failing": {
+              "f1": null,
+              "precision": null,
+              "recall": null,
+              "support": 0
+            },
+            "unchanged": {
+              "f1": null,
+              "precision": null,
+              "recall": null,
+              "support": 0
+            }
+          },
+          "weighted_f1": null
+        },
+        "weighted_f1": 0.692156862745098
+      }
+    }
+  },
+  "candidate": "coverage",
+  "cost_latency": {
+    "completion_tokens_total": null,
+    "estimated_cost_usd": null,
+    "latency_ms_p50": 0.0,
+    "latency_ms_p95": 0.0,
+    "model": null,
+    "model_calls_mean": 0.0,
+    "model_calls_total": 0,
+    "n": 17,
+    "price_note": "List-rate estimate from protocol.PRICE_PER_MILLION. Not an invoice.",
+    "prompt_tokens_total": null,
+    "tokens_observed": false
+  },
+  "disagreement": {
+    "both_correct": 0,
+    "both_wrong": 0,
+    "v1_only_correct": 0,
+    "v2_only_correct": 0
+  },
+  "error_counts": {
+    "abstention_mistake": 1,
+    "degraded_as_improved": 0,
+    "false_improved": 1,
+    "missed_improved": 3,
+    "position_inconsistent": 0,
+    "still_failing_as_improved": 1,
+    "v1_correct_v2_wrong": 0,
+    "v2_correct_v1_wrong": 0
+  },
+  "mcnemar": null,
+  "position_inconsistency": null,
+  "protocol": "verification-v2-2026-10-06",
+  "seed": 20261006,
+  "summary": {
+    "accuracy_decided": 0.7058823529411765,
+    "confusion_matrix": {
+      "degraded": {
+        "degraded": 5,
+        "improved": 0,
+        "still_failing": 0,
+        "unchanged": 0
+      },
+      "improved": {
+        "degraded": 1,
+        "improved": 3,
+        "still_failing": 0,
+        "unchanged": 2
+      },
+      "still_failing": {
+        "degraded": 1,
+        "improved": 1,
+        "still_failing": 2,
+        "unchanged": 0
+      },
+      "unchanged": {
+        "degraded": 0,
+        "improved": 0,
+        "still_failing": 0,
+        "unchanged": 2
+      }
+    },
+    "coverage": 1.0,
+    "false_improvement_rate": 0.25,
+    "improved_precision": 0.75,
+    "improved_recall": 0.5,
+    "macro_f1": 0.6916666666666667,
+    "mean_model_calls": 0.0,
+    "n": 17,
+    "n_decided": 17,
+    "per_class": {
+      "degraded": {
+        "f1": 0.8333333333333333,
+        "precision": 0.7142857142857143,
+        "recall": 1.0,
+        "support": 5
+      },
+      "improved": {
+        "f1": 0.6,
+        "precision": 0.75,
+        "recall": 0.5,
+        "support": 6
+      },
+      "still_failing": {
+        "f1": 0.6666666666666666,
+        "precision": 1.0,
+        "recall": 0.5,
+        "support": 4
+      },
+      "unchanged": {
+        "f1": 0.6666666666666666,
+        "precision": 0.5,
+        "recall": 1.0,
+        "support": 2
+      }
+    },
+    "strict_accuracy": 0.7058823529411765,
+    "unavailable_rate": 0.0,
+    "uncertainty_rate": 0.0,
+    "v1": {
+      "accuracy": null,
+      "confusion_matrix": {
+        "degraded": {
+          "degraded": 0,
+          "improved": 0,
+          "still_failing": 0,
+          "unchanged": 0
+        },
+        "improved": {
+          "degraded": 0,
+          "improved": 0,
+          "still_failing": 0,
+          "unchanged": 0
+        },
+        "still_failing": {
+          "degraded": 0,
+          "improved": 0,
+          "still_failing": 0,
+          "unchanged": 0
+        },
+        "unchanged": {
+          "degraded": 0,
+          "improved": 0,
+          "still_failing": 0,
+          "unchanged": 0
+        }
+      },
+      "false_improvement_rate": null,
+      "improved_precision": null,
+      "improved_recall": null,
+      "macro_f1": null,
+      "n": 0,
+      "per_class": {
+        "degraded": {
+          "f1": null,
+          "precision": null,
+          "recall": null,
+          "support": 0
+        },
+        "improved": {
+          "f1": null,
+          "precision": null,
+          "recall": null,
+          "support": 0
+        },
+        "still_failing": {
+          "f1": null,
+          "precision": null,
+          "recall": null,
+          "support": 0
+        },
+        "unchanged": {
+          "f1": null,
+          "precision": null,
+          "recall": null,
+          "support": 0
+        }
+      },
+      "weighted_f1": null
+    },
+    "weighted_f1": 0.692156862745098
+  }
+}

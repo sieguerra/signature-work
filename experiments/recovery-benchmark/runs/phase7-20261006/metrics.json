@@ -1,0 +1,454 @@
+{
+  "gold_version": "gold-rank-2026-10-06",
+  "n_logical_runs": 186,
+  "n_recovered_logical_runs": 60,
+  "n_attempt_rows": 123,
+  "attempt_rows_are_not_independent": true,
+  "outcome_counts": {
+    "improved": 5,
+    "unchanged": 48,
+    "still_failing": 4,
+    "degraded": 3
+  },
+  "outcome_rates": {
+    "improved": {
+      "label": "improved",
+      "n": 60,
+      "count": 5,
+      "rate": 0.08333333333333333,
+      "low": 0.03333333333333333,
+      "high": 0.13333333333333333,
+      "samples": 1000,
+      "alpha": 0.1
+    },
+    "unchanged": {
+      "label": "unchanged",
+      "n": 60,
+      "count": 48,
+      "rate": 0.8,
+      "low": 0.7166666666666667,
+      "high": 0.8833333333333333,
+      "samples": 1000,
+      "alpha": 0.1
+    },
+    "still_failing": {
+      "label": "still_failing",
+      "n": 60,
+      "count": 4,
+      "rate": 0.06666666666666667,
+      "low": 0.016666666666666666,
+      "high": 0.11666666666666667,
+      "samples": 1000,
+      "alpha": 0.1
+    },
+    "degraded": {
+      "label": "degraded",
+      "n": 60,
+      "count": 3,
+      "rate": 0.05,
+      "low": 0.016666666666666666,
+      "high": 0.1,
+      "samples": 1000,
+      "alpha": 0.1
+    }
+  },
+  "by_action": {
+    "expand": {
+      "n": 10,
+      "counts": {
+        "improved": 1,
+        "unchanged": 8,
+        "still_failing": 0,
+        "degraded": 1
+      },
+      "rates": {
+        "improved": {
+          "label": "improved",
+          "n": 10,
+          "count": 1,
+          "rate": 0.1,
+          "low": 0.0,
+          "high": 0.3,
+          "samples": 1000,
+          "alpha": 0.1
+        },
+        "unchanged": {
+          "label": "unchanged",
+          "n": 10,
+          "count": 8,
+          "rate": 0.8,
+          "low": 0.6,
+          "high": 1.0,
+          "samples": 1000,
+          "alpha": 0.1
+        },
+        "still_failing": {
+          "label": "still_failing",
+          "n": 10,
+          "count": 0,
+          "rate": 0.0,
+          "low": 0.0,
+          "high": 0.0,
+          "samples": 1000,
+          "alpha": 0.1
+        },
+        "degraded": {
+          "label": "degraded",
+          "n": 10,
+          "count": 1,
+          "rate": 0.1,
+          "low": 0.0,
+          "high": 0.3,
+          "samples": 1000,
+          "alpha": 0.1
+        }
+      }
+    },
+    "multi": {
+      "n": 50,
+      "counts": {
+        "improved": 4,
+        "unchanged": 40,
+        "still_failing": 4,
+        "degraded": 2
+      },
+      "rates": {
+        "improved": {
+          "label": "improved",
+          "n": 50,
+          "count": 4,
+          "rate": 0.08,
+          "low": 0.02,
+          "high": 0.14,
+          "samples": 1000,
+          "alpha": 0.1
+        },
+        "unchanged": {
+          "label": "unchanged",
+          "n": 50,
+          "count": 40,
+          "rate": 0.8,
+          "low": 0.7,
+          "high": 0.88,
+          "samples": 1000,
+          "alpha": 0.1
+        },
+        "still_failing": {
+          "label": "still_failing",
+          "n": 50,
+          "count": 4,
+          "rate": 0.08,
+          "low": 0.02,
+          "high": 0.14,
+          "samples": 1000,
+          "alpha": 0.1
+        },
+        "degraded": {
+          "label": "degraded",
+          "n": 50,
+          "count": 2,
+          "rate": 0.04,
+          "low": 0.0,
+          "high": 0.1,
+          "samples": 1000,
+          "alpha": 0.1
+        }
+      }
+    }
+  },
+  "by_answerability": {
+    "answerable": {
+      "n": 15,
+      "counts": {
+        "improved": 4,
+        "unchanged": 9,
+        "still_failing": 1,
+        "degraded": 1
+      },
+      "rates": {
+        "improved": {
+          "label": "improved",
+          "n": 15,
+          "count": 4,
+          "rate": 0.26666666666666666,
+          "low": 0.06666666666666667,
+          "high": 0.4666666666666667,
+          "samples": 1000,
+          "alpha": 0.1
+        },
+        "unchanged": {
+          "label": "unchanged",
+          "n": 15,
+          "count": 9,
+          "rate": 0.6,
+          "low": 0.4,
+          "high": 0.8,
+          "samples": 1000,
+          "alpha": 0.1
+        },
+        "still_failing": {
+          "label": "still_failing",
+          "n": 15,
+          "count": 1,
+          "rate": 0.06666666666666667,
+          "low": 0.0,
+          "high": 0.2,
+          "samples": 1000,
+          "alpha": 0.1
+        },
+        "degraded": {
+          "label": "degraded",
+          "n": 15,
+          "count": 1,
+          "rate": 0.06666666666666667,
+          "low": 0.0,
+          "high": 0.2,
+          "samples": 1000,
+          "alpha": 0.1
+        }
+      }
+    },
+    "unanswerable": {
+      "n": 45,
+      "counts": {
+        "improved": 1,
+        "unchanged": 39,
+        "still_failing": 3,
+        "degraded": 2
+      },
+      "rates": {
+        "improved": {
+          "label": "improved",
+          "n": 45,
+          "count": 1,
+          "rate": 0.022222222222222223,
+          "low": 0.0,
+          "high": 0.06666666666666667,
+          "samples": 1000,
+          "alpha": 0.1
+        },
+        "unchanged": {
+          "label": "unchanged",
+          "n": 45,
+          "count": 39,
+          "rate": 0.8666666666666667,
+          "low": 0.7777777777777778,
+          "high": 0.9333333333333333,
+          "samples": 1000,
+          "alpha": 0.1
+        },
+        "still_failing": {
+          "label": "still_failing",
+          "n": 45,
+          "count": 3,
+          "rate": 0.06666666666666667,
+          "low": 0.0,
+          "high": 0.13333333333333333,
+          "samples": 1000,
+          "alpha": 0.1
+        },
+        "degraded": {
+          "label": "degraded",
+          "n": 45,
+          "count": 2,
+          "rate": 0.044444444444444446,
+          "low": 0.0,
+          "high": 0.1111111111111111,
+          "samples": 1000,
+          "alpha": 0.1
+        }
+      }
+    }
+  },
+  "by_diagnosis": {
+    "null": {
+      "n": 60,
+      "counts": {
+        "improved": 5,
+        "unchanged": 48,
+        "still_failing": 4,
+        "degraded": 3
+      }
+    }
+  },
+  "paths": [
+    {
+      "path": "rewrite>expand",
+      "n": 37,
+      "first_attempt": {
+        "still_failing": 7,
+        "unchanged": 30
+      },
+      "second_attempt": {
+        "improved": 3,
+        "unchanged": 28,
+        "degraded": 2,
+        "still_failing": 4
+      },
+      "final_counts": {
+        "improved": 3,
+        "unchanged": 28,
+        "still_failing": 4,
+        "degraded": 2
+      }
+    },
+    {
+      "path": "rewrite>expand>abstain",
+      "n": 13,
+      "first_attempt": {
+        "unchanged": 12,
+        "still_failing": 1
+      },
+      "second_attempt": {
+        "unchanged": 12,
+        "still_failing": 1
+      },
+      "final_counts": {
+        "improved": 1,
+        "unchanged": 12,
+        "still_failing": 0,
+        "degraded": 0
+      }
+    }
+  ],
+  "abstention": {
+    "n_recovered": 60,
+    "n_final_abstained": 41,
+    "unanswerable_n": 45,
+    "unanswerable_abstained": 40,
+    "answerable_n": 15,
+    "answerable_abstained": 1
+  },
+  "attempt_outcome_counts": {
+    "improved": 5,
+    "unchanged": 102,
+    "still_failing": 13,
+    "degraded": 3
+  },
+  "attempt_outcome_rates": {
+    "improved": {
+      "label": "improved",
+      "n": 123,
+      "count": 5,
+      "rate": 0.04065040650406504,
+      "low": 0.016260162601626018,
+      "high": 0.07317073170731707,
+      "samples": 1000,
+      "alpha": 0.1
+    },
+    "unchanged": {
+      "label": "unchanged",
+      "n": 123,
+      "count": 102,
+      "rate": 0.8292682926829268,
+      "low": 0.7723577235772358,
+      "high": 0.8861788617886179,
+      "samples": 1000,
+      "alpha": 0.1
+    },
+    "still_failing": {
+      "label": "still_failing",
+      "n": 123,
+      "count": 13,
+      "rate": 0.10569105691056911,
+      "low": 0.056910569105691054,
+      "high": 0.15447154471544716,
+      "samples": 1000,
+      "alpha": 0.1
+    },
+    "degraded": {
+      "label": "degraded",
+      "n": 123,
+      "count": 3,
+      "rate": 0.024390243902439025,
+      "low": 0.008130081300813009,
+      "high": 0.04878048780487805,
+      "samples": 1000,
+      "alpha": 0.1
+    }
+  },
+  "primary_vs_paraphrase": {
+    "n": 60,
+    "matches": 60,
+    "rate": 1.0,
+    "disagreement_ids": []
+  },
+  "primary_vs_grounded": {
+    "n": 60,
+    "matches": 60,
+    "rate": 1.0,
+    "disagreement_ids": []
+  },
+  "v1": {
+    "n": 60,
+    "accuracy": 0.21666666666666667,
+    "macro_f1": 0.23937368050668542,
+    "improved_precision": 0.6,
+    "improved_recall": 0.6,
+    "false_improvement_rate": 0.4,
+    "confusion": {
+      "improved": {
+        "improved": 3,
+        "unchanged": 1,
+        "still_failing": 1,
+        "degraded": 0
+      },
+      "unchanged": {
+        "improved": 0,
+        "unchanged": 8,
+        "still_failing": 40,
+        "degraded": 0
+      },
+      "still_failing": {
+        "improved": 2,
+        "unchanged": 0,
+        "still_failing": 2,
+        "degraded": 0
+      },
+      "degraded": {
+        "improved": 0,
+        "unchanged": 1,
+        "still_failing": 2,
+        "degraded": 0
+      }
+    }
+  },
+  "cost": {
+    "improved": {
+      "n": 5,
+      "mean_baseline_latency_ms": 4472.52761660493,
+      "mean_added_latency_ms": 7079.933433391852,
+      "mean_latency_ms": 11552.461049996782,
+      "chat_calls": 30,
+      "prompt_tokens": 29772,
+      "completion_tokens": 1352,
+      "embedding_tokens": 117,
+      "estimated_usd": 0.00527934,
+      "price_note": "list price estimate, not an invoice"
+    },
+    "not_improved": {
+      "n": 55,
+      "mean_baseline_latency_ms": 9315.334068889073,
+      "mean_added_latency_ms": 8870.464429584204,
+      "mean_latency_ms": 18185.79849847328,
+      "chat_calls": 312,
+      "prompt_tokens": 248882,
+      "completion_tokens": 13117,
+      "embedding_tokens": 1251,
+      "estimated_usd": 0.045227519999999986,
+      "price_note": "list price estimate, not an invoice"
+    },
+    "all_recovered": {
+      "n": 60,
+      "mean_baseline_latency_ms": 8911.766864532061,
+      "mean_added_latency_ms": 8721.253513234842,
+      "mean_latency_ms": 17633.020377766905,
+      "chat_calls": 342,
+      "prompt_tokens": 278654,
+      "completion_tokens": 14469,
+      "embedding_tokens": 1368,
+      "estimated_usd": 0.05050686,
+      "price_note": "list price estimate, not an invoice"
+    }
+  }
+}

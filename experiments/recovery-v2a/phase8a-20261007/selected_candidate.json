@@ -1,0 +1,7 @@
+{
+  "policy": "v2a_margin",
+  "selected_before_holdout": true,
+  "reason": "On the frozen human labels it raises gate precision from 15/41 to 15/33, skips 8 unnecessary recoveries, and misses none of the 15 bad runs. Expand-first did not fix the 12 unchanged bad runs.",
+  "not_selected": ["v2a_expand_first", "v2a_combined"],
+  "default_runtime": "v1"
+}

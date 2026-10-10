@@ -1,0 +1,43 @@
+{
+  "n_human_bad": 15,
+  "n_answer_present": 2,
+  "n_answer_absent": 11,
+  "n_partial": 2,
+  "n_ambiguous_answerability": 0,
+  "n_retrieval_miss": 2,
+  "n_generation_failure": 0,
+  "n_corpus_gap": 13,
+  "n_other": 0,
+  "answer_recoveries": 2,
+  "safe_failure_recoveries": 1,
+  "conditional_success_on_recoverable": 1.0,
+  "answer_recovery_rate_on_all_bad": 0.13333333333333333,
+  "safe_failure_rate_on_all_bad": 0.06666666666666667,
+  "supporting_rank_buckets": {
+    "5-12": [
+      "dku-053",
+      "dku-012"
+    ]
+  },
+  "unchanged_bad": {
+    "n": 12,
+    "ids": [
+      "dku-031",
+      "ns-015",
+      "dku-035",
+      "seed-010",
+      "dku-036",
+      "ns-014",
+      "nw-014",
+      "dku-052",
+      "sw-015",
+      "sw-014",
+      "pp-014",
+      "gold-031"
+    ],
+    "corpus_gap": 12,
+    "retrieval_miss": 0,
+    "generation_failure": 0,
+    "ambiguous": 0
+  }
+}

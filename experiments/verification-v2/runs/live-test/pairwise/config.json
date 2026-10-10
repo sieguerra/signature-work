@@ -1,0 +1,12 @@
+{
+  "call_model": true,
+  "candidate": "pairwise",
+  "live_max_recoveries": 2,
+  "live_top_k": 1,
+  "model": "gpt-4o-mini",
+  "n_examples": 22,
+  "panel": "live",
+  "protocol": "verification-v2-2026-10-06",
+  "seed": 20261006,
+  "split": "test"
+}

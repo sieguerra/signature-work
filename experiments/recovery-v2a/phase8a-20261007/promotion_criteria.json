@@ -1,0 +1,11 @@
+{
+  "written_before_holdout": true,
+  "holdout_opened": false,
+  "rules": [
+    "On the human-reviewed development rows, gate precision is higher than v1 or unnecessary interventions are fewer.",
+    "Every human-needed run that v1 triggered is still triggered.",
+    "Fresh conditional success, scored offline on the same first-pass states, is at least the v1 rate.",
+    "Fresh degraded count does not rise.",
+    "Recovery cost or added latency is lower, or the increase is small beside a gain."
+  ]
+}

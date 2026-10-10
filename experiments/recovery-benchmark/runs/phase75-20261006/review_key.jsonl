@@ -1,0 +1,100 @@
+{"review_id": "N001", "logical_id": "dku:questions.jsonl:dku-016", "packet": "nontrigger"}
+{"review_id": "N002", "logical_id": "harbor:questions.jsonl:seed-007", "packet": "nontrigger"}
+{"review_id": "N003", "logical_id": "harbor:questions.jsonl:gold-023", "packet": "nontrigger"}
+{"review_id": "N004", "logical_id": "kestrel-aero:questions.jsonl:ka-008", "packet": "nontrigger"}
+{"review_id": "N005", "logical_id": "lumen-streetcar:questions.jsonl:ls-002", "packet": "nontrigger"}
+{"review_id": "N006", "logical_id": "marlow-clinic:questions.jsonl:mc-009", "packet": "nontrigger"}
+{"review_id": "N007", "logical_id": "nimbus-seed:questions.jsonl:ns-007", "packet": "nontrigger"}
+{"review_id": "N008", "logical_id": "northhaven-water:questions.jsonl:nw-006", "packet": "nontrigger"}
+{"review_id": "N009", "logical_id": "orion-grid:questions.jsonl:og-005", "packet": "nontrigger"}
+{"review_id": "N010", "logical_id": "porthaven-port:questions.jsonl:pp-011", "packet": "nontrigger"}
+{"review_id": "N011", "logical_id": "saltwind-coop:questions.jsonl:sw-006", "packet": "nontrigger"}
+{"review_id": "N012", "logical_id": "dku:questions.jsonl:dku-001", "packet": "nontrigger"}
+{"review_id": "N013", "logical_id": "harbor:questions.jsonl:seed-008", "packet": "nontrigger"}
+{"review_id": "N014", "logical_id": "harbor:questions.jsonl:gold-022", "packet": "nontrigger"}
+{"review_id": "N015", "logical_id": "kestrel-aero:first-pass-fail.jsonl:ka-022", "packet": "nontrigger"}
+{"review_id": "N016", "logical_id": "lumen-streetcar:questions.jsonl:ls-012", "packet": "nontrigger"}
+{"review_id": "N017", "logical_id": "marlow-clinic:questions.jsonl:mc-003", "packet": "nontrigger"}
+{"review_id": "N018", "logical_id": "nimbus-seed:questions.jsonl:ns-005", "packet": "nontrigger"}
+{"review_id": "N019", "logical_id": "northhaven-water:questions.jsonl:nw-007", "packet": "nontrigger"}
+{"review_id": "N020", "logical_id": "orion-grid:questions.jsonl:og-006", "packet": "nontrigger"}
+{"review_id": "N021", "logical_id": "porthaven-port:questions.jsonl:pp-006", "packet": "nontrigger"}
+{"review_id": "N022", "logical_id": "saltwind-coop:questions.jsonl:sw-004", "packet": "nontrigger"}
+{"review_id": "N023", "logical_id": "dku:questions.jsonl:dku-009", "packet": "nontrigger"}
+{"review_id": "N024", "logical_id": "harbor:questions.jsonl:gold-026", "packet": "nontrigger"}
+{"review_id": "N025", "logical_id": "harbor:questions.jsonl:seed-002", "packet": "nontrigger"}
+{"review_id": "N026", "logical_id": "kestrel-aero:questions.jsonl:ka-006", "packet": "nontrigger"}
+{"review_id": "N027", "logical_id": "lumen-streetcar:questions.jsonl:ls-005", "packet": "nontrigger"}
+{"review_id": "N028", "logical_id": "marlow-clinic:questions.jsonl:mc-001", "packet": "nontrigger"}
+{"review_id": "N029", "logical_id": "nimbus-seed:questions.jsonl:ns-012", "packet": "nontrigger"}
+{"review_id": "N030", "logical_id": "northhaven-water:questions.jsonl:nw-008", "packet": "nontrigger"}
+{"review_id": "N031", "logical_id": "orion-grid:questions.jsonl:og-009", "packet": "nontrigger"}
+{"review_id": "N032", "logical_id": "porthaven-port:questions.jsonl:pp-004", "packet": "nontrigger"}
+{"review_id": "N033", "logical_id": "saltwind-coop:questions.jsonl:sw-010", "packet": "nontrigger"}
+{"review_id": "N034", "logical_id": "dku:questions.jsonl:dku-017", "packet": "nontrigger"}
+{"review_id": "N035", "logical_id": "harbor:questions.jsonl:gold-029", "packet": "nontrigger"}
+{"review_id": "N036", "logical_id": "harbor:questions.jsonl:gold-024", "packet": "nontrigger"}
+{"review_id": "N037", "logical_id": "kestrel-aero:questions.jsonl:ka-003", "packet": "nontrigger"}
+{"review_id": "N038", "logical_id": "lumen-streetcar:questions.jsonl:ls-004", "packet": "nontrigger"}
+{"review_id": "N039", "logical_id": "marlow-clinic:questions.jsonl:mc-005", "packet": "nontrigger"}
+{"review_id": "N040", "logical_id": "nimbus-seed:questions.jsonl:ns-006", "packet": "nontrigger"}
+{"review_id": "R001", "logical_id": "dku:questions.jsonl:dku-008", "gold_label": "degraded", "answerable": true, "action": "expand", "packet": "triggered"}
+{"review_id": "R002", "logical_id": "lumen-streetcar:questions.jsonl:ls-016", "gold_label": "degraded", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R003", "logical_id": "dku:recovery.jsonl:dku-045", "gold_label": "improved", "answerable": true, "action": "expand", "packet": "triggered"}
+{"review_id": "R004", "logical_id": "harbor:questions.jsonl:seed-009", "gold_label": "improved", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R005", "logical_id": "dku:questions.jsonl:dku-012", "gold_label": "improved", "answerable": true, "action": "multi", "packet": "triggered"}
+{"review_id": "R006", "logical_id": "harbor:questions.jsonl:gold-030", "gold_label": "still_failing", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R007", "logical_id": "orion-grid:questions.jsonl:og-004", "gold_label": "still_failing", "answerable": true, "action": "multi", "packet": "triggered"}
+{"review_id": "R008", "logical_id": "harbor:questions.jsonl:seed-004", "gold_label": "unchanged", "answerable": true, "action": "expand", "packet": "triggered"}
+{"review_id": "R009", "logical_id": "saltwind-coop:questions.jsonl:sw-013", "gold_label": "unchanged", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R010", "logical_id": "kestrel-aero:first-pass-fail.jsonl:ka-023", "gold_label": "unchanged", "answerable": true, "action": "multi", "packet": "triggered"}
+{"review_id": "R011", "logical_id": "dku:questions.jsonl:dku-032", "gold_label": "degraded", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R012", "logical_id": "dku:first-pass-fail.jsonl:dku-053", "gold_label": "improved", "answerable": true, "action": "multi", "packet": "triggered"}
+{"review_id": "R013", "logical_id": "northhaven-water:questions.jsonl:nw-015", "gold_label": "still_failing", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R014", "logical_id": "dku:questions.jsonl:dku-004", "gold_label": "unchanged", "answerable": true, "action": "expand", "packet": "triggered"}
+{"review_id": "R015", "logical_id": "dku:questions.jsonl:dku-031", "gold_label": "unchanged", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R016", "logical_id": "dku:first-pass-fail.jsonl:dku-055", "gold_label": "improved", "answerable": true, "action": "multi", "packet": "triggered"}
+{"review_id": "R017", "logical_id": "orion-grid:questions.jsonl:og-016", "gold_label": "still_failing", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R018", "logical_id": "orion-grid:questions.jsonl:og-003", "gold_label": "unchanged", "answerable": true, "action": "expand", "packet": "triggered"}
+{"review_id": "R019", "logical_id": "kestrel-aero:first-pass-fail.jsonl:ka-024", "gold_label": "unchanged", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R020", "logical_id": "northhaven-water:questions.jsonl:nw-003", "gold_label": "unchanged", "answerable": true, "action": "expand", "packet": "triggered"}
+{"review_id": "R021", "logical_id": "lumen-streetcar:questions.jsonl:ls-013", "gold_label": "unchanged", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R022", "logical_id": "porthaven-port:questions.jsonl:pp-003", "gold_label": "unchanged", "answerable": true, "action": "expand", "packet": "triggered"}
+{"review_id": "R023", "logical_id": "marlow-clinic:questions.jsonl:mc-015", "gold_label": "unchanged", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R024", "logical_id": "porthaven-port:questions.jsonl:pp-002", "gold_label": "unchanged", "answerable": true, "action": "expand", "packet": "triggered"}
+{"review_id": "R025", "logical_id": "dku:recovery.jsonl:dku-050", "gold_label": "unchanged", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R026", "logical_id": "nimbus-seed:questions.jsonl:ns-010", "gold_label": "unchanged", "answerable": true, "action": "expand", "packet": "triggered"}
+{"review_id": "R027", "logical_id": "kestrel-aero:questions.jsonl:ka-015", "gold_label": "unchanged", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R028", "logical_id": "dku:questions.jsonl:dku-014", "gold_label": "unchanged", "answerable": true, "action": "expand", "packet": "triggered"}
+{"review_id": "R029", "logical_id": "marlow-clinic:questions.jsonl:mc-016", "gold_label": "unchanged", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R030", "logical_id": "kestrel-aero:recovery.jsonl:ka-019", "gold_label": "unchanged", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R031", "logical_id": "nimbus-seed:questions.jsonl:ns-016", "gold_label": "unchanged", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R032", "logical_id": "dku:recovery.jsonl:dku-051", "gold_label": "unchanged", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R033", "logical_id": "lumen-streetcar:questions.jsonl:ls-014", "gold_label": "unchanged", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R034", "logical_id": "lumen-streetcar:questions.jsonl:ls-015", "gold_label": "unchanged", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R035", "logical_id": "nimbus-seed:questions.jsonl:ns-013", "gold_label": "unchanged", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R036", "logical_id": "nimbus-seed:questions.jsonl:ns-015", "gold_label": "unchanged", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R037", "logical_id": "dku:questions.jsonl:dku-035", "gold_label": "unchanged", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R038", "logical_id": "harbor:questions.jsonl:seed-010", "gold_label": "unchanged", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R039", "logical_id": "dku:questions.jsonl:dku-036", "gold_label": "unchanged", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R040", "logical_id": "nimbus-seed:questions.jsonl:ns-014", "gold_label": "unchanged", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R041", "logical_id": "northhaven-water:questions.jsonl:nw-014", "gold_label": "unchanged", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R042", "logical_id": "northhaven-water:questions.jsonl:nw-016", "gold_label": "unchanged", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R043", "logical_id": "dku:recovery.jsonl:dku-052", "gold_label": "unchanged", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R044", "logical_id": "harbor:questions.jsonl:gold-028", "gold_label": "unchanged", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R045", "logical_id": "saltwind-coop:questions.jsonl:sw-015", "gold_label": "unchanged", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R046", "logical_id": "porthaven-port:questions.jsonl:pp-015", "gold_label": "unchanged", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R047", "logical_id": "dku:questions.jsonl:dku-040", "gold_label": "unchanged", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R048", "logical_id": "marlow-clinic:questions.jsonl:mc-014", "gold_label": "unchanged", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R049", "logical_id": "saltwind-coop:questions.jsonl:sw-014", "gold_label": "unchanged", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R050", "logical_id": "dku:questions.jsonl:dku-034", "gold_label": "unchanged", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R051", "logical_id": "dku:questions.jsonl:dku-038", "gold_label": "unchanged", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R052", "logical_id": "dku:first-pass-fail.jsonl:dku-057", "gold_label": "unchanged", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R053", "logical_id": "dku:questions.jsonl:dku-037", "gold_label": "unchanged", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R054", "logical_id": "dku:questions.jsonl:dku-033", "gold_label": "unchanged", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R055", "logical_id": "porthaven-port:questions.jsonl:pp-014", "gold_label": "unchanged", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R056", "logical_id": "harbor:questions.jsonl:gold-031", "gold_label": "unchanged", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R057", "logical_id": "harbor:questions.jsonl:gold-027", "gold_label": "unchanged", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R058", "logical_id": "porthaven-port:questions.jsonl:pp-013", "gold_label": "unchanged", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R059", "logical_id": "saltwind-coop:questions.jsonl:sw-016", "gold_label": "unchanged", "answerable": false, "action": "multi", "packet": "triggered"}
+{"review_id": "R060", "logical_id": "kestrel-aero:questions.jsonl:ka-016", "gold_label": "unchanged", "answerable": false, "action": "multi", "packet": "triggered"}

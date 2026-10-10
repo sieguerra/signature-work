@@ -1,0 +1,27 @@
+{
+  "n_questions": 39,
+  "policies": [
+    "v1",
+    "v2a_margin"
+  ],
+  "paired_same_actions": 39,
+  "paired_same_final_answer": 37,
+  "answer_differences_are_accepts": [
+    "mc-002",
+    "nw-009"
+  ],
+  "v1_triggered": 10,
+  "margin_triggered": 10,
+  "margin_skipped": 0,
+  "v1_paths": {
+    "accept": 29,
+    "rewrite>expand>abstain": 3,
+    "rewrite>expand": 7
+  },
+  "margin_paths": {
+    "accept": 29,
+    "rewrite>expand>abstain": 3,
+    "rewrite>expand": 7
+  },
+  "note": "The holdout had no judge-accepted margin-only trigger. Recovery decisions matched. Two accept answers differed across independent first passes."
+}

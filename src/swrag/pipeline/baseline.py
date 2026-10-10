@@ -18,7 +18,9 @@ from swrag.ingestion.loader import load_documents
 from swrag.retrieval.embedder import Embedder
 from swrag.retrieval.memory_index import InMemoryIndex
 from swrag.retrieval.openai_embedder import OpenAIEmbedder
+from swrag.tracing.schema import SCHEMA_VERSION
 from swrag.tracing.tracer import write_trace
+from swrag.usage import usage_for_trace
 from swrag.types import (
     BaselineRunResult,
     Diagnosis,
@@ -116,6 +118,8 @@ def run_query(
     judge: GroundingJudge | None = None,
     index: InMemoryIndex | None = None,
     agent_config: dict | None = None,
+    run_mode: str | None = None,
+    recovery_policy: str | None = None,
 ) -> BaselineRunResult:
     """Run baseline RAG on ``query`` and write a JSON trace.
 
@@ -142,6 +146,8 @@ def run_query(
         question_id=question_id,
         latency_ms=_elapsed_ms(started),
         agent_config=agent_config,
+        run_mode=run_mode,
+        recovery_policy=recovery_policy,
     )
 
 
@@ -162,6 +168,9 @@ def write_run(
     agent_config: dict | None = None,
     recovery_attempts: tuple[dict, ...] | None = None,
     first_pass_evaluation: RuntimeEvaluation | None = None,
+    run_mode: str | None = None,
+    initial: dict | None = None,
+    recovery_policy: str | None = None,
 ) -> BaselineRunResult:
     """Write a trace for ``state``. Never overwrites an existing file."""
     run_id = _new_run_id()
@@ -211,6 +220,11 @@ def write_run(
                 if first_pass_evaluation is not None
                 else None
             ),
+            trace_schema_version=SCHEMA_VERSION,
+            run_mode=run_mode,
+            initial=dict(initial) if initial else None,
+            usage=usage_for_trace(),
+            recovery_policy=recovery_policy,
         ),
         output_dir,
     )

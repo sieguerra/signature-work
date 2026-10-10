@@ -331,7 +331,7 @@ function runTable(runs) {
 function renderEvalOverview(root, payload, scoringProgress) {
   const runs = (payload && payload.runs) || [];
   if (!runs.length) {
-    root.innerHTML = `<div class="empty">No runs in this workspace yet. Run a question in Playground or Runs, and the charts fill in here.</div>`;
+    root.innerHTML = `<div class="empty">No runs for this system yet. Run a query in Test Console, then open Runs.</div>`;
     return;
   }
   const judged = runs.filter((run) => run.first_sufficient != null);
@@ -427,6 +427,7 @@ function runNode(kicker, title, body, tone) {
 }
 
 function attemptDetail(attempt) {
+  if (attempt.executed === false) return "Selected, not executed";
   const params = attempt.parameters || {};
   if (attempt.action === "rewrite") {
     return attempt.rewritten_query ? `New search: \u201c${chartEsc(snippet(attempt.rewritten_query, 120))}\u201d` : "Rewrote the search query";
@@ -440,6 +441,8 @@ function attemptDetail(attempt) {
 }
 
 function runAttempts(trace) {
+  const version = trace && trace.trace_schema_version;
+  if (typeof version === "number" && Number.isInteger(version) && version > 2) return [];
   const attempts = (trace.recovery_attempts || []).filter((item) => item && item.action);
   if (attempts.length) return attempts;
   const recovery = trace.recovery || {};
@@ -821,4 +824,43 @@ function renderRunDiagram(root, trace, quality) {
     ${evidence}
     <p class="chart-note">Passages are ranked by how closely their wording matches the question; a longer bar is a closer match. That is how the search ranks them, not a quality score. Click a passage to read it.</p>
   `;
+}
+
+function renderQualityBoard(root, payload, scoringProgress) {
+  const runs = (payload && payload.runs) || [];
+  const note = `<p class="rel-note">Runtime verification determines whether recovery changed the runtime judge state. Post-hoc quality scores are separate model-generated analysis and do not influence recovery decisions.</p>`;
+  if (!runs.length) {
+    root.innerHTML = `${note}<p class="chart-empty">No runs for this system yet. Run a test in Test Console, then score it here.</p>`;
+    return;
+  }
+  const rows = runs
+    .map((run) => {
+      const status = window.ReliabilityView
+        ? ReliabilityView.qualityStatus(run)
+        : run.quality
+          ? "Scored"
+          : "Not scored";
+      const scores = status === "Scored"
+        ? METRICS.map((metric) => {
+            const value = run.quality[metric.key];
+            return `${metric.name} ${value == null ? "—" : metricText(value)}`;
+          }).join(" · ")
+        : "";
+      const scoreButton = status === "Not scored"
+        ? `<button type="button" class="ghost" data-score-run-id="${chartEsc(run.run_id)}">Score</button>`
+        : "";
+      return `<tr>
+        <td>${chartEsc(run.query || "(empty)")}</td>
+        <td>${chartEsc(status)}</td>
+        <td>${chartEsc(scores)}</td>
+        <td>${scoreButton}<button type="button" class="ghost" data-chart-run="${chartEsc(run.run_id)}">Inspect</button></td>
+      </tr>`;
+    })
+    .join("");
+  root.innerHTML = `${note}
+    ${metricsOverview(runs, scoringProgress)}
+    <table class="rel-table">
+      <thead><tr><th>Question</th><th>Quality</th><th>Scores</th><th></th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
 }

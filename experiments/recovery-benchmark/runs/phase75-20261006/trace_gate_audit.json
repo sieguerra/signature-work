@@ -1,0 +1,169 @@
+{
+  "human_labels_collected": false,
+  "n_triggered": 60,
+  "n_not_triggered": 126,
+  "not_triggered_all_judge_accepted": true,
+  "trigger_groups": {
+    "ambiguous_margin_on_accepted_answer": {
+      "n": 10,
+      "logical_ids": [
+        "dku:questions.jsonl:dku-004",
+        "dku:questions.jsonl:dku-008",
+        "dku:questions.jsonl:dku-014",
+        "dku:recovery.jsonl:dku-045",
+        "harbor:questions.jsonl:seed-004",
+        "nimbus-seed:questions.jsonl:ns-010",
+        "northhaven-water:questions.jsonl:nw-003",
+        "orion-grid:questions.jsonl:og-003",
+        "porthaven-port:questions.jsonl:pp-002",
+        "porthaven-port:questions.jsonl:pp-003"
+      ],
+      "recovery_attempt_cost": {
+        "n": 10,
+        "chat_calls": 20,
+        "prompt_tokens": 26010,
+        "completion_tokens": 1023,
+        "embedding_tokens": 0,
+        "added_latency_ms": 36159.63937601191,
+        "mean_added_latency_ms": 3615.963937601191,
+        "estimated_usd": 0.0045153,
+        "price_note": "list price estimate, not an invoice"
+      },
+      "cost_note": "Cost of this signal group. Not a human judgment that the recovery was unnecessary."
+    },
+    "insufficient_and_abstention": {
+      "n": 40,
+      "logical_ids": [
+        "dku:first-pass-fail.jsonl:dku-053",
+        "dku:first-pass-fail.jsonl:dku-055",
+        "dku:first-pass-fail.jsonl:dku-057",
+        "dku:questions.jsonl:dku-012",
+        "dku:questions.jsonl:dku-031",
+        "dku:questions.jsonl:dku-033",
+        "dku:questions.jsonl:dku-035",
+        "dku:questions.jsonl:dku-036",
+        "dku:questions.jsonl:dku-037",
+        "dku:questions.jsonl:dku-038",
+        "dku:questions.jsonl:dku-040",
+        "dku:recovery.jsonl:dku-050",
+        "dku:recovery.jsonl:dku-051",
+        "dku:recovery.jsonl:dku-052",
+        "harbor:questions.jsonl:gold-028",
+        "harbor:questions.jsonl:gold-031",
+        "harbor:questions.jsonl:seed-010",
+        "kestrel-aero:first-pass-fail.jsonl:ka-024",
+        "kestrel-aero:questions.jsonl:ka-015",
+        "kestrel-aero:questions.jsonl:ka-016",
+        "kestrel-aero:recovery.jsonl:ka-019",
+        "lumen-streetcar:questions.jsonl:ls-013",
+        "lumen-streetcar:questions.jsonl:ls-014",
+        "lumen-streetcar:questions.jsonl:ls-015",
+        "lumen-streetcar:questions.jsonl:ls-016",
+        "marlow-clinic:questions.jsonl:mc-014",
+        "marlow-clinic:questions.jsonl:mc-015",
+        "marlow-clinic:questions.jsonl:mc-016",
+        "nimbus-seed:questions.jsonl:ns-013",
+        "nimbus-seed:questions.jsonl:ns-014",
+        "nimbus-seed:questions.jsonl:ns-015",
+        "nimbus-seed:questions.jsonl:ns-016",
+        "northhaven-water:questions.jsonl:nw-014",
+        "porthaven-port:questions.jsonl:pp-013",
+        "porthaven-port:questions.jsonl:pp-014",
+        "porthaven-port:questions.jsonl:pp-015",
+        "saltwind-coop:questions.jsonl:sw-013",
+        "saltwind-coop:questions.jsonl:sw-014",
+        "saltwind-coop:questions.jsonl:sw-015",
+        "saltwind-coop:questions.jsonl:sw-016"
+      ],
+      "recovery_attempt_cost": {
+        "n": 40,
+        "chat_calls": 160,
+        "prompt_tokens": 143176,
+        "completion_tokens": 6008,
+        "embedding_tokens": 493,
+        "added_latency_ms": 407265.6574200373,
+        "mean_added_latency_ms": 10181.641435500933,
+        "estimated_usd": 0.02509106,
+        "price_note": "list price estimate, not an invoice"
+      },
+      "cost_note": "Cost of this signal group. Not a human judgment that the recovery was unnecessary."
+    },
+    "insufficient_specific_answer": {
+      "n": 10,
+      "logical_ids": [
+        "dku:questions.jsonl:dku-032",
+        "dku:questions.jsonl:dku-034",
+        "harbor:questions.jsonl:gold-027",
+        "harbor:questions.jsonl:gold-030",
+        "harbor:questions.jsonl:seed-009",
+        "kestrel-aero:first-pass-fail.jsonl:ka-023",
+        "northhaven-water:questions.jsonl:nw-015",
+        "northhaven-water:questions.jsonl:nw-016",
+        "orion-grid:questions.jsonl:og-004",
+        "orion-grid:questions.jsonl:og-016"
+      ],
+      "recovery_attempt_cost": {
+        "n": 10,
+        "chat_calls": 42,
+        "prompt_tokens": 40482,
+        "completion_tokens": 2054,
+        "embedding_tokens": 142,
+        "added_latency_ms": 79849.9139980413,
+        "mean_added_latency_ms": 7984.99139980413,
+        "estimated_usd": 0.007307539999999999,
+        "price_note": "list price estimate, not an invoice"
+      },
+      "cost_note": "Cost of this signal group. Not a human judgment that the recovery was unnecessary."
+    }
+  },
+  "mechanical_candidates_against_automatic_gold": {
+    "current": {
+      "would_still_trigger": 60,
+      "would_skip": 0,
+      "gold_improved_skipped": [],
+      "note": "Counted from traces and automatic gold. Not a human result and not a selected rule."
+    },
+    "stop_explicit_abstention": {
+      "would_still_trigger": 20,
+      "would_skip": 40,
+      "gold_improved_skipped": [
+        "dku:first-pass-fail.jsonl:dku-053",
+        "dku:first-pass-fail.jsonl:dku-055",
+        "dku:questions.jsonl:dku-012"
+      ],
+      "note": "Counted from traces and automatic gold. Not a human result and not a selected rule."
+    },
+    "ignore_ambiguous_margin": {
+      "would_still_trigger": 50,
+      "would_skip": 10,
+      "gold_improved_skipped": [
+        "dku:recovery.jsonl:dku-045"
+      ],
+      "note": "Counted from traces and automatic gold. Not a human result and not a selected rule."
+    },
+    "require_two_signals": {
+      "would_still_trigger": 3,
+      "would_skip": 57,
+      "gold_improved_skipped": [
+        "dku:first-pass-fail.jsonl:dku-055",
+        "dku:questions.jsonl:dku-012",
+        "dku:recovery.jsonl:dku-045"
+      ],
+      "note": "Counted from traces and automatic gold. Not a human result and not a selected rule."
+    }
+  },
+  "known_question_ids_present": [
+    "dku:first-pass-fail.jsonl:dku-053",
+    "dku:first-pass-fail.jsonl:dku-055",
+    "dku:questions.jsonl:dku-008",
+    "dku:questions.jsonl:dku-012",
+    "dku:questions.jsonl:dku-032",
+    "dku:recovery.jsonl:dku-045",
+    "harbor:questions.jsonl:gold-030",
+    "harbor:questions.jsonl:seed-009",
+    "lumen-streetcar:questions.jsonl:ls-016",
+    "northhaven-water:questions.jsonl:nw-015",
+    "orion-grid:questions.jsonl:og-004",
+    "orion-grid:questions.jsonl:og-016"
+  ]
+}

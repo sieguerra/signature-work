@@ -95,6 +95,10 @@ class RuntimeEvaluation:
     support_rationale: str
     judge: str
     model: str
+    # Clocks and other checkable facts the span check could not find.
+    # Empty on evaluations that predate the field and on judge calls that
+    # did not reject anything.
+    span_rejections: tuple[str, ...] = ()
 
     def as_trace_payload(self) -> dict[str, object]:
         return {
@@ -104,6 +108,7 @@ class RuntimeEvaluation:
             "support_rationale": self.support_rationale,
             "judge": self.judge,
             "model": self.model,
+            "span_rejections": list(self.span_rejections),
         }
 
 
@@ -199,6 +204,14 @@ class TraceRecord:
     # own step-to-step verification.
     recovery_attempts: tuple[dict[str, Any], ...] | None = field(default=None)
     first_pass_evaluation: dict[str, Any] | None = field(default=None)
+    # Schema 2. Missing or null on a file means a legacy trace. ``initial`` is
+    # the first pass and is null when the top-level fields are the only state.
+    trace_schema_version: int | None = field(default=None)
+    run_mode: str | None = field(default=None)
+    initial: dict[str, Any] | None = field(default=None)
+    usage: dict[str, int | bool | None] | None = field(default=None)
+    # Internal policy name actually used. Missing on older traces means v1.
+    recovery_policy: str | None = field(default=None)
 
 
 @dataclass(frozen=True)

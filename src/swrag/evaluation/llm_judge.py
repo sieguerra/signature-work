@@ -24,7 +24,14 @@ from swrag.usage import record_chat
 
 _FENCE = re.compile(r"^```(?:json)?\s*|\s*```$", re.IGNORECASE)
 _CITATION = re.compile(r"\[[^\[\]]+\]")
-_TIME = re.compile(r"\b\d{1,2}:\d{2}\b")
+_TIME = re.compile(
+    r"\b\d{1,2}:\d{2}(?:\s*(?:a\.?m\.?|p\.?m\.?))?\b",
+    re.IGNORECASE,
+)
+_CLOCK = re.compile(
+    r"(\d{1,2}):(\d{2})(?:\s*(a\.?m\.?|p\.?m\.?))?",
+    re.IGNORECASE,
+)
 _EMAIL = re.compile(r"\b[\w.+-]+@[\w.-]+\.\w+\b", re.IGNORECASE)
 _ORDINAL = re.compile(r"\b\d+(?:st|nd|rd|th)\b", re.IGNORECASE)
 _SPEC = re.compile(r"\b(?:AMS\s*)?\d{4}[A-Z]\b", re.IGNORECASE)
@@ -172,6 +179,7 @@ def constrain_support_to_evidence(
         support_rationale=support_rationale,
         judge=evaluation.judge,
         model=evaluation.model,
+        span_rejections=missing,
     )
 
 
@@ -189,15 +197,56 @@ def _fact_in_evidence(fact: str, blob: str) -> bool:
     token = _normalize(fact)
     if token and token in blob:
         return True
-    if _TIME.fullmatch(fact):
-        hours, minutes = fact.split(":")
-        unpadded = f"{int(hours)}:{minutes}"
-        padded = f"{int(hours):02d}:{minutes}"
-        if unpadded in blob or padded in blob:
-            return True
+    forms = _clock_forms(fact)
+    if forms is not None:
+        compact_blob = re.sub(r"\s+", "", blob)
+        for form in forms:
+            normalized = _normalize(form)
+            if normalized in blob or re.sub(r"\s+", "", normalized) in compact_blob:
+                return True
+        return False
     compact_fact = re.sub(r"\s+", "", token)
     compact_blob = re.sub(r"\s+", "", blob)
     return bool(compact_fact) and compact_fact in compact_blob
+
+
+def _clock_forms(fact: str) -> set[str] | None:
+    """Spellings of one clock time. 7:00 PM is 19:00. A bare 7:00 is not.
+
+    A 12-hour gloss is the same instant as the 24-hour time already in the
+    note. A time with no AM/PM and an hour of 12 or less stays that hour,
+    so 7:00 does not become 19:00.
+    """
+    match = _CLOCK.fullmatch(fact.strip())
+    if match is None:
+        return None
+    hour = int(match.group(1))
+    minutes = match.group(2)
+    if hour > 23 or int(minutes) > 59:
+        return None
+    suffix = re.sub(r"[^apm]", "", (match.group(3) or "").lower())
+    forms: set[str] = set()
+
+    def add(hour_24: int) -> None:
+        forms.add(f"{hour_24}:{minutes}")
+        forms.add(f"{hour_24:02d}:{minutes}")
+        hour_12 = hour_24 % 12 or 12
+        period = "am" if hour_24 < 12 else "pm"
+        forms.add(f"{hour_12}:{minutes} {period}")
+        forms.add(f"{hour_12:02d}:{minutes} {period}")
+        forms.add(f"{hour_12}:{minutes}{period}")
+        forms.add(f"{hour_12}:{minutes} {period[0]}.m.")
+
+    if suffix == "pm" and 1 <= hour < 12:
+        hour += 12
+    elif suffix == "am" and hour == 12:
+        hour = 0
+    if suffix in {"am", "pm"} or hour > 12 or hour == 0:
+        add(hour)
+    else:
+        forms.add(f"{hour}:{minutes}")
+        forms.add(f"{hour:02d}:{minutes}")
+    return forms
 
 
 def _user_prompt(question: str, answer: str, retrieval: RetrievalResult) -> str:

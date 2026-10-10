@@ -160,6 +160,51 @@ def test_project_config_round_trip_and_trace_snapshot(tmp_path: Path) -> None:
             json={"instructions": "", "chat_model": "not-a-model", "top_k": 4},
         )
         assert blocked.status_code == 400
+        guided = client.patch(
+            f"/api/projects/{project_id}/config",
+            json={
+                "instructions": "Use a casual tone.",
+                "chat_model": "gpt-4o-mini",
+                "top_k": 4,
+                "behavior": {
+                    "mode": "guided",
+                    "preset": "custom",
+                    "tone": "casual",
+                    "customTone": "",
+                    "detail": "",
+                    "explanation": "",
+                    "formatting": {
+                        "bullets": False,
+                        "numbered": False,
+                        "tables": False,
+                        "summaryFirst": False,
+                    },
+                    "grounding": {
+                        "evidence": False,
+                        "cite": False,
+                        "admit": False,
+                        "uncertainty": False,
+                    },
+                    "customRules": [],
+                    "legacyText": None,
+                },
+            },
+        )
+        assert guided.status_code == 200, guided.text
+        stored = guided.json()["project"]["config"]["behavior"]
+        assert stored["tone"] == "casual"
+        assert stored["mode"] == "guided"
+        assert client.get("/api/meta").json()["agent_config"]["behavior"]["tone"] == "casual"
+        rejected = client.patch(
+            f"/api/projects/{project_id}/config",
+            json={
+                "instructions": "",
+                "chat_model": "gpt-4o-mini",
+                "top_k": 4,
+                "behavior": {"mode": "guided", "tone": "sarcastic"},
+            },
+        )
+        assert rejected.status_code == 400
 
 
 def test_corrupt_pdf_upload_is_rejected(tmp_path: Path) -> None:

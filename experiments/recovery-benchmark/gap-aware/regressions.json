@@ -1,0 +1,50 @@
+[
+  {
+    "question_id": "dku-053",
+    "corpus_dir": "datasets/dku/corpus",
+    "question": "What is the street address of the DKU Library?",
+    "expect": "substantive",
+    "required_substrings": ["No. 8 Duke Avenue"],
+    "forbidden_substrings": []
+  },
+  {
+    "question_id": "dku-012",
+    "corpus_dir": "datasets/dku/corpus",
+    "question": "What email does the current DKU Library Locations and Hours page list?",
+    "expect": "substantive",
+    "required_substrings": ["dkulibrary@dukekunshan.edu.cn"],
+    "forbidden_substrings": []
+  },
+  {
+    "question_id": "sw-016",
+    "corpus_dir": "datasets/saltwind-coop/corpus",
+    "question": "What wave height grounds Storm Petrel?",
+    "expect": "no_invented_number",
+    "required_substrings": [],
+    "forbidden_substrings": []
+  },
+  {
+    "question_id": "seed-009",
+    "corpus_dir": "datasets/corpus",
+    "question": "How much does a Tide Canteen meal cost in harbor credits?",
+    "expect": "do_not_attribute",
+    "required_substrings": [],
+    "forbidden_substrings": ["3 harbor credits", "4 harbor credits"]
+  },
+  {
+    "question_id": "dku-045",
+    "corpus_dir": "datasets/dku/corpus",
+    "question": "What phone number is listed for the DKU Library?",
+    "expect": "do_not_silently_pick",
+    "both_values": ["3665-7027", "36658756"],
+    "forbidden_substrings": []
+  },
+  {
+    "question_id": "dku-055",
+    "corpus_dir": "datasets/dku/corpus",
+    "question": "How large is the DKU campus in acres?",
+    "expect": "record_only",
+    "required_substrings": ["200 acres"],
+    "forbidden_substrings": []
+  }
+]

@@ -1,0 +1,60 @@
+{
+  "class_order": [
+    "improved",
+    "unchanged",
+    "still_failing",
+    "degraded"
+  ],
+  "v1": {
+    "degraded": {
+      "degraded": 0,
+      "improved": 0,
+      "still_failing": 0,
+      "unchanged": 0
+    },
+    "improved": {
+      "degraded": 0,
+      "improved": 2,
+      "still_failing": 0,
+      "unchanged": 0
+    },
+    "still_failing": {
+      "degraded": 0,
+      "improved": 0,
+      "still_failing": 1,
+      "unchanged": 0
+    },
+    "unchanged": {
+      "degraded": 0,
+      "improved": 2,
+      "still_failing": 8,
+      "unchanged": 0
+    }
+  },
+  "v2": {
+    "degraded": {
+      "degraded": 0,
+      "improved": 0,
+      "still_failing": 0,
+      "unchanged": 0
+    },
+    "improved": {
+      "degraded": 0,
+      "improved": 2,
+      "still_failing": 0,
+      "unchanged": 0
+    },
+    "still_failing": {
+      "degraded": 0,
+      "improved": 0,
+      "still_failing": 0,
+      "unchanged": 1
+    },
+    "unchanged": {
+      "degraded": 0,
+      "improved": 2,
+      "still_failing": 1,
+      "unchanged": 7
+    }
+  }
+}

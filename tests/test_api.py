@@ -234,11 +234,16 @@ def test_index_page_and_assets_are_served(tmp_path: Path) -> None:
         assert page.status_code == 200
         assert "Trace explorer" in page.text
         assert "delete-all-runs" in page.text
-        assert "Playground" in page.text
+        assert "Test Console" in page.text
+        assert 'href="#overview"' in page.text
+        assert 'href="#test"' in page.text
         assert 'id="view-playground"' in page.text
-        assert 'id="pg-canvas"' in page.text
-        assert 'id="pg-palette"' in page.text
+        assert 'id="tc-flight"' in page.text
         assert 'id="pg-run"' in page.text
+        assert "Run a test query to inspect retrieval, evaluation, recovery, and verification." in page.text
+        assert "How many top passages to retrieve." in page.text
+        assert 'id="pg-canvas"' not in page.text
+        assert 'id="pg-palette"' not in page.text
         assert 'id="nav-knowledge"' in page.text
         assert 'id="view-knowledge"' in page.text
         assert 'id="nav-agent"' in page.text
@@ -250,6 +255,9 @@ def test_index_page_and_assets_are_served(tmp_path: Path) -> None:
         assert "--bg:" in css.text
         assert "view-nav" in css.text
         assert "dropzone" in css.text
+        recorder = client.get("/static/flight-recorder.js")
+        assert recorder.status_code == 200
+        assert "buildFlight" in recorder.text
         charts = client.get("/static/charts.js")
         assert charts.status_code == 200
         assert "No runs scored yet." in charts.text
@@ -263,6 +271,11 @@ def test_index_page_and_assets_are_served(tmp_path: Path) -> None:
         assert "deleteAllRuns" in js.text
         assert "switchCorpus" in js.text
         assert "readTopK" in js.text
+        assert 'playground: "test"' in js.text
+        assert 'evaluation: "reliability"' in js.text
+        assert 'knowledge: "data"' in js.text
+        assert 'agent: "configuration"' in js.text
+        assert 'api: "integrations"' in js.text
         assert "createPlaygroundProject" in js.text
         assert "savePlaygroundConfig" in js.text
         assert "resetPlaygroundChat" in js.text
@@ -270,8 +283,15 @@ def test_index_page_and_assets_are_served(tmp_path: Path) -> None:
         assert 'id="pg-rerun"' in page.text
         assert "pg-config" in css.text
         assert 'id="corpus"' in page.text
-        assert 'id="top-k"' in page.text
+        assert 'id="top-k"' not in page.text
+        assert 'id="pg-top-k"' in page.text
         assert 'id="eval-strip"' in page.text
+        assert 'data-eval-tab="recoveries"' in page.text
+        assert 'data-eval-tab="quality"' in page.text
+        assert 'id="rel-runs"' in page.text
+        assert 'id="question"' not in page.text
+        assert 'id="run-btn"' not in page.text
+        assert "filterLogicalRuns" in client.get("/static/reliability.js").text
         assert "loadEval" in js.text
         assert "answer-split" in js.text
         assert "answer-pills" in js.text
@@ -287,11 +307,11 @@ def test_index_page_and_assets_are_served(tmp_path: Path) -> None:
         assert "Rewrite query and retrieve" in js.text
         assert "Widen retrieval (higher top_k)" in js.text
         assert "recover-bar" in js.text
-        assert 'id="recover-bar"' in page.text
+        assert 'id="recover-bar"' not in page.text
         assert 'value="loop_confirm"' in page.text
-        assert "Loop (confirm recovery)" in page.text
-        assert "Loop (auto recover)" in page.text
-        assert 'value="loop_confirm" selected' in page.text
+        assert "Loop (confirm recovery)" not in page.text
+        assert "Loop (auto recover)" not in page.text
+        assert 'value="loop_confirm" selected' not in page.text
         assert "has recovery" in js.text
         assert "after recovery" in js.text
         assert "child-run" in css.text
@@ -655,8 +675,8 @@ def test_recover_twice_is_409(tmp_path: Path, monkeypatch) -> None:
 def test_loop_confirm_then_recover_writes_a_child(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
 
-    def fake_execute_run(application, question, mode, top_k):
-        del top_k
+    def fake_execute_run(application, question, mode, top_k, recovery_policy=None):
+        del top_k, recovery_policy
         assert mode == "loop_confirm"
         path = write_trace(_proposed_record("confirm_parent"), application.state.traces_dir)
         return BaselineRunResult(
@@ -732,8 +752,8 @@ def test_loop_confirm_then_recover_writes_a_child(tmp_path: Path, monkeypatch) -
 
 
 def _fake_confirm_run(run_id: str):
-    def fake_execute_run(application, question, mode, top_k):
-        del top_k
+    def fake_execute_run(application, question, mode, top_k, recovery_policy=None):
+        del top_k, recovery_policy
         fake_execute_run.seen.append(mode)
         path = write_trace(_proposed_record(run_id), application.state.traces_dir)
         return BaselineRunResult(

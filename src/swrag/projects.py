@@ -12,6 +12,12 @@ import shutil
 from pathlib import Path
 
 from swrag.config import ALLOWED_CHAT_MODELS, DEFAULT_CHAT_MODEL
+from swrag.recovery.policy import (
+    POLICY_V2C_GAP_AWARE,
+    PRODUCT_CURRENT,
+    PRODUCT_GAP_AWARE,
+    resolve_product_policy,
+)
 from swrag.corpus_registry import CorpusEntry, get_corpus, load_registry, traces_dir_for
 from swrag.ingestion.pdf import PdfExtractError, extract_pdf_pages
 
@@ -137,7 +143,89 @@ def default_project_config() -> dict[str, object]:
         "instructions": "",
         "chat_model": DEFAULT_CHAT_MODEL,
         "top_k": 4,
+        "recovery_policy": PRODUCT_CURRENT,
     }
+
+
+_BEHAVIOR_TONES = frozenset({"", "professional", "friendly", "casual", "academic", "custom"})
+_BEHAVIOR_DETAILS = frozenset({"", "concise", "balanced", "detailed"})
+_BEHAVIOR_EXPLANATIONS = frozenset({"", "direct", "step", "explanatory"})
+_BEHAVIOR_PRESETS = frozenset({"research", "knowledge", "support", "technical", "sales", "custom"})
+_FORMAT_KEYS = ("bullets", "numbered", "tables", "summaryFirst")
+_GROUND_KEYS = ("evidence", "cite", "admit", "uncertainty")
+
+
+def _behavior_flags(raw: object, keys: tuple[str, ...], label: str) -> dict[str, bool]:
+    payload = raw if isinstance(raw, dict) else {}
+    flags: dict[str, bool] = {}
+    for key in keys:
+        value = payload.get(key, False)
+        if not isinstance(value, bool):
+            raise ValueError(f"behavior.{label}.{key} must be a boolean")
+        flags[key] = value
+    return flags
+
+
+def sanitize_behavior(raw: object) -> dict[str, object]:
+    """Keep the guided-builder choices. Generation still reads ``instructions``."""
+    if not isinstance(raw, dict):
+        raise ValueError("behavior must be an object")
+    mode = raw.get("mode", "guided")
+    if mode not in {"guided", "raw"}:
+        raise ValueError("behavior.mode must be guided or raw")
+    preset = raw.get("preset", "custom")
+    if preset not in _BEHAVIOR_PRESETS:
+        raise ValueError("behavior.preset is not a known template")
+    tone = raw.get("tone", "")
+    if tone not in _BEHAVIOR_TONES:
+        raise ValueError("behavior.tone is not a known tone")
+    detail = raw.get("detail", "")
+    if detail not in _BEHAVIOR_DETAILS:
+        raise ValueError("behavior.detail is not a known detail level")
+    explanation = raw.get("explanation", "")
+    if explanation not in _BEHAVIOR_EXPLANATIONS:
+        raise ValueError("behavior.explanation is not a known style")
+    custom_tone = str(raw.get("customTone") or "").replace("\n", " ").strip()
+    if len(custom_tone) > 240:
+        raise ValueError("behavior.customTone is too long")
+    rules_raw = raw.get("customRules") or []
+    if not isinstance(rules_raw, list) or len(rules_raw) > 30:
+        raise ValueError("behavior.customRules must be a list of at most 30 strings")
+    rules: list[str] = []
+    for rule in rules_raw:
+        if not isinstance(rule, str):
+            raise ValueError("behavior.customRules must be strings")
+        text = rule.strip()
+        if not text:
+            continue
+        if len(text) > 2000:
+            raise ValueError("a custom rule is too long")
+        rules.append(text)
+    legacy = raw.get("legacyText")
+    if legacy is not None and not isinstance(legacy, str):
+        raise ValueError("behavior.legacyText must be a string")
+    if isinstance(legacy, str) and len(legacy) > MAX_INSTRUCTIONS_CHARS:
+        raise ValueError("behavior.legacyText is too long")
+    return {
+        "mode": mode,
+        "preset": preset,
+        "tone": tone,
+        "customTone": custom_tone if tone == "custom" else "",
+        "detail": detail,
+        "explanation": explanation,
+        "formatting": _behavior_flags(raw.get("formatting"), _FORMAT_KEYS, "formatting"),
+        "grounding": _behavior_flags(raw.get("grounding"), _GROUND_KEYS, "grounding"),
+        "customRules": rules,
+        "legacyText": legacy,
+    }
+
+
+def _stored_policy(value: object) -> str:
+    """Persist the product name. Blank and unknown-to-blank stay current v1."""
+    internal = resolve_product_policy(value if isinstance(value, str) else None)
+    if internal == POLICY_V2C_GAP_AWARE:
+        return PRODUCT_GAP_AWARE
+    return PRODUCT_CURRENT
 
 
 def normalize_project_config(raw: object | None) -> dict[str, object]:
@@ -154,11 +242,15 @@ def normalize_project_config(raw: object | None) -> dict[str, object]:
         raise ValueError("top_k must be an integer from 1 to 20") from error
     if top_k < 1 or top_k > 20:
         raise ValueError("top_k must be an integer from 1 to 20")
-    return {
+    config: dict[str, object] = {
         "instructions": instructions,
         "chat_model": model,
         "top_k": top_k,
+        "recovery_policy": _stored_policy(payload.get("recovery_policy")),
     }
+    if payload.get("behavior") is not None:
+        config["behavior"] = sanitize_behavior(payload.get("behavior"))
+    return config
 
 
 def update_project_config(

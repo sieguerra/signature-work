@@ -1,0 +1,336 @@
+[
+  {
+    "name": "retrieve_only",
+    "doc_ids": [
+      "tideline-shuttle",
+      "tideline-shuttle",
+      "saltmarsh-annex-library",
+      "south-jetty-lab"
+    ],
+    "answer": "",
+    "model": "none",
+    "previous_answer": null,
+    "rewritten_query": null,
+    "action": null,
+    "attempt_actions": [],
+    "evaluation": null,
+    "first_pass_evaluation": null,
+    "diagnosis": null,
+    "verification": null,
+    "probe_sufficient": null,
+    "probe_supported": null,
+    "weak_top": false,
+    "ambiguous_top": false,
+    "final_doc_ids": [
+      "tideline-shuttle",
+      "tideline-shuttle",
+      "saltmarsh-annex-library",
+      "south-jetty-lab"
+    ],
+    "judge_calls": 0,
+    "generate_calls": 0,
+    "rewrite_calls": 0,
+    "regenerate_calls": 0
+  },
+  {
+    "name": "baseline",
+    "doc_ids": [
+      "tideline-shuttle",
+      "tideline-shuttle",
+      "saltmarsh-annex-library",
+      "south-jetty-lab"
+    ],
+    "answer": "Saturday hours.",
+    "model": "scripted",
+    "previous_answer": null,
+    "rewritten_query": null,
+    "action": null,
+    "attempt_actions": [],
+    "evaluation": null,
+    "first_pass_evaluation": null,
+    "diagnosis": null,
+    "verification": null,
+    "probe_sufficient": null,
+    "probe_supported": null,
+    "weak_top": false,
+    "ambiguous_top": false,
+    "final_doc_ids": [
+      "tideline-shuttle",
+      "tideline-shuttle",
+      "saltmarsh-annex-library",
+      "south-jetty-lab"
+    ],
+    "judge_calls": 0,
+    "generate_calls": 1,
+    "rewrite_calls": 0,
+    "regenerate_calls": 0
+  },
+  {
+    "name": "accept",
+    "doc_ids": [
+      "tideline-shuttle",
+      "tideline-shuttle",
+      "saltmarsh-annex-library",
+      "south-jetty-lab"
+    ],
+    "answer": "Saturday hours.",
+    "model": "scripted",
+    "previous_answer": null,
+    "rewritten_query": null,
+    "action": "accept",
+    "attempt_actions": [],
+    "evaluation": {
+      "evidence_sufficient": true,
+      "answer_supported": true
+    },
+    "first_pass_evaluation": null,
+    "diagnosis": null,
+    "verification": null,
+    "probe_sufficient": null,
+    "probe_supported": null,
+    "weak_top": false,
+    "ambiguous_top": false,
+    "final_doc_ids": [
+      "tideline-shuttle",
+      "tideline-shuttle",
+      "saltmarsh-annex-library",
+      "south-jetty-lab"
+    ],
+    "judge_calls": 1,
+    "generate_calls": 1,
+    "rewrite_calls": 0,
+    "regenerate_calls": 0
+  },
+  {
+    "name": "regenerate",
+    "doc_ids": [
+      "saltmarsh-annex-library",
+      "harbor-library",
+      "tideline-shuttle",
+      "harbor-library-2019-notice"
+    ],
+    "answer": "Saturday 10:00-16:00",
+    "model": "regen",
+    "previous_answer": "The library is on the moon.",
+    "rewritten_query": null,
+    "action": "regenerate",
+    "attempt_actions": [
+      "regenerate"
+    ],
+    "evaluation": {
+      "evidence_sufficient": true,
+      "answer_supported": true
+    },
+    "first_pass_evaluation": {
+      "evidence_sufficient": true,
+      "answer_supported": false
+    },
+    "diagnosis": null,
+    "verification": "improved",
+    "probe_sufficient": null,
+    "probe_supported": null,
+    "weak_top": false,
+    "ambiguous_top": false,
+    "final_doc_ids": [
+      "saltmarsh-annex-library",
+      "harbor-library",
+      "tideline-shuttle",
+      "harbor-library-2019-notice"
+    ],
+    "judge_calls": 2,
+    "generate_calls": 1,
+    "rewrite_calls": 0,
+    "regenerate_calls": 1
+  },
+  {
+    "name": "rewrite_sufficient",
+    "doc_ids": [
+      "harbor-library-2019-notice",
+      "saltmarsh-annex-library",
+      "harbor-library",
+      "tideline-shuttle"
+    ],
+    "answer": "answer B",
+    "model": "scripted",
+    "previous_answer": "answer A",
+    "rewritten_query": "library saturday hours",
+    "action": "rewrite",
+    "attempt_actions": [
+      "rewrite"
+    ],
+    "evaluation": {
+      "evidence_sufficient": true,
+      "answer_supported": true
+    },
+    "first_pass_evaluation": {
+      "evidence_sufficient": false,
+      "answer_supported": false
+    },
+    "diagnosis": null,
+    "verification": "improved",
+    "probe_sufficient": true,
+    "probe_supported": null,
+    "weak_top": false,
+    "ambiguous_top": false,
+    "final_doc_ids": [
+      "harbor-library-2019-notice",
+      "saltmarsh-annex-library",
+      "harbor-library",
+      "tideline-shuttle"
+    ],
+    "judge_calls": 3,
+    "generate_calls": 2,
+    "rewrite_calls": 1,
+    "regenerate_calls": 0
+  },
+  {
+    "name": "rewrite_insufficient_keep",
+    "doc_ids": [
+      "harbor-library-2019-notice",
+      "saltmarsh-annex-library",
+      "harbor-library",
+      "tideline-shuttle"
+    ],
+    "answer": "Saturday hours.",
+    "model": "scripted",
+    "previous_answer": "Saturday hours.",
+    "rewritten_query": "library saturday hours",
+    "action": "rewrite",
+    "attempt_actions": [
+      "rewrite"
+    ],
+    "evaluation": {
+      "evidence_sufficient": false,
+      "answer_supported": true
+    },
+    "first_pass_evaluation": {
+      "evidence_sufficient": false,
+      "answer_supported": true
+    },
+    "diagnosis": "evidence_insufficiency",
+    "verification": "still_failing",
+    "probe_sufficient": false,
+    "probe_supported": null,
+    "weak_top": false,
+    "ambiguous_top": false,
+    "final_doc_ids": [
+      "harbor-library-2019-notice",
+      "saltmarsh-annex-library",
+      "harbor-library",
+      "tideline-shuttle"
+    ],
+    "judge_calls": 2,
+    "generate_calls": 1,
+    "rewrite_calls": 1,
+    "regenerate_calls": 0
+  },
+  {
+    "name": "rewrite_expand",
+    "doc_ids": [
+      "harbor-library-2019-notice",
+      "saltmarsh-annex-library",
+      "harbor-library",
+      "tideline-shuttle",
+      "tideline-shuttle",
+      "saltmarsh-annex-library",
+      "coastal-memory-group",
+      "storm-ledger-unit",
+      "harbor-library-2019-notice",
+      "tideline-winter-recess",
+      "coastal-memory-group",
+      "east-canteen"
+    ],
+    "answer": "answer C",
+    "model": "scripted",
+    "previous_answer": "answer A",
+    "rewritten_query": "library saturday hours",
+    "action": "expand",
+    "attempt_actions": [
+      "rewrite",
+      "expand"
+    ],
+    "evaluation": {
+      "evidence_sufficient": true,
+      "answer_supported": true
+    },
+    "first_pass_evaluation": {
+      "evidence_sufficient": false,
+      "answer_supported": false
+    },
+    "diagnosis": null,
+    "verification": "improved",
+    "probe_sufficient": true,
+    "probe_supported": null,
+    "weak_top": false,
+    "ambiguous_top": false,
+    "final_doc_ids": [
+      "harbor-library-2019-notice",
+      "saltmarsh-annex-library",
+      "harbor-library",
+      "tideline-shuttle",
+      "tideline-shuttle",
+      "saltmarsh-annex-library",
+      "coastal-memory-group",
+      "storm-ledger-unit",
+      "harbor-library-2019-notice",
+      "tideline-winter-recess",
+      "coastal-memory-group",
+      "east-canteen"
+    ],
+    "judge_calls": 4,
+    "generate_calls": 3,
+    "rewrite_calls": 1,
+    "regenerate_calls": 0
+  },
+  {
+    "name": "abstain",
+    "doc_ids": [
+      "harbor-library-2019-notice",
+      "saltmarsh-annex-library",
+      "harbor-library",
+      "coastal-memory-group",
+      "coastal-memory-group",
+      "east-canteen",
+      "east-canteen",
+      "harbor-library-2019-notice"
+    ],
+    "answer": "I do not know based on the retrieved documents.",
+    "model": "abstain",
+    "previous_answer": "Hangar 2, bay C.",
+    "rewritten_query": "late return fine",
+    "action": "abstain",
+    "attempt_actions": [
+      "rewrite",
+      "expand",
+      "abstain"
+    ],
+    "evaluation": {
+      "evidence_sufficient": false,
+      "answer_supported": null
+    },
+    "first_pass_evaluation": {
+      "evidence_sufficient": false,
+      "answer_supported": false
+    },
+    "diagnosis": null,
+    "verification": "still_failing",
+    "probe_sufficient": false,
+    "probe_supported": null,
+    "weak_top": false,
+    "ambiguous_top": false,
+    "final_doc_ids": [
+      "harbor-library-2019-notice",
+      "saltmarsh-annex-library",
+      "harbor-library",
+      "coastal-memory-group",
+      "coastal-memory-group",
+      "east-canteen",
+      "east-canteen",
+      "harbor-library-2019-notice"
+    ],
+    "judge_calls": 3,
+    "generate_calls": 2,
+    "rewrite_calls": 1,
+    "regenerate_calls": 0
+  }
+]

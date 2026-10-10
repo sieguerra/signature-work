@@ -1,0 +1,391 @@
+{
+  "candidate": "pairwise",
+  "prompt": "pairwise-2026-10-06",
+  "tuned": false,
+  "human_labels_collected": false,
+  "subset_note": "No human labels were collected. human_reviewed_subset.n is 0 because the scorer joined logical ids as corpus:stem:question_id while the blinded sample uses corpus:filename.jsonl:question_id. The blinded sample is all 60 recovered analysis runs, so the intended human-reviewed subset is the run-level result above. The pairwise model was not called again to rebuild that join.",
+  "run_level": {
+    "n": 60,
+    "n_decided": 57,
+    "coverage": 0.95,
+    "uncertainty_rate": 0.05,
+    "unavailable_rate": 0.0,
+    "accuracy_decided": 0.8771929824561403,
+    "strict_accuracy": 0.8333333333333334,
+    "macro_f1": 0.42487373737373735,
+    "weighted_f1": 0.8487063618642566,
+    "improved_precision": 1.0,
+    "improved_recall": 0.6,
+    "false_improvement_rate": 0.0,
+    "per_class": {
+      "improved": {
+        "precision": 1.0,
+        "recall": 0.6,
+        "f1": 0.7499999999999999,
+        "support": 5
+      },
+      "unchanged": {
+        "precision": 0.9038461538461539,
+        "recall": 1.0,
+        "f1": 0.9494949494949495,
+        "support": 47
+      },
+      "still_failing": {
+        "precision": null,
+        "recall": 0.0,
+        "f1": null,
+        "support": 2
+      },
+      "degraded": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 3
+      }
+    },
+    "confusion_matrix": {
+      "improved": {
+        "improved": 3,
+        "unchanged": 0,
+        "still_failing": 0,
+        "degraded": 2
+      },
+      "unchanged": {
+        "improved": 0,
+        "unchanged": 47,
+        "still_failing": 0,
+        "degraded": 0
+      },
+      "still_failing": {
+        "improved": 0,
+        "unchanged": 2,
+        "still_failing": 0,
+        "degraded": 0
+      },
+      "degraded": {
+        "improved": 0,
+        "unchanged": 3,
+        "still_failing": 0,
+        "degraded": 0
+      }
+    },
+    "v1": {
+      "n": 60,
+      "accuracy": 0.21666666666666667,
+      "macro_f1": 0.23937368050668542,
+      "weighted_f1": 0.27613183204316205,
+      "improved_precision": 0.6,
+      "improved_recall": 0.6,
+      "false_improvement_rate": 0.4,
+      "per_class": {
+        "improved": {
+          "precision": 0.6,
+          "recall": 0.6,
+          "f1": 0.6,
+          "support": 5
+        },
+        "unchanged": {
+          "precision": 0.8,
+          "recall": 0.16666666666666666,
+          "f1": 0.27586206896551724,
+          "support": 48
+        },
+        "still_failing": {
+          "precision": 0.044444444444444446,
+          "recall": 0.5,
+          "f1": 0.0816326530612245,
+          "support": 4
+        },
+        "degraded": {
+          "precision": null,
+          "recall": 0.0,
+          "f1": null,
+          "support": 3
+        }
+      },
+      "confusion_matrix": {
+        "improved": {
+          "improved": 3,
+          "unchanged": 1,
+          "still_failing": 1,
+          "degraded": 0
+        },
+        "unchanged": {
+          "improved": 0,
+          "unchanged": 8,
+          "still_failing": 40,
+          "degraded": 0
+        },
+        "still_failing": {
+          "improved": 2,
+          "unchanged": 0,
+          "still_failing": 2,
+          "degraded": 0
+        },
+        "degraded": {
+          "improved": 0,
+          "unchanged": 1,
+          "still_failing": 2,
+          "degraded": 0
+        }
+      }
+    }
+  },
+  "attempt_level": {
+    "n": 123,
+    "n_decided": 119,
+    "coverage": 0.967479674796748,
+    "uncertainty_rate": 0.032520325203252036,
+    "unavailable_rate": 0.0,
+    "accuracy_decided": 0.8823529411764706,
+    "strict_accuracy": 0.8536585365853658,
+    "macro_f1": 0.44930875576036866,
+    "weighted_f1": 0.8346048096658019,
+    "improved_precision": 1.0,
+    "improved_recall": 0.75,
+    "false_improvement_rate": 0.0,
+    "per_class": {
+      "improved": {
+        "precision": 1.0,
+        "recall": 0.75,
+        "f1": 0.8571428571428571,
+        "support": 4
+      },
+      "unchanged": {
+        "precision": 0.8869565217391304,
+        "recall": 1.0,
+        "f1": 0.9400921658986175,
+        "support": 102
+      },
+      "still_failing": {
+        "precision": null,
+        "recall": 0.0,
+        "f1": null,
+        "support": 11
+      },
+      "degraded": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 2
+      }
+    },
+    "confusion_matrix": {
+      "improved": {
+        "improved": 3,
+        "unchanged": 0,
+        "still_failing": 0,
+        "degraded": 1
+      },
+      "unchanged": {
+        "improved": 0,
+        "unchanged": 102,
+        "still_failing": 0,
+        "degraded": 0
+      },
+      "still_failing": {
+        "improved": 0,
+        "unchanged": 11,
+        "still_failing": 0,
+        "degraded": 0
+      },
+      "degraded": {
+        "improved": 0,
+        "unchanged": 2,
+        "still_failing": 0,
+        "degraded": 0
+      }
+    },
+    "v1": {
+      "n": 123,
+      "accuracy": 0.17886178861788618,
+      "macro_f1": 0.1332263242375602,
+      "weighted_f1": 0.15039997912017644,
+      "improved_precision": 0.08108108108108109,
+      "improved_recall": 0.6,
+      "false_improvement_rate": 0.918918918918919,
+      "per_class": {
+        "improved": {
+          "precision": 0.08108108108108109,
+          "recall": 0.6,
+          "f1": 0.14285714285714288,
+          "support": 5
+        },
+        "unchanged": {
+          "precision": 0.8,
+          "recall": 0.0784313725490196,
+          "f1": 0.14285714285714285,
+          "support": 102
+        },
+        "still_failing": {
+          "precision": 0.14473684210526316,
+          "recall": 0.8461538461538461,
+          "f1": 0.24719101123595508,
+          "support": 13
+        },
+        "degraded": {
+          "precision": null,
+          "recall": 0.0,
+          "f1": null,
+          "support": 3
+        }
+      },
+      "confusion_matrix": {
+        "improved": {
+          "improved": 3,
+          "unchanged": 1,
+          "still_failing": 1,
+          "degraded": 0
+        },
+        "unchanged": {
+          "improved": 31,
+          "unchanged": 8,
+          "still_failing": 63,
+          "degraded": 0
+        },
+        "still_failing": {
+          "improved": 2,
+          "unchanged": 0,
+          "still_failing": 11,
+          "degraded": 0
+        },
+        "degraded": {
+          "improved": 1,
+          "unchanged": 1,
+          "still_failing": 1,
+          "degraded": 0
+        }
+      }
+    }
+  },
+  "human_reviewed_subset": {
+    "n": 0,
+    "n_decided": 0,
+    "coverage": null,
+    "uncertainty_rate": null,
+    "unavailable_rate": null,
+    "accuracy_decided": null,
+    "strict_accuracy": null,
+    "macro_f1": null,
+    "weighted_f1": null,
+    "improved_precision": null,
+    "improved_recall": null,
+    "false_improvement_rate": null,
+    "per_class": {
+      "improved": {
+        "precision": null,
+        "recall": null,
+        "f1": null,
+        "support": 0
+      },
+      "unchanged": {
+        "precision": null,
+        "recall": null,
+        "f1": null,
+        "support": 0
+      },
+      "still_failing": {
+        "precision": null,
+        "recall": null,
+        "f1": null,
+        "support": 0
+      },
+      "degraded": {
+        "precision": null,
+        "recall": null,
+        "f1": null,
+        "support": 0
+      }
+    },
+    "confusion_matrix": {
+      "improved": {
+        "improved": 0,
+        "unchanged": 0,
+        "still_failing": 0,
+        "degraded": 0
+      },
+      "unchanged": {
+        "improved": 0,
+        "unchanged": 0,
+        "still_failing": 0,
+        "degraded": 0
+      },
+      "still_failing": {
+        "improved": 0,
+        "unchanged": 0,
+        "still_failing": 0,
+        "degraded": 0
+      },
+      "degraded": {
+        "improved": 0,
+        "unchanged": 0,
+        "still_failing": 0,
+        "degraded": 0
+      }
+    },
+    "v1": {
+      "n": 0,
+      "accuracy": null,
+      "macro_f1": null,
+      "weighted_f1": null,
+      "improved_precision": null,
+      "improved_recall": null,
+      "false_improvement_rate": null,
+      "per_class": {
+        "improved": {
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "support": 0
+        },
+        "unchanged": {
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "support": 0
+        },
+        "still_failing": {
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "support": 0
+        },
+        "degraded": {
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "support": 0
+        }
+      },
+      "confusion_matrix": {
+        "improved": {
+          "improved": 0,
+          "unchanged": 0,
+          "still_failing": 0,
+          "degraded": 0
+        },
+        "unchanged": {
+          "improved": 0,
+          "unchanged": 0,
+          "still_failing": 0,
+          "degraded": 0
+        },
+        "still_failing": {
+          "improved": 0,
+          "unchanged": 0,
+          "still_failing": 0,
+          "degraded": 0
+        },
+        "degraded": {
+          "improved": 0,
+          "unchanged": 0,
+          "still_failing": 0,
+          "degraded": 0
+        }
+      }
+    }
+  },
+  "n_run": 60,
+  "n_attempt": 123,
+  "n_human_subset": 0
+}

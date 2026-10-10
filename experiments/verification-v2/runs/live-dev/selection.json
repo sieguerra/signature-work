@@ -1,0 +1,10 @@
+{
+  "selected": "pairwise",
+  "rule": "lowest false-improvement rate, then improved precision, then fewer calls",
+  "development_false_improvement_rate": {
+    "coverage": 0.5,
+    "pointwise": 0.5,
+    "pairwise": 0.0
+  },
+  "note": "Selected before the held-out DKU run. Prompts were not changed after development scores."
+}
