@@ -17,7 +17,7 @@ overwrite it.
 
 ## Should be true before quoting numbers
 
-- [ ] [#37](https://github.com/sieguerra/signature-work/issues/37) gold audit: `audit.jsonl` files are a **substring search**, not your sign-off. Confirm spans yourself.
+- [x] [#99](https://github.com/sieguerra/signature-work/issues/99) gold audit: Harbor, DKU, and Kestrel `audit.jsonl` rows signed off by the student on 2026-10-11 after the worksheet and AI review in `experiments/gold-audit/`. `tests/test_corpus_registry.py` rejects `substring-search` for those three. The other industry collections are still a substring search and are not used in the study.
 - [ ] [#38](https://github.com/sieguerra/signature-work/issues/38) hand-labelled judge sample (`n` and agreement counts). Template: `experiments/judge-audit/`
 - [ ] [#39](https://github.com/sieguerra/signature-work/issues/39) new timestamped snapshot **after** recovery can change the answer. Do not overwrite Harbor `20260910T070623`
 
