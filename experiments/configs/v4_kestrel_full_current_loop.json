@@ -1,0 +1,17 @@
+{
+  "name": "v4_kestrel_full_current_loop",
+  "gold_path": "datasets/kestrel-aero/gold/questions.jsonl",
+  "corpus_dir": "datasets/kestrel-aero/corpus",
+  "top_k": 4,
+  "max_recoveries": 2,
+  "conditions": [
+    {
+      "id": "baseline",
+      "mode": "baseline"
+    },
+    {
+      "id": "eval_guided",
+      "mode": "loop"
+    }
+  ]
+}

@@ -1,0 +1,1336 @@
+{
+  "name": "v4_kestrel_full_current_loop",
+  "timestamp": "2026-10-10T20:31:08.198767+00:00",
+  "gold_path": "/Users/siegfreidbugarin/Desktop/Signature Work/datasets/kestrel-aero/gold/questions.jsonl",
+  "corpus_dir": "/Users/siegfreidbugarin/Desktop/Signature Work/datasets/kestrel-aero/corpus",
+  "top_k": 4,
+  "max_recoveries": 2,
+  "provider": {
+    "base_url": "https://api.openlux.ai/v1",
+    "official_openai": false,
+    "configured_chat_model": "gpt-4o-mini",
+    "configured_embedding_model": "text-embedding-3-small",
+    "api_key_present": true
+  },
+  "setup_usage": {
+    "chat_calls": 0,
+    "embedding_calls": 1,
+    "prompt_tokens": 0,
+    "completion_tokens": 0,
+    "embedding_tokens": 729
+  },
+  "condition_ids": [
+    "baseline",
+    "eval_guided"
+  ],
+  "quality": {
+    "answerable_exact_match": {
+      "baseline": 0.0,
+      "eval_guided": 0.0,
+      "delta": 0.0
+    },
+    "answerable_contains_answer": {
+      "baseline": 0.9166666666666666,
+      "eval_guided": 0.9166666666666666,
+      "delta": 0.0
+    },
+    "answerable_f1": {
+      "baseline": 0.2677131443435791,
+      "eval_guided": 0.26984989648033125,
+      "delta": 0.002136752136752129
+    },
+    "unanswerable_abstention_rate": {
+      "baseline": 1.0,
+      "eval_guided": 1.0,
+      "delta": 0.0
+    },
+    "answerable_abstention_rate": {
+      "baseline": 0.0,
+      "eval_guided": 0.0,
+      "delta": 0.0
+    },
+    "retrieval_hit_rate": {
+      "baseline": 1.0,
+      "eval_guided": 1.0,
+      "delta": 0.0
+    },
+    "mean_latency_ms": {
+      "baseline": 2512.409713688612,
+      "eval_guided": 5976.768398374588,
+      "delta": 3464.358684685976
+    },
+    "total_chat_calls": {
+      "baseline": 16,
+      "eval_guided": 48,
+      "delta": 32
+    },
+    "total_embedding_calls": {
+      "baseline": 16,
+      "eval_guided": 4,
+      "delta": -12
+    },
+    "total_prompt_tokens": {
+      "baseline": 5940,
+      "eval_guided": 28639,
+      "delta": 22699
+    },
+    "total_completion_tokens": {
+      "baseline": 352,
+      "eval_guided": 1924,
+      "delta": 1572
+    },
+    "total_embedding_tokens": {
+      "baseline": 167,
+      "eval_guided": 49,
+      "delta": -118
+    }
+  },
+  "verification_vs_gold": {
+    "n_with_runtime_verification": 4,
+    "n_loop_questions": 16,
+    "n_verdict_agrees": 4,
+    "n_verdict_disagrees": 0,
+    "by_runtime_outcome": {
+      "still_failing": {
+        "n": 4,
+        "gold_f1_up": 0,
+        "gold_f1_down": 0,
+        "gold_f1_same": 4,
+        "no_previous_score": 0,
+        "verdict_agrees": 4,
+        "verdict_disagrees": 0,
+        "final_gold_correct": 4
+      }
+    },
+    "by_recovery_action": {
+      "abstain": {
+        "n": 1,
+        "gold_f1_up": 0,
+        "gold_f1_down": 0,
+        "gold_f1_same": 1,
+        "no_previous_score": 0,
+        "verdict_agrees": 1,
+        "verdict_disagrees": 0,
+        "final_gold_correct": 1
+      },
+      "expand": {
+        "n": 3,
+        "gold_f1_up": 0,
+        "gold_f1_down": 0,
+        "gold_f1_same": 3,
+        "no_previous_score": 0,
+        "verdict_agrees": 3,
+        "verdict_disagrees": 0,
+        "final_gold_correct": 3
+      }
+    },
+    "by_attributed_class": {
+      "evidence_insufficiency": {
+        "n": 4,
+        "gold_f1_up": 0,
+        "gold_f1_down": 0,
+        "gold_f1_same": 4,
+        "no_previous_score": 0,
+        "verdict_agrees": 4,
+        "verdict_disagrees": 0,
+        "final_gold_correct": 4
+      }
+    }
+  },
+  "by_failure_class": {
+    "no_failure": {
+      "n": 12,
+      "answerable_n": 12,
+      "answerable_exact_match": 0.0,
+      "answerable_f1": 0.26984989648033125,
+      "verification_counts": {}
+    },
+    "evidence_insufficiency": {
+      "n": 4,
+      "answerable_n": 0,
+      "answerable_exact_match": null,
+      "answerable_f1": null,
+      "verification_counts": {
+        "still_failing": 4
+      }
+    }
+  },
+  "conditions": {
+    "baseline": {
+      "run_label": "baseline",
+      "timestamp": "2026-10-10T20:29:32.554148+00:00",
+      "gold_path": "/Users/siegfreidbugarin/Desktop/Signature Work/datasets/kestrel-aero/gold/questions.jsonl",
+      "corpus_dir": "/Users/siegfreidbugarin/Desktop/Signature Work/datasets/kestrel-aero/corpus",
+      "output_dir": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T202849/baseline",
+      "top_k": 4,
+      "provider": {
+        "base_url": "https://api.openlux.ai/v1",
+        "official_openai": false,
+        "configured_chat_model": "gpt-4o-mini",
+        "configured_embedding_model": "text-embedding-3-small",
+        "api_key_present": true
+      },
+      "total": 16,
+      "answerable_total": 12,
+      "unanswerable_total": 4,
+      "exact_match": 0.25,
+      "contains_answer": 0.9375,
+      "f1": 0.45078485825768433,
+      "answerable_exact_match": 0.0,
+      "answerable_contains_answer": 0.9166666666666666,
+      "answerable_f1": 0.2677131443435791,
+      "unanswerable_abstention_rate": 1.0,
+      "answerable_abstention_rate": 0.0,
+      "retrieval_hit_rate": 1.0,
+      "condition": "baseline",
+      "mean_latency_ms": 2512.409713688612,
+      "total_chat_calls": 16,
+      "total_embedding_calls": 16,
+      "total_prompt_tokens": 5940,
+      "total_completion_tokens": 352,
+      "total_embedding_tokens": 167
+    },
+    "eval_guided": {
+      "run_label": "eval_guided",
+      "timestamp": "2026-10-10T20:31:08.197373+00:00",
+      "gold_path": "/Users/siegfreidbugarin/Desktop/Signature Work/datasets/kestrel-aero/gold/questions.jsonl",
+      "corpus_dir": "/Users/siegfreidbugarin/Desktop/Signature Work/datasets/kestrel-aero/corpus",
+      "output_dir": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T202849/eval_guided",
+      "top_k": 4,
+      "provider": {
+        "base_url": "https://api.openlux.ai/v1",
+        "official_openai": false,
+        "configured_chat_model": "gpt-4o-mini",
+        "configured_embedding_model": "text-embedding-3-small",
+        "api_key_present": true
+      },
+      "total": 16,
+      "answerable_total": 12,
+      "unanswerable_total": 4,
+      "exact_match": 0.25,
+      "contains_answer": 0.9375,
+      "f1": 0.4523874223602485,
+      "answerable_exact_match": 0.0,
+      "answerable_contains_answer": 0.9166666666666666,
+      "answerable_f1": 0.26984989648033125,
+      "unanswerable_abstention_rate": 1.0,
+      "answerable_abstention_rate": 0.0,
+      "retrieval_hit_rate": 1.0,
+      "condition": "loop",
+      "mean_latency_ms": 5976.768398374588,
+      "total_chat_calls": 48,
+      "total_embedding_calls": 4,
+      "total_prompt_tokens": 28639,
+      "total_completion_tokens": 1924,
+      "total_embedding_tokens": 49
+    }
+  },
+  "paired_outcomes": [
+    {
+      "question_id": "ka-001",
+      "question": "Which building at Kestrel Aero machines titanium bulkheads?",
+      "answerable": true,
+      "baseline": {
+        "answer": "The building at Kestrel Aero that machines titanium bulkheads is Hangar 2, which cuts titanium bulkheads on mill M-40 [hangar-2::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.1904761904761905,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "about",
+          "hangar-2",
+          "fay-aerospace",
+          "quality"
+        ],
+        "latency_ms": 2771.2083340011304,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 393,
+          "completion_tokens": 37,
+          "embedding_tokens": 12
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T202855_7fc3a092",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T202849/baseline/traces/20261010T202855_7fc3a092.json"
+      },
+      "eval_guided": {
+        "answer": "The building at Kestrel Aero that machines titanium bulkheads is Hangar 2, which cuts titanium bulkheads on mill M-40 [hangar-2::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.1904761904761905,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "about",
+          "hangar-2",
+          "fay-aerospace",
+          "quality"
+        ],
+        "latency_ms": 4994.860332997632,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 1084,
+          "completion_tokens": 110,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T202937_7f3986fa",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T202849/eval_guided/traces/20261010T202937_7f3986fa.json"
+      }
+    },
+    {
+      "question_id": "ka-002",
+      "question": "What is the active titanium lot on mill M-40?",
+      "answerable": true,
+      "baseline": {
+        "answer": "The active titanium lot on mill M-40 is KX-441 [hangar-2::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.19999999999999998,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "hangar-2",
+          "shop-6",
+          "traveler-2025",
+          "traveler-2018"
+        ],
+        "latency_ms": 2363.4660840034485,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 399,
+          "completion_tokens": 23,
+          "embedding_tokens": 12
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T202857_0c04b424",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T202849/baseline/traces/20261010T202857_0c04b424.json"
+      },
+      "eval_guided": {
+        "answer": "The active titanium lot on mill M-40 is KX-441 [hangar-2::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.19999999999999998,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "hangar-2",
+          "shop-6",
+          "traveler-2025",
+          "traveler-2018"
+        ],
+        "latency_ms": 3422.7531669894233,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 1082,
+          "completion_tokens": 80,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T202940_c1ebde99",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T202849/eval_guided/traces/20261010T202940_c1ebde99.json"
+      }
+    },
+    {
+      "question_id": "ka-003",
+      "question": "What AMS specification letter does the 2025 traveler require for titanium plate?",
+      "answerable": true,
+      "baseline": {
+        "answer": "The 2025 traveler requires titanium plate to be specified as AMS 4911R. It rejects AMS 4911N. The heat-treat condition specified is annealed [traveler-2025::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.17391304347826084,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "traveler-2025",
+          "traveler-2018",
+          "hangar-2",
+          "shop-6"
+        ],
+        "latency_ms": 2595.314459002111,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 402,
+          "completion_tokens": 45,
+          "embedding_tokens": 15
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T202900_439ff255",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T202849/baseline/traces/20261010T202900_439ff255.json"
+      },
+      "eval_guided": {
+        "answer": "The 2025 traveler requires titanium plate to be specified as AMS 4911R. It rejects AMS 4911N. The heat-treat condition must be annealed [traveler-2025::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.17391304347826084,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "traveler-2025",
+          "traveler-2018",
+          "hangar-2",
+          "shop-6"
+        ],
+        "latency_ms": 3962.3668329877546,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 1110,
+          "completion_tokens": 122,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T202944_77e7d2ce",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T202849/eval_guided/traces/20261010T202944_77e7d2ce.json"
+      }
+    },
+    {
+      "question_id": "ka-004",
+      "question": "What AMS specification did the 2018 titanium traveler call for?",
+      "answerable": true,
+      "baseline": {
+        "answer": "The 2018 titanium traveler called for AMS 4911N, which is now considered obsolete [traveler-2018::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.2666666666666667,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "traveler-2018",
+          "traveler-2025",
+          "hangar-2",
+          "tool-crib"
+        ],
+        "latency_ms": 2801.4613749983255,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 400,
+          "completion_tokens": 29,
+          "embedding_tokens": 13
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T202902_f7584716",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T202849/baseline/traces/20261010T202902_f7584716.json"
+      },
+      "eval_guided": {
+        "answer": "The 2018 titanium traveler called for AMS 4911N, which is now considered obsolete [traveler-2018::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.2666666666666667,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "traveler-2018",
+          "traveler-2025",
+          "hangar-2",
+          "tool-crib"
+        ],
+        "latency_ms": 3536.7735409963643,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 1090,
+          "completion_tokens": 103,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T202948_d675c5ff",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T202849/eval_guided/traces/20261010T202948_d675c5ff.json"
+      }
+    },
+    {
+      "question_id": "ka-005",
+      "question": "What are Shift A hours at Kestrel Aero?",
+      "answerable": true,
+      "baseline": {
+        "answer": "Shift A hours at Kestrel Aero are from 06:00 to 14:30 [shifts::c000].",
+        "exact_match": false,
+        "contains_answer": false,
+        "f1": 0.0,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "about",
+          "shifts",
+          "fay-aerospace",
+          "contacts"
+        ],
+        "latency_ms": 2344.277083000634,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 374,
+          "completion_tokens": 26,
+          "embedding_tokens": 11
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T202905_18b9274c",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T202849/baseline/traces/20261010T202905_18b9274c.json"
+      },
+      "eval_guided": {
+        "answer": "Shift A hours at Kestrel Aero are from 06:00 to 14:30 [shifts::c000].",
+        "exact_match": false,
+        "contains_answer": false,
+        "f1": 0.0,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "about",
+          "shifts",
+          "fay-aerospace",
+          "contacts"
+        ],
+        "latency_ms": 4090.228125001886,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 1035,
+          "completion_tokens": 87,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T202952_d0b038aa",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T202849/eval_guided/traces/20261010T202952_d0b038aa.json"
+      }
+    },
+    {
+      "question_id": "ka-006",
+      "question": "Which quality standard is Kestrel registered to?",
+      "answerable": true,
+      "baseline": {
+        "answer": "Kestrel is registered to AS9100D [quality::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.2857142857142857,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "quality",
+          "contacts",
+          "fay-aerospace",
+          "about"
+        ],
+        "latency_ms": 3056.049000006169,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 365,
+          "completion_tokens": 16,
+          "embedding_tokens": 10
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T202908_c76d9563",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T202849/baseline/traces/20261010T202908_c76d9563.json"
+      },
+      "eval_guided": {
+        "answer": "Kestrel is registered to AS9100D [quality::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.2857142857142857,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "quality",
+          "contacts",
+          "fay-aerospace",
+          "about"
+        ],
+        "latency_ms": 4025.707082997542,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 1007,
+          "completion_tokens": 78,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T202956_ac629021",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T202849/eval_guided/traces/20261010T202956_ac629021.json"
+      }
+    },
+    {
+      "question_id": "ka-007",
+      "question": "When is micrometer set T-7 due for calibration?",
+      "answerable": true,
+      "baseline": {
+        "answer": "Micrometer set T-7 is due for calibration on 1 November 2026 [calibration::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.4,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "calibration",
+          "tool-crib",
+          "traveler-2025",
+          "quality"
+        ],
+        "latency_ms": 2574.1367080045165,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 350,
+          "completion_tokens": 24,
+          "embedding_tokens": 12
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T202910_7e1561ae",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T202849/baseline/traces/20261010T202910_7e1561ae.json"
+      },
+      "eval_guided": {
+        "answer": "Micrometer set T-7 is due for calibration on 1 November 2026 [calibration::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.4,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "calibration",
+          "tool-crib",
+          "traveler-2025",
+          "quality"
+        ],
+        "latency_ms": 3544.630375006818,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 985,
+          "completion_tokens": 100,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203000_2da46db3",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T202849/eval_guided/traces/20261010T203000_2da46db3.json"
+      }
+    },
+    {
+      "question_id": "ka-008",
+      "question": "Which dock do finished titanium parts leave from?",
+      "answerable": true,
+      "baseline": {
+        "answer": "Finished titanium parts leave from Dock West [shipping::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.4,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "shipping",
+          "hangar-2",
+          "traveler-2025",
+          "tool-crib"
+        ],
+        "latency_ms": 2601.255041998229,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 362,
+          "completion_tokens": 13,
+          "embedding_tokens": 9
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T202913_1d875070",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T202849/baseline/traces/20261010T202913_1d875070.json"
+      },
+      "eval_guided": {
+        "answer": "Finished titanium parts leave from Dock West [shipping::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.4,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "shipping",
+          "hangar-2",
+          "traveler-2025",
+          "tool-crib"
+        ],
+        "latency_ms": 4152.737249998609,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 998,
+          "completion_tokens": 59,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203004_856c1805",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T202849/eval_guided/traces/20261010T203004_856c1805.json"
+      }
+    },
+    {
+      "question_id": "ka-009",
+      "question": "Which lot is named on open NCR-88?",
+      "answerable": true,
+      "baseline": {
+        "answer": "The lot named on open NCR-88 is AL-902 in Shop 6 [ncr-log::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.16666666666666669,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "ncr-log",
+          "traveler-2018",
+          "omitted",
+          "quality"
+        ],
+        "latency_ms": 2846.9110000005458,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 339,
+          "completion_tokens": 24,
+          "embedding_tokens": 11
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T202916_3b025d49",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T202849/baseline/traces/20261010T202916_3b025d49.json"
+      },
+      "eval_guided": {
+        "answer": "The lot named on open NCR-88 is AL-902 in Shop 6 [ncr-log::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.16666666666666669,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "ncr-log",
+          "traveler-2018",
+          "omitted",
+          "quality"
+        ],
+        "latency_ms": 3917.8407910076203,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 963,
+          "completion_tokens": 80,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203008_3e0605eb",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T202849/eval_guided/traces/20261010T203008_3e0605eb.json"
+      }
+    },
+    {
+      "question_id": "ka-010",
+      "question": "What is the traveler desk phone number?",
+      "answerable": true,
+      "baseline": {
+        "answer": "The traveler desk phone number is 555-2201 [contacts::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.25,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "contacts",
+          "traveler-2018",
+          "traveler-2025",
+          "shifts"
+        ],
+        "latency_ms": 2612.90054100391,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 368,
+          "completion_tokens": 17,
+          "embedding_tokens": 8
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T202918_c29b9e36",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T202849/baseline/traces/20261010T202918_c29b9e36.json"
+      },
+      "eval_guided": {
+        "answer": "The traveler desk phone number is 555-2201 [contacts::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.25,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "contacts",
+          "traveler-2018",
+          "traveler-2025",
+          "shifts"
+        ],
+        "latency_ms": 3916.1395840055775,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 1014,
+          "completion_tokens": 79,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203012_a995d54e",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T202849/eval_guided/traces/20261010T203012_a995d54e.json"
+      }
+    },
+    {
+      "question_id": "ka-011",
+      "question": "Does Shop 6 cut titanium?",
+      "answerable": true,
+      "baseline": {
+        "answer": "No, Shop 6 does not cut titanium. It only cuts aluminum fittings on mill M-11 and does not store lot KX-441 [shop-6::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.3076923076923077,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "shop-6",
+          "hangar-2",
+          "tool-crib",
+          "traveler-2025"
+        ],
+        "latency_ms": 2391.6932090069167,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 378,
+          "completion_tokens": 37,
+          "embedding_tokens": 7
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T202921_70897ab6",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T202849/baseline/traces/20261010T202921_70897ab6.json"
+      },
+      "eval_guided": {
+        "answer": "No, Shop 6 does not cut titanium. It specifically cuts aluminum fittings and does not handle titanium at all [shop-6::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.33333333333333337,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "shop-6",
+          "hangar-2",
+          "tool-crib",
+          "traveler-2025"
+        ],
+        "latency_ms": 4017.2923330101185,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 1047,
+          "completion_tokens": 98,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203016_802e0535",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T202849/eval_guided/traces/20261010T203016_802e0535.json"
+      }
+    },
+    {
+      "question_id": "ka-012",
+      "question": "Where do aluminum end mills live?",
+      "answerable": true,
+      "baseline": {
+        "answer": "Aluminum end mills live in Shop 6, drawer 4 [tool-crib::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.5714285714285715,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "tool-crib",
+          "shop-6",
+          "shipping",
+          "hangar-2"
+        ],
+        "latency_ms": 2423.617916996591,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 342,
+          "completion_tokens": 21,
+          "embedding_tokens": 7
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T202923_62f819c4",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T202849/baseline/traces/20261010T202923_62f819c4.json"
+      },
+      "eval_guided": {
+        "answer": "Aluminum end mills live in Shop 6, drawer 4 [tool-crib::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.5714285714285715,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "tool-crib",
+          "shop-6",
+          "shipping",
+          "hangar-2"
+        ],
+        "latency_ms": 3077.258042001631,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 966,
+          "completion_tokens": 85,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203019_8012f54c",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T202849/eval_guided/traces/20261010T203019_8012f54c.json"
+      }
+    },
+    {
+      "question_id": "ka-013",
+      "question": "What is the unit price of a Kestrel bulkhead?",
+      "answerable": false,
+      "baseline": {
+        "answer": "I do not know based on the retrieved documents.",
+        "exact_match": true,
+        "contains_answer": true,
+        "f1": 1.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "about",
+          "quality",
+          "contacts",
+          "fay-aerospace"
+        ],
+        "latency_ms": 2332.054458995117,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 368,
+          "completion_tokens": 10,
+          "embedding_tokens": 13
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T202926_ed02d109",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T202849/baseline/traces/20261010T202926_ed02d109.json"
+      },
+      "eval_guided": {
+        "answer": "I do not know based on the retrieved documents.",
+        "exact_match": true,
+        "contains_answer": true,
+        "f1": 1.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "about",
+          "quality",
+          "fay-aerospace",
+          "contacts",
+          "hangar-2",
+          "shop-6",
+          "ncr-log",
+          "ppe",
+          "calibration",
+          "omitted",
+          "tool-crib",
+          "shipping"
+        ],
+        "latency_ms": 12524.16429099685,
+        "usage": {
+          "chat_calls": 6,
+          "embedding_calls": 1,
+          "prompt_tokens": 4031,
+          "completion_tokens": 222,
+          "embedding_tokens": 14
+        },
+        "recovery_action": "abstain",
+        "attributed_class": "evidence_insufficiency",
+        "verification_outcome": "still_failing",
+        "previous_answer": "I do not know based on the retrieved documents.",
+        "previous_f1": 1.0,
+        "f1_delta": 0.0,
+        "rewritten_query": "What is the unit price for a Kestrel bulkhead component?",
+        "run_id": "20261010T203031_5fa525f3",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T202849/eval_guided/traces/20261010T203031_5fa525f3.json"
+      }
+    },
+    {
+      "question_id": "ka-014",
+      "question": "Who owns Kestrel Aero Components?",
+      "answerable": false,
+      "baseline": {
+        "answer": "I do not know based on the retrieved documents.",
+        "exact_match": true,
+        "contains_answer": true,
+        "f1": 1.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "about",
+          "fay-aerospace",
+          "quality",
+          "contacts"
+        ],
+        "latency_ms": 2213.0690420017345,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 363,
+          "completion_tokens": 10,
+          "embedding_tokens": 8
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T202928_3482c342",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T202849/baseline/traces/20261010T202928_3482c342.json"
+      },
+      "eval_guided": {
+        "answer": "I do not know based on the retrieved documents.",
+        "exact_match": true,
+        "contains_answer": true,
+        "f1": 1.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "about",
+          "fay-aerospace",
+          "quality",
+          "contacts",
+          "hangar-2",
+          "shop-6",
+          "shipping",
+          "traveler-2018",
+          "traveler-2025",
+          "ppe",
+          "ncr-log",
+          "tool-crib"
+        ],
+        "latency_ms": 12032.664999991539,
+        "usage": {
+          "chat_calls": 6,
+          "embedding_calls": 1,
+          "prompt_tokens": 4089,
+          "completion_tokens": 199,
+          "embedding_tokens": 11
+        },
+        "recovery_action": "expand",
+        "attributed_class": "evidence_insufficiency",
+        "verification_outcome": "still_failing",
+        "previous_answer": "I do not know based on the retrieved documents.",
+        "previous_f1": 1.0,
+        "f1_delta": 0.0,
+        "rewritten_query": "Who is the owner of Kestrel Aero Components?",
+        "run_id": "20261010T203043_0b147ded",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T202849/eval_guided/traces/20261010T203043_0b147ded.json"
+      }
+    },
+    {
+      "question_id": "ka-015",
+      "question": "What ITAR exemption number does Kestrel hold?",
+      "answerable": false,
+      "baseline": {
+        "answer": "I do not know based on the retrieved documents.",
+        "exact_match": true,
+        "contains_answer": true,
+        "f1": 1.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "quality",
+          "contacts",
+          "about",
+          "fay-aerospace"
+        ],
+        "latency_ms": 2210.0994999927934,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 366,
+          "completion_tokens": 10,
+          "embedding_tokens": 11
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T202930_bc595c49",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T202849/baseline/traces/20261010T202930_bc595c49.json"
+      },
+      "eval_guided": {
+        "answer": "I do not know based on the retrieved documents.",
+        "exact_match": true,
+        "contains_answer": true,
+        "f1": 1.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "quality",
+          "contacts",
+          "about",
+          "fay-aerospace",
+          "traveler-2018",
+          "omitted",
+          "traveler-2025",
+          "hangar-2",
+          "ncr-log",
+          "ppe",
+          "calibration",
+          "shop-6"
+        ],
+        "latency_ms": 11999.951167003019,
+        "usage": {
+          "chat_calls": 6,
+          "embedding_calls": 1,
+          "prompt_tokens": 4113,
+          "completion_tokens": 218,
+          "embedding_tokens": 13
+        },
+        "recovery_action": "expand",
+        "attributed_class": "evidence_insufficiency",
+        "verification_outcome": "still_failing",
+        "previous_answer": "I do not know based on the retrieved documents.",
+        "previous_f1": 1.0,
+        "f1_delta": 0.0,
+        "rewritten_query": "What is the ITAR exemption number held by Kestrel?",
+        "run_id": "20261010T203055_58accc15",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T202849/eval_guided/traces/20261010T203055_58accc15.json"
+      }
+    },
+    {
+      "question_id": "ka-016",
+      "question": "What does Fay Aerospace charge per hour?",
+      "answerable": false,
+      "baseline": {
+        "answer": "I do not know based on the retrieved documents.",
+        "exact_match": true,
+        "contains_answer": true,
+        "f1": 1.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "fay-aerospace",
+          "about",
+          "shifts",
+          "contacts"
+        ],
+        "latency_ms": 2061.0416660056217,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 371,
+          "completion_tokens": 10,
+          "embedding_tokens": 8
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T202932_0c35a061",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T202849/baseline/traces/20261010T202932_0c35a061.json"
+      },
+      "eval_guided": {
+        "answer": "I do not know based on the retrieved documents.",
+        "exact_match": true,
+        "contains_answer": true,
+        "f1": 1.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "fay-aerospace",
+          "about",
+          "contacts",
+          "quality",
+          "break-room",
+          "shifts",
+          "hangar-2",
+          "shop-6",
+          "ppe",
+          "shipping",
+          "ncr-log",
+          "calibration"
+        ],
+        "latency_ms": 12412.926459001028,
+        "usage": {
+          "chat_calls": 6,
+          "embedding_calls": 1,
+          "prompt_tokens": 4025,
+          "completion_tokens": 204,
+          "embedding_tokens": 11
+        },
+        "recovery_action": "expand",
+        "attributed_class": "evidence_insufficiency",
+        "verification_outcome": "still_failing",
+        "previous_answer": "I do not know based on the retrieved documents.",
+        "previous_f1": 1.0,
+        "f1_delta": 0.0,
+        "rewritten_query": "What is the hourly charge for services at Fay Aerospace?",
+        "run_id": "20261010T203108_e4204855",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T202849/eval_guided/traces/20261010T203108_e4204855.json"
+      }
+    }
+  ],
+  "output_dir": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T202849",
+  "results_dir": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/results/20261010T202849"
+}
