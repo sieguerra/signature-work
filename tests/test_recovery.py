@@ -49,6 +49,105 @@ def test_regenerate_prompt_requires_a_new_grounded_answer() -> None:
     assert "only part of the question" in _REGENERATE_PROMPT
 
 
+def test_old_evaluation_payload_loads_without_span_rejections() -> None:
+    from swrag.orchestration.loop import _evaluation_from_payload
+
+    loaded = _evaluation_from_payload(
+        {
+            "evidence_sufficient": True,
+            "answer_supported": False,
+            "sufficiency_rationale": "old",
+            "support_rationale": "old",
+            "judge": "llm-judge",
+            "model": "gpt-4o-mini",
+        }
+    )
+    assert loaded is not None
+    assert loaded.span_rejections == ()
+
+
+def test_supported_answer_without_a_span_rejection_is_kept() -> None:
+    from swrag.orchestration.loop import _needs_terminal_abstain
+    from swrag.pipeline.baseline import QueryState
+    from swrag.types import Diagnosis, RecoveryDecision
+
+    state = QueryState(
+        query="What time does the meeting start?",
+        retrieval=RetrievalResult(query="q", chunks=(), top_k=1, embedding_model="none"),
+        generation=GenerationResult(answer="The meeting starts at 19:00.", model="canned"),
+        runtime_evaluation=RuntimeEvaluation(
+            evidence_sufficient=True,
+            answer_supported=True,
+            sufficiency_rationale="the start time is in the note",
+            support_rationale="supported",
+            judge="scripted",
+            model="none",
+        ),
+        diagnosis=Diagnosis(failure_class=None, rationale=""),
+    )
+    assert _needs_terminal_abstain(RecoveryDecision(action="expand", reason="widen"), state) is False
+
+
+def test_invented_end_time_is_replaced_by_the_abstention(tmp_path: Path) -> None:
+    invented = (
+        "The Saltwind member meeting ends at 20:00 (8:00 PM) "
+        "since it starts at 19:00 (7:00 PM)."
+    )
+
+    class _EndTimeJudge:
+        def judge(self, *, question: str, answer: str, retrieval: RetrievalResult) -> RuntimeEvaluation:
+            del question, retrieval
+            if "20:00" in answer:
+                return RuntimeEvaluation(
+                    evidence_sufficient=True,
+                    answer_supported=False,
+                    sufficiency_rationale="the start time is present",
+                    support_rationale="Span check rejected support: 20:00, 8:00 PM",
+                    judge="scripted",
+                    model="none",
+                    span_rejections=("20:00", "8:00 PM"),
+                )
+            return RuntimeEvaluation(
+                evidence_sufficient=True,
+                answer_supported=None,
+                sufficiency_rationale="probe",
+                support_rationale="",
+                judge="scripted",
+                model="none",
+            )
+
+    class _Invented:
+        def generate(self, query: str, retrieval: RetrievalResult) -> GenerationResult:
+            del query, retrieval
+            return GenerationResult(answer=invented, model="canned")
+
+        def regenerate(
+            self,
+            *,
+            question: str,
+            retrieval: RetrievalResult,
+            previous_answer: str,
+        ) -> GenerationResult:
+            del question, retrieval, previous_answer
+            return GenerationResult(answer=invented, model="canned")
+
+    result = run_with_recovery(
+        "What time does the Saltwind member meeting end?",
+        corpus_dir=CORPUS,
+        output_dir=tmp_path,
+        embedder=FakeEmbedder(),
+        generator=_Invented(),  # type: ignore[arg-type]
+        regenerator=_Invented(),
+        judge=_EndTimeJudge(),  # type: ignore[arg-type]
+        max_recoveries=1,
+    )
+    payload = json.loads(result.trace_path.read_text(encoding="utf-8"))
+    assert result.answer == ABSTAIN_ANSWER
+    assert "20:00" not in result.answer
+    assert payload["verification"]["outcome"] == STILL_FAILING
+    assert "20:00" in payload["previous_answer"]
+
+
 def test_selects_regenerate_for_unsupported_generation() -> None:
     diagnosis = diagnose_runtime(_eval(sufficient=True, supported=False))
     decision = select_recovery(diagnosis, _eval(sufficient=True, supported=False))

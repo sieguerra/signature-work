@@ -35,7 +35,12 @@ _DATE = re.compile(
     r"September|October|November|December)\b",
     re.IGNORECASE,
 )
-_RANGE = re.compile(r"\b\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2}\b")
+# A hyphen, dash, or the word "to" between two clocks is one hour range.
+_RANGE = re.compile(
+    r"\b(\d{1,2}:\d{2})\s*(?:-|–|—|to)\s*(\d{1,2}:\d{2})\b",
+    re.IGNORECASE,
+)
+_CANON_RANGE = re.compile(r"\d{2}:\d{2}-\d{2}:\d{2}")
 _UNIT = re.compile(
     r"\b\d+(?:\.\d+)?\s+(?:reed tokens|leaf tokens|marks|minutes|million gallons|harbor credits|mg/L)\b",
     re.IGNORECASE,
@@ -170,7 +175,7 @@ def _contested_values(question: str, chunks: list[str]) -> set[str]:
     if asks & _DATE_ASK:
         found |= _distinct(_DATE, blob)
     if asks & _HOUR_ASK:
-        found |= _distinct(_RANGE, blob)
+        found |= _ranges_in(blob)
     if asks & _UNIT_ASK:
         found |= _distinct(_UNIT, blob)
     return found
@@ -179,19 +184,29 @@ def _contested_values(question: str, chunks: list[str]) -> set[str]:
 def _mentions_exactly_one(answer: str, values: set[str]) -> bool:
     if len(values) < 2:
         return False
+    answer_ranges = _ranges_in(answer)
     folded = answer.lower()
-    present = [value for value in values if value.lower() in folded]
+    present: list[str] = []
+    for value in values:
+        if _CANON_RANGE.fullmatch(value):
+            if value in answer_ranges:
+                present.append(value)
+        elif value.lower() in folded:
+            present.append(value)
     return len(present) == 1
 
 
 def _repeats_neighbor_value(answer: str, question: str, chunks: list[str]) -> bool:
     folded = answer.lower()
+    answer_ranges = _ranges_in(answer)
     for chunk in chunks:
         if not _is_neighbor_chunk(question, chunk):
             continue
-        for value in _distinct(_PHONE, chunk) | _distinct(_RANGE, chunk) | _distinct(_UNIT, chunk):
+        for value in _distinct(_PHONE, chunk) | _distinct(_UNIT, chunk):
             if value.lower() in folded:
                 return True
+        if answer_ranges & _ranges_in(chunk):
+            return True
     return False
 
 
@@ -248,6 +263,19 @@ def _denial_cluster(question: str, chunks: list[str]) -> bool:
 
 def _distinct(pattern: re.Pattern[str], text: str) -> set[str]:
     return {" ".join(match.group(0).lower().split()) for match in pattern.finditer(text)}
+
+
+def _canonical_clock(raw: str) -> str:
+    hours, minutes = raw.split(":")
+    return f"{int(hours):02d}:{minutes}"
+
+
+def _ranges_in(text: str) -> set[str]:
+    """Hour ranges, written with a hyphen, a dash, or the word 'to', as HH:MM-HH:MM."""
+    found: set[str] = set()
+    for match in _RANGE.finditer(text):
+        found.add(f"{_canonical_clock(match.group(1))}-{_canonical_clock(match.group(2))}")
+    return found
 
 
 def _content(text: str) -> list[str]:

@@ -320,6 +320,72 @@ def test_unsupported_fact_selects_regenerate() -> None:
     assert decision.action == REGENERATE
 
 
+def test_twelve_hour_gloss_of_a_present_time_is_not_missing() -> None:
+    retrieval = RetrievalResult(
+        query="When does the meeting end?",
+        chunks=(
+            ScoredChunk(
+                chunk=Chunk(
+                    chunk_id="meetings::c000",
+                    doc_id="meetings",
+                    title="Meetings",
+                    text="Monthly meeting: first Tuesday, 19:00, ice-plant break room.",
+                    start_char=0,
+                    end_char=58,
+                ),
+                score=0.9,
+            ),
+        ),
+        top_k=1,
+        embedding_model="none",
+    )
+    assert facts_missing_from_evidence("It starts at 7:00 PM.", retrieval) == ()
+    missing = facts_missing_from_evidence(
+        "The meeting ends at 20:00 (8:00 PM) since it starts at 19:00 (7:00 PM).",
+        retrieval,
+    )
+    assert "20:00" in missing
+    assert any(token.lower().startswith("8:00") for token in missing)
+    assert "19:00" not in missing
+    assert not any(token.lower().startswith("7:00") for token in missing)
+
+
+def test_span_check_records_rejected_clocks() -> None:
+    retrieval = RetrievalResult(
+        query="When does the meeting end?",
+        chunks=(
+            ScoredChunk(
+                chunk=Chunk(
+                    chunk_id="meetings::c000",
+                    doc_id="meetings",
+                    title="Meetings",
+                    text="Monthly meeting: first Tuesday, 19:00, ice-plant break room.",
+                    start_char=0,
+                    end_char=58,
+                ),
+                score=0.9,
+            ),
+        ),
+        top_k=1,
+        embedding_model="none",
+    )
+    evaluation = constrain_support_to_evidence(
+        RuntimeEvaluation(
+            evidence_sufficient=True,
+            answer_supported=True,
+            sufficiency_rationale="the start time is present",
+            support_rationale="lenient",
+            judge="llm-judge",
+            model="fixture",
+        ),
+        answer="The meeting ends at 20:00 (8:00 PM).",
+        retrieval=retrieval,
+    )
+    assert evaluation.evidence_sufficient is True
+    assert evaluation.answer_supported is False
+    assert evaluation.span_rejections
+
+
 def test_span_check_accepts_unpadded_times_that_appear_padded() -> None:
     retrieval = RetrievalResult(
         query="Friday desk hours?",

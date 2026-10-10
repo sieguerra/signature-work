@@ -95,6 +95,10 @@ class RuntimeEvaluation:
     support_rationale: str
     judge: str
     model: str
+    # Clocks and other checkable facts the span check could not find.
+    # Empty on evaluations that predate the field and on judge calls that
+    # did not reject anything.
+    span_rejections: tuple[str, ...] = ()
 
     def as_trace_payload(self) -> dict[str, object]:
         return {
@@ -104,6 +108,7 @@ class RuntimeEvaluation:
             "support_rationale": self.support_rationale,
             "judge": self.judge,
             "model": self.model,
+            "span_rejections": list(self.span_rejections),
         }
 
 

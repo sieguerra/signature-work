@@ -92,25 +92,33 @@ when the API returns it, and a contingency table of runtime verification
 outcomes against gold F1 delta (ADR 002). The command prints numbers. It does
 not interpret them.
 
-## Trace explorer UI
+## Reliability console
 
-A LangSmith-style three-pane explorer over the same core (ADR 008). It does not
-own retrieval, judging, or recovery.
+The UI is a reliability console over the same core (ADR 008). It does not own
+retrieval, judging, or recovery. The sidebar is Overview, Test Console,
+Reliability, Data, Configuration, and Integrations.
 
 ```bash
 python scripts/run_ui.py
 # open http://127.0.0.1:8000
 ```
 
-Ask a question in the playground, or inspect traces already under
-`experiments/output/<corpus-id>/`. The **Corpus** control in the top bar picks
-one world at a time so retrieval never mixes DKU notes with a water utility.
-**top_k** (1–20, default 4) is sent with that run only; it is not remembered.
-Each run can be deleted, or **Delete all** clears traces for the active corpus
-only. Loop and baseline need `OPENAI_API_KEY`. Retrieve-only does not.
+**Test Console** runs one question. The server starts on Duke Kunshan
+University. The **System** picker says **No system yet** until you create a
+writable system, because the built-in corpora are read-only and are not listed
+in that picker. One system is active at a time, so a DKU note is never mixed
+with a water-utility note. Run mode is Retrieve only, Baseline, Confirm
+recovery, or Auto recovery. Recovery policy is **Current v1** by default.
+**Gap-aware (Guarded)** is optional and is not selected unless you choose it.
+Retrieval depth is 1–20 and defaults to 4; that value is sent with the current
+run only.
 
-A writable **project** can mint hashed API keys in the playground. Those keys
-authenticate `POST /api/v1/evaluations`: a customer agent submits a query,
+Saved runs show up under **Reliability**. **Delete all** clears traces for the
+active system only. Auto recovery, Confirm recovery, and Baseline need
+`OPENAI_API_KEY`. Retrieve only does not.
+
+A writable system can create hashed API keys under **Integrations**. Those
+keys authenticate `POST /api/v1/evaluations`: a customer agent submits a query,
 answer, and retrieved contexts; swrag runs the existing judge and diagnosis
 and returns a run id. Rewrite and expand are named in `unavailable_actions`
 and are **not applied** (there is no customer corpus index). Dashboard `/api/*`
@@ -156,7 +164,7 @@ Tests use the same fake embedder, so chunking, ranking, and tracing do not call 
 | `src/swrag/evaluation/` | Gold-set loader, offline EM/F1, runtime grounding judge |
 | `src/swrag/experiments/` | Batch harness, baseline-vs-loop comparison, per-class aggregation |
 | `src/swrag/api/` | FastAPI adapter; does not own RAG logic |
-| `web/` | Static trace explorer (run list, waterfall, inspector) |
+| `web/` | Reliability console (Overview, Test Console, Reliability, Data, Configuration, Integrations) |
 | `experiments/configs/` | Reproducible experiment JSON |
 | `experiments/results/` | Committed comparison snapshots (never overwritten) |
 | `datasets/registry.json` | Named corpora for the UI toggle (one index at a time) |

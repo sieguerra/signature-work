@@ -76,17 +76,24 @@ def test_conflict_answer_does_not_assert_the_diagnosis() -> None:
     assert "4 harbor credits" not in neighbor_answer
 
 
-def test_paraphrased_saturday_hours_remain_a_known_miss() -> None:
+def test_prose_time_range_is_the_same_hours_as_the_hyphenated_span() -> None:
     chunks = (
         "Saturday walk-in hours are 09:00-13:00 on the March 2026 notice.",
         "Saturday walk-in hours were 10:00-12:00 on the 2023 notice.",
     )
     question = "What are the Saturday walk-in hours at the Northhaven Cedar Street billing desk?"
-    answer = "The Saturday walk-in hours are from 09:00 to 13:00."
-    assert blocking_assessment(question, answer, chunks) is None
-    note = (ROOT / "docs" / "gap-aware-recovery.md").read_text(encoding="utf-8")
-    assert "sw-meeting-end" in note
-    assert "20:00" in note
+    for answer in (
+        "The Saturday walk-in hours are from 09:00 to 13:00.",
+        "The Saturday walk-in hours are 09:00-13:00.",
+        "The Saturday walk-in hours are 09:00 – 13:00.",
+    ):
+        blocked = blocking_assessment(question, answer, chunks)
+        assert blocked is not None
+        abstained = safe_abstention(blocked)
+        assert "09:00" not in abstained
+        assert "13:00" not in abstained
+        assert "10:00" not in abstained
+    assert blocking_assessment(question, "The desk is closed on Saturday.", chunks) is None
 
 
 def test_retrieve_only_and_baseline_store_policy_without_recovering(tmp_path: Path) -> None:

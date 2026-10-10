@@ -34,9 +34,5 @@ Token fields are null and `tokens_observed` is false when the provider omits usa
 
 ## Known limits
 
-These were not fixed in this phase.
-
-- `sw-meeting-end`: the model inferred a 20:00 end from a 19:00 start. That remains a known failure.
-- A Saturday-hours conflict written as “09:00 to 13:00” is not matched to the hyphenated span in the source. That remains a known limitation.
 - Some safe stops record a conflict or neighbor diagnosis when the sources simply omit the fact. The answer no longer states that diagnosis as fact.
 - The Phase 8C sample is small: 4 recoverable cases and 6 corpus gaps on the new benchmark.

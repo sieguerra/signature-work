@@ -346,9 +346,9 @@ def run_with_recovery(
 
     overall_verification = last_applied.verification
     if first_eval is not None and state.runtime_evaluation is not None:
-        if (
-            is_abstention(state.generation.answer)
-            and not state.runtime_evaluation.evidence_sufficient
+        if is_abstention(state.generation.answer) and (
+            not state.runtime_evaluation.evidence_sufficient
+            or state.runtime_evaluation.span_rejections
         ):
             overall_verification = Verification(outcome=STILL_FAILING, rationale=_ABSTAIN_RATIONALE)
         else:
@@ -545,10 +545,14 @@ def _needs_terminal_abstain(last: RecoveryDecision, state: QueryState) -> bool:
     evaluation = state.runtime_evaluation
     if last.action not in {EXPAND, REGENERATE} or evaluation is None:
         return False
-    if evaluation.evidence_sufficient:
-        return False
     answer = state.generation.answer.strip()
     if answer == ABSTAIN_ANSWER:
+        return False
+    # A rejected clock is not grounded, even when the judge called the
+    # evidence sufficient because a nearby time was present.
+    if evaluation.span_rejections:
+        return True
+    if evaluation.evidence_sufficient:
         return False
     return is_abstention(answer) or evaluation.answer_supported is not True
 
@@ -560,15 +564,22 @@ def _terminal_abstain(state: QueryState, last: RecoveryDecision) -> _Applied:
     makes no judge call: sufficiency is carried over and support is left null
     because there is no answer to support.
     """
+    evaluation = state.runtime_evaluation
+    if evaluation is not None and evaluation.span_rejections:
+        reason = (
+            f"{last.action} stated a fact the retrieved text does not contain; "
+            "abstain instead of answering"
+        )
+    else:
+        reason = f"{last.action} ended with insufficient evidence; abstain instead of answering"
     decision = RecoveryDecision(
         action=ABSTAIN,
-        reason=f"{last.action} ended with insufficient evidence; abstain instead of answering",
+        reason=reason,
         attributed_class=last.attributed_class,
         source=SOURCE_POLICY,
         trigger=last.trigger,
         outcome_note="replaced the last answer with the abstention; no judge call",
     )
-    evaluation = state.runtime_evaluation
     abstained = QueryState(
         query=state.query,
         retrieval=state.retrieval,
@@ -1167,6 +1178,9 @@ def _evaluation_from_payload(payload: Any) -> RuntimeEvaluation | None:
     supported = payload.get("answer_supported")
     if supported is not None:
         supported = bool(supported)
+    raw_rejections = payload.get("span_rejections") or ()
+    if not isinstance(raw_rejections, (list, tuple)):
+        raw_rejections = ()
     return RuntimeEvaluation(
         evidence_sufficient=bool(payload.get("evidence_sufficient")),
         answer_supported=supported,
@@ -1174,6 +1188,7 @@ def _evaluation_from_payload(payload: Any) -> RuntimeEvaluation | None:
         support_rationale=str(payload.get("support_rationale") or ""),
         judge=str(payload.get("judge") or ""),
         model=str(payload.get("model") or ""),
+        span_rejections=tuple(str(item) for item in raw_rejections),
     )
 
 
