@@ -1,0 +1,17 @@
+{
+  "name": "v4_dku_full_current_loop",
+  "gold_path": "/Users/siegfreidbugarin/Desktop/Signature Work/datasets/dku/gold/questions.jsonl",
+  "corpus_dir": "/Users/siegfreidbugarin/Desktop/Signature Work/datasets/dku/corpus",
+  "top_k": 4,
+  "max_recoveries": 2,
+  "conditions": [
+    {
+      "id": "baseline",
+      "mode": "baseline"
+    },
+    {
+      "id": "eval_guided",
+      "mode": "loop"
+    }
+  ]
+}

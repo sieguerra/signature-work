@@ -1,0 +1,3054 @@
+{
+  "name": "v4_dku_full_current_loop",
+  "timestamp": "2026-10-10T20:37:33.688897+00:00",
+  "gold_path": "/Users/siegfreidbugarin/Desktop/Signature Work/datasets/dku/gold/questions.jsonl",
+  "corpus_dir": "/Users/siegfreidbugarin/Desktop/Signature Work/datasets/dku/corpus",
+  "top_k": 4,
+  "max_recoveries": 2,
+  "provider": {
+    "base_url": "https://api.openlux.ai/v1",
+    "official_openai": false,
+    "configured_chat_model": "gpt-4o-mini",
+    "configured_embedding_model": "text-embedding-3-small",
+    "api_key_present": true
+  },
+  "setup_usage": {
+    "chat_calls": 0,
+    "embedding_calls": 1,
+    "prompt_tokens": 0,
+    "completion_tokens": 0,
+    "embedding_tokens": 2766
+  },
+  "condition_ids": [
+    "baseline",
+    "eval_guided"
+  ],
+  "quality": {
+    "answerable_exact_match": {
+      "baseline": 0.0,
+      "eval_guided": 0.0,
+      "delta": 0.0
+    },
+    "answerable_contains_answer": {
+      "baseline": 0.7666666666666667,
+      "eval_guided": 0.8,
+      "delta": 0.033333333333333326
+    },
+    "answerable_f1": {
+      "baseline": 0.20905336178555994,
+      "eval_guided": 0.20610582199591487,
+      "delta": -0.0029475397896450706
+    },
+    "unanswerable_abstention_rate": {
+      "baseline": 0.8,
+      "eval_guided": 0.9,
+      "delta": 0.09999999999999998
+    },
+    "answerable_abstention_rate": {
+      "baseline": 0.03333333333333333,
+      "eval_guided": 0.0,
+      "delta": -0.03333333333333333
+    },
+    "retrieval_hit_rate": {
+      "baseline": 1.0,
+      "eval_guided": 1.0,
+      "delta": 0.0
+    },
+    "mean_latency_ms": {
+      "baseline": 2797.31299797495,
+      "eval_guided": 6580.718135424831,
+      "delta": 3783.4051374498813
+    },
+    "total_chat_calls": {
+      "baseline": 40,
+      "eval_guided": 130,
+      "delta": 90
+    },
+    "total_embedding_calls": {
+      "baseline": 40,
+      "eval_guided": 10,
+      "delta": -30
+    },
+    "total_prompt_tokens": {
+      "baseline": 22309,
+      "eval_guided": 116748,
+      "delta": 94439
+    },
+    "total_completion_tokens": {
+      "baseline": 1085,
+      "eval_guided": 6063,
+      "delta": 4978
+    },
+    "total_embedding_tokens": {
+      "baseline": 664,
+      "eval_guided": 165,
+      "delta": -499
+    }
+  },
+  "verification_vs_gold": {
+    "n_with_runtime_verification": 14,
+    "n_loop_questions": 40,
+    "n_verdict_agrees": 14,
+    "n_verdict_disagrees": 0,
+    "by_runtime_outcome": {
+      "unchanged": {
+        "n": 3,
+        "gold_f1_up": 0,
+        "gold_f1_down": 0,
+        "gold_f1_same": 3,
+        "no_previous_score": 0,
+        "verdict_agrees": 3,
+        "verdict_disagrees": 0,
+        "final_gold_correct": 3
+      },
+      "improved": {
+        "n": 1,
+        "gold_f1_up": 1,
+        "gold_f1_down": 0,
+        "gold_f1_same": 0,
+        "no_previous_score": 0,
+        "verdict_agrees": 1,
+        "verdict_disagrees": 0,
+        "final_gold_correct": 1
+      },
+      "still_failing": {
+        "n": 10,
+        "gold_f1_up": 0,
+        "gold_f1_down": 0,
+        "gold_f1_same": 10,
+        "no_previous_score": 0,
+        "verdict_agrees": 10,
+        "verdict_disagrees": 0,
+        "final_gold_correct": 9
+      }
+    },
+    "by_recovery_action": {
+      "expand": {
+        "n": 10,
+        "gold_f1_up": 1,
+        "gold_f1_down": 0,
+        "gold_f1_same": 9,
+        "no_previous_score": 0,
+        "verdict_agrees": 10,
+        "verdict_disagrees": 0,
+        "final_gold_correct": 9
+      },
+      "abstain": {
+        "n": 4,
+        "gold_f1_up": 0,
+        "gold_f1_down": 0,
+        "gold_f1_same": 4,
+        "no_previous_score": 0,
+        "verdict_agrees": 4,
+        "verdict_disagrees": 0,
+        "final_gold_correct": 4
+      }
+    },
+    "by_attributed_class": {
+      "evidence_insufficiency": {
+        "n": 11,
+        "gold_f1_up": 1,
+        "gold_f1_down": 0,
+        "gold_f1_same": 10,
+        "no_previous_score": 0,
+        "verdict_agrees": 11,
+        "verdict_disagrees": 0,
+        "final_gold_correct": 10
+      }
+    }
+  },
+  "by_failure_class": {
+    "no_failure": {
+      "n": 26,
+      "answerable_n": 26,
+      "answerable_exact_match": 0.0,
+      "answerable_f1": 0.20289847123319377,
+      "verification_counts": {}
+    },
+    "expand": {
+      "n": 3,
+      "answerable_n": 3,
+      "answerable_exact_match": 0.0,
+      "answerable_f1": 0.25132275132275134,
+      "verification_counts": {
+        "unchanged": 3
+      }
+    },
+    "evidence_insufficiency": {
+      "n": 11,
+      "answerable_n": 1,
+      "answerable_exact_match": 0.0,
+      "answerable_f1": 0.15384615384615385,
+      "verification_counts": {
+        "improved": 1,
+        "still_failing": 10
+      }
+    }
+  },
+  "conditions": {
+    "baseline": {
+      "run_label": "baseline",
+      "timestamp": "2026-10-10T20:33:10.436868+00:00",
+      "gold_path": "/Users/siegfreidbugarin/Desktop/Signature Work/datasets/dku/gold/questions.jsonl",
+      "corpus_dir": "/Users/siegfreidbugarin/Desktop/Signature Work/datasets/dku/corpus",
+      "output_dir": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline",
+      "top_k": 4,
+      "provider": {
+        "base_url": "https://api.openlux.ai/v1",
+        "official_openai": false,
+        "configured_chat_model": "gpt-4o-mini",
+        "configured_embedding_model": "text-embedding-3-small",
+        "api_key_present": true
+      },
+      "total": 40,
+      "answerable_total": 30,
+      "unanswerable_total": 10,
+      "exact_match": 0.2,
+      "contains_answer": 0.775,
+      "f1": 0.3567900213391699,
+      "answerable_exact_match": 0.0,
+      "answerable_contains_answer": 0.7666666666666667,
+      "answerable_f1": 0.20905336178555994,
+      "unanswerable_abstention_rate": 0.8,
+      "answerable_abstention_rate": 0.03333333333333333,
+      "retrieval_hit_rate": 1.0,
+      "condition": "baseline",
+      "mean_latency_ms": 2797.31299797495,
+      "total_chat_calls": 40,
+      "total_embedding_calls": 40,
+      "total_prompt_tokens": 22309,
+      "total_completion_tokens": 1085,
+      "total_embedding_tokens": 664
+    },
+    "eval_guided": {
+      "run_label": "eval_guided",
+      "timestamp": "2026-10-10T20:37:33.684293+00:00",
+      "gold_path": "/Users/siegfreidbugarin/Desktop/Signature Work/datasets/dku/gold/questions.jsonl",
+      "corpus_dir": "/Users/siegfreidbugarin/Desktop/Signature Work/datasets/dku/corpus",
+      "output_dir": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided",
+      "top_k": 4,
+      "provider": {
+        "base_url": "https://api.openlux.ai/v1",
+        "official_openai": false,
+        "configured_chat_model": "gpt-4o-mini",
+        "configured_embedding_model": "text-embedding-3-small",
+        "api_key_present": true
+      },
+      "total": 40,
+      "answerable_total": 30,
+      "unanswerable_total": 10,
+      "exact_match": 0.225,
+      "contains_answer": 0.825,
+      "f1": 0.37957936649693613,
+      "answerable_exact_match": 0.0,
+      "answerable_contains_answer": 0.8,
+      "answerable_f1": 0.20610582199591487,
+      "unanswerable_abstention_rate": 0.9,
+      "answerable_abstention_rate": 0.0,
+      "retrieval_hit_rate": 1.0,
+      "condition": "loop",
+      "mean_latency_ms": 6580.718135424831,
+      "total_chat_calls": 130,
+      "total_embedding_calls": 10,
+      "total_prompt_tokens": 116748,
+      "total_completion_tokens": 6063,
+      "total_embedding_tokens": 165
+    }
+  },
+  "paired_outcomes": [
+    {
+      "question_id": "dku-001",
+      "question": "In which month and year was Duke Kunshan University established as a partnership between Duke University and Wuhan University?",
+      "answerable": true,
+      "baseline": {
+        "answer": "Duke Kunshan University was established in September 2013 as a partnership between Duke University and Wuhan University [dku-about::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.21052631578947367,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "dku-about",
+          "wuhan-university",
+          "dku-about",
+          "duke-university-durham"
+        ],
+        "latency_ms": 2362.186832993757,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 549,
+          "completion_tokens": 29,
+          "embedding_tokens": 22
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203120_f3c56346",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203120_f3c56346.json"
+      },
+      "eval_guided": {
+        "answer": "Duke Kunshan University was established in September 2013 as a partnership between Duke University and Wuhan University [dku-about::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.21052631578947367,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "dku-about",
+          "wuhan-university",
+          "dku-about",
+          "duke-university-durham"
+        ],
+        "latency_ms": 4024.668375001056,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 1388,
+          "completion_tokens": 107,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203314_628b47ec",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203314_628b47ec.json"
+      }
+    },
+    {
+      "question_id": "dku-002",
+      "question": "What is Duke Kunshan University's street address?",
+      "answerable": true,
+      "baseline": {
+        "answer": "Duke Kun University's street address is No. 8 Duke Avenue, Kunshan, Jiangsu Province, China 215316 [dku-about::c001].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.4,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "dku-about",
+          "dku-about",
+          "getting-to-dku",
+          "duke-university-durham"
+        ],
+        "latency_ms": 2515.2287499950035,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 560,
+          "completion_tokens": 33,
+          "embedding_tokens": 10
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203123_9e91772e",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203123_9e91772e.json"
+      },
+      "eval_guided": {
+        "answer": "Duke Kun University's street address is No. 8 Duke Avenue, Kunshan, Jiangsu Province, China 215316 [dku-about::c001].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.4,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "dku-about",
+          "dku-about",
+          "getting-to-dku",
+          "duke-university-durham"
+        ],
+        "latency_ms": 3774.298042000737,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 1414,
+          "completion_tokens": 93,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203318_b66463d9",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203318_b66463d9.json"
+      }
+    },
+    {
+      "question_id": "dku-003",
+      "question": "When did Duke Kunshan University welcome its first students?",
+      "answerable": true,
+      "baseline": {
+        "answer": "Duke Kunshan University welcomed its first students in August 2014 [dku-about::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.3076923076923077,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "dku-about",
+          "dku-about",
+          "duke-university-durham",
+          "duke-university-durham"
+        ],
+        "latency_ms": 2824.3827910046093,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 507,
+          "completion_tokens": 22,
+          "embedding_tokens": 11
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203126_279a1fba",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203126_279a1fba.json"
+      },
+      "eval_guided": {
+        "answer": "Duke Kunshan University welcomed its first students in August 2014 [dku-about::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.3076923076923077,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "dku-about",
+          "dku-about",
+          "duke-university-durham",
+          "duke-university-durham"
+        ],
+        "latency_ms": 3920.933250003145,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 1297,
+          "completion_tokens": 73,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203322_c5ec1fe9",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203322_c5ec1fe9.json"
+      }
+    },
+    {
+      "question_id": "dku-004",
+      "question": "When did Duke Kunshan University's four-year undergraduate bachelor's program begin?",
+      "answerable": true,
+      "baseline": {
+        "answer": "Duke Kunshan University's four-year undergraduate bachelor's program began in August 2018 [dku-about::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.2857142857142857,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "dku-about",
+          "dku-about",
+          "duke-university-durham",
+          "duke-university-durham"
+        ],
+        "latency_ms": 2948.866459002602,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 509,
+          "completion_tokens": 24,
+          "embedding_tokens": 15
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203129_81673687",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203129_81673687.json"
+      },
+      "eval_guided": {
+        "answer": "Duke Kunshan University's four-year undergraduate bachelor's program began in August 2018 [dku-about::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.2857142857142857,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "dku-about",
+          "dku-about",
+          "duke-university-durham",
+          "duke-university-durham",
+          "getting-to-dku",
+          "wuhan-university",
+          "wuhan-university",
+          "conference-center",
+          "registrar-fall-2026",
+          "cscc",
+          "dku-library-hours",
+          "registrar-spring-2027"
+        ],
+        "latency_ms": 7366.516499998397,
+        "usage": {
+          "chat_calls": 4,
+          "embedding_calls": 0,
+          "prompt_tokens": 4518,
+          "completion_tokens": 198,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "expand",
+        "attributed_class": null,
+        "verification_outcome": "unchanged",
+        "previous_answer": "Duke Kunshan University's four-year undergraduate bachelor's program began in August 2018 [dku-about::c000].",
+        "previous_f1": 0.2857142857142857,
+        "f1_delta": 0.0,
+        "rewritten_query": null,
+        "run_id": "20261010T203329_1535fb87",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203329_1535fb87.json"
+      }
+    },
+    {
+      "question_id": "dku-005",
+      "question": "How many acres is the Duke Kunshan University campus?",
+      "answerable": true,
+      "baseline": {
+        "answer": "The Duke Kunshan University campus covers 200 acres in Kunshan's Yangcheng Lake Science and Technology Park [dku-about::c001].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.2222222222222222,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "dku-about",
+          "duke-university-durham",
+          "dku-about",
+          "getting-to-dku"
+        ],
+        "latency_ms": 2581.6854579898063,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 562,
+          "completion_tokens": 29,
+          "embedding_tokens": 11
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203131_9900deb4",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203131_9900deb4.json"
+      },
+      "eval_guided": {
+        "answer": "The Duke Kunshan University campus covers 200 acres in Kunshan's Yangcheng Lake Science and Technology Park [dku-about::c001].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.2222222222222222,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "dku-about",
+          "duke-university-durham",
+          "dku-about",
+          "getting-to-dku"
+        ],
+        "latency_ms": 3664.104374998715,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 1414,
+          "completion_tokens": 91,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203333_4eda9dfe",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203333_4eda9dfe.json"
+      }
+    },
+    {
+      "question_id": "dku-006",
+      "question": "What are the DKU Library building hours Monday through Sunday, according to the current Locations and Hours page?",
+      "answerable": true,
+      "baseline": {
+        "answer": "The DKU Library building hours are 08:00 to 23:00, Monday through Sunday [dku-library-hours::c000].",
+        "exact_match": false,
+        "contains_answer": false,
+        "f1": 0.13333333333333333,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "dku-library-hours",
+          "dku-library-guide-202501",
+          "wuhan-university",
+          "dku-library-handbook-2021"
+        ],
+        "latency_ms": 2661.0260419984115,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 532,
+          "completion_tokens": 29,
+          "embedding_tokens": 21
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203134_619f6e21",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203134_619f6e21.json"
+      },
+      "eval_guided": {
+        "answer": "The DKU Library building hours are 08:00 to 23:00, Monday through Sunday [dku-library-hours::c000].",
+        "exact_match": false,
+        "contains_answer": false,
+        "f1": 0.13333333333333333,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "dku-library-hours",
+          "dku-library-guide-202501",
+          "wuhan-university",
+          "dku-library-handbook-2021"
+        ],
+        "latency_ms": 3719.5442500087665,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 1354,
+          "completion_tokens": 97,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203336_7a223f1f",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203336_7a223f1f.json"
+      }
+    },
+    {
+      "question_id": "dku-007",
+      "question": "According to the current DKU Library Locations and Hours page, what are the 1st floor information desk hours on Saturday?",
+      "answerable": true,
+      "baseline": {
+        "answer": "The 1st floor information desk hours on Saturday are from 14:00 to 21:00 [dku-library-hours::c000].",
+        "exact_match": false,
+        "contains_answer": false,
+        "f1": 0.25,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "dku-library-hours",
+          "dku-library-guide-202501",
+          "dku-library-handbook-2021",
+          "dku-library-hours"
+        ],
+        "latency_ms": 2741.3545829913346,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 618,
+          "completion_tokens": 30,
+          "embedding_tokens": 25
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203137_7c5f5def",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203137_7c5f5def.json"
+      },
+      "eval_guided": {
+        "answer": "The 1st floor information desk hours on Saturday are from 14:00 to 21:00 [dku-library-hours::c000].",
+        "exact_match": false,
+        "contains_answer": false,
+        "f1": 0.25,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "dku-library-hours",
+          "dku-library-guide-202501",
+          "dku-library-handbook-2021",
+          "dku-library-hours"
+        ],
+        "latency_ms": 3860.373167000944,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 1527,
+          "completion_tokens": 100,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203340_781e00bd",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203340_781e00bd.json"
+      }
+    },
+    {
+      "question_id": "dku-008",
+      "question": "According to the January 2025 DKU Library Guide, what are the 1st floor information desk hours on Saturday?",
+      "answerable": true,
+      "baseline": {
+        "answer": "According to the January 2025 DKU Library Guide, the 1st floor information desk hours on Saturday are 14:00-18:00 [dku-library-guide-202501::c001].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.1111111111111111,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "dku-library-hours",
+          "dku-library-guide-202501",
+          "dku-library-hours",
+          "dku-library-guide-202501"
+        ],
+        "latency_ms": 2276.7480420006905,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 643,
+          "completion_tokens": 43,
+          "embedding_tokens": 25
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203139_4c14c96b",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203139_4c14c96b.json"
+      },
+      "eval_guided": {
+        "answer": "According to the January 2025 DKU Library Guide, the 1st floor information desk hours on Saturday are 14:00-18:00 [dku-library-guide-202501::c001].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.1111111111111111,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "dku-library-hours",
+          "dku-library-guide-202501",
+          "dku-library-hours",
+          "dku-library-guide-202501",
+          "wuhan-university",
+          "dku-library-handbook-2021",
+          "dku-library-handbook-2021",
+          "registrar-fall-2026",
+          "dku-library-handbook-2021",
+          "registrar-spring-2027",
+          "duke-university-durham",
+          "registrar-fall-2026"
+        ],
+        "latency_ms": 8279.997041987372,
+        "usage": {
+          "chat_calls": 4,
+          "embedding_calls": 0,
+          "prompt_tokens": 4918,
+          "completion_tokens": 241,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "expand",
+        "attributed_class": null,
+        "verification_outcome": "unchanged",
+        "previous_answer": "According to the January 2025 DKU Library Guide, the 1st floor information desk hours on Saturday are 14:00-18:00 [dku-library-guide-202501::c001].",
+        "previous_f1": 0.1111111111111111,
+        "f1_delta": 0.0,
+        "rewritten_query": null,
+        "run_id": "20261010T203349_ee7368be",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203349_ee7368be.json"
+      }
+    },
+    {
+      "question_id": "dku-009",
+      "question": "How many seats does the January 2025 DKU Library Guide list?",
+      "answerable": true,
+      "baseline": {
+        "answer": "The January 2025 DKU Library Guide lists 560 seats [dku-library-guide-202501::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.19999999999999998,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "dku-library-guide-202501",
+          "dku-library-handbook-2021",
+          "dku-library-handbook-2021",
+          "dku-library-handbook-2021"
+        ],
+        "latency_ms": 2184.5862079935614,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 537,
+          "completion_tokens": 25,
+          "embedding_tokens": 15
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203141_aa6d917d",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203141_aa6d917d.json"
+      },
+      "eval_guided": {
+        "answer": "The January 2025 DKU Library Guide lists 560 seats [dku-library-guide-202501::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.19999999999999998,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "dku-library-guide-202501",
+          "dku-library-handbook-2021",
+          "dku-library-handbook-2021",
+          "dku-library-handbook-2021"
+        ],
+        "latency_ms": 3199.896209000144,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 1360,
+          "completion_tokens": 78,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203352_c2051fb2",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203352_c2051fb2.json"
+      }
+    },
+    {
+      "question_id": "dku-010",
+      "question": "According to the January 2025 DKU Library Guide, which floor is the Tea House on?",
+      "answerable": true,
+      "baseline": {
+        "answer": "The Tea House is on the 3rd floor [dku-library-guide-202501::c001].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.4444444444444445,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "dku-library-guide-202501",
+          "dku-library-guide-202501",
+          "dku-library-guide-202501",
+          "dku-library-handbook-2021"
+        ],
+        "latency_ms": 2257.166374998633,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 581,
+          "completion_tokens": 22,
+          "embedding_tokens": 20
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203143_554b863f",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203143_554b863f.json"
+      },
+      "eval_guided": {
+        "answer": "According to the January 2025 DKU Library Guide, the Tea House is on the 3rd floor and connects to a sky garden [dku-library-guide-202501::c001].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.1904761904761905,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "dku-library-guide-202501",
+          "dku-library-guide-202501",
+          "dku-library-guide-202501",
+          "dku-library-handbook-2021"
+        ],
+        "latency_ms": 7143.463417000021,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 1463,
+          "completion_tokens": 114,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203359_8d0a7b23",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203359_8d0a7b23.json"
+      }
+    },
+    {
+      "question_id": "dku-011",
+      "question": "What are DVD and equipment loan hours at the DKU Library according to the current Locations and Hours page?",
+      "answerable": true,
+      "baseline": {
+        "answer": "The DVD and equipment loan hours at the DKU Library are Monday to Friday, from 09:00 to 17:30 [dku-library-hours::c000].",
+        "exact_match": false,
+        "contains_answer": false,
+        "f1": 0.0,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "dku-library-hours",
+          "dku-library-hours",
+          "dku-library-guide-202501",
+          "wuhan-university"
+        ],
+        "latency_ms": 3100.1452920027077,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 570,
+          "completion_tokens": 35,
+          "embedding_tokens": 21
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203146_64b9116e",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203146_64b9116e.json"
+      },
+      "eval_guided": {
+        "answer": "The DVD and equipment loan hours at the DKU Library are Monday to Friday, from 09:00 to 17:30 [dku-library-hours::c000].",
+        "exact_match": false,
+        "contains_answer": false,
+        "f1": 0.0,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "dku-library-hours",
+          "dku-library-hours",
+          "dku-library-guide-202501",
+          "wuhan-university"
+        ],
+        "latency_ms": 4212.258625004324,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 1436,
+          "completion_tokens": 104,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203403_01efe296",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203403_01efe296.json"
+      }
+    },
+    {
+      "question_id": "dku-012",
+      "question": "What email does the current DKU Library Locations and Hours page list?",
+      "answerable": true,
+      "baseline": {
+        "answer": "I do not know based on the retrieved documents.",
+        "exact_match": false,
+        "contains_answer": false,
+        "f1": 0.0,
+        "abstained": true,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "dku-library-hours",
+          "dku-library-guide-202501",
+          "dku-library-handbook-2021",
+          "wuhan-university"
+        ],
+        "latency_ms": 2396.6442919918336,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 538,
+          "completion_tokens": 10,
+          "embedding_tokens": 14
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203149_bcad7773",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203149_bcad7773.json"
+      },
+      "eval_guided": {
+        "answer": "The current DKU Library Locations and Hours page lists the email as dkulibrary@dukekunshan.edu.cn [dku-library-hours::c001].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.15384615384615385,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "dku-library-hours",
+          "dku-library-guide-202501",
+          "dku-library-handbook-2021",
+          "dku-library-handbook-2021",
+          "wuhan-university",
+          "dku-library-handbook-2021",
+          "duke-university-durham",
+          "dku-library-hours",
+          "registrar-fall-2026",
+          "wuhan-university",
+          "registrar-spring-2027",
+          "registrar-fall-2026"
+        ],
+        "latency_ms": 14286.288500006776,
+        "usage": {
+          "chat_calls": 6,
+          "embedding_calls": 1,
+          "prompt_tokens": 6033,
+          "completion_tokens": 246,
+          "embedding_tokens": 17
+        },
+        "recovery_action": "expand",
+        "attributed_class": "evidence_insufficiency",
+        "verification_outcome": "improved",
+        "previous_answer": "I do not know based on the retrieved documents.",
+        "previous_f1": 0.0,
+        "f1_delta": 0.15384615384615385,
+        "rewritten_query": "What is the email address listed on the current DKU Library Locations and Hours webpage?",
+        "run_id": "20261010T203417_9bc96c7f",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203417_9bc96c7f.json"
+      }
+    },
+    {
+      "question_id": "dku-013",
+      "question": "According to the August 2021 DKU student handbook, what phone number is listed for the DKU Library?",
+      "answerable": true,
+      "baseline": {
+        "answer": "According to the August 2021 DKU student handbook, the phone number listed for the DKU Library is (0512) 3665-7027 [dku-library-handbook-2021::c001].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.21052631578947367,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "dku-library-handbook-2021",
+          "dku-library-handbook-2021",
+          "dku-library-handbook-2021",
+          "dku-library-guide-202501"
+        ],
+        "latency_ms": 2533.967750001466,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 545,
+          "completion_tokens": 45,
+          "embedding_tokens": 23
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203151_3786e9d0",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203151_3786e9d0.json"
+      },
+      "eval_guided": {
+        "answer": "According to the August 2021 DKU student handbook, the phone number listed for the DKU Library is (0512) 3665-7027 [dku-library-handbook-2021::c001].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.21052631578947367,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "dku-library-handbook-2021",
+          "dku-library-handbook-2021",
+          "dku-library-handbook-2021",
+          "dku-library-guide-202501"
+        ],
+        "latency_ms": 3694.79962499463,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 1396,
+          "completion_tokens": 128,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203421_f7d2265f",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203421_f7d2265f.json"
+      }
+    },
+    {
+      "question_id": "dku-014",
+      "question": "According to the August 2021 DKU student handbook, where is the DKU Library located?",
+      "answerable": true,
+      "baseline": {
+        "answer": "According to the August 2021 DKU student handbook, the DKU Library is located in two rooms on the first and second floor of the Academic Building [dku-library-handbook-2021::c001].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.3571428571428571,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "dku-library-handbook-2021",
+          "dku-library-handbook-2021",
+          "dku-library-guide-202501",
+          "dku-library-handbook-2021"
+        ],
+        "latency_ms": 4502.342291991226,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 542,
+          "completion_tokens": 44,
+          "embedding_tokens": 20
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203156_73853383",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203156_73853383.json"
+      },
+      "eval_guided": {
+        "answer": "According to the August 2021 DKU student handbook, the DKU Library is located in two rooms on the first and second floor of the Academic Building [dku-library-handbook-2021::c001].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.3571428571428571,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "dku-library-handbook-2021",
+          "dku-library-handbook-2021",
+          "dku-library-guide-202501",
+          "dku-library-handbook-2021",
+          "dku-library-hours",
+          "duke-university-durham",
+          "wuhan-university",
+          "dku-library-hours",
+          "dku-library-guide-202501",
+          "wuhan-university",
+          "registrar-fall-2026",
+          "dayu-bay"
+        ],
+        "latency_ms": 7757.291500005522,
+        "usage": {
+          "chat_calls": 4,
+          "embedding_calls": 0,
+          "prompt_tokens": 4666,
+          "completion_tokens": 222,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "expand",
+        "attributed_class": null,
+        "verification_outcome": "unchanged",
+        "previous_answer": "According to the August 2021 DKU student handbook, the DKU Library is located in two rooms on the first and second floor of the Academic Building [dku-library-handbook-2021::c001].",
+        "previous_f1": 0.3571428571428571,
+        "f1_delta": 0.0,
+        "rewritten_query": null,
+        "run_id": "20261010T203429_97851bb5",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203429_97851bb5.json"
+      }
+    },
+    {
+      "question_id": "dku-015",
+      "question": "What are breakfast hours at University Dining in the Academic Building?",
+      "answerable": true,
+      "baseline": {
+        "answer": "Breakfast hours at University Dining in the Academic Building are from 07:00 to 09:30 [academic-building-dining::c000].",
+        "exact_match": false,
+        "contains_answer": false,
+        "f1": 0.0,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "academic-building-dining",
+          "conference-center-dining",
+          "conference-center",
+          "registrar-fall-2026"
+        ],
+        "latency_ms": 3714.6717909927247,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 579,
+          "completion_tokens": 29,
+          "embedding_tokens": 12
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203200_0ff33d2f",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203200_0ff33d2f.json"
+      },
+      "eval_guided": {
+        "answer": "Breakfast hours at University Dining in the Academic Building are from 07:00 to 09:30 [academic-building-dining::c000].",
+        "exact_match": false,
+        "contains_answer": false,
+        "f1": 0.0,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "academic-building-dining",
+          "conference-center-dining",
+          "conference-center",
+          "registrar-fall-2026"
+        ],
+        "latency_ms": 3149.5853750093374,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 1448,
+          "completion_tokens": 91,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203432_ec231d66",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203432_ec231d66.json"
+      }
+    },
+    {
+      "question_id": "dku-016",
+      "question": "What are lunch hours at Executive Dining in the Academic Building?",
+      "answerable": true,
+      "baseline": {
+        "answer": "Lunch hours at Executive Dining in the Academic Building are from 11:00 to 13:30 [academic-building-dining::c000].",
+        "exact_match": false,
+        "contains_answer": false,
+        "f1": 0.0,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "academic-building-dining",
+          "conference-center-dining",
+          "academic-building-dining",
+          "conference-center"
+        ],
+        "latency_ms": 3677.7404169988586,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 506,
+          "completion_tokens": 29,
+          "embedding_tokens": 12
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203203_a5e404fa",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203203_a5e404fa.json"
+      },
+      "eval_guided": {
+        "answer": "Lunch hours at Executive Dining in the Academic Building are from 11:00 to 13:30 [academic-building-dining::c000].",
+        "exact_match": false,
+        "contains_answer": false,
+        "f1": 0.0,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "academic-building-dining",
+          "conference-center-dining",
+          "academic-building-dining",
+          "conference-center"
+        ],
+        "latency_ms": 3525.3850830049487,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 1302,
+          "completion_tokens": 96,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203436_aad43a91",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203436_aad43a91.json"
+      }
+    },
+    {
+      "question_id": "dku-017",
+      "question": "What are dinner hours at Halal Dining at the Conference Center?",
+      "answerable": true,
+      "baseline": {
+        "answer": "Dinner hours at Halal Dining at the Conference Center are from 17:00 to 19:30 [conference-center-dining::c000].",
+        "exact_match": false,
+        "contains_answer": false,
+        "f1": 0.0,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "conference-center-dining",
+          "academic-building-dining",
+          "conference-center",
+          "conference-center"
+        ],
+        "latency_ms": 3229.028209010721,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 547,
+          "completion_tokens": 30,
+          "embedding_tokens": 13
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203207_1971d468",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203207_1971d468.json"
+      },
+      "eval_guided": {
+        "answer": "Dinner hours at Halal Dining at the Conference Center are from 17:00 to 19:30 [conference-center-dining::c000].",
+        "exact_match": false,
+        "contains_answer": false,
+        "f1": 0.0,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "conference-center-dining",
+          "academic-building-dining",
+          "conference-center",
+          "conference-center"
+        ],
+        "latency_ms": 3464.651457994478,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 1385,
+          "completion_tokens": 93,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203439_e5a0906a",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203439_e5a0906a.json"
+      }
+    },
+    {
+      "question_id": "dku-018",
+      "question": "On what date do undergraduate and graduate classes begin in Fall 2026 at Duke Kunshan University?",
+      "answerable": true,
+      "baseline": {
+        "answer": "Undergraduate and graduate classes at Duke Kunshan University begin on Monday, 24 August 2026 [registrar-fall-2026::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.33333333333333337,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "dku-about",
+          "registrar-fall-2026",
+          "dku-about",
+          "wuhan-university"
+        ],
+        "latency_ms": 3792.692333998275,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 542,
+          "completion_tokens": 32,
+          "embedding_tokens": 20
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203210_c549454b",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203210_c549454b.json"
+      },
+      "eval_guided": {
+        "answer": "Undergraduate and graduate classes at Duke Kunshan University begin on Monday, 24 August 2026 [registrar-fall-2026::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.33333333333333337,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "dku-about",
+          "registrar-fall-2026",
+          "dku-about",
+          "wuhan-university"
+        ],
+        "latency_ms": 3533.55062501214,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 1377,
+          "completion_tokens": 104,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203443_fb4caa4f",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203443_fb4caa4f.json"
+      }
+    },
+    {
+      "question_id": "dku-019",
+      "question": "On what date do DKU residence halls close for Winter Break in Fall 2026?",
+      "answerable": true,
+      "baseline": {
+        "answer": "DKU residence halls close for Winter Break on Friday, 18 December 2026 at 13:00 [registrar-fall-2026::c001].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.33333333333333337,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "registrar-spring-2027",
+          "registrar-fall-2026",
+          "registrar-fall-2026",
+          "wuhan-university"
+        ],
+        "latency_ms": 2639.13045800291,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 596,
+          "completion_tokens": 34,
+          "embedding_tokens": 18
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203213_df672921",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203213_df672921.json"
+      },
+      "eval_guided": {
+        "answer": "DKU residence halls close for Winter Break on Friday, 18 December 2026 at 13:00 [registrar-fall-2026::c001].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.33333333333333337,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "registrar-spring-2027",
+          "registrar-fall-2026",
+          "registrar-fall-2026",
+          "wuhan-university"
+        ],
+        "latency_ms": 3482.3701249988517,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 1487,
+          "completion_tokens": 109,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203446_b121af9d",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203446_b121af9d.json"
+      }
+    },
+    {
+      "question_id": "dku-020",
+      "question": "On what date is graduate and undergraduate commencement at Duke Kunshan University in Spring 2027?",
+      "answerable": true,
+      "baseline": {
+        "answer": "Graduate and undergraduate commencement at Duke Kunshan University in Spring 2027 is on Friday, 21 May 2027 [registrar-spring-2027::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.2857142857142857,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "dku-about",
+          "registrar-spring-2027",
+          "registrar-spring-2027",
+          "dku-about"
+        ],
+        "latency_ms": 3073.5604579967912,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 593,
+          "completion_tokens": 36,
+          "embedding_tokens": 19
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203216_84f3f29b",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203216_84f3f29b.json"
+      },
+      "eval_guided": {
+        "answer": "Graduate and undergraduate commencement at Duke Kunshan University in Spring 2027 is on Friday, 21 May 2027 [registrar-spring-2027::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.2857142857142857,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "dku-about",
+          "registrar-spring-2027",
+          "registrar-spring-2027",
+          "dku-about"
+        ],
+        "latency_ms": 3732.0057500037365,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 1483,
+          "completion_tokens": 90,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203450_f6d2e232",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203450_f6d2e232.json"
+      }
+    },
+    {
+      "question_id": "dku-021",
+      "question": "How far is Kunshan South Railway Station from Duke Kunshan University according to the commencement visitor guide?",
+      "answerable": true,
+      "baseline": {
+        "answer": "Kunshan South Railway Station is 12 kilometers southeast of Duke Kunshan University according to the commencement visitor guide [getting-to-dku::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.19999999999999998,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "getting-to-dku",
+          "dku-about",
+          "getting-to-dku",
+          "conference-center"
+        ],
+        "latency_ms": 2626.7785420059226,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 603,
+          "completion_tokens": 30,
+          "embedding_tokens": 20
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203219_25ed841c",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203219_25ed841c.json"
+      },
+      "eval_guided": {
+        "answer": "Kunshan South Railway Station is 12 kilometers southeast of Duke Kunshan University according to the commencement visitor guide [getting-to-dku::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.19999999999999998,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "getting-to-dku",
+          "dku-about",
+          "getting-to-dku",
+          "conference-center"
+        ],
+        "latency_ms": 3367.3694169992814,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 1497,
+          "completion_tokens": 96,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203453_56a8725c",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203453_56a8725c.json"
+      }
+    },
+    {
+      "question_id": "dku-022",
+      "question": "How far is Shanghai Pudong International Airport from Kunshan according to the commencement visitor guide?",
+      "answerable": true,
+      "baseline": {
+        "answer": "Shanghai Pudong International Airport (PVG) is 92 kilometers east of Kunshan according to the commencement visitor guide [getting-to-dku::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.21052631578947367,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "getting-to-dku",
+          "getting-to-dku",
+          "conference-center",
+          "dku-about"
+        ],
+        "latency_ms": 3623.81400000595,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 601,
+          "completion_tokens": 32,
+          "embedding_tokens": 19
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203222_2eb34907",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203222_2eb34907.json"
+      },
+      "eval_guided": {
+        "answer": "Shanghai Pudong International Airport is 92 kilometers east of Kunshan according to the commencement visitor guide [getting-to-dku::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.2222222222222222,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "getting-to-dku",
+          "getting-to-dku",
+          "conference-center",
+          "dku-about"
+        ],
+        "latency_ms": 3898.043458000757,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 1491,
+          "completion_tokens": 110,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203457_47ae561f",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203457_47ae561f.json"
+      }
+    },
+    {
+      "question_id": "dku-023",
+      "question": "About how much does a taxi from Kunshan South Station to the DKU campus cost according to the International Students Zone note?",
+      "answerable": true,
+      "baseline": {
+        "answer": "According to the International Students Zone note, a taxi from Kunshan South Station to the DKU campus costs around 30 RMB [getting-to-dku::c001].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.2727272727272727,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "getting-to-dku",
+          "getting-to-dku",
+          "conference-center",
+          "dku-about"
+        ],
+        "latency_ms": 2773.2570840016706,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 608,
+          "completion_tokens": 34,
+          "embedding_tokens": 25
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203225_cc7a6efd",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203225_cc7a6efd.json"
+      },
+      "eval_guided": {
+        "answer": "According to the International Students Zone note, a taxi from Kunshan South Station to the DKU campus costs around 30 RMB [getting-to-dku::c001].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.2727272727272727,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "getting-to-dku",
+          "getting-to-dku",
+          "conference-center",
+          "dku-about"
+        ],
+        "latency_ms": 3943.6959589947946,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 1511,
+          "completion_tokens": 107,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203501_f9592145",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203501_f9592145.json"
+      }
+    },
+    {
+      "question_id": "dku-024",
+      "question": "How far is Dayu Bay from the DKU campus according to the commencement visitor guide?",
+      "answerable": true,
+      "baseline": {
+        "answer": "According to the commencement visitor guide, Dayu Bay is a short walk from the DKU campus, with a walking distance of 500 meters [dayu-bay::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.18181818181818182,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "dayu-bay",
+          "dku-library-handbook-2021",
+          "dku-library-guide-202501",
+          "duke-university-durham"
+        ],
+        "latency_ms": 2788.102250007796,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 579,
+          "completion_tokens": 37,
+          "embedding_tokens": 18
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203228_d67dd09a",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203228_d67dd09a.json"
+      },
+      "eval_guided": {
+        "answer": "According to the commencement visitor guide, Dayu Bay is a short walk from the DKU campus, with a walking distance of 500 meters [dayu-bay::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.18181818181818182,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "dayu-bay",
+          "dku-library-handbook-2021",
+          "dku-library-guide-202501",
+          "duke-university-durham"
+        ],
+        "latency_ms": 4029.6691249968717,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 1456,
+          "completion_tokens": 120,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203505_83d5bd91",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203505_83d5bd91.json"
+      }
+    },
+    {
+      "question_id": "dku-025",
+      "question": "In what year was the Ziqiang Institute, later connected with Wuhan University, founded?",
+      "answerable": true,
+      "baseline": {
+        "answer": "The Ziqiang Institute, later connected with Wuhan University, was founded in 1893 by Zhang Zhidong [wuhan-university::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.125,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "wuhan-university",
+          "dku-about",
+          "registrar-spring-2027",
+          "wuhan-university"
+        ],
+        "latency_ms": 2640.035332995467,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 505,
+          "completion_tokens": 32,
+          "embedding_tokens": 19
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203231_2633507a",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203231_2633507a.json"
+      },
+      "eval_guided": {
+        "answer": "The Ziqiang Institute, later connected with Wuhan University, was founded in 1893 by Zhang Zhidong [wuhan-university::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.125,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "wuhan-university",
+          "dku-about",
+          "registrar-spring-2027",
+          "wuhan-university"
+        ],
+        "latency_ms": 3784.4792079995386,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 1303,
+          "completion_tokens": 117,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203509_713736ad",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203509_713736ad.json"
+      }
+    },
+    {
+      "question_id": "dku-026",
+      "question": "In what year did the institution officially become Duke University?",
+      "answerable": true,
+      "baseline": {
+        "answer": "Duke University officially became Duke University in 1924 [duke-university-durham::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.19999999999999998,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "duke-university-durham",
+          "dku-library-handbook-2021",
+          "duke-university-durham",
+          "dku-about"
+        ],
+        "latency_ms": 2724.097708996851,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 535,
+          "completion_tokens": 23,
+          "embedding_tokens": 11
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203233_efc8b26d",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203233_efc8b26d.json"
+      },
+      "eval_guided": {
+        "answer": "Duke University officially became Duke University in 1924 [duke-university-durham::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.19999999999999998,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "duke-university-durham",
+          "dku-library-handbook-2021",
+          "duke-university-durham",
+          "dku-about"
+        ],
+        "latency_ms": 3178.3152079879073,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 1354,
+          "completion_tokens": 95,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203512_9b6ff337",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203512_9b6ff337.json"
+      }
+    },
+    {
+      "question_id": "dku-027",
+      "question": "Up to how many guests does the DKU Conference Center auditorium hold?",
+      "answerable": true,
+      "baseline": {
+        "answer": "The DKU Conference Center auditorium holds up to 300 guests [conference-center::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.18181818181818182,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "conference-center",
+          "dku-library-guide-202501",
+          "dku-library-handbook-2021",
+          "conference-center-dining"
+        ],
+        "latency_ms": 2945.4197919985745,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 562,
+          "completion_tokens": 19,
+          "embedding_tokens": 15
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203236_cb4ca69e",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203236_cb4ca69e.json"
+      },
+      "eval_guided": {
+        "answer": "The DKU Conference Center auditorium holds up to 300 guests [conference-center::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.18181818181818182,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "conference-center",
+          "dku-library-guide-202501",
+          "dku-library-handbook-2021",
+          "conference-center-dining"
+        ],
+        "latency_ms": 3514.6438329975354,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 1404,
+          "completion_tokens": 67,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203515_84c6344d",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203515_84c6344d.json"
+      }
+    },
+    {
+      "question_id": "dku-028",
+      "question": "How many guest rooms does the DKU Conference Center have?",
+      "answerable": true,
+      "baseline": {
+        "answer": "The DKU Conference Center has over 200 guest rooms [conference-center::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.3636363636363636,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "conference-center",
+          "dku-library-guide-202501",
+          "dku-library-handbook-2021",
+          "dku-library-handbook-2021"
+        ],
+        "latency_ms": 3052.8282080049394,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 571,
+          "completion_tokens": 18,
+          "embedding_tokens": 12
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203239_b22fed36",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203239_b22fed36.json"
+      },
+      "eval_guided": {
+        "answer": "The DKU Conference Center has over 200 guest rooms [conference-center::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.3636363636363636,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "conference-center",
+          "dku-library-guide-202501",
+          "dku-library-handbook-2021",
+          "dku-library-handbook-2021"
+        ],
+        "latency_ms": 3810.3210830013268,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 1421,
+          "completion_tokens": 90,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203519_bd5b9f0a",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203519_bd5b9f0a.json"
+      }
+    },
+    {
+      "question_id": "dku-029",
+      "question": "What is the email address for the Center for the Study of Contemporary China at Duke Kunshan University?",
+      "answerable": true,
+      "baseline": {
+        "answer": "The email address for the Center for the Study of Contemporary China at Duke Kunshan University is dku-cscc@dukekunshan.edu.cn [cscc::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.11764705882352941,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "cscc",
+          "dku-about",
+          "dku-about",
+          "conference-center"
+        ],
+        "latency_ms": 2383.103000000119,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 587,
+          "completion_tokens": 37,
+          "embedding_tokens": 20
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203242_53f977eb",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203242_53f977eb.json"
+      },
+      "eval_guided": {
+        "answer": "The email address for the Center for the Study of Contemporary China at Duke Kunshan University is dku-cscc@dukekunshan.edu.cn [cscc::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.11764705882352941,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "cscc",
+          "dku-about",
+          "dku-about",
+          "conference-center"
+        ],
+        "latency_ms": 3225.511665994418,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 1472,
+          "completion_tokens": 100,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203522_3a0d3144",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203522_3a0d3144.json"
+      }
+    },
+    {
+      "question_id": "dku-030",
+      "question": "What phone number is listed for the Center for the Study of Contemporary China?",
+      "answerable": true,
+      "baseline": {
+        "answer": "The phone number listed for the Center for the Study of Contemporary China is +86 512 36657053 [cscc::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.33333333333333337,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "cscc",
+          "cscc",
+          "dku-library-guide-202501",
+          "conference-center-dining"
+        ],
+        "latency_ms": 2271.022790999268,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 575,
+          "completion_tokens": 29,
+          "embedding_tokens": 15
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203244_aa41adbe",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203244_aa41adbe.json"
+      },
+      "eval_guided": {
+        "answer": "The phone number listed for the Center for the Study of Contemporary China is +86 512 36657053 [cscc::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.33333333333333337,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "cscc",
+          "cscc",
+          "dku-library-guide-202501",
+          "conference-center-dining"
+        ],
+        "latency_ms": 3148.939791994053,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 0,
+          "prompt_tokens": 1440,
+          "completion_tokens": 94,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203526_325be036",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203526_325be036.json"
+      }
+    },
+    {
+      "question_id": "dku-031",
+      "question": "What time does breakfast end at Halal Dining at the Conference Center?",
+      "answerable": false,
+      "baseline": {
+        "answer": "I do not know based on the retrieved documents.",
+        "exact_match": true,
+        "contains_answer": true,
+        "f1": 1.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "conference-center-dining",
+          "academic-building-dining",
+          "conference-center",
+          "conference-center"
+        ],
+        "latency_ms": 2384.228750001057,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 548,
+          "completion_tokens": 10,
+          "embedding_tokens": 14
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203246_82a61347",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203246_82a61347.json"
+      },
+      "eval_guided": {
+        "answer": "I do not know based on the retrieved documents.",
+        "exact_match": true,
+        "contains_answer": true,
+        "f1": 1.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "conference-center-dining",
+          "academic-building-dining",
+          "conference-center",
+          "dku-library-hours",
+          "conference-center",
+          "dku-library-guide-202501",
+          "registrar-spring-2027",
+          "registrar-fall-2026",
+          "dayu-bay",
+          "academic-building-dining",
+          "dku-library-guide-202501",
+          "wuhan-university"
+        ],
+        "latency_ms": 11738.69804199785,
+        "usage": {
+          "chat_calls": 6,
+          "embedding_calls": 1,
+          "prompt_tokens": 5916,
+          "completion_tokens": 211,
+          "embedding_tokens": 17
+        },
+        "recovery_action": "expand",
+        "attributed_class": "evidence_insufficiency",
+        "verification_outcome": "still_failing",
+        "previous_answer": "I do not know based on the retrieved documents.",
+        "previous_f1": 1.0,
+        "f1_delta": 0.0,
+        "rewritten_query": "What time does breakfast end at Halal Dining in the Conference Center at DKU?",
+        "run_id": "20261010T203537_0657c86a",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203537_0657c86a.json"
+      }
+    },
+    {
+      "question_id": "dku-032",
+      "question": "What time does breakfast end at Executive Dining in the Academic Building?",
+      "answerable": false,
+      "baseline": {
+        "answer": "Breakfast at Executive Dining in the Academic Building does not have listed hours, indicating that there are no breakfast hours for this venue [academic-building-dining::c000].",
+        "exact_match": false,
+        "contains_answer": false,
+        "f1": 0.0,
+        "abstained": false,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "academic-building-dining",
+          "conference-center-dining",
+          "academic-building-dining",
+          "dku-library-guide-202501"
+        ],
+        "latency_ms": 3351.0445420106407,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 559,
+          "completion_tokens": 33,
+          "embedding_tokens": 13
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203250_e55c4ae2",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203250_e55c4ae2.json"
+      },
+      "eval_guided": {
+        "answer": "Breakfast at Executive Dining in the Academic Building does not have listed hours, indicating that it does not serve breakfast [academic-building-dining::c000].",
+        "exact_match": false,
+        "contains_answer": false,
+        "f1": 0.0,
+        "abstained": false,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "academic-building-dining",
+          "conference-center-dining",
+          "academic-building-dining",
+          "dku-library-guide-202501",
+          "conference-center",
+          "registrar-fall-2026",
+          "registrar-fall-2026",
+          "dku-library-hours",
+          "registrar-spring-2027",
+          "dku-library-guide-202501",
+          "registrar-spring-2027",
+          "dku-library-guide-202501"
+        ],
+        "latency_ms": 15255.102082999656,
+        "usage": {
+          "chat_calls": 6,
+          "embedding_calls": 1,
+          "prompt_tokens": 6052,
+          "completion_tokens": 289,
+          "embedding_tokens": 14
+        },
+        "recovery_action": "expand",
+        "attributed_class": "evidence_insufficiency",
+        "verification_outcome": "still_failing",
+        "previous_answer": "Breakfast at Executive Dining in the Academic Building does not have listed hours, indicating that there are no breakfast hours for this venue [academic-building-dining::c000].",
+        "previous_f1": 0.0,
+        "f1_delta": 0.0,
+        "rewritten_query": "What time does breakfast end at Executive Dining located in the Academic Building?",
+        "run_id": "20261010T203553_cc525264",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203553_cc525264.json"
+      }
+    },
+    {
+      "question_id": "dku-033",
+      "question": "What are Perkins Library Saturday hours at Duke University in Durham?",
+      "answerable": false,
+      "baseline": {
+        "answer": "I do not know based on the retrieved documents.",
+        "exact_match": true,
+        "contains_answer": true,
+        "f1": 1.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "duke-university-durham",
+          "dku-library-hours",
+          "registrar-fall-2026",
+          "wuhan-university"
+        ],
+        "latency_ms": 2198.80916600232,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 506,
+          "completion_tokens": 10,
+          "embedding_tokens": 12
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203252_202ab7b4",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203252_202ab7b4.json"
+      },
+      "eval_guided": {
+        "answer": "I do not know based on the retrieved documents.",
+        "exact_match": true,
+        "contains_answer": true,
+        "f1": 1.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "duke-university-durham",
+          "dku-library-hours",
+          "registrar-fall-2026",
+          "wuhan-university",
+          "dku-library-hours",
+          "dku-library-handbook-2021",
+          "dku-library-handbook-2021",
+          "dku-library-guide-202501",
+          "dku-library-guide-202501",
+          "dku-library-guide-202501",
+          "duke-university-durham",
+          "conference-center"
+        ],
+        "latency_ms": 13113.3797079965,
+        "usage": {
+          "chat_calls": 6,
+          "embedding_calls": 1,
+          "prompt_tokens": 5738,
+          "completion_tokens": 213,
+          "embedding_tokens": 17
+        },
+        "recovery_action": "abstain",
+        "attributed_class": "evidence_insufficiency",
+        "verification_outcome": "still_failing",
+        "previous_answer": "I do not know based on the retrieved documents.",
+        "previous_f1": 1.0,
+        "f1_delta": 0.0,
+        "rewritten_query": "What are the Saturday hours for Perkins Library at Duke University in Durham, North Carolina?",
+        "run_id": "20261010T203606_6f988091",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203606_6f988091.json"
+      }
+    },
+    {
+      "question_id": "dku-034",
+      "question": "Which restaurant in Dayu Bay is closest to the DKU campus?",
+      "answerable": false,
+      "baseline": {
+        "answer": "The evidence does not specify which restaurant in Dayu Bay is closest to the DKU campus. It only mentions that there is an array of restaurants located in the Dayu Bay commercial center, but does not name any specific restaurant or provide further details [dayu-bay::c000].",
+        "exact_match": false,
+        "contains_answer": false,
+        "f1": 0.0,
+        "abstained": false,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "dayu-bay",
+          "conference-center",
+          "conference-center-dining",
+          "conference-center"
+        ],
+        "latency_ms": 3116.6260419995524,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 545,
+          "completion_tokens": 58,
+          "embedding_tokens": 14
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203255_87fac7f0",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203255_87fac7f0.json"
+      },
+      "eval_guided": {
+        "answer": "The evidence does not specify which restaurant in Dayu Bay is closest to the DKU campus. It only mentions that there is an array of restaurants located in the Dayu Bay commercial center, which is a short walk of 500 meters from the DKU campus, but does not name any specific restaurant [dayu-bay::c000]. Therefore, I do not know which restaurant is closest.",
+        "exact_match": true,
+        "contains_answer": true,
+        "f1": 1.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "dayu-bay",
+          "conference-center",
+          "conference-center",
+          "conference-center-dining",
+          "academic-building-dining",
+          "duke-university-durham",
+          "academic-building-dining",
+          "wuhan-university",
+          "dku-library-handbook-2021",
+          "dku-library-hours",
+          "dku-library-guide-202501",
+          "dku-library-handbook-2021"
+        ],
+        "latency_ms": 14841.901958992821,
+        "usage": {
+          "chat_calls": 6,
+          "embedding_calls": 1,
+          "prompt_tokens": 6009,
+          "completion_tokens": 403,
+          "embedding_tokens": 14
+        },
+        "recovery_action": "expand",
+        "attributed_class": "evidence_insufficiency",
+        "verification_outcome": "still_failing",
+        "previous_answer": "The evidence does not specify which restaurant in Dayu Bay is closest to the DKU campus. It only mentions that there is an array of restaurants located in the Dayu Bay commercial center, but does not name any specific restaurant or provide further details [dayu-bay::c000]. Therefore, I do not know which restaurant is closest based on the retrieved documents.",
+        "previous_f1": 1.0,
+        "f1_delta": 0.0,
+        "rewritten_query": "Which restaurant near Dayu Bay is closest to the DKU campus?",
+        "run_id": "20261010T203621_30440817",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203621_30440817.json"
+      }
+    },
+    {
+      "question_id": "dku-035",
+      "question": "What is the current weekday shuttle timetable from Kunshan South Station to the DKU campus?",
+      "answerable": false,
+      "baseline": {
+        "answer": "I do not know based on the retrieved documents.",
+        "exact_match": true,
+        "contains_answer": true,
+        "f1": 1.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "getting-to-dku",
+          "getting-to-dku",
+          "dku-library-hours",
+          "wuhan-university"
+        ],
+        "latency_ms": 2357.700750013464,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 579,
+          "completion_tokens": 10,
+          "embedding_tokens": 18
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203257_1d4eff7f",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203257_1d4eff7f.json"
+      },
+      "eval_guided": {
+        "answer": "I do not know based on the retrieved documents.",
+        "exact_match": true,
+        "contains_answer": true,
+        "f1": 1.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "getting-to-dku",
+          "getting-to-dku",
+          "dku-library-hours",
+          "wuhan-university",
+          "dku-about",
+          "conference-center",
+          "conference-center",
+          "dku-about",
+          "registrar-fall-2026",
+          "dayu-bay",
+          "wuhan-university",
+          "dku-library-handbook-2021"
+        ],
+        "latency_ms": 10698.299041003338,
+        "usage": {
+          "chat_calls": 6,
+          "embedding_calls": 0,
+          "prompt_tokens": 6130,
+          "completion_tokens": 255,
+          "embedding_tokens": 0
+        },
+        "recovery_action": "abstain",
+        "attributed_class": "evidence_insufficiency",
+        "verification_outcome": "still_failing",
+        "previous_answer": "I do not know based on the retrieved documents.",
+        "previous_f1": 1.0,
+        "f1_delta": 0.0,
+        "rewritten_query": "What is the current weekday shuttle timetable from Kunshan South Station to the DKU campus?",
+        "run_id": "20261010T203631_0d369a76",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203631_0d369a76.json"
+      }
+    },
+    {
+      "question_id": "dku-036",
+      "question": "What is DKU undergraduate tuition for 2026-2027?",
+      "answerable": false,
+      "baseline": {
+        "answer": "I do not know based on the retrieved documents.",
+        "exact_match": true,
+        "contains_answer": true,
+        "f1": 1.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "registrar-fall-2026",
+          "registrar-spring-2027",
+          "dku-library-handbook-2021",
+          "duke-university-durham"
+        ],
+        "latency_ms": 2251.02437500027,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 617,
+          "completion_tokens": 10,
+          "embedding_tokens": 14
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203300_7d0b97f3",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203300_7d0b97f3.json"
+      },
+      "eval_guided": {
+        "answer": "I do not know based on the retrieved documents.",
+        "exact_match": true,
+        "contains_answer": true,
+        "f1": 1.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "registrar-fall-2026",
+          "registrar-spring-2027",
+          "duke-university-durham",
+          "dku-library-handbook-2021",
+          "wuhan-university",
+          "dku-library-handbook-2021",
+          "dku-about",
+          "registrar-spring-2027",
+          "dku-library-guide-202501",
+          "dku-library-handbook-2021",
+          "dku-library-hours",
+          "getting-to-dku"
+        ],
+        "latency_ms": 12729.757541004801,
+        "usage": {
+          "chat_calls": 6,
+          "embedding_calls": 1,
+          "prompt_tokens": 6198,
+          "completion_tokens": 255,
+          "embedding_tokens": 20
+        },
+        "recovery_action": "expand",
+        "attributed_class": "evidence_insufficiency",
+        "verification_outcome": "still_failing",
+        "previous_answer": "I do not know based on the retrieved documents.",
+        "previous_f1": 1.0,
+        "f1_delta": 0.0,
+        "rewritten_query": "What is the undergraduate tuition rate for DKU for the academic year 2026-2027?",
+        "run_id": "20261010T203644_e05e8411",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203644_e05e8411.json"
+      }
+    },
+    {
+      "question_id": "dku-037",
+      "question": "Who is the current chancellor of Duke Kunshan University?",
+      "answerable": false,
+      "baseline": {
+        "answer": "I do not know based on the retrieved documents.",
+        "exact_match": true,
+        "contains_answer": true,
+        "f1": 1.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "dku-about",
+          "dku-about",
+          "duke-university-durham",
+          "cscc"
+        ],
+        "latency_ms": 2350.5616250040475,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 568,
+          "completion_tokens": 10,
+          "embedding_tokens": 11
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203302_80523752",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203302_80523752.json"
+      },
+      "eval_guided": {
+        "answer": "I do not know based on the retrieved documents.",
+        "exact_match": true,
+        "contains_answer": true,
+        "f1": 1.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "dku-about",
+          "dku-about",
+          "wuhan-university",
+          "conference-center",
+          "duke-university-durham",
+          "duke-university-durham",
+          "cscc",
+          "wuhan-university",
+          "getting-to-dku",
+          "duke-university-durham",
+          "dku-library-handbook-2021",
+          "dku-library-hours"
+        ],
+        "latency_ms": 12365.079916999093,
+        "usage": {
+          "chat_calls": 6,
+          "embedding_calls": 1,
+          "prompt_tokens": 6016,
+          "completion_tokens": 194,
+          "embedding_tokens": 14
+        },
+        "recovery_action": "expand",
+        "attributed_class": "evidence_insufficiency",
+        "verification_outcome": "still_failing",
+        "previous_answer": "I do not know based on the retrieved documents.",
+        "previous_f1": 1.0,
+        "f1_delta": 0.0,
+        "rewritten_query": "Who is the current chancellor of Duke Kunshan University (DKU)?",
+        "run_id": "20261010T203656_d19209cb",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203656_d19209cb.json"
+      }
+    },
+    {
+      "question_id": "dku-038",
+      "question": "How many undergraduates did Duke Kunshan University enroll in Fall 2023?",
+      "answerable": false,
+      "baseline": {
+        "answer": "I do not know based on the retrieved documents.",
+        "exact_match": true,
+        "contains_answer": true,
+        "f1": 1.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "dku-about",
+          "dku-about",
+          "duke-university-durham",
+          "duke-university-durham"
+        ],
+        "latency_ms": 2793.3519590005744,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 512,
+          "completion_tokens": 10,
+          "embedding_tokens": 16
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203305_f870402e",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203305_f870402e.json"
+      },
+      "eval_guided": {
+        "answer": "I do not know based on the retrieved documents.",
+        "exact_match": true,
+        "contains_answer": true,
+        "f1": 1.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "dku-about",
+          "dku-about",
+          "duke-university-durham",
+          "duke-university-durham",
+          "wuhan-university",
+          "conference-center",
+          "getting-to-dku",
+          "registrar-fall-2026",
+          "duke-university-durham",
+          "dku-library-hours",
+          "cscc",
+          "getting-to-dku"
+        ],
+        "latency_ms": 11446.562917000847,
+        "usage": {
+          "chat_calls": 6,
+          "embedding_calls": 1,
+          "prompt_tokens": 5881,
+          "completion_tokens": 252,
+          "embedding_tokens": 17
+        },
+        "recovery_action": "expand",
+        "attributed_class": "evidence_insufficiency",
+        "verification_outcome": "still_failing",
+        "previous_answer": "The provided evidence does not include information on the number of undergraduates Duke Kunshan University enrolled in Fall 2023. Therefore, I do not know based on the retrieved documents.",
+        "previous_f1": 1.0,
+        "f1_delta": 0.0,
+        "rewritten_query": "What is the undergraduate enrollment number for Duke Kunshan University in Fall 2023?",
+        "run_id": "20261010T203708_358f2123",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203708_358f2123.json"
+      }
+    },
+    {
+      "question_id": "dku-039",
+      "question": "What are the DKU Library building hours during Chinese New Year 2027?",
+      "answerable": false,
+      "baseline": {
+        "answer": "I do not know based on the retrieved documents.",
+        "exact_match": true,
+        "contains_answer": true,
+        "f1": 1.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "wuhan-university",
+          "dku-library-hours",
+          "dku-library-guide-202501",
+          "registrar-fall-2026"
+        ],
+        "latency_ms": 2654.967416994623,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 484,
+          "completion_tokens": 10,
+          "embedding_tokens": 16
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203307_c52ce49e",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203307_c52ce49e.json"
+      },
+      "eval_guided": {
+        "answer": "I do not know based on the retrieved documents.",
+        "exact_match": true,
+        "contains_answer": true,
+        "f1": 1.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "wuhan-university",
+          "dku-library-hours",
+          "registrar-fall-2026",
+          "dku-library-guide-202501",
+          "registrar-spring-2027",
+          "dku-library-hours",
+          "dku-library-handbook-2021",
+          "duke-university-durham",
+          "registrar-fall-2026",
+          "registrar-spring-2027",
+          "registrar-fall-2026",
+          "dku-library-handbook-2021"
+        ],
+        "latency_ms": 13077.596582996193,
+        "usage": {
+          "chat_calls": 6,
+          "embedding_calls": 1,
+          "prompt_tokens": 5844,
+          "completion_tokens": 259,
+          "embedding_tokens": 18
+        },
+        "recovery_action": "abstain",
+        "attributed_class": "evidence_insufficiency",
+        "verification_outcome": "still_failing",
+        "previous_answer": "I do not know based on the retrieved documents.",
+        "previous_f1": 1.0,
+        "f1_delta": 0.0,
+        "rewritten_query": "What are the DKU Library hours during the Chinese New Year holiday in 2027?",
+        "run_id": "20261010T203721_31cba051",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203721_31cba051.json"
+      }
+    },
+    {
+      "question_id": "dku-040",
+      "question": "How much does a standard meal cost at University Dining in the Academic Building?",
+      "answerable": false,
+      "baseline": {
+        "answer": "I do not know the cost of a standard meal at University Dining in the Academic Building based on the retrieved documents.",
+        "exact_match": true,
+        "contains_answer": true,
+        "f1": 1.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "academic-building-dining",
+          "academic-building-dining",
+          "conference-center-dining",
+          "conference-center"
+        ],
+        "latency_ms": 2592.5917499989737,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 509,
+          "completion_tokens": 23,
+          "embedding_tokens": 15
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261010T203310_0c77dcf0",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/baseline/traces/20261010T203310_0c77dcf0.json"
+      },
+      "eval_guided": {
+        "answer": "I do not know based on the retrieved documents.",
+        "exact_match": true,
+        "contains_answer": true,
+        "f1": 1.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "academic-building-dining",
+          "academic-building-dining",
+          "conference-center-dining",
+          "conference-center",
+          "getting-to-dku",
+          "dayu-bay",
+          "dku-library-guide-202501",
+          "dku-library-handbook-2021",
+          "registrar-fall-2026",
+          "conference-center",
+          "dku-library-guide-202501",
+          "registrar-fall-2026"
+        ],
+        "latency_ms": 12269.377584001631,
+        "usage": {
+          "chat_calls": 6,
+          "embedding_calls": 1,
+          "prompt_tokens": 5949,
+          "completion_tokens": 261,
+          "embedding_tokens": 17
+        },
+        "recovery_action": "abstain",
+        "attributed_class": "evidence_insufficiency",
+        "verification_outcome": "still_failing",
+        "previous_answer": "I do not know the cost of a standard meal at University Dining in the Academic Building based on the retrieved documents.",
+        "previous_f1": 1.0,
+        "f1_delta": 0.0,
+        "rewritten_query": "What is the cost of a standard meal at University Dining located in the Academic Building?",
+        "run_id": "20261010T203733_eb2cf8fd",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115/eval_guided/traces/20261010T203733_eb2cf8fd.json"
+      }
+    }
+  ],
+  "output_dir": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261010T203115",
+  "results_dir": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/results/20261010T203115"
+}
