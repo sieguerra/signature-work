@@ -24,3 +24,14 @@ overwrite `experiments/results/20260910T070623/`.
 6. Commit the filled file. Report the raw counts, not a thesis conclusion.
 
 Cursor must not invent the human labels.
+
+## Completed audit
+
+`20261011/`: 40 judge calls from the #100 runs (20 first-pass calls that
+triggered recovery, 20 accepted final calls), seed 38. Agreement with the
+judge: sufficient 39/40, supported 39/40 (`score.json`).
+
+How the labels were made: an AI second rater labelled first, without being
+blind to the judge (`ai-review.md`). The student then read the worksheet and
+that review, confirmed the labels, and overrode item 25. The human labels are
+therefore not independent of the AI review, and any report should say so.

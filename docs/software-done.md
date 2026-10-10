@@ -19,7 +19,7 @@ overwrite it.
 
 - [x] [#99](https://github.com/sieguerra/signature-work/issues/99) gold audit: Harbor, DKU, and Kestrel `audit.jsonl` rows signed off by the student on 2026-10-11 after the worksheet and AI review in `experiments/gold-audit/`. `tests/test_corpus_registry.py` rejects `substring-search` for those three. The other industry collections are still a substring search and are not used in the study.
 - [x] [#100](https://github.com/sieguerra/signature-work/issues/100) full gold on the current loop: Harbor `experiments/results/20261010T203121/`, DKU `20261010T203115/`, Kestrel `20261010T202849/` (`top_k` 4, `max_recoveries` 2). The 27 September folders stay as the `top_k` 1 stress tests.
-- [ ] [#38](https://github.com/sieguerra/signature-work/issues/38) hand-labelled judge sample (`n` and agreement counts). Template: `experiments/judge-audit/`
+- [x] [#38](https://github.com/sieguerra/signature-work/issues/38) labelled judge sample: `experiments/judge-audit/20261011/` (n = 40; labels confirmed by the student after an AI second-rater pass, so not independent)
 - [ ] [#39](https://github.com/sieguerra/signature-work/issues/39) new timestamped snapshot **after** recovery can change the answer. Do not overwrite Harbor `20260910T070623`
 
 ## Later platform, not V1 blockers

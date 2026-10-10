@@ -1,0 +1,23 @@
+{
+  "n": 40,
+  "agree_sufficient": 39,
+  "disagree_sufficient": 1,
+  "agree_supported": 39,
+  "disagree_supported": 1,
+  "by_stage": {
+    "final": {
+      "n": 20,
+      "agree_sufficient": 19,
+      "disagree_sufficient": 1,
+      "agree_supported": 20,
+      "disagree_supported": 0
+    },
+    "first_pass": {
+      "n": 20,
+      "agree_sufficient": 20,
+      "disagree_sufficient": 0,
+      "agree_supported": 19,
+      "disagree_supported": 1
+    }
+  }
+}
