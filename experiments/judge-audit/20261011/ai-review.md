@@ -6,7 +6,9 @@ a second rater, and they were **not blind**: the reviewer saw the judge's
 verdicts before labeling. Treat the agreement below as an upper-biased cross
 check, not as the human-agreement number ADR 003 asks for.
 
-`labels.jsonl` still has `human_sufficient` and `human_supported` set to null.
+After this review, the student read it alongside `worksheet.md`, confirmed
+these labels, and overrode item 25 (counted as supported). Those are the human
+fields in `labels.jsonl`, and they are not independent of this review.
 
 ## Sample
 
