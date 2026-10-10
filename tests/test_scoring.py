@@ -60,6 +60,29 @@ def test_contains_answer_rejects_empty_prediction() -> None:
     assert not contains_answer("", ("Level 3",))
 
 
+def test_contains_answer_ignores_digits_inside_a_citation() -> None:
+    prediction = "The quiet study floor is Level 1 [harbor-library-2019-notice::c003]."
+    assert not contains_answer(prediction, ("Level 3", "3"))
+
+
+def test_contains_answer_needs_a_whole_word_alias() -> None:
+    assert not contains_answer("Yes, Shop 6 cuts titanium and is not idle.", ("no",))
+    assert not contains_answer("Group rooms are on Level 12.", ("Level 1", "1"))
+    assert not contains_answer("It is due in 2026.", ("2",))
+
+
+def test_contains_answer_still_accepts_a_short_alias_said_as_a_word() -> None:
+    assert contains_answer("No, Shop 6 does not cut titanium [shop-6::c000].", ("no",))
+    assert contains_answer("The quiet floor is floor 3 [annex::c001].", ("Level 3", "3"))
+    assert contains_answer("Open 12:00-18:00 on Sunday.", ("12:00-18:00",))
+    assert contains_answer("Email dkulibrary@dukekunshan.edu.cn.", ("dkulibrary@dukekunshan.edu.cn",))
+
+
+def test_contains_answer_does_not_match_a_different_fact_with_the_same_number() -> None:
+    assert not contains_answer("The campus covers 2000 acres.", ("200",))
+    assert contains_answer("It has over 200 guest rooms.", ("over 200", "200"))
+
+
 def test_token_f1_partial_overlap_is_between_zero_and_one() -> None:
     score = token_f1("open 10:00 to 16:00 on Saturday", ("10:00 to 16:00",))
     assert 0.0 < score < 1.0
