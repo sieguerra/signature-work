@@ -21,6 +21,7 @@ from swrag.types import AnswerScore, GoldQuestion
 
 _ARTICLES = re.compile(r"\b(a|an|the)\b", re.IGNORECASE)
 _PUNCTUATION = str.maketrans("", "", string.punctuation)
+_CITATION = re.compile(r"\[[^\[\]]+\]")
 
 # Heuristic abstention detection for the baseline pipeline, whose prompt asks the
 # model to say it does not know. Phase 1 replaces this with an explicit abstain
@@ -73,13 +74,22 @@ def contains_answer(prediction: str, answers: tuple[str, ...]) -> bool:
     bare span, which drives strict Exact Match to near-zero. Lenient in the
     other direction: a long answer that happens to include the gold string
     counts as correct even if it also says other things.
+
+    Citations are removed first and a gold alias must match whole words, so a
+    short alias such as ``3`` or ``no`` is not found inside ``c003``, ``2026``,
+    or ``not``.
     """
-    normalized = normalize_answer(prediction)
-    if not normalized:
+    words = normalize_answer(_CITATION.sub(" ", prediction)).split()
+    if not words:
         return False
-    return any(
-        normalize_answer(answer) in normalized for answer in answers if normalize_answer(answer)
-    )
+    for answer in answers:
+        target = normalize_answer(answer).split()
+        if not target:
+            continue
+        width = len(target)
+        if any(words[i : i + width] == target for i in range(len(words) - width + 1)):
+            return True
+    return False
 
 
 def token_f1(prediction: str, answers: tuple[str, ...]) -> float:
