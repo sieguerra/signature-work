@@ -1,17 +1,17 @@
-# Substring search against supporting .txt files. Not a student sign-off.
-{"question_id": "ka-001", "answerable": true, "span_found": "yes", "file": "about", "notes": "substring 'Hangar 2' in about.txt; student should confirm", "auditor": "substring-search"}
-{"question_id": "ka-002", "answerable": true, "span_found": "yes", "file": "hangar-2", "notes": "substring 'KX-441' in hangar-2.txt; student should confirm", "auditor": "substring-search"}
-{"question_id": "ka-003", "answerable": true, "span_found": "yes", "file": "traveler-2025", "notes": "substring 'AMS 4911R' in traveler-2025.txt; student should confirm", "auditor": "substring-search"}
-{"question_id": "ka-004", "answerable": true, "span_found": "yes", "file": "traveler-2018", "notes": "substring 'AMS 4911N' in traveler-2018.txt; student should confirm", "auditor": "substring-search"}
-{"question_id": "ka-005", "answerable": true, "span_found": "yes", "file": "shifts", "notes": "substring '06:00-14:30' in shifts.txt; student should confirm", "auditor": "substring-search"}
-{"question_id": "ka-006", "answerable": true, "span_found": "yes", "file": "quality", "notes": "substring 'AS9100D' in quality.txt; student should confirm", "auditor": "substring-search"}
-{"question_id": "ka-007", "answerable": true, "span_found": "yes", "file": "calibration", "notes": "substring '1 November 2026' in calibration.txt; student should confirm", "auditor": "substring-search"}
-{"question_id": "ka-008", "answerable": true, "span_found": "yes", "file": "shipping", "notes": "substring 'Dock West' in shipping.txt; student should confirm", "auditor": "substring-search"}
-{"question_id": "ka-009", "answerable": true, "span_found": "yes", "file": "ncr-log", "notes": "substring 'AL-902' in ncr-log.txt; student should confirm", "auditor": "substring-search"}
-{"question_id": "ka-010", "answerable": true, "span_found": "yes", "file": "contacts", "notes": "substring '555-2201' in contacts.txt; student should confirm", "auditor": "substring-search"}
-{"question_id": "ka-011", "answerable": true, "span_found": "yes", "file": "shop-6", "notes": "substring 'no' in shop-6.txt; student should confirm", "auditor": "substring-search"}
-{"question_id": "ka-012", "answerable": true, "span_found": "yes", "file": "tool-crib", "notes": "substring 'Shop 6, drawer 4' in tool-crib.txt; student should confirm", "auditor": "substring-search"}
-{"question_id": "ka-013", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
-{"question_id": "ka-014", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
-{"question_id": "ka-015", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
-{"question_id": "ka-016", "answerable": false, "span_found": "n/a", "file": "", "notes": "unanswerable / omitted on purpose", "auditor": "substring-search"}
+# Signed off by the student on 2026-10-11 after reviewing experiments/gold-audit/worksheet.md and ai-review.md (issue #99).
+{"question_id": "ka-001", "answerable": true, "span_found": "yes", "file": "about", "notes": "'Hangar 2' is in about.txt and answers the question; student confirmed 2026-10-11", "auditor": "Sean Allen Siegfreid R. Bugarin"}
+{"question_id": "ka-002", "answerable": true, "span_found": "yes", "file": "hangar-2", "notes": "'KX-441' is in hangar-2.txt and answers the question; student confirmed 2026-10-11", "auditor": "Sean Allen Siegfreid R. Bugarin"}
+{"question_id": "ka-003", "answerable": true, "span_found": "yes", "file": "traveler-2025", "notes": "'AMS 4911R' is in traveler-2025.txt and answers the question; student confirmed 2026-10-11", "auditor": "Sean Allen Siegfreid R. Bugarin"}
+{"question_id": "ka-004", "answerable": true, "span_found": "yes", "file": "traveler-2018", "notes": "'AMS 4911N' is in traveler-2018.txt and answers the question; student confirmed 2026-10-11", "auditor": "Sean Allen Siegfreid R. Bugarin"}
+{"question_id": "ka-005", "answerable": true, "span_found": "yes", "file": "shifts", "notes": "'06:00-14:30' is in shifts.txt and answers the question; student confirmed 2026-10-11", "auditor": "Sean Allen Siegfreid R. Bugarin"}
+{"question_id": "ka-006", "answerable": true, "span_found": "yes", "file": "quality", "notes": "'AS9100D' is in quality.txt and answers the question; student confirmed 2026-10-11", "auditor": "Sean Allen Siegfreid R. Bugarin"}
+{"question_id": "ka-007", "answerable": true, "span_found": "yes", "file": "calibration", "notes": "'1 November 2026' is in calibration.txt and answers the question; student confirmed 2026-10-11", "auditor": "Sean Allen Siegfreid R. Bugarin"}
+{"question_id": "ka-008", "answerable": true, "span_found": "yes", "file": "shipping", "notes": "'Dock West' is in shipping.txt and answers the question; student confirmed 2026-10-11", "auditor": "Sean Allen Siegfreid R. Bugarin"}
+{"question_id": "ka-009", "answerable": true, "span_found": "yes", "file": "ncr-log", "notes": "'AL-902' is in ncr-log.txt and answers the question; student confirmed 2026-10-11", "auditor": "Sean Allen Siegfreid R. Bugarin"}
+{"question_id": "ka-010", "answerable": true, "span_found": "yes", "file": "contacts", "notes": "'555-2201' is in contacts.txt and answers the question; student confirmed 2026-10-11", "auditor": "Sean Allen Siegfreid R. Bugarin"}
+{"question_id": "ka-011", "answerable": true, "span_found": "yes", "file": "shop-6", "notes": "'no' is in shop-6.txt and answers the question; student confirmed 2026-10-11", "auditor": "Sean Allen Siegfreid R. Bugarin"}
+{"question_id": "ka-012", "answerable": true, "span_found": "yes", "file": "tool-crib", "notes": "'Shop 6, drawer 4' is in tool-crib.txt and answers the question; student confirmed 2026-10-11", "auditor": "Sean Allen Siegfreid R. Bugarin"}
+{"question_id": "ka-013", "answerable": false, "span_found": "n/a", "file": "", "notes": "answer is absent from the collection; student confirmed 2026-10-11", "auditor": "Sean Allen Siegfreid R. Bugarin"}
+{"question_id": "ka-014", "answerable": false, "span_found": "n/a", "file": "", "notes": "answer is absent from the collection; student confirmed 2026-10-11", "auditor": "Sean Allen Siegfreid R. Bugarin"}
+{"question_id": "ka-015", "answerable": false, "span_found": "n/a", "file": "", "notes": "answer is absent from the collection; student confirmed 2026-10-11", "auditor": "Sean Allen Siegfreid R. Bugarin"}
+{"question_id": "ka-016", "answerable": false, "span_found": "n/a", "file": "", "notes": "answer is absent from the collection; student confirmed 2026-10-11", "auditor": "Sean Allen Siegfreid R. Bugarin"}

@@ -64,3 +64,25 @@ def test_every_gold_id_has_an_audit_row() -> None:
         gold_ids = {question.question_id for question in load_gold_set(entry.gold_path)}
         missing = gold_ids - audited
         assert not missing, (entry.id, missing)
+
+
+# The collections scored in the study. Their gold must carry a person's sign-off
+# (#99), not the machine substring search the other collections still use.
+_STUDY_CORPORA = {"harbor", "dku", "kestrel-aero"}
+
+
+def test_study_gold_is_signed_off_by_a_person() -> None:
+    for entry in load_registry(root=ROOT):
+        if entry.id not in _STUDY_CORPORA:
+            continue
+        audit_path = entry.gold_path.parent / "audit.jsonl"
+        for raw in audit_path.read_text(encoding="utf-8").splitlines():
+            line = raw.strip()
+            if not line or line.startswith("#"):
+                continue
+            payload = json.loads(line)
+            assert payload["auditor"] != "substring-search", (entry.id, payload["question_id"])
+            assert "student should confirm" not in payload["notes"], (
+                entry.id,
+                payload["question_id"],
+            )

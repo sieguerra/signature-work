@@ -92,7 +92,13 @@ but abstention rates on these rows should be described with that in mind.
   wet bench. A correct system answer may explain that rather than use the exact
   abstention phrase, so check how `looks_like_abstention` scores those answers.
 
-## What the student still needs to do for #99
+## Sign-off
+
+The student reviewed this file and the worksheet and signed off on 2026-10-11.
+The Harbor, DKU, and Kestrel `audit.jsonl` rows now carry the student's name.
+Problem 1 was fixed in PR #110.
+
+## What the student still needed to do for #99 (done)
 
 1. Skim this review and the worksheet. For the 64 answerable rows the passages
    are already shown; a quick read is enough.
