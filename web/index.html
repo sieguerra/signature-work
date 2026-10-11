@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>swrag · Reliability</title>
     <meta name="color-scheme" content="dark" />
-    <link rel="stylesheet" href="/static/styles.css?v=58" />
+    <link rel="stylesheet" href="/static/styles.css?v=61" />
   </head>
   <body>
     <div id="app" data-view="overview">
@@ -112,7 +112,7 @@
           <section class="tc-main">
             <form class="tc-controls" id="pg-composer">
               <label class="sr-only" for="pg-question">Test query</label>
-              <textarea id="pg-question" rows="2" placeholder="Test query"></textarea>
+              <textarea id="pg-question" rows="2" placeholder="Ask a question this system should be able to answer"></textarea>
               <div class="tc-control-row">
                 <label class="tc-field">Run mode
                   <select id="pg-mode" aria-label="Run mode">
@@ -123,10 +123,13 @@
                   </select>
                 </label>
                 <label class="tc-field">Recovery policy
-                  <select id="pg-recovery-policy" aria-label="Recovery policy">
-                    <option value="v1" selected>Current v1</option>
-                    <option value="gap_aware">Gap-aware (Guarded)</option>
-                  </select>
+                  <span class="tc-policy-line">
+                    <select id="pg-recovery-policy" aria-label="Recovery policy">
+                      <option value="v1" selected>Current v1</option>
+                      <option value="gap_aware">Gap-aware (Guarded)</option>
+                    </select>
+                    <span class="status-pill is-guarded" id="pg-guarded" hidden>Guarded</span>
+                  </span>
                 </label>
                 <label class="tc-field">Retrieval depth
                   <input id="pg-top-k" type="number" min="1" max="20" value="4" step="1" aria-label="How many top passages to retrieve" />
@@ -137,12 +140,20 @@
                 <button type="submit" class="primary" id="pg-run">Run test</button>
               </div>
               <p id="pg-mode-note" class="tc-mode-note"></p>
-              <p id="pg-policy-note" class="tc-mode-note" hidden>Gap-aware recovery expands retrieval first, then conditionally rewrites only when runtime evidence suggests a query mismatch. Otherwise it safely stops instead of continuing futile recovery. This policy is guarded and is not the default.</p>
+              <p id="pg-policy-note" class="tc-mode-note" hidden>Expands retrieval first, then rewrites only if runtime evidence suggests a query mismatch. Otherwise it stops. This policy is guarded and is not the default.</p>
               <p class="tc-depth-note">How many top passages to retrieve.</p>
               <div class="banner hidden" id="pg-error" role="alert"></div>
             </form>
             <div id="tc-flight" class="tc-flight" aria-live="polite">
-              <p class="tc-empty">Run a test query to inspect retrieval, evaluation, recovery, and verification.</p>
+              <div class="tc-idle">
+                <p class="tc-empty">Run a test query to inspect retrieval, evaluation, recovery, and verification.</p>
+                <ol class="tc-flow" aria-label="What a run shows">
+                  <li>Retrieve</li>
+                  <li>Judge</li>
+                  <li>Recover</li>
+                  <li>Verify</li>
+                </ol>
+              </div>
             </div>
           </section>
           <aside class="pg-drawer pg-inspect" id="pg-inspect-pane">
@@ -299,8 +310,8 @@
     <script src="/static/icons.js?v=43"></script>
     <script src="/static/charts.js?v=46"></script>
     <script src="/static/flight-recorder.js?v=4"></script>
-    <script src="/static/reliability.js?v=2"></script>
+    <script src="/static/reliability.js?v=3"></script>
     <script src="/static/agent-config.js?v=46"></script>
-    <script src="/static/app.js?v=61"></script>
+    <script src="/static/app.js?v=63"></script>
   </body>
 </html>
