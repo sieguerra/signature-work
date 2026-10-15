@@ -8,6 +8,7 @@ const {
   labelRecovery,
   labelSource,
   labelVerification,
+  presentVerification,
   qualityStatus,
 } = require("./reliability.js");
 
@@ -131,5 +132,7 @@ test("gap-aware runs can be filtered without treating a safe stop as a rewrite",
   assert.equal(filterLogicalRuns(rows, { policy: "v1" }).length, 1);
   assert.equal(filterLogicalRuns(rows, { action: "safe_stop" }).length, 1);
   assert.equal(labelRecovery(rows[0]), "Expand → Safe stop");
+  assert.equal(presentVerification(rows[0]), "Safe stop");
+  assert.equal(labelVerification(rows[0]), "Still failing");
   assert.equal(filterLogicalRuns(rows, { policy: "all" }).length, 2);
 });

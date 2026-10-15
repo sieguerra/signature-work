@@ -1587,7 +1587,7 @@ function renderKnowledge() {
             <span>${escapeHtml(item.name)}</span>
           </button>
         </td>
-        <td>${escapeHtml(type)}</td>
+        <td><span class="kn-type">${escapeHtml(type)}</span></td>
         <td class="kn-size">${escapeHtml(formatBytes(item.size))}</td>
         <td class="kn-actions">${
           writable
@@ -4034,8 +4034,19 @@ function bind() {
       const sample = $("api-sample");
       const text = sample ? sample.textContent : "";
       const done = text && navigator.clipboard && navigator.clipboard.writeText(text);
-      if (done && done.then) done.then(() => toast("Copied example")).catch(() => showError("Could not copy the example."));
-      else showError("Could not copy the example.");
+      if (done && done.then) {
+        done.then(() => {
+          toast("Copied example");
+          const previous = copySample.innerHTML;
+          copySample.classList.add("is-copied");
+          copySample.innerHTML = `${icon("check", 14)} Copied`;
+          window.setTimeout(() => {
+            if (!copySample.isConnected) return;
+            copySample.classList.remove("is-copied");
+            copySample.innerHTML = previous;
+          }, 1200);
+        }).catch(() => showError("Could not copy the example."));
+      } else showError("Could not copy the example.");
       return;
     }
     const dismissKey = event.target.closest("[data-key-done]");
@@ -4300,9 +4311,33 @@ function relOutcomeRows(outcomes) {
     .map(([key, label]) => {
       const count = outcomes[key] || 0;
       const width = Math.round((count / total) * 100);
-      return `<div class="rel-line"><span>${label}</span><span class="rel-bar"><span style="width:${width}%"></span></span><span>${count}</span></div>`;
+      return `<div class="rel-line"><span>${label}</span><span class="rel-bar"><span class="is-${key}" style="width:${width}%"></span></span><span>${count}</span></div>`;
     })
     .join("");
+}
+
+function relStatus(run, view) {
+  const label = view && view.presentVerification ? view.presentVerification(run) : view.labelVerification(run);
+  const tone = {
+    "Safe stop": "safe_stop",
+    Improved: "improved",
+    Unchanged: "unchanged",
+    "Still failing": "still_failing",
+    Degraded: "degraded",
+    Pending: "pending",
+  }[label] || "neutral";
+  return `<span class="status-pill is-${tone}">${escapeHtml(label)}</span>`;
+}
+
+function pathChips(text) {
+  const parts = String(text || "")
+    .split(" → ")
+    .map((part) => part.trim())
+    .filter(Boolean);
+  if (!parts.length) return `<span class="ov-quiet">—</span>`;
+  return `<span class="path-chips">${parts
+    .map((part) => `<span class="path-chip">${escapeHtml(part)}</span>`)
+    .join('<span class="path-arrow" aria-hidden="true">→</span>')}</span>`;
 }
 
 function relCountRows(rows, labelFor) {
@@ -4343,9 +4378,9 @@ function renderRelRuns(view) {
       return `<tr>
         <td>${escapeHtml(run.query || "(empty question)")}</td>
         <td>${escapeHtml(view.labelInitialState(run.initial_state))}</td>
-        <td>${escapeHtml(view.labelRecovery(run))}</td>
+        <td>${pathChips(view.labelRecovery(run))}</td>
         <td>${escapeHtml(diagnosis)}</td>
-        <td>${escapeHtml(view.labelVerification(run))}</td>
+        <td>${relStatus(run, view)}</td>
         <td>${escapeHtml(latency)}</td>
         <td>${escapeHtml(relWhen(run.timestamp))}</td>
         <td><button type="button" class="ghost" data-rel-open="${escapeHtml(run.logical_run_id)}">Inspect</button></td>
@@ -4369,7 +4404,7 @@ function renderRelRecoveries(view) {
   const body = cases
     .map((run) => {
       const pending = Boolean(run.recovery_pending) && !(run.recovery || []).length;
-      const path = pending ? `${view.recoveryPath(run)} proposed` : view.recoveryPath(run);
+      const path = pending ? view.recoveryPath(run) : view.labelRecovery(run);
       const diagnosis = !run.judged
         ? "Not judged"
         : (run.diagnoses || []).map(view.labelDiagnosis).join(", ") || "Not attributed";
@@ -4377,9 +4412,9 @@ function renderRelRecoveries(view) {
         <td>${escapeHtml(run.query || "(empty question)")}</td>
         <td>${escapeHtml(view.labelTrigger(run.trigger) || "—")}</td>
         <td>${escapeHtml(diagnosis)}</td>
-        <td>${escapeHtml(path || "—")}</td>
+        <td>${pathChips(path)}${pending ? ` <span class="status-pill is-pending">Proposed</span>` : ""}</td>
         <td>${escapeHtml(view.labelSource(run.source) || "—")}</td>
-        <td>${escapeHtml(view.labelVerification(run))}</td>
+        <td>${relStatus(run, view)}</td>
         <td>${escapeHtml(relWhen(run.timestamp))}</td>
         <td><button type="button" class="ghost" data-rel-open="${escapeHtml(run.logical_run_id)}">Inspect</button></td>
       </tr>`;
@@ -4433,6 +4468,9 @@ function renderRelDetail(view) {
   } else {
     quality += `<p class="rel-stat"><span>Quality</span><strong>Not applicable</strong></p>`;
   }
+  const safeNote = row.safe_stop
+    ? `<p class="tc-safe-note">Safe stop. Bounded recovery stopped because sufficient support was not found. The stored verifier result stays in the trace below and is not a second status.</p>`
+    : "";
   root.innerHTML = `<article class="rel-detail">
     <div class="rel-detail-head">
       <div>
@@ -4442,6 +4480,7 @@ function renderRelDetail(view) {
       <div class="rel-detail-actions">${action}<button type="button" class="ghost danger" data-rel-delete="${escapeHtml(row.logical_run_id)}">Delete run</button></div>
     </div>
     <p class="rel-meta">${escapeHtml(latency)} · ${escapeHtml(usage)}</p>
+    ${safeNote}
     ${flight ? flightHtml(flight, { propose: false }) : `<p class="rel-empty">Loading this run…</p>`}
     <h3>Post-hoc quality</h3>
     ${quality}
@@ -4531,11 +4570,13 @@ function renderFlight() {
   }
   const flight = FlightRecorder.buildFlight(state.flightTraces);
   if (!flight) {
-    root.innerHTML = `<p class="tc-empty">Run a test query to inspect retrieval, evaluation, recovery, and verification.</p>`;
+    root.innerHTML = flightIdleHtml();
     const inspect = $("pg-inspect");
     const title = $("pg-inspector-title");
     if (title) title.textContent = "Run detail";
-    if (inspect) inspect.innerHTML = `<p class="tc-empty">Retrieved passages and judge flags appear with the run.</p>`;
+    if (inspect) {
+      inspect.innerHTML = `<div class="tc-idle tc-idle-side"><p class="tc-empty">Retrieved passages and judge flags appear after a run.</p></div>`;
+    }
     return;
   }
   root.innerHTML = flightHtml(flight);
@@ -4572,21 +4613,41 @@ function renderFlightHistory() {
     .join("");
 }
 
+function flightIdleHtml() {
+  return `<div class="tc-idle">
+    <p class="tc-empty">Run a test query to inspect retrieval, evaluation, recovery, and verification.</p>
+    <ol class="tc-flow" aria-label="What a run shows">
+      <li>Retrieve</li>
+      <li>Judge</li>
+      <li>Recover</li>
+      <li>Verify</li>
+    </ol>
+  </div>`;
+}
+
 function flightHtml(flight, options) {
   const proposal = options && options.propose === false ? "" : flightProposal(flight);
-  return `${flightSummary(flight)}${proposal}${flightWarning(flight)}${flight.phases.map(phaseHtml).join("")}${answerCompare(flight)}${evidenceCompare(flight)}`;
+  return `${flightSummary(flight)}${proposal}${flightWarning(flight)}${flight.phases.map((phase) => phaseHtml(phase, flight)).join("")}${answerCompare(flight)}${evidenceCompare(flight)}`;
 }
 
 function flightSummary(flight) {
+  const chips = [];
   const mode = inferredFlightMode(flight);
-  const parts = [];
-  if (mode) parts.push(mode);
-  if (flight.topK != null) parts.push(`Top K: ${flight.topK}`);
-  parts.push(flight.recoveryPolicy === "v2c_gap_aware" ? "Gap-aware (Guarded)" : "Current v1");
-  if (flight.attemptCount) parts.push(`${flight.attemptCount} recovery attempt${flight.attemptCount === 1 ? "" : "s"}`);
-  parts.push(statusLabel(flight.status));
-  if (flight.latencyMs != null) parts.push(formatFlightLatency(flight.latencyMs));
-  return `<div class="tc-summary">${parts.map((part) => `<span>${escapeHtml(part)}</span>`).join("")}</div>`;
+  if (mode) chips.push(["meta", mode]);
+  if (flight.topK != null) chips.push(["meta", `Top K: ${flight.topK}`]);
+  const guarded = flight.recoveryPolicy === "v2c_gap_aware";
+  chips.push([guarded ? "guarded" : "meta", guarded ? "Gap-aware" : "Current v1"]);
+  if (guarded) chips.push(["guarded", "Guarded"]);
+  if (flight.attemptCount) chips.push(["meta", `${flight.attemptCount} recovery attempt${flight.attemptCount === 1 ? "" : "s"}`]);
+  chips.push(["status", statusLabel(flight.status), flight.status || "neutral"]);
+  if (flight.latencyMs != null) chips.push(["meta", formatFlightLatency(flight.latencyMs)]);
+  return `<div class="tc-summary">${chips
+    .map(([kind, label, tone]) =>
+      kind === "status"
+        ? `<span class="status-pill is-${escapeHtml(tone || "neutral")}">${escapeHtml(label)}</span>`
+        : `<span class="tc-chip${kind === "guarded" ? " is-guarded" : ""}">${escapeHtml(label)}</span>`
+    )
+    .join("")}</div>`;
 }
 
 function inferredFlightMode(flight) {
@@ -4610,8 +4671,10 @@ function selectedRecoveryPolicy() {
 function syncPolicyNote() {
   const note = $("pg-policy-note");
   const field = $("pg-recovery-policy");
-  if (!note || !field) return;
-  note.hidden = field.value !== "gap_aware";
+  const badge = $("pg-guarded");
+  const guarded = Boolean(field && field.value === "gap_aware");
+  if (note) note.hidden = !guarded;
+  if (badge) badge.hidden = !guarded;
 }
 
 function formatUsage(usage) {
@@ -4675,8 +4738,8 @@ function flightWarning(flight) {
   else if (warning.reason) text = warning.reason;
   if (warning.triggeredRecovery) text += " Recovery was triggered by this retrieval signal.";
   const scores = [];
-  if (warning.topScore != null) scores.push(`top ${warning.topScore}`);
-  if (warning.runnerUpScore != null) scores.push(`runner-up ${warning.runnerUpScore}`);
+  if (warning.topScore != null) scores.push(`top ${formatScore(warning.topScore)}`);
+  if (warning.runnerUpScore != null) scores.push(`runner-up ${formatScore(warning.runnerUpScore)}`);
   return `<section class="tc-phase">
     <h2>Retrieval warning</h2>
     <p class="tc-step-detail">${escapeHtml(text)}</p>
@@ -4684,19 +4747,28 @@ function flightWarning(flight) {
   </section>`;
 }
 
-function phaseHtml(phase) {
+function phaseHtml(phase, flight) {
+  const safePhase = String(phase.title || "") === "Recovery · Safe stop";
+  const safeVerify = Boolean(flight && flight.status === "safe_stop" && phase.key === "verification");
   const steps = (phase.steps || [])
-    .map(
-      (step) => `<div class="tc-step${step.kind === "verify" ? " is-verify" : ""}">
+    .map((step) => {
+      const title = safeVerify ? "Verifier recorded" : step.title || "";
+      const detail = safeVerify
+        ? `${step.title || "Verifier result"}. Bounded recovery stopped because sufficient support was not found. This stored result stays in the trace and is not a second status.`
+        : diagnosisText(step.detail || "");
+      return `<div class="tc-step is-${escapeHtml(step.kind || "step")}${step.kind === "verify" ? " is-verify" : ""}">
         <span class="tc-rail" aria-hidden="true"></span>
         <div>
-          <div class="tc-step-title">${escapeHtml(step.title || "")}</div>
-          ${step.detail ? `<div class="tc-step-detail">${escapeHtml(diagnosisText(step.detail))}</div>` : ""}
+          <div class="tc-step-title">${escapeHtml(title)}</div>
+          ${detail ? `<div class="tc-step-detail">${escapeHtml(detail)}</div>` : ""}
         </div>
-      </div>`
-    )
+      </div>`;
+    })
     .join("");
-  return `<section class="tc-phase"><h2>${escapeHtml(phase.title || "")}</h2>${steps}</section>`;
+  const note = safePhase
+    ? `<p class="tc-safe-note">Bounded recovery stopped because sufficient support was not found.</p>`
+    : "";
+  return `<section class="tc-phase${safePhase ? " is-safe" : ""}"><h2>${escapeHtml(phase.title || "")}</h2>${note}${steps}</section>`;
 }
 
 function answerCompare(flight) {
@@ -4707,14 +4779,16 @@ function answerCompare(flight) {
   }
   const initial = flight.before.answer || "The first answer was not stored on this trace.";
   const stopped = flight.status === "safe_stop";
-  const recovered = flight.after.abstained
-    ? `${stopped ? "Safe stop" : "Safe abstention"}\n${flight.after.answer}`
-    : flight.after.answer || "(empty)";
-  return `<section class="tc-phase">
+  const finalTitle = stopped ? "Safe stop" : flight.after.abstained ? "Safe abstention" : "Recovered answer";
+  const recovered = flight.after.answer || "(empty)";
+  const note = stopped
+    ? `<p class="tc-safe-note">Bounded recovery stopped because sufficient support was not found.</p>`
+    : "";
+  return `<section class="tc-phase tc-answers">
     <h2>Answers</h2>
     <div class="tc-compare">
-      <div><h3>Initial answer</h3><p class="tc-step-detail">${escapeHtml(initial)}</p></div>
-      <div><h3>${flight.status === "safe_stop" ? "Safe stop" : flight.after.abstained ? "Safe abstention" : "Recovered answer"}</h3><p class="tc-step-detail">${escapeHtml(recovered)}</p></div>
+      <div class="tc-answer is-initial"><h3>Initial answer</h3><p class="tc-step-detail">${escapeHtml(initial)}</p></div>
+      <div class="tc-answer is-final${stopped ? " is-safe" : ""}"><h3>${escapeHtml(finalTitle)}</h3>${note}<p class="tc-step-detail">${escapeHtml(recovered)}</p></div>
     </div>
   </section>`;
 }
@@ -4761,12 +4835,17 @@ function renderFlightInspector(flight) {
   const after = flight.after ? judgeLines(flight.after.evaluation) : "";
   const outcome = flight.verification ? FlightRecorder.labelOutcome(flight.verification) : "";
   const judged = Boolean(flight.verification || flight.before.evaluation || (flight.after && flight.after.evaluation));
-  inspect.innerHTML = `<section class="tc-phase">
+  const stopped = flight.status === "safe_stop";
+  const headline = stopped ? "Safe stop" : outcome || statusLabel(flight.status);
+  const safeNote = stopped
+    ? `<p class="status-pill is-safe_stop">Safe stop</p><p class="tc-safe-note">Bounded recovery stopped because sufficient support was not found.</p><p class="tc-step-detail">Verifier recorded: ${escapeHtml(outcome || "—")}. That stored result stays on the trace and is not a second status.</p>`
+    : `<p class="status-pill is-${escapeHtml(flight.status || "neutral")}">${escapeHtml(headline)}</p>`;
+  inspect.innerHTML = `<section class="tc-phase${stopped ? " is-safe" : ""}">
     <h2>${judged ? "Runtime verification" : "Run detail"}</h2>
     ${judged ? `<p class="tc-step-detail">Compares runtime judge flags. Not ground-truth correctness.</p>` : ""}
-    <p>Initial: ${escapeHtml(before || "Not judged")}</p>
-    <p>Final: ${escapeHtml(after || before || "Not judged")}</p>
-    <p>${escapeHtml(outcome || statusLabel(flight.status))}</p>
+    <p><span class="tc-k">Initial</span> ${escapeHtml(before || "Not judged")}</p>
+    <p><span class="tc-k">Final</span> ${escapeHtml(after || before || "Not judged")}</p>
+    ${safeNote}
     ${technicalFlags(flight)}
   </section>`;
 }
@@ -4812,6 +4891,12 @@ function clipFlight(value) {
   const text = String(value || "").replace(/\s+/g, " ").trim();
   if (text.length <= 72) return text;
   return `${text.slice(0, 71)}…`;
+}
+
+function formatScore(value) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return String(value);
+  return number.toFixed(3);
 }
 
 function formatFlightLatency(ms) {
@@ -4930,12 +5015,16 @@ function rateMetric(label, bucket, ofLabel, emptyLabel) {
     return metric(label, "—", emptyLabel);
   }
   const percent = formatPercent(bucket.rate);
-  return metric(label, `${count} of ${total}`, percent ? `${percent} ${ofLabel}` : ofLabel);
+  return `<div class="ov-metric">
+    <div class="ov-metric-k">${escapeHtml(label)}</div>
+    <div class="ov-metric-v">${count}<span class="ov-metric-of"> / ${total}</span></div>
+    <div class="ov-metric-s">${escapeHtml(percent ? `${percent} ${ofLabel}` : ofLabel)}</div>
+  </div>`;
 }
 
 function overviewAttention(data) {
   const items = data.needs_attention || [];
-  if (!items.length) return `<p class="ov-empty">No unresolved recovery runs.</p>`;
+  if (!items.length) return `<p class="ov-empty is-clear">${icon("check", 14)} No unresolved recovery runs.</p>`;
   return `<ul class="ov-list">${items.map((item) => `<li class="ov-row">
       <div class="ov-row-main">
         <div class="ov-query" title="${escapeHtml(item.query || "")}">${escapeHtml(item.query || "Untitled run")}</div>
@@ -4991,9 +5080,9 @@ function signalRow(label, pair) {
   return `<div class="ov-signal">
     <div class="ov-signal-name">${escapeHtml(label)}</div>
     <div class="ov-signal-values">
-      <span>${escapeHtml(signalPercent(initial))}</span>
+      <span><em>Initial</em> ${escapeHtml(signalPercent(initial))}</span>
       <span class="ov-arrow" aria-hidden="true">→</span>
-      <span>${escapeHtml(signalPercent(final))}</span>
+      <span><em>Final</em> ${escapeHtml(signalPercent(final))}</span>
     </div>
     <div class="ov-sub">${escapeHtml(signalCount(initial))} → ${escapeHtml(signalCount(final))}</div>
   </div>`;
@@ -5038,12 +5127,12 @@ function overviewActivity(data) {
     <thead><tr>
       <th>Question</th><th>Initial</th><th>Recovery</th><th>Verification</th><th>Latency</th><th></th>
     </tr></thead>
-    <tbody>${rows.map((row) => `<tr>
+    <tbody>${rows.map((row) => `<tr class="ov-activity" data-inspect-run="${escapeHtml(row.inspect_run_id)}">
       <td><div class="ov-query" title="${escapeHtml(row.query || "")}">${escapeHtml(row.query || "Untitled run")}</div><div class="ov-sub">${escapeHtml(formatStamp(row.timestamp))}</div></td>
       <td>${escapeHtml(OV_STATES[row.initial_state] || "Not judged")}</td>
       <td>${escapeHtml(recoveryCell(row))}</td>
       <td>${verificationCell(row)}</td>
-      <td>${escapeHtml(formatLatency(row.latency_ms))}</td>
+      <td class="tnum">${escapeHtml(formatLatency(row.latency_ms))}</td>
       <td><button type="button" class="btn btn-ghost btn-sm" data-inspect-run="${escapeHtml(row.inspect_run_id)}">Inspect</button></td>
     </tr>`).join("")}</tbody>
   </table>`;
@@ -5051,11 +5140,16 @@ function overviewActivity(data) {
 
 function recoveryCell(row) {
   if (row.recovery_pending) return `Pending: ${labelAction(row.recovery_pending)}`;
-  if (row.recovery && row.recovery.length) return row.recovery.map(labelAction).join(" → ");
+  if (row.recovery && row.recovery.length) {
+    return row.recovery
+      .map((name) => (row.safe_stop && name === "abstain" ? "Safe stop" : labelAction(name)))
+      .join(" → ");
+  }
   return "No recovery";
 }
 
 function verificationCell(row) {
+  if (row.safe_stop) return outcomeBadge("safe_stop");
   if (row.recovery_pending) return outcomeBadge("pending");
   if (row.verification) return outcomeBadge(row.verification);
   return `<span class="ov-quiet">—</span>`;
@@ -5069,7 +5163,7 @@ function overviewLatency(latency) {
 
 function barRow(label, count, total, tone) {
   const width = total > 0 ? Math.max(0, Math.min(100, (count / total) * 100)) : 0;
-  return `<div class="ov-bar">
+  return `<div class="ov-bar" title="${escapeHtml(`${label}: ${count}`)}">
     <span class="ov-bar-label">${escapeHtml(label)}</span>
     <span class="ov-bar-track"><span class="ov-bar-fill is-${escapeHtml(tone)}" style="width:${width}%"></span></span>
     <span class="ov-bar-count">${count}</span>
@@ -5077,9 +5171,16 @@ function barRow(label, count, total, tone) {
 }
 
 function outcomeBadge(name) {
-  const label = name === "pending" ? "Recovery pending" : OV_OUTCOMES[name] || name || "—";
+  const label = name === "pending" ? "Recovery pending" : name === "safe_stop" ? "Safe stop" : OV_OUTCOMES[name] || name || "—";
   const tone = name === "pending" ? "pending" : name || "neutral";
-  const glyph = { improved: "check", unchanged: "minus", pending: "clock", still_failing: "alert-circle", degraded: "x" }[name] || "minus";
+  const glyph = {
+    improved: "check",
+    unchanged: "minus",
+    pending: "clock",
+    still_failing: "alert-circle",
+    degraded: "x",
+    safe_stop: "info",
+  }[name] || "minus";
   return `<span class="ov-badge is-${escapeHtml(tone)}">${icon(glyph, 12)} ${escapeHtml(label)}</span>`;
 }
 

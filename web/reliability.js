@@ -113,6 +113,11 @@
     return "Not applicable";
   }
 
+  function presentVerification(run) {
+    if (run && run.safe_stop) return "Safe stop";
+    return labelVerification(run);
+  }
+
   function labelSource(source) {
     const raw = String(source || "").trim().toLowerCase();
     if (raw === "operator") return "Operator-selected";
@@ -154,6 +159,7 @@
     labelRecovery,
     labelInitialState,
     labelVerification,
+    presentVerification,
     labelSource,
     labelTrigger,
     labelDiagnosis,
