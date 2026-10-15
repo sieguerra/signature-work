@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -12,11 +13,19 @@ from swrag.tracing.schema import SCHEMA_VERSION, schema_version
 SKIP_NAMES = frozenset({"summary.json", "comparison.json", "config.json"})
 
 
+_RUN_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]*$")
+
+
 def _safe_run_id(run_id: str) -> bool:
-    """Reject empty ids, path separators, ``..``, and reserved summary names."""
+    """Accept only plain run ids.
+
+    Rejects empty ids, path separators, ``..``, reserved summary names, and
+    glob characters. The id reaches ``rglob``, so ``*`` used to match (and
+    ``DELETE /api/traces/*`` deleted) every run.
+    """
     if not run_id or run_id in {name.removesuffix(".json") for name in SKIP_NAMES}:
         return False
-    if "/" in run_id or "\\" in run_id or ".." in run_id:
+    if ".." in run_id or not _RUN_ID.match(run_id):
         return False
     return True
 

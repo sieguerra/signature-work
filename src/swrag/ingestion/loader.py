@@ -27,14 +27,14 @@ def load_documents(corpus_dir: str | Path) -> list[Document]:
         raise FileNotFoundError(f"Corpus directory not found: {directory}")
 
     documents: list[Document] = []
-    paths = sorted(
-        (*directory.glob("*.txt"), *directory.glob("*.pdf")),
-        key=lambda path: path.name.lower(),
-    )
-    for path in paths:
+    for path in corpus_files(directory):
         suffix = path.suffix.lower()
         if suffix == _TEXT_SUFFIX:
-            documents.append(_document_from_txt(path))
+            document = _document_from_txt(path)
+            if not document.text.strip():
+                logger.warning("Skipping %s: no text", path.name)
+                continue
+            documents.append(document)
         elif suffix == _PDF_SUFFIX:
             documents.extend(_documents_from_pdf(path))
 
@@ -43,12 +43,29 @@ def load_documents(corpus_dir: str | Path) -> list[Document]:
     return documents
 
 
+def corpus_files(directory: str | Path) -> list[Path]:
+    """``.txt`` and ``.pdf`` files in ``directory``, any extension case, by name.
+
+    Uploads accept ``NOTE.TXT``; a case-sensitive glob used to skip it, so the
+    file was stored but never indexed.
+    """
+    folder = Path(directory)
+    if not folder.is_dir():
+        return []
+    return sorted(
+        (
+            path
+            for path in folder.iterdir()
+            # Dot-files are staging copies of uploads, never documents.
+            if path.is_file() and not path.name.startswith(".") and path.suffix.lower() in {_TEXT_SUFFIX, _PDF_SUFFIX}
+        ),
+        key=lambda path: path.name.lower(),
+    )
+
+
 def corpus_file_count(corpus_dir: str | Path) -> int:
     """Count ``.txt`` and ``.pdf`` files (not pages). Missing dirs count as 0."""
-    directory = Path(corpus_dir)
-    if not directory.is_dir():
-        return 0
-    return len(list(directory.glob("*.txt"))) + len(list(directory.glob("*.pdf")))
+    return len(corpus_files(corpus_dir))
 
 
 def _document_from_txt(path: Path) -> Document:
