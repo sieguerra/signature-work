@@ -142,9 +142,18 @@ def _report(comparison: dict, *, retrieve_only: bool) -> None:
         f"verdict agrees with gold F1 direction: {verification['n_verdict_agrees']}, "
         f"disagrees: {verification['n_verdict_disagrees']}"
     )
+    rank = verification["rank_rule"]
+    print(
+        f"verdict agrees with gold rank transition: {rank['agrees']}, disagrees: {rank['disagrees']} "
+        f"(answerable {rank['by_answerability']['answerable']['agrees']}/{rank['by_answerability']['answerable']['n']}, "
+        f"unanswerable {rank['by_answerability']['unanswerable']['agrees']}/{rank['by_answerability']['unanswerable']['n']})"
+    )
     print()
     print("Loop condition by failure class:")
     print(json.dumps(comparison["by_failure_class"], indent=2))
+    print()
+    print("Baseline vs loop by offline gold class (ADR 005):")
+    print(json.dumps(comparison["by_gold_class"], indent=2))
     print()
     print("Numbers only. Interpretation is out of scope for this command.")
 
