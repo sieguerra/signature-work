@@ -1,0 +1,1255 @@
+[
+  {
+    "snapshot": "20260910T070623",
+    "name": "v1_baseline_vs_loop",
+    "conditions": {
+      "baseline": {
+        "stored": {
+          "answerable_exact_match": 0.0,
+          "answerable_contains_answer": 0.8636363636363636,
+          "answerable_f1": 0.21693195693195697,
+          "unanswerable_abstention_rate": 0.4,
+          "answerable_abstention_rate": 0.0
+        },
+        "rescored": {
+          "answerable_exact_match": 0.0,
+          "answerable_contains_answer": 1.0,
+          "answerable_f1": 0.2547903531535245,
+          "unanswerable_abstention_rate": 0.7777777777777778,
+          "answerable_abstention_rate": 0.0
+        }
+      },
+      "eval_guided": {
+        "stored": {
+          "answerable_exact_match": 0.0,
+          "answerable_contains_answer": 0.8636363636363636,
+          "answerable_f1": 0.21902985902985905,
+          "unanswerable_abstention_rate": 0.4,
+          "answerable_abstention_rate": 0.0
+        },
+        "rescored": {
+          "answerable_exact_match": 0.0,
+          "answerable_contains_answer": 1.0,
+          "answerable_f1": 0.2567970421167352,
+          "unanswerable_abstention_rate": 0.7777777777777778,
+          "answerable_abstention_rate": 0.0
+        }
+      }
+    },
+    "changed_questions": [
+      {
+        "condition": "baseline",
+        "question_id": "gold-020",
+        "answerable": true,
+        "stored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.2667
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.2857
+        },
+        "answer": "During winter recess, the Tideline runs every 30 minutes from 08:00 to 18:00 [tideline-winter-recess::c000]."
+      },
+      {
+        "condition": "baseline",
+        "question_id": "seed-011",
+        "answerable": true,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.3333
+        },
+        "answer": "The Saltmarsh Annex Library's Sunday hours are from 12:00 to 18:00 [saltmarsh-annex-library::c000]."
+      },
+      {
+        "condition": "baseline",
+        "question_id": "seed-012",
+        "answerable": true,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.3333
+        },
+        "answer": "The Harbor Institute Library's current Saturday hours are 10:00 to 16:00 [harbor-library::c000]."
+      },
+      {
+        "condition": "baseline",
+        "question_id": "gold-025",
+        "answerable": true,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.2353
+        },
+        "answer": "During the 2019 East Wing renovation, the Harbor Institute Library's Saturday hours were from 12:00 to 15:00 [harbor-library-2019-notice::c000]."
+      },
+      {
+        "condition": "baseline",
+        "question_id": "seed-007",
+        "answerable": true,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.1667
+        },
+        "answer": "There is no shuttle stop at the boat museum. The closest shuttle stop is Library Plaza, which is an 8-minute walk from the boat museum [tideline-shuttle::c001]."
+      },
+      {
+        "condition": "baseline",
+        "question_id": "seed-008",
+        "answerable": false,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": true,
+          "f1": 1.0
+        },
+        "answer": "The Coastal Memory Group does not hold any storm records from 1955, as their records only go up to 1940 [coastal-memory-group::c000]. However, the Storm Ledger Unit, which covers the period from 1940 to 1975, has complete records for 1955, and it is noted as their most requested series [storm-ledger-unit::c000]."
+      },
+      {
+        "condition": "baseline",
+        "question_id": "gold-026",
+        "answerable": false,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": true,
+          "f1": 1.0
+        },
+        "answer": "According to the Coastal Memory Group, the 1921 \"Green Lamp Flood\" lasted 31 hours in Harbor Town, not 48 hours as previously stated on older tourist plaques [coastal-memory-group::c001]. The Storm Ledger Unit does not hold material on the 1921 Green Lamp Flood and refers inquiries elsewhere [storm-ledger-unit::c001]."
+      },
+      {
+        "condition": "baseline",
+        "question_id": "gold-030",
+        "answerable": false,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": true,
+          "f1": 1.0
+        },
+        "answer": "A group room at the Saltmarsh Annex Library cannot be booked because there are no group rooms available there. Readers who need a group room should book at the Harbor Desk instead [saltmarsh-annex-library::c000]. At the Harbor Institute Library, group rooms must be booked at least two hours ahead [harbor-library::c000]."
+      },
+      {
+        "condition": "eval_guided",
+        "question_id": "gold-020",
+        "answerable": true,
+        "stored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.2667
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.2857
+        },
+        "answer": "During winter recess, the Tideline runs every 30 minutes from 08:00 to 18:00 [tideline-winter-recess::c000]."
+      },
+      {
+        "condition": "eval_guided",
+        "question_id": "seed-011",
+        "answerable": true,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.3333
+        },
+        "answer": "The Saltmarsh Annex Library's Sunday hours are from 12:00 to 18:00 [saltmarsh-annex-library::c000]."
+      },
+      {
+        "condition": "eval_guided",
+        "question_id": "seed-012",
+        "answerable": true,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.3333
+        },
+        "answer": "The Harbor Institute Library's current Saturday hours are 10:00 to 16:00 [harbor-library::c000]."
+      },
+      {
+        "condition": "eval_guided",
+        "question_id": "gold-025",
+        "answerable": true,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.2353
+        },
+        "answer": "During the 2019 East Wing renovation, the Harbor Institute Library's Saturday hours were from 12:00 to 15:00 [harbor-library-2019-notice::c000]."
+      },
+      {
+        "condition": "eval_guided",
+        "question_id": "seed-007",
+        "answerable": true,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.1667
+        },
+        "answer": "There is no shuttle stop at the boat museum. The closest shuttle stop is Library Plaza, which is an 8-minute walk from the boat museum [tideline-shuttle::c001]."
+      },
+      {
+        "condition": "eval_guided",
+        "question_id": "seed-008",
+        "answerable": false,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": true,
+          "f1": 1.0
+        },
+        "answer": "The Coastal Memory Group does not hold any storm records from 1955, as their records do not extend beyond 1940 [coastal-memory-group::c000]. However, the Storm Ledger Unit, which covers the period from 1940 to 1975, has complete records for 1955, and it is noted as their most requested series [storm-ledger-unit::c000]."
+      },
+      {
+        "condition": "eval_guided",
+        "question_id": "gold-026",
+        "answerable": false,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": true,
+          "f1": 1.0
+        },
+        "answer": "According to the Coastal Memory Group, the 1921 \"Green Lamp Flood\" lasted 31 hours in Harbor Town, not 48 hours as previously stated on older tourist plaques [coastal-memory-group::c001]. The Storm Ledger Unit does not hold material on the 1921 Green Lamp Flood and refers inquiries elsewhere [storm-ledger-unit::c001]."
+      },
+      {
+        "condition": "eval_guided",
+        "question_id": "gold-030",
+        "answerable": false,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": true,
+          "f1": 1.0
+        },
+        "answer": "A group room at the Saltmarsh Annex Library cannot be booked because there are no group rooms available there. Readers who need a group room should book at the Harbor Desk instead [saltmarsh-annex-library::c000]. At the Harbor Institute Library, group rooms must be booked at least two hours ahead [harbor-library::c000]."
+      }
+    ]
+  },
+  {
+    "snapshot": "20260927T151157",
+    "name": "v3_kestrel_expand_vs_loop",
+    "conditions": {
+      "baseline": {
+        "stored": {
+          "answerable_exact_match": 0.0,
+          "answerable_contains_answer": 0.25,
+          "answerable_f1": 0.08333333333333334,
+          "unanswerable_abstention_rate": 1.0,
+          "answerable_abstention_rate": 0.5
+        },
+        "rescored": {
+          "answerable_exact_match": 0.0,
+          "answerable_contains_answer": 0.75,
+          "answerable_f1": 0.17328042328042328,
+          "unanswerable_abstention_rate": 1.0,
+          "answerable_abstention_rate": 0.25
+        }
+      },
+      "eval_guided": {
+        "stored": {
+          "answerable_exact_match": 0.0,
+          "answerable_contains_answer": 0.75,
+          "answerable_f1": 0.25119047619047624,
+          "unanswerable_abstention_rate": 1.0,
+          "answerable_abstention_rate": 0.0
+        },
+        "rescored": {
+          "answerable_exact_match": 0.0,
+          "answerable_contains_answer": 1.0,
+          "answerable_f1": 0.32261904761904764,
+          "unanswerable_abstention_rate": 1.0,
+          "answerable_abstention_rate": 0.0
+        }
+      }
+    },
+    "changed_questions": [
+      {
+        "condition": "baseline",
+        "question_id": "ka-020",
+        "answerable": true,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.2857
+        },
+        "answer": "The tool crib is open during Shift A, which is from 06:00 to 14:30 [shifts::c000]."
+      },
+      {
+        "condition": "baseline",
+        "question_id": "ka-023",
+        "answerable": true,
+        "stored": {
+          "contains": false,
+          "abstained": true,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.0741
+        },
+        "answer": "The traveler desk can be reached at 555-2201, and their email is travelers@kestrel-aero.example. However, the specific individuals who answer the traveler desk are not mentioned in the evidence provided [contacts::c000]."
+      },
+      {
+        "condition": "eval_guided",
+        "question_id": "ka-020",
+        "answerable": true,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.2857
+        },
+        "answer": "The tool crib is open during Shift A, which is from 06:00 to 14:30 [shifts::c000]."
+      }
+    ]
+  },
+  {
+    "snapshot": "20260927T151544",
+    "name": "v3_dku_expand_vs_loop",
+    "conditions": {
+      "baseline": {
+        "stored": {
+          "answerable_exact_match": 0.0,
+          "answerable_contains_answer": 0.5,
+          "answerable_f1": 0.17094017094017094,
+          "unanswerable_abstention_rate": 1.0,
+          "answerable_abstention_rate": 0.5
+        },
+        "rescored": {
+          "answerable_exact_match": 0.0,
+          "answerable_contains_answer": 0.5,
+          "answerable_f1": 0.17094017094017094,
+          "unanswerable_abstention_rate": 1.0,
+          "answerable_abstention_rate": 0.5
+        }
+      },
+      "eval_guided": {
+        "stored": {
+          "answerable_exact_match": 0.0,
+          "answerable_contains_answer": 1.0,
+          "answerable_f1": 0.3334401709401709,
+          "unanswerable_abstention_rate": 1.0,
+          "answerable_abstention_rate": 0.0
+        },
+        "rescored": {
+          "answerable_exact_match": 0.0,
+          "answerable_contains_answer": 1.0,
+          "answerable_f1": 0.3334401709401709,
+          "unanswerable_abstention_rate": 1.0,
+          "answerable_abstention_rate": 0.0
+        }
+      }
+    },
+    "changed_questions": []
+  },
+  {
+    "snapshot": "20261010T202849",
+    "name": "v4_kestrel_full_current_loop",
+    "conditions": {
+      "baseline": {
+        "stored": {
+          "answerable_exact_match": 0.0,
+          "answerable_contains_answer": 0.9166666666666666,
+          "answerable_f1": 0.2677131443435791,
+          "unanswerable_abstention_rate": 1.0,
+          "answerable_abstention_rate": 0.0
+        },
+        "rescored": {
+          "answerable_exact_match": 0.0,
+          "answerable_contains_answer": 1.0,
+          "answerable_f1": 0.2954909221213569,
+          "unanswerable_abstention_rate": 1.0,
+          "answerable_abstention_rate": 0.0
+        }
+      },
+      "eval_guided": {
+        "stored": {
+          "answerable_exact_match": 0.0,
+          "answerable_contains_answer": 0.9166666666666666,
+          "answerable_f1": 0.26984989648033125,
+          "unanswerable_abstention_rate": 1.0,
+          "answerable_abstention_rate": 0.0
+        },
+        "rescored": {
+          "answerable_exact_match": 0.0,
+          "answerable_contains_answer": 1.0,
+          "answerable_f1": 0.29762767425810904,
+          "unanswerable_abstention_rate": 1.0,
+          "answerable_abstention_rate": 0.0
+        }
+      }
+    },
+    "changed_questions": [
+      {
+        "condition": "baseline",
+        "question_id": "ka-005",
+        "answerable": true,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.3333
+        },
+        "answer": "Shift A hours at Kestrel Aero are from 06:00 to 14:30 [shifts::c000]."
+      },
+      {
+        "condition": "eval_guided",
+        "question_id": "ka-005",
+        "answerable": true,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.3333
+        },
+        "answer": "Shift A hours at Kestrel Aero are from 06:00 to 14:30 [shifts::c000]."
+      }
+    ]
+  },
+  {
+    "snapshot": "20261010T203115",
+    "name": "v4_dku_full_current_loop",
+    "conditions": {
+      "baseline": {
+        "stored": {
+          "answerable_exact_match": 0.0,
+          "answerable_contains_answer": 0.7666666666666667,
+          "answerable_f1": 0.20905336178555994,
+          "unanswerable_abstention_rate": 0.8,
+          "answerable_abstention_rate": 0.03333333333333333
+        },
+        "rescored": {
+          "answerable_exact_match": 0.0,
+          "answerable_contains_answer": 0.9666666666666667,
+          "answerable_f1": 0.25309284082503897,
+          "unanswerable_abstention_rate": 1.0,
+          "answerable_abstention_rate": 0.03333333333333333
+        }
+      },
+      "eval_guided": {
+        "stored": {
+          "answerable_exact_match": 0.0,
+          "answerable_contains_answer": 0.8,
+          "answerable_f1": 0.20610582199591487,
+          "unanswerable_abstention_rate": 0.9,
+          "answerable_abstention_rate": 0.0
+        },
+        "rescored": {
+          "answerable_exact_match": 0.0,
+          "answerable_contains_answer": 1.0,
+          "answerable_f1": 0.2501453010353939,
+          "unanswerable_abstention_rate": 1.0,
+          "answerable_abstention_rate": 0.0
+        }
+      }
+    },
+    "changed_questions": [
+      {
+        "condition": "baseline",
+        "question_id": "dku-006",
+        "answerable": true,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.1333
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.3077
+        },
+        "answer": "The DKU Library building hours are 08:00 to 23:00, Monday through Sunday [dku-library-hours::c000]."
+      },
+      {
+        "condition": "baseline",
+        "question_id": "dku-007",
+        "answerable": true,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.25
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.2857
+        },
+        "answer": "The 1st floor information desk hours on Saturday are from 14:00 to 21:00 [dku-library-hours::c000]."
+      },
+      {
+        "condition": "baseline",
+        "question_id": "dku-008",
+        "answerable": true,
+        "stored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.1111
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.2
+        },
+        "answer": "According to the January 2025 DKU Library Guide, the 1st floor information desk hours on Saturday are 14:00-18:00 [dku-library-guide-202501::c001]."
+      },
+      {
+        "condition": "baseline",
+        "question_id": "dku-011",
+        "answerable": true,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.2222
+        },
+        "answer": "The DVD and equipment loan hours at the DKU Library are Monday to Friday, from 09:00 to 17:30 [dku-library-hours::c000]."
+      },
+      {
+        "condition": "baseline",
+        "question_id": "dku-015",
+        "answerable": true,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.2667
+        },
+        "answer": "Breakfast hours at University Dining in the Academic Building are from 07:00 to 09:30 [academic-building-dining::c000]."
+      },
+      {
+        "condition": "baseline",
+        "question_id": "dku-016",
+        "answerable": true,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.2667
+        },
+        "answer": "Lunch hours at Executive Dining in the Academic Building are from 11:00 to 13:30 [academic-building-dining::c000]."
+      },
+      {
+        "condition": "baseline",
+        "question_id": "dku-017",
+        "answerable": true,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.2667
+        },
+        "answer": "Dinner hours at Halal Dining at the Conference Center are from 17:00 to 19:30 [conference-center-dining::c000]."
+      },
+      {
+        "condition": "baseline",
+        "question_id": "dku-032",
+        "answerable": false,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": true,
+          "f1": 1.0
+        },
+        "answer": "Breakfast at Executive Dining in the Academic Building does not have listed hours, indicating that there are no breakfast hours for this venue [academic-building-dining::c000]."
+      },
+      {
+        "condition": "baseline",
+        "question_id": "dku-034",
+        "answerable": false,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": true,
+          "f1": 1.0
+        },
+        "answer": "The evidence does not specify which restaurant in Dayu Bay is closest to the DKU campus. It only mentions that there is an array of restaurants located in the Dayu Bay commercial center, but does not name any specific restaurant or provide further details [dayu-bay::c000]."
+      },
+      {
+        "condition": "eval_guided",
+        "question_id": "dku-006",
+        "answerable": true,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.1333
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.3077
+        },
+        "answer": "The DKU Library building hours are 08:00 to 23:00, Monday through Sunday [dku-library-hours::c000]."
+      },
+      {
+        "condition": "eval_guided",
+        "question_id": "dku-007",
+        "answerable": true,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.25
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.2857
+        },
+        "answer": "The 1st floor information desk hours on Saturday are from 14:00 to 21:00 [dku-library-hours::c000]."
+      },
+      {
+        "condition": "eval_guided",
+        "question_id": "dku-008",
+        "answerable": true,
+        "stored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.1111
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.2
+        },
+        "answer": "According to the January 2025 DKU Library Guide, the 1st floor information desk hours on Saturday are 14:00-18:00 [dku-library-guide-202501::c001]."
+      },
+      {
+        "condition": "eval_guided",
+        "question_id": "dku-011",
+        "answerable": true,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.2222
+        },
+        "answer": "The DVD and equipment loan hours at the DKU Library are Monday to Friday, from 09:00 to 17:30 [dku-library-hours::c000]."
+      },
+      {
+        "condition": "eval_guided",
+        "question_id": "dku-015",
+        "answerable": true,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.2667
+        },
+        "answer": "Breakfast hours at University Dining in the Academic Building are from 07:00 to 09:30 [academic-building-dining::c000]."
+      },
+      {
+        "condition": "eval_guided",
+        "question_id": "dku-016",
+        "answerable": true,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.2667
+        },
+        "answer": "Lunch hours at Executive Dining in the Academic Building are from 11:00 to 13:30 [academic-building-dining::c000]."
+      },
+      {
+        "condition": "eval_guided",
+        "question_id": "dku-017",
+        "answerable": true,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.2667
+        },
+        "answer": "Dinner hours at Halal Dining at the Conference Center are from 17:00 to 19:30 [conference-center-dining::c000]."
+      },
+      {
+        "condition": "eval_guided",
+        "question_id": "dku-032",
+        "answerable": false,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": true,
+          "f1": 1.0
+        },
+        "answer": "Breakfast at Executive Dining in the Academic Building does not have listed hours, indicating that it does not serve breakfast [academic-building-dining::c000]."
+      }
+    ]
+  },
+  {
+    "snapshot": "20261010T203121",
+    "name": "v4_harbor_full_current_loop",
+    "conditions": {
+      "baseline": {
+        "stored": {
+          "answerable_exact_match": 0.0,
+          "answerable_contains_answer": 0.8636363636363636,
+          "answerable_f1": 0.21902985902985905,
+          "unanswerable_abstention_rate": 0.4,
+          "answerable_abstention_rate": 0.0
+        },
+        "rescored": {
+          "answerable_exact_match": 0.0,
+          "answerable_contains_answer": 1.0,
+          "answerable_f1": 0.2567970421167352,
+          "unanswerable_abstention_rate": 0.6666666666666666,
+          "answerable_abstention_rate": 0.0
+        }
+      },
+      "eval_guided": {
+        "stored": {
+          "answerable_exact_match": 0.0,
+          "answerable_contains_answer": 0.8636363636363636,
+          "answerable_f1": 0.21902985902985905,
+          "unanswerable_abstention_rate": 0.5,
+          "answerable_abstention_rate": 0.0
+        },
+        "rescored": {
+          "answerable_exact_match": 0.0,
+          "answerable_contains_answer": 1.0,
+          "answerable_f1": 0.2567970421167352,
+          "unanswerable_abstention_rate": 0.7777777777777778,
+          "answerable_abstention_rate": 0.0
+        }
+      }
+    },
+    "changed_questions": [
+      {
+        "condition": "baseline",
+        "question_id": "gold-020",
+        "answerable": true,
+        "stored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.2667
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.2857
+        },
+        "answer": "During winter recess, the Tideline runs every 30 minutes from 08:00 to 18:00 [tideline-winter-recess::c000]."
+      },
+      {
+        "condition": "baseline",
+        "question_id": "seed-011",
+        "answerable": true,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.3333
+        },
+        "answer": "The Saltmarsh Annex Library's Sunday hours are from 12:00 to 18:00 [saltmarsh-annex-library::c000]."
+      },
+      {
+        "condition": "baseline",
+        "question_id": "seed-012",
+        "answerable": true,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.3333
+        },
+        "answer": "The Harbor Institute Library's current Saturday hours are 10:00 to 16:00 [harbor-library::c000]."
+      },
+      {
+        "condition": "baseline",
+        "question_id": "gold-025",
+        "answerable": true,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.2353
+        },
+        "answer": "During the 2019 East Wing renovation, the Harbor Institute Library's Saturday hours were from 12:00 to 15:00 [harbor-library-2019-notice::c000]."
+      },
+      {
+        "condition": "baseline",
+        "question_id": "seed-007",
+        "answerable": true,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.1667
+        },
+        "answer": "There is no shuttle stop at the boat museum. The closest shuttle stop is Library Plaza, which is an 8-minute walk from the boat museum [tideline-shuttle::c001]."
+      },
+      {
+        "condition": "baseline",
+        "question_id": "seed-008",
+        "answerable": false,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": true,
+          "f1": 1.0
+        },
+        "answer": "The Coastal Memory Group does not hold any storm records from 1955, as their records do not extend beyond 1940 [coastal-memory-group::c000]. However, the Storm Ledger Unit, which covers the period from 1940 to 1975, has complete records for 1955, and it is noted as their most requested series [storm-ledger-unit::c000]."
+      },
+      {
+        "condition": "baseline",
+        "question_id": "gold-030",
+        "answerable": false,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": true,
+          "f1": 1.0
+        },
+        "answer": "A group room at the Saltmarsh Annex Library cannot be booked because there are no group rooms available there. Readers who need a group room should book at the Harbor Desk instead [saltmarsh-annex-library::c000]. At the Harbor Institute Library, group rooms must be booked at least two hours ahead [harbor-library::c000]."
+      },
+      {
+        "condition": "eval_guided",
+        "question_id": "gold-020",
+        "answerable": true,
+        "stored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.2667
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.2857
+        },
+        "answer": "During winter recess, the Tideline runs every 30 minutes from 08:00 to 18:00 [tideline-winter-recess::c000]."
+      },
+      {
+        "condition": "eval_guided",
+        "question_id": "seed-011",
+        "answerable": true,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.3333
+        },
+        "answer": "The Saltmarsh Annex Library's Sunday hours are from 12:00 to 18:00 [saltmarsh-annex-library::c000]."
+      },
+      {
+        "condition": "eval_guided",
+        "question_id": "seed-012",
+        "answerable": true,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.3333
+        },
+        "answer": "The Harbor Institute Library's current Saturday hours are 10:00 to 16:00 [harbor-library::c000]."
+      },
+      {
+        "condition": "eval_guided",
+        "question_id": "gold-025",
+        "answerable": true,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.2353
+        },
+        "answer": "During the 2019 East Wing renovation, the Harbor Institute Library's Saturday hours were from 12:00 to 15:00 [harbor-library-2019-notice::c000]."
+      },
+      {
+        "condition": "eval_guided",
+        "question_id": "seed-007",
+        "answerable": true,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": false,
+          "f1": 0.1667
+        },
+        "answer": "There is no shuttle stop at the boat museum. The closest shuttle stop is Library Plaza, which is an 8-minute walk from the boat museum [tideline-shuttle::c001]."
+      },
+      {
+        "condition": "eval_guided",
+        "question_id": "seed-008",
+        "answerable": false,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": true,
+          "f1": 1.0
+        },
+        "answer": "The Coastal Memory Group does not hold any storm records from 1955, as their records only go up to 1940 [coastal-memory-group::c000]. However, the Storm Ledger Unit, which covers the period from 1940 to 1975, has complete records for 1955, and it is noted as their most requested series [storm-ledger-unit::c000]."
+      },
+      {
+        "condition": "eval_guided",
+        "question_id": "gold-030",
+        "answerable": false,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": true,
+          "f1": 1.0
+        },
+        "answer": "A group room at the Saltmarsh Annex Library cannot be booked because there are no group rooms available there. Readers who need a group room should book at the Harbor Desk instead [saltmarsh-annex-library::c000]."
+      }
+    ]
+  },
+  {
+    "snapshot": "20261015-prompt-hardened-dku",
+    "name": "v4_dku_full_current_loop",
+    "conditions": {
+      "baseline": {
+        "stored": {
+          "answerable_exact_match": 0.0,
+          "answerable_contains_answer": 0.9666666666666667,
+          "answerable_f1": 0.24748437521657338,
+          "unanswerable_abstention_rate": 1.0,
+          "answerable_abstention_rate": 0.03333333333333333
+        },
+        "rescored": {
+          "answerable_exact_match": 0.0,
+          "answerable_contains_answer": 0.9666666666666667,
+          "answerable_f1": 0.24748437521657338,
+          "unanswerable_abstention_rate": 1.0,
+          "answerable_abstention_rate": 0.03333333333333333
+        }
+      },
+      "eval_guided": {
+        "stored": {
+          "answerable_exact_match": 0.0,
+          "answerable_contains_answer": 1.0,
+          "answerable_f1": 0.2491185305349392,
+          "unanswerable_abstention_rate": 1.0,
+          "answerable_abstention_rate": 0.0
+        },
+        "rescored": {
+          "answerable_exact_match": 0.0,
+          "answerable_contains_answer": 1.0,
+          "answerable_f1": 0.2491185305349392,
+          "unanswerable_abstention_rate": 1.0,
+          "answerable_abstention_rate": 0.0
+        }
+      }
+    },
+    "changed_questions": []
+  },
+  {
+    "snapshot": "20261015-prompt-hardened-harbor",
+    "name": "v4_harbor_full_current_loop",
+    "conditions": {
+      "baseline": {
+        "stored": {
+          "answerable_exact_match": 0.0,
+          "answerable_contains_answer": 1.0,
+          "answerable_f1": 0.25229807542495186,
+          "unanswerable_abstention_rate": 0.6666666666666666,
+          "answerable_abstention_rate": 0.0
+        },
+        "rescored": {
+          "answerable_exact_match": 0.0,
+          "answerable_contains_answer": 1.0,
+          "answerable_f1": 0.25229807542495186,
+          "unanswerable_abstention_rate": 0.8888888888888888,
+          "answerable_abstention_rate": 0.0
+        }
+      },
+      "eval_guided": {
+        "stored": {
+          "answerable_exact_match": 0.0,
+          "answerable_contains_answer": 1.0,
+          "answerable_f1": 0.2515844171025979,
+          "unanswerable_abstention_rate": 0.6666666666666666,
+          "answerable_abstention_rate": 0.0
+        },
+        "rescored": {
+          "answerable_exact_match": 0.0,
+          "answerable_contains_answer": 1.0,
+          "answerable_f1": 0.2515844171025979,
+          "unanswerable_abstention_rate": 0.8888888888888888,
+          "answerable_abstention_rate": 0.0
+        }
+      }
+    },
+    "changed_questions": [
+      {
+        "condition": "baseline",
+        "question_id": "seed-008",
+        "answerable": false,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": true,
+          "f1": 1.0
+        },
+        "answer": "The Coastal Memory Group does not hold any storm records after 1940, so it does not have records from 1955 [coastal-memory-group::c000]. However, the Storm Ledger Unit, which covers the period from 1940 to 1975, does have complete records for 1955 [storm-ledger-unit::c000]."
+      },
+      {
+        "condition": "baseline",
+        "question_id": "gold-026",
+        "answerable": false,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": true,
+          "f1": 1.0
+        },
+        "answer": "According to the Coastal Memory Group, the 1921 \"Green Lamp Flood\" lasted 31 hours in Harbor Town, not 48 [coastal-memory-group::c001]. The Storm Ledger Unit does not hold material on the 1921 Green Lamp Flood and refers those enquiries elsewhere [storm-ledger-unit::c001]."
+      },
+      {
+        "condition": "eval_guided",
+        "question_id": "seed-008",
+        "answerable": false,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": true,
+          "f1": 1.0
+        },
+        "answer": "The Coastal Memory Group does not hold any storm records after 1940, and therefore does not have records from 1955 [coastal-memory-group::c000]. However, the Storm Ledger Unit, which covers records from 1940 to 1975, does have complete records for 1955 [storm-ledger-unit::c000]."
+      },
+      {
+        "condition": "eval_guided",
+        "question_id": "gold-026",
+        "answerable": false,
+        "stored": {
+          "contains": false,
+          "abstained": false,
+          "f1": 0.0
+        },
+        "rescored": {
+          "contains": true,
+          "abstained": true,
+          "f1": 1.0
+        },
+        "answer": "According to the Coastal Memory Group, the 1921 \"Green Lamp Flood\" lasted 31 hours in Harbor Town, not 48 [coastal-memory-group::c001]. The Storm Ledger Unit does not hold material on the 1921 Green Lamp Flood and refers those enquiries elsewhere [storm-ledger-unit::c001]."
+      }
+    ]
+  },
+  {
+    "snapshot": "20261015-prompt-hardened-kestrel",
+    "name": "v4_kestrel_full_current_loop",
+    "conditions": {
+      "baseline": {
+        "stored": {
+          "answerable_exact_match": 0.0,
+          "answerable_contains_answer": 1.0,
+          "answerable_f1": 0.3016005291005291,
+          "unanswerable_abstention_rate": 1.0,
+          "answerable_abstention_rate": 0.0
+        },
+        "rescored": {
+          "answerable_exact_match": 0.0,
+          "answerable_contains_answer": 1.0,
+          "answerable_f1": 0.3016005291005291,
+          "unanswerable_abstention_rate": 1.0,
+          "answerable_abstention_rate": 0.0
+        }
+      },
+      "eval_guided": {
+        "stored": {
+          "answerable_exact_match": 0.0,
+          "answerable_contains_answer": 1.0,
+          "answerable_f1": 0.3016005291005291,
+          "unanswerable_abstention_rate": 1.0,
+          "answerable_abstention_rate": 0.0
+        },
+        "rescored": {
+          "answerable_exact_match": 0.0,
+          "answerable_contains_answer": 1.0,
+          "answerable_f1": 0.3016005291005291,
+          "unanswerable_abstention_rate": 1.0,
+          "answerable_abstention_rate": 0.0
+        }
+      }
+    },
+    "changed_questions": []
+  }
+]
