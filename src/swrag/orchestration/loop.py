@@ -185,20 +185,36 @@ def run_with_recovery(
     first_chunks = chunks_payload(state.retrieval)
     first_state = state
 
-    if uses_gap_block(policy) and decision.action == ACCEPT:
+    if uses_gap_block(policy) and decision.action == ACCEPT and max_recoveries >= 1:
         blocked = blocking_assessment(query, state.generation.answer, _evidence_texts(state))
         if blocked is not None and blocked.label == CONFLICT:
-            stopped = _policy_stop(state, blocked)
+            # Record the stop like any other attempt, so the generated answer
+            # and the first-pass judgement stay in the trace (#139).
+            usage_before = usage_checkpoint()
+            attempt_started = time.perf_counter()
+            with progress.attempt(0), progress.stage("recover", action=ABSTAIN):
+                stopped = _policy_stop(state, blocked)
+            attempt = _attempt_payload(
+                0,
+                stopped,
+                latency_ms=_elapsed_ms(attempt_started),
+                usage=usage_delta(usage_before, usage_checkpoint()),
+            )
             return write_run(
                 stopped.state,
                 output_dir=output_dir,
                 question_id=question_id,
                 recovery=stopped.decision,
+                verification=run_verdict(first_eval, first_answer, stopped.state, stopped.decision, stopped.verification),
+                previous_answer=first_answer,
                 recovery_status=RECOVERY_APPLIED,
                 latency_ms=_elapsed_ms(started),
                 agent_config=agent_config,
+                recovery_attempts=(attempt,),
+                first_pass_evaluation=first_eval,
                 run_mode=run_mode,
                 recovery_policy=policy,
+                initial=_initial_from_state(first_state, first_latency),
             )
 
     if max_recoveries < 1 or not _should_apply(decision.action, attempts_so_far=0):
@@ -351,20 +367,10 @@ def run_with_recovery(
             recovery_policy=policy,
         )
 
-    overall_verification = last_applied.verification
     with progress.stage("verify"):
-        if first_eval is not None and state.runtime_evaluation is not None:
-            if is_abstention(state.generation.answer) and (
-                not state.runtime_evaluation.evidence_sufficient
-                or state.runtime_evaluation.span_rejections
-            ):
-                overall_verification = Verification(outcome=STILL_FAILING, rationale=_ABSTAIN_RATIONALE)
-            elif last_applied.decision.action == ABSTAIN and not is_abstention(first_answer or ""):
-                # The loop gave up on an answer it could not ground. Support
-                # going from false to null is not "unchanged" (#138, #139).
-                overall_verification = Verification(outcome=STILL_FAILING, rationale=_GAVE_UP_RATIONALE)
-            else:
-                overall_verification = verify_runtime(first_eval, state.runtime_evaluation)
+        overall_verification = run_verdict(
+            first_eval, first_answer, state, last_applied.decision, last_applied.verification
+        )
 
     return write_run(
         last_applied.state,
@@ -418,6 +424,18 @@ def run_first_pass(
         index=resolved_index,
         policy=policy,
     )
+    if uses_gap_block(policy) and decision.action == ACCEPT:
+        blocked = blocking_assessment(query, state.generation.answer, _evidence_texts(state))
+        if blocked is not None and blocked.label == CONFLICT:
+            # Same check as auto mode, but proposed for confirmation (#139).
+            decision = RecoveryDecision(
+                action=ABSTAIN,
+                reason=blocked.reason,
+                attributed_class=None,
+                source=SOURCE_POLICY,
+                trigger="",
+                parameters=blocked.as_parameters(forced_stop=False),
+            )
     status = RECOVERY_APPLIED if decision.action == ACCEPT else RECOVERY_PROPOSED
     return write_run(
         state,
@@ -482,28 +500,47 @@ def apply_recovery(
         rewriter=rewriter,
         index=resolved_index,
     )
-    attempt = _attempt_payload(
-        0,
-        applied,
-        latency_ms=_elapsed_ms(attempt_started),
-        usage=usage_delta(usage_before, usage_checkpoint()),
-    )
+    attempts = [
+        _attempt_payload(
+            0,
+            applied,
+            latency_ms=_elapsed_ms(attempt_started),
+            usage=usage_delta(usage_before, usage_checkpoint()),
+        )
+    ]
+    first_applied = applied
+    if _needs_terminal_abstain(applied.decision, applied.state):
+        # Same finish as auto mode: an ungrounded recovered answer is replaced
+        # by the abstention instead of being kept (#139).
+        usage_before = usage_checkpoint()
+        attempt_started = time.perf_counter()
+        applied = _terminal_abstain(applied.state, applied.decision)
+        attempts.append(
+            _attempt_payload(
+                1,
+                applied,
+                latency_ms=_elapsed_ms(attempt_started),
+                usage=usage_delta(usage_before, usage_checkpoint()),
+            )
+        )
     parent_eval = _evaluation_from_payload(parent.get("runtime_evaluation"))
     return write_run(
         applied.state,
         output_dir=output_dir,
         question_id=question_id or parent.get("question_id"),
         recovery=applied.decision,
-        verification=applied.verification,
-        previous_answer=applied.previous_answer,
-        rewritten_query=applied.rewritten_query,
-        previous_retrieved_chunks=applied.previous_retrieved_chunks,
+        verification=run_verdict(
+            parent_eval, str(parent.get("answer") or ""), applied.state, applied.decision, applied.verification
+        ),
+        previous_answer=first_applied.previous_answer,
+        rewritten_query=first_applied.rewritten_query,
+        previous_retrieved_chunks=first_applied.previous_retrieved_chunks,
         recovery_status=RECOVERY_APPLIED,
         parent_run_id=parent_run_id,
         latency_ms=_elapsed_ms(started),
-        probe_evaluation=applied.probe_evaluation,
+        probe_evaluation=first_applied.probe_evaluation,
         agent_config=agent_config if agent_config is not None else parent.get("agent_config"),
-        recovery_attempts=(attempt,),
+        recovery_attempts=tuple(attempts),
         first_pass_evaluation=parent_eval,
         run_mode="loop_confirm",
         initial=initial_from_trace(parent),
@@ -643,6 +680,33 @@ def _safe_answer(decision: RecoveryDecision) -> str:
     if text.lower().startswith("i do not know"):
         return text
     return ABSTAIN_ANSWER
+
+
+def run_verdict(
+    first_eval: RuntimeEvaluation | None,
+    first_answer: str | None,
+    final: QueryState,
+    last: RecoveryDecision,
+    fallback: Verification | None,
+) -> Verification | None:
+    """Run-level verdict, shared by auto and confirm mode (#139).
+
+    Compares the first pass with the final state, then applies two overrides
+    that read the final answer: an abstention on still-insufficient or
+    span-rejected evidence is still_failing, and so is the loop giving up
+    (controller abstention) on a first answer that was not an abstention.
+    """
+    final_eval = final.runtime_evaluation
+    if first_eval is None or final_eval is None:
+        return fallback
+    if is_abstention(final.generation.answer) and (
+        not final_eval.evidence_sufficient or final_eval.span_rejections
+    ):
+        return Verification(outcome=STILL_FAILING, rationale=_ABSTAIN_RATIONALE)
+    if last.action == ABSTAIN and not is_abstention(first_answer or ""):
+        # Support going from false to null is not "unchanged" (#138).
+        return Verification(outcome=STILL_FAILING, rationale=_GAVE_UP_RATIONALE)
+    return verify_runtime(first_eval, final_eval)
 
 
 def _policy_stop(state: QueryState, assessment: GapAssessment) -> _Applied:
@@ -852,6 +916,11 @@ def _decision_to_apply(proposed: RecoveryDecision, chosen: str) -> RecoveryDecis
         attributed_class=proposed.attributed_class,
         source=source,
         trigger=proposed.trigger,
+        # Keep the policy's tags so a confirmed child records what auto mode
+        # would (#147). An operator override has its own action, so only keep
+        # them when the proposed action is the one applied.
+        parameters=proposed.parameters if chosen == proposed.action else None,
+        outcome_note=proposed.outcome_note if chosen == proposed.action else "",
     )
 
 
@@ -1208,6 +1277,8 @@ def _decision_from_payload(payload: Any) -> RecoveryDecision | None:
         reason=str(payload.get("reason") or ""),
         attributed_class=payload.get("attributed_class"),
         source=str(payload.get("source") or SOURCE_POLICY),
+        parameters=dict(payload["parameters"]) if isinstance(payload.get("parameters"), dict) else None,
+        outcome_note=str(payload.get("outcome_note") or ""),
     )
 
 
