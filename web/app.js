@@ -229,16 +229,21 @@ function renderEnvStatus() {
   const dot = $("env-dot");
   const summary = $("top-meta");
   const pop = $("env-pop");
+  const btn = $("env-btn");
+  // The button's accessible name carries the same sentence as #top-meta.
+  const announce = (text) => {
+    if (summary) summary.textContent = text;
+    if (btn) btn.setAttribute("aria-label", `Environment: ${text}`);
+  };
   if (!meta) {
     if (dot) dot.className = "env-dot is-error";
-    if (summary) summary.textContent = "Backend unreachable";
+    announce("Backend unreachable");
     return;
   }
   const keyOn = Boolean(meta.api_key_present);
   const provider = meta.official_openai ? "OpenAI" : "custom backend";
   if (dot) dot.className = `env-dot ${keyOn ? "is-ok" : "is-warn"}`;
-  if (summary) summary.textContent = keyOn ? meta.configured_chat_model || "Connected" : "No API key";
-  const btn = $("env-btn");
+  announce(keyOn ? meta.configured_chat_model || "Connected" : "No API key");
   if (btn) btn.dataset.tip = keyOn ? `${meta.configured_chat_model} · ${provider}` : "No API key: retrieve only";
   if (!pop) return;
   const row = (iconName, key, value, tone = "") =>
