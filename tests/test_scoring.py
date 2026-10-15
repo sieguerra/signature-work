@@ -145,3 +145,38 @@ def test_explicit_abstained_flag_overrides_the_heuristic() -> None:
     score = score_answer("NJ-12", _answerable("NJ-12"), abstained=True)
     assert score.abstained
     assert not score.exact_match
+
+
+def test_clock_ranges_match_however_they_are_written() -> None:
+    from swrag.evaluation.scoring import contains_answer, token_f1
+
+    gold = ("12:00-18:00",)
+    for written in ("Saturday: 12:00 to 18:00", "Open 12:00 - 18:00", "12:00–18:00", "12:00 until 18:00"):
+        assert contains_answer(written, gold), written
+        assert token_f1(written, gold) > 0.5, written
+    assert not contains_answer("12:00 to 19:00", gold)
+
+
+def test_a_single_gold_time_matches_inside_a_range_and_leading_zeros_do_not_matter() -> None:
+    from swrag.evaluation.scoring import contains_answer, exact_match
+
+    assert contains_answer("The quiet window is 21:00-06:00.", ("21:00",))
+    assert contains_answer("It opens at 08:00.", ("8:00",))
+    assert exact_match("08:00", ("8:00",))
+
+
+def test_refusals_are_recognised_with_curly_quotes_and_common_phrasings() -> None:
+    from swrag.evaluation.scoring import looks_like_abstention
+
+    assert looks_like_abstention("I don’t know.")
+    assert looks_like_abstention("The documents do not contain this information.")
+    assert looks_like_abstention("The evidence does not specify which restaurant is closest.")
+
+
+def test_an_answer_with_the_gold_fact_is_not_an_abstention() -> None:
+    from swrag.evaluation.scoring import score_answer
+    from swrag.types import GoldQuestion
+
+    gold = GoldQuestion(question_id="q", question="Phone?", answerable=True, answers=("555-2201",), supporting_doc_ids=("d",))
+    score = score_answer("The front desk is 555-2201; a fax number is not mentioned.", gold)
+    assert score.abstained is False and score.contains_answer is True
