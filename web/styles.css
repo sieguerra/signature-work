@@ -7707,3 +7707,8 @@ h2 .info-tip { font-size: inherit; }
 
 .is-demo .kn-readonly,
 .is-demo .workspace-create { display: none !important; }
+
+/* The sidebar mark follows the app theme. */
+.brand-mark-dark { display: none; }
+:root:not([data-theme="light"]) .brand-mark-light { display: none; }
+:root:not([data-theme="light"]) .brand-mark-dark { display: block; }
