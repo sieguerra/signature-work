@@ -20,6 +20,22 @@ documents.
 When you use a chunk, mention its chunk_id in brackets."""
 
 
+def compose_regenerate_prompt(instructions: str = "") -> str:
+    """Repair rules first; a system's own instructions cannot override them.
+
+    With no instructions the prompt is exactly ``_REGENERATE_PROMPT``, so
+    built-in corpora and benchmarks see no change (issue #143).
+    """
+    extra = instructions.strip()
+    if not extra:
+        return _REGENERATE_PROMPT
+    return (
+        f"{_REGENERATE_PROMPT}\n\n"
+        "Additional project instructions (still never invent facts):\n"
+        f"{extra}"
+    )
+
+
 class ConstrainedRegenerator:
     """Same retrieval, new answer, tighter grounding instruction."""
 
@@ -29,9 +45,11 @@ class ConstrainedRegenerator:
         model: str | None = None,
         client: OpenAI | None = None,
         config: ProviderConfig | None = None,
+        instructions: str = "",
     ) -> None:
         resolved = config or load_provider_config()
         self.model_name = model or resolved.chat_model
+        self.instructions = instructions
         self._client = client or openai_client(resolved.base_url)
 
     def regenerate(
@@ -45,7 +63,7 @@ class ConstrainedRegenerator:
         response = self._client.chat.completions.create(
             model=self.model_name,
             messages=[
-                {"role": "system", "content": _REGENERATE_PROMPT},
+                {"role": "system", "content": compose_regenerate_prompt(self.instructions)},
                 {
                     "role": "user",
                     "content": (

@@ -738,22 +738,16 @@ def _execute_run(
     if not retrieve_only:
         kwargs["generator"] = _generator_for(application)
     if mode == "loop":
-        from swrag.evaluation.llm_judge import LLMJudge
-
-        kwargs["judge"] = LLMJudge()
+        kwargs.update(_recovery_actors(application))
         kwargs["max_recoveries"] = 2
         return run_with_recovery(question, **kwargs)
     if mode == "loop_confirm":
-        from swrag.evaluation.llm_judge import LLMJudge
-
-        kwargs["judge"] = LLMJudge()
+        kwargs.update(_recovery_actors(application))
         return run_first_pass(question, **kwargs)
     return run_query(question, **kwargs)
 
 
 def _execute_recover(application: FastAPI, run_id: str, action: str | None):
-    from swrag.evaluation.llm_judge import LLMJudge
-
     index = _index_for(application, retrieve_only=False)
     return apply_recovery(
         run_id,
@@ -762,9 +756,9 @@ def _execute_recover(application: FastAPI, run_id: str, action: str | None):
         action=action,
         index=index,
         generate=True,
-        judge=LLMJudge(),
         generator=_generator_for(application),
         agent_config=_agent_snapshot(application),
+        **_recovery_actors(application),
     )
 
 
@@ -835,15 +829,43 @@ def _agent_snapshot(application: FastAPI) -> dict[str, Any] | None:
     return dict(config)
 
 
-def _generator_for(application: FastAPI) -> OpenAIGenerator:
-    config = application.state.agent_config if isinstance(application.state.agent_config, dict) else {}
-    model = str(config.get("chat_model") or "") or None
+def _system_model(application: FastAPI) -> str | None:
+    """The editable system's chosen chat model; None means the environment default."""
     if not application.state.writable:
-        model = None
+        return None
+    config = application.state.agent_config if isinstance(application.state.agent_config, dict) else {}
+    return str(config.get("chat_model") or "") or None
+
+
+def _system_instructions(application: FastAPI) -> str:
+    config = application.state.agent_config if isinstance(application.state.agent_config, dict) else {}
+    return str(config.get("instructions") or "")
+
+
+def _generator_for(application: FastAPI) -> OpenAIGenerator:
     return OpenAIGenerator(
-        model=model,
-        instructions=str(config.get("instructions") or ""),
+        model=_system_model(application),
+        instructions=_system_instructions(application),
     )
+
+
+def _recovery_actors(application: FastAPI) -> dict[str, Any]:
+    """Judge, regenerator and rewriter on the same model as the first answer (issue #143).
+
+    Only the regenerator writes a user-facing answer, so only it gets the
+    system's instructions; the judge and the rewriter keep their own prompts.
+    Built-in corpora pass no model, so they keep the environment model.
+    """
+    from swrag.evaluation.llm_judge import LLMJudge
+    from swrag.recovery.regenerate import ConstrainedRegenerator
+    from swrag.recovery.rewrite import LLMQueryRewriter
+
+    model = _system_model(application)
+    return {
+        "judge": LLMJudge(model=model),
+        "regenerator": ConstrainedRegenerator(model=model, instructions=_system_instructions(application)),
+        "rewriter": LLMQueryRewriter(model=model),
+    }
 
 
 def _index_cache_key(application: FastAPI, *, retrieve_only: bool) -> tuple[str, str, str]:
