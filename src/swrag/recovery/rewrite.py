@@ -7,7 +7,7 @@ import re
 from openai import OpenAI
 
 from swrag.config import ProviderConfig, load_provider_config, openai_client
-from swrag.generation.openai_generator import _format_evidence
+from swrag.generation.openai_generator import EVIDENCE_RULE, _format_evidence
 from swrag.types import RetrievalResult
 from swrag.usage import record_chat
 
@@ -20,7 +20,9 @@ unless that expansion already appears in the question.
 Do not invent institution names (university, college, institute) that are
 not already in the question.
 Do not answer the question. Do not use facts that are not in the question.
-Return only the rewritten query, with no quotes or preamble."""
+Return only the rewritten query, with no quotes or preamble.
+
+""" + EVIDENCE_RULE
 
 _INSTITUTION_TOKENS = frozenset({"university", "college", "institute"})
 _TOKEN = re.compile(r"[A-Za-z0-9]+")

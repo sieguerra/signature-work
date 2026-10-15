@@ -5,7 +5,7 @@ from __future__ import annotations
 from openai import OpenAI
 
 from swrag.config import ProviderConfig, load_provider_config, openai_client
-from swrag.generation.openai_generator import _format_evidence
+from swrag.generation.openai_generator import EVIDENCE_RULE, _format_evidence, drop_unretrieved_citations
 from swrag.types import GenerationResult, RetrievalResult
 from swrag.usage import record_chat
 
@@ -17,7 +17,9 @@ If the evidence answers only part of the question, answer that part and say
 you do not know the rest based on the retrieved documents. If the evidence
 is not enough for any part, say you do not know based on the retrieved
 documents.
-When you use a chunk, mention its chunk_id in brackets."""
+When you use a chunk, mention its chunk_id in brackets.
+
+""" + EVIDENCE_RULE
 
 
 def compose_regenerate_prompt(instructions: str = "") -> str:
@@ -77,4 +79,5 @@ class ConstrainedRegenerator:
         )
         record_chat(response)
         message = response.choices[0].message.content or ""
-        return GenerationResult(answer=message.strip(), model=self.model_name)
+        answer = drop_unretrieved_citations(message.strip(), retrieval)
+        return GenerationResult(answer=answer, model=self.model_name)

@@ -1,0 +1,17 @@
+{
+  "name": "v4_harbor_full_current_loop",
+  "gold_path": "/private/tmp/claude-501/-Users-siegfreidbugarin/a7ca6171-322c-49d5-a44d-818cc49a161e/scratchpad/wt-bench/datasets/gold/questions.jsonl",
+  "corpus_dir": "/private/tmp/claude-501/-Users-siegfreidbugarin/a7ca6171-322c-49d5-a44d-818cc49a161e/scratchpad/wt-bench/datasets/corpus",
+  "top_k": 4,
+  "max_recoveries": 2,
+  "conditions": [
+    {
+      "id": "baseline",
+      "mode": "baseline"
+    },
+    {
+      "id": "eval_guided",
+      "mode": "loop"
+    }
+  ]
+}

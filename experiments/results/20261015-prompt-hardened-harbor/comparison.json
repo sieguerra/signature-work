@@ -1,0 +1,2560 @@
+{
+  "name": "v4_harbor_full_current_loop",
+  "timestamp": "2026-10-15T14:57:04.209918+00:00",
+  "gold_path": "/private/tmp/claude-501/-Users-siegfreidbugarin/a7ca6171-322c-49d5-a44d-818cc49a161e/scratchpad/wt-bench/datasets/gold/questions.jsonl",
+  "corpus_dir": "/private/tmp/claude-501/-Users-siegfreidbugarin/a7ca6171-322c-49d5-a44d-818cc49a161e/scratchpad/wt-bench/datasets/corpus",
+  "top_k": 4,
+  "max_recoveries": 2,
+  "provider": {
+    "base_url": "https://api.openlux.ai/v1",
+    "official_openai": false,
+    "configured_chat_model": "gpt-4o-mini",
+    "configured_embedding_model": "text-embedding-3-small",
+    "api_key_present": true
+  },
+  "setup_usage": {
+    "chat_calls": 0,
+    "embedding_calls": 1,
+    "prompt_tokens": 0,
+    "completion_tokens": 0,
+    "embedding_tokens": 1745
+  },
+  "condition_ids": [
+    "baseline",
+    "eval_guided"
+  ],
+  "quality": {
+    "answerable_exact_match": {
+      "baseline": 0.0,
+      "eval_guided": 0.0,
+      "delta": 0.0
+    },
+    "answerable_contains_answer": {
+      "baseline": 1.0,
+      "eval_guided": 1.0,
+      "delta": 0.0
+    },
+    "answerable_f1": {
+      "baseline": 0.25229807542495186,
+      "eval_guided": 0.2515844171025979,
+      "delta": -0.0007136583223539827
+    },
+    "unanswerable_abstention_rate": {
+      "baseline": 0.6666666666666666,
+      "eval_guided": 0.6666666666666666,
+      "delta": 0.0
+    },
+    "answerable_abstention_rate": {
+      "baseline": 0.0,
+      "eval_guided": 0.0,
+      "delta": 0.0
+    },
+    "retrieval_hit_rate": {
+      "baseline": 1.0,
+      "eval_guided": 1.0,
+      "delta": 0.0
+    },
+    "mean_latency_ms": {
+      "baseline": 4745.469369809143,
+      "eval_guided": 9868.877042998975,
+      "delta": 5123.407673189831
+    },
+    "median_latency_ms": {
+      "baseline": 4445.099667005707,
+      "eval_guided": 7739.972103998298,
+      "delta": 3294.8724369925912
+    },
+    "total_chat_calls": {
+      "baseline": 32,
+      "eval_guided": 96,
+      "delta": 64
+    },
+    "total_embedding_calls": {
+      "baseline": 32,
+      "eval_guided": 36,
+      "delta": 4
+    },
+    "total_prompt_tokens": {
+      "baseline": 20210,
+      "eval_guided": 90312,
+      "delta": 70102
+    },
+    "total_completion_tokens": {
+      "baseline": 980,
+      "eval_guided": 4667,
+      "delta": 3687
+    },
+    "total_embedding_tokens": {
+      "baseline": 458,
+      "eval_guided": 521,
+      "delta": 63
+    }
+  },
+  "verification_vs_gold": {
+    "n_with_runtime_verification": 8,
+    "n_loop_questions": 32,
+    "n_verdict_agrees": 7,
+    "n_verdict_disagrees": 1,
+    "by_runtime_outcome": {
+      "unchanged": {
+        "n": 1,
+        "gold_f1_up": 0,
+        "gold_f1_down": 0,
+        "gold_f1_same": 1,
+        "no_previous_score": 0,
+        "verdict_agrees": 1,
+        "verdict_disagrees": 0,
+        "final_gold_correct": 1
+      },
+      "still_failing": {
+        "n": 6,
+        "gold_f1_up": 0,
+        "gold_f1_down": 0,
+        "gold_f1_same": 6,
+        "no_previous_score": 0,
+        "verdict_agrees": 6,
+        "verdict_disagrees": 0,
+        "final_gold_correct": 5
+      },
+      "improved": {
+        "n": 1,
+        "gold_f1_up": 0,
+        "gold_f1_down": 0,
+        "gold_f1_same": 1,
+        "no_previous_score": 0,
+        "verdict_agrees": 0,
+        "verdict_disagrees": 1,
+        "final_gold_correct": 1
+      }
+    },
+    "by_recovery_action": {
+      "expand": {
+        "n": 7,
+        "gold_f1_up": 0,
+        "gold_f1_down": 0,
+        "gold_f1_same": 7,
+        "no_previous_score": 0,
+        "verdict_agrees": 6,
+        "verdict_disagrees": 1,
+        "final_gold_correct": 6
+      },
+      "abstain": {
+        "n": 1,
+        "gold_f1_up": 0,
+        "gold_f1_down": 0,
+        "gold_f1_same": 1,
+        "no_previous_score": 0,
+        "verdict_agrees": 1,
+        "verdict_disagrees": 0,
+        "final_gold_correct": 1
+      }
+    },
+    "by_attributed_class": {
+      "evidence_insufficiency": {
+        "n": 6,
+        "gold_f1_up": 0,
+        "gold_f1_down": 0,
+        "gold_f1_same": 6,
+        "no_previous_score": 0,
+        "verdict_agrees": 6,
+        "verdict_disagrees": 0,
+        "final_gold_correct": 5
+      },
+      "retrieval_miss": {
+        "n": 1,
+        "gold_f1_up": 0,
+        "gold_f1_down": 0,
+        "gold_f1_same": 1,
+        "no_previous_score": 0,
+        "verdict_agrees": 0,
+        "verdict_disagrees": 1,
+        "final_gold_correct": 1
+      }
+    },
+    "rank_rule": {
+      "n": 8,
+      "agrees": 2,
+      "disagrees": 6,
+      "by_answerability": {
+        "answerable": {
+          "n": 1,
+          "agrees": 1,
+          "disagrees": 0
+        },
+        "unanswerable": {
+          "n": 7,
+          "agrees": 1,
+          "disagrees": 6
+        }
+      },
+      "runtime_vs_gold_transition": {
+        "unchanged": {
+          "unchanged": 1
+        },
+        "still_failing": {
+          "still_failing": 1,
+          "unchanged": 5
+        },
+        "improved": {
+          "unchanged": 1
+        }
+      }
+    }
+  },
+  "by_failure_class": {
+    "no_failure": {
+      "n": 24,
+      "answerable_n": 22,
+      "answerable_exact_match": 0.0,
+      "answerable_f1": 0.255747345152716,
+      "verification_counts": {}
+    },
+    "expand": {
+      "n": 1,
+      "answerable_n": 1,
+      "answerable_exact_match": 0.0,
+      "answerable_f1": 0.16,
+      "verification_counts": {
+        "unchanged": 1
+      }
+    },
+    "evidence_insufficiency": {
+      "n": 6,
+      "answerable_n": 0,
+      "answerable_exact_match": null,
+      "answerable_f1": null,
+      "verification_counts": {
+        "still_failing": 6
+      }
+    },
+    "retrieval_miss": {
+      "n": 1,
+      "answerable_n": 0,
+      "answerable_exact_match": null,
+      "answerable_f1": null,
+      "verification_counts": {
+        "improved": 1
+      }
+    }
+  },
+  "by_gold_class": {
+    "evidence_insufficiency": {
+      "n": 9,
+      "answerable_n": 0,
+      "unanswerable_n": 9,
+      "baseline_contains_answer": null,
+      "loop_contains_answer": null,
+      "baseline_unanswerable_abstention": 0.6666666666666666,
+      "loop_unanswerable_abstention": 0.6666666666666666,
+      "runtime_attribution": {
+        "evidence_insufficiency": 6,
+        "no_recovery": 2,
+        "retrieval_miss": 1
+      }
+    },
+    "no_failure": {
+      "n": 23,
+      "answerable_n": 23,
+      "unanswerable_n": 0,
+      "baseline_contains_answer": 1.0,
+      "loop_contains_answer": 1.0,
+      "baseline_unanswerable_abstention": null,
+      "loop_unanswerable_abstention": null,
+      "runtime_attribution": {
+        "no_recovery": 22,
+        "unattributed": 1
+      }
+    }
+  },
+  "conditions": {
+    "baseline": {
+      "run_label": "baseline",
+      "timestamp": "2026-10-15T14:51:48.333423+00:00",
+      "gold_path": "/private/tmp/claude-501/-Users-siegfreidbugarin/a7ca6171-322c-49d5-a44d-818cc49a161e/scratchpad/wt-bench/datasets/gold/questions.jsonl",
+      "corpus_dir": "/private/tmp/claude-501/-Users-siegfreidbugarin/a7ca6171-322c-49d5-a44d-818cc49a161e/scratchpad/wt-bench/datasets/corpus",
+      "output_dir": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/baseline",
+      "top_k": 4,
+      "provider": {
+        "base_url": "https://api.openlux.ai/v1",
+        "official_openai": false,
+        "configured_chat_model": "gpt-4o-mini",
+        "configured_embedding_model": "text-embedding-3-small",
+        "api_key_present": true
+      },
+      "total": 32,
+      "answerable_total": 23,
+      "unanswerable_total": 9,
+      "exact_match": 0.1875,
+      "contains_answer": 0.90625,
+      "f1": 0.36883924171168414,
+      "answerable_exact_match": 0.0,
+      "answerable_contains_answer": 1.0,
+      "answerable_f1": 0.25229807542495186,
+      "unanswerable_abstention_rate": 0.6666666666666666,
+      "answerable_abstention_rate": 0.0,
+      "retrieval_hit_rate": 1.0,
+      "condition": "baseline",
+      "mean_latency_ms": 4745.469369809143,
+      "total_chat_calls": 32,
+      "total_embedding_calls": 32,
+      "total_prompt_tokens": 20210,
+      "total_completion_tokens": 980,
+      "total_embedding_tokens": 458,
+      "errors": [],
+      "median_latency_ms": 4445.099667005707
+    },
+    "eval_guided": {
+      "run_label": "eval_guided",
+      "timestamp": "2026-10-15T14:57:04.184147+00:00",
+      "gold_path": "/private/tmp/claude-501/-Users-siegfreidbugarin/a7ca6171-322c-49d5-a44d-818cc49a161e/scratchpad/wt-bench/datasets/gold/questions.jsonl",
+      "corpus_dir": "/private/tmp/claude-501/-Users-siegfreidbugarin/a7ca6171-322c-49d5-a44d-818cc49a161e/scratchpad/wt-bench/datasets/corpus",
+      "output_dir": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/eval_guided",
+      "top_k": 4,
+      "provider": {
+        "base_url": "https://api.openlux.ai/v1",
+        "official_openai": false,
+        "configured_chat_model": "gpt-4o-mini",
+        "configured_embedding_model": "text-embedding-3-small",
+        "api_key_present": true
+      },
+      "total": 32,
+      "answerable_total": 23,
+      "unanswerable_total": 9,
+      "exact_match": 0.1875,
+      "contains_answer": 0.90625,
+      "f1": 0.36832629979249226,
+      "answerable_exact_match": 0.0,
+      "answerable_contains_answer": 1.0,
+      "answerable_f1": 0.2515844171025979,
+      "unanswerable_abstention_rate": 0.6666666666666666,
+      "answerable_abstention_rate": 0.0,
+      "retrieval_hit_rate": 1.0,
+      "condition": "loop",
+      "mean_latency_ms": 9868.877042998975,
+      "total_chat_calls": 96,
+      "total_embedding_calls": 36,
+      "total_prompt_tokens": 90312,
+      "total_completion_tokens": 4667,
+      "total_embedding_tokens": 521,
+      "errors": [],
+      "median_latency_ms": 7739.972103998298
+    }
+  },
+  "paired_outcomes": [
+    {
+      "question_id": "seed-001",
+      "question": "What is the North Jetty Teaching Lab's lab code?",
+      "answerable": true,
+      "baseline": {
+        "answer": "The North Jetty Teaching Lab's lab code is NJ-12 [north-jetty-lab::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.19999999999999998,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "north-jetty-lab",
+          "south-jetty-lab",
+          "south-jetty-lab",
+          "tideline-winter-recess"
+        ],
+        "latency_ms": 4210.393707995536,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 588,
+          "completion_tokens": 24,
+          "embedding_tokens": 12
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T144920_5d91d094",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/baseline/traces/20261015T144920_5d91d094.json"
+      },
+      "eval_guided": {
+        "answer": "The North Jetty Teaching Lab's lab code is NJ-12 [north-jetty-lab::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.19999999999999998,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "north-jetty-lab",
+          "south-jetty-lab",
+          "south-jetty-lab",
+          "tideline-winter-recess"
+        ],
+        "latency_ms": 7406.026249984279,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 1,
+          "prompt_tokens": 1475,
+          "completion_tokens": 96,
+          "embedding_tokens": 12
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145155_9a25046e",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/eval_guided/traces/20261015T145155_9a25046e.json"
+      }
+    },
+    {
+      "question_id": "seed-002",
+      "question": "Which floor of the Harbor Institute Library is the quiet study floor?",
+      "answerable": true,
+      "baseline": {
+        "answer": "The quiet study floor of the Harbor Institute Library is Level 3 [harbor-library::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.3076923076923077,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "harbor-library",
+          "saltmarsh-annex-library",
+          "harbor-library-2019-notice",
+          "harbor-library-2019-notice"
+        ],
+        "latency_ms": 3434.6696250140667,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 682,
+          "completion_tokens": 21,
+          "embedding_tokens": 13
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T144924_4613f259",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/baseline/traces/20261015T144924_4613f259.json"
+      },
+      "eval_guided": {
+        "answer": "The quiet study floor of the Harbor Institute Library is Level 3 [harbor-library::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.3076923076923077,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "harbor-library",
+          "saltmarsh-annex-library",
+          "harbor-library-2019-notice",
+          "harbor-library-2019-notice"
+        ],
+        "latency_ms": 9343.937208992429,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 1,
+          "prompt_tokens": 1660,
+          "completion_tokens": 69,
+          "embedding_tokens": 13
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145205_4d884c4f",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/eval_guided/traces/20261015T145205_4d884c4f.json"
+      }
+    },
+    {
+      "question_id": "seed-003",
+      "question": "What is the campus shuttle called?",
+      "answerable": true,
+      "baseline": {
+        "answer": "The campus shuttle is called the Tideline [tideline-shuttle::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.2857142857142857,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "tideline-shuttle",
+          "tideline-winter-recess",
+          "tideline-shuttle",
+          "tideline-winter-recess"
+        ],
+        "latency_ms": 2957.695249991957,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 579,
+          "completion_tokens": 17,
+          "embedding_tokens": 7
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T144927_ccbe34a8",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/baseline/traces/20261015T144927_ccbe34a8.json"
+      },
+      "eval_guided": {
+        "answer": "The campus shuttle is called the Tideline [tideline-shuttle::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.2857142857142857,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "tideline-shuttle",
+          "tideline-winter-recess",
+          "tideline-shuttle",
+          "tideline-winter-recess"
+        ],
+        "latency_ms": 7321.2575420038775,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 1,
+          "prompt_tokens": 1450,
+          "completion_tokens": 65,
+          "embedding_tokens": 7
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145212_572162d5",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/eval_guided/traces/20261015T145212_572162d5.json"
+      }
+    },
+    {
+      "question_id": "gold-013",
+      "question": "What is the South Jetty Teaching Lab's lab code?",
+      "answerable": true,
+      "baseline": {
+        "answer": "The South Jetty Teaching Lab's lab code is SJ-07 [south-jetty-lab::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.19999999999999998,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "south-jetty-lab",
+          "north-jetty-lab",
+          "south-jetty-lab",
+          "tideline-winter-recess"
+        ],
+        "latency_ms": 4515.66212499165,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 588,
+          "completion_tokens": 24,
+          "embedding_tokens": 12
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T144931_53dd843f",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/baseline/traces/20261015T144931_53dd843f.json"
+      },
+      "eval_guided": {
+        "answer": "The South Jetty Teaching Lab's lab code is SJ-07 [south-jetty-lab::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.19999999999999998,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "south-jetty-lab",
+          "north-jetty-lab",
+          "south-jetty-lab",
+          "tideline-winter-recess"
+        ],
+        "latency_ms": 6790.126582985977,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 1,
+          "prompt_tokens": 1475,
+          "completion_tokens": 78,
+          "embedding_tokens": 12
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145219_ebfd1d1e",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/eval_guided/traces/20261015T145219_ebfd1d1e.json"
+      }
+    },
+    {
+      "question_id": "gold-015",
+      "question": "Who is the lab manager of the South Jetty Teaching Lab?",
+      "answerable": true,
+      "baseline": {
+        "answer": "The lab manager of the South Jetty Teaching Lab is Dev Okonkwo (dev.okonkwo@harbor-institute.example) [south-jetty-lab::c001].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.2857142857142857,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "south-jetty-lab",
+          "north-jetty-lab",
+          "south-jetty-lab",
+          "north-jetty-lab"
+        ],
+        "latency_ms": 3553.80308299209,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 569,
+          "completion_tokens": 38,
+          "embedding_tokens": 13
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T144935_eac92b80",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/baseline/traces/20261015T144935_eac92b80.json"
+      },
+      "eval_guided": {
+        "answer": "The lab manager of the South Jetty Teaching Lab is Dev Okonkwo (dev.okonkwo@harbor-institute.example) [south-jetty-lab::c001].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.2857142857142857,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "south-jetty-lab",
+          "north-jetty-lab",
+          "south-jetty-lab",
+          "north-jetty-lab"
+        ],
+        "latency_ms": 5498.238040978322,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 1,
+          "prompt_tokens": 1451,
+          "completion_tokens": 110,
+          "embedding_tokens": 13
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145224_e501f15f",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/eval_guided/traces/20261015T145224_e501f15f.json"
+      }
+    },
+    {
+      "question_id": "gold-024",
+      "question": "Who is the lab manager of the North Jetty Teaching Lab?",
+      "answerable": true,
+      "baseline": {
+        "answer": "The lab manager of the North Jetty Teaching Lab is Priya Chen (priya.chen@harbor-institute.example) [north-jetty-lab::c001].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.2857142857142857,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "north-jetty-lab",
+          "south-jetty-lab",
+          "south-jetty-lab",
+          "north-jetty-lab"
+        ],
+        "latency_ms": 3832.4479589937255,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 569,
+          "completion_tokens": 37,
+          "embedding_tokens": 13
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T144938_777c1d5e",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/baseline/traces/20261015T144938_777c1d5e.json"
+      },
+      "eval_guided": {
+        "answer": "The lab manager of the North Jetty Teaching Lab is Priya Chen (priya.chen@harbor-institute.example) [north-jetty-lab::c001].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.2857142857142857,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "north-jetty-lab",
+          "south-jetty-lab",
+          "south-jetty-lab",
+          "north-jetty-lab"
+        ],
+        "latency_ms": 5815.518791001523,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 1,
+          "prompt_tokens": 1450,
+          "completion_tokens": 102,
+          "embedding_tokens": 13
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145230_c0886835",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/eval_guided/traces/20261015T145230_c0886835.json"
+      }
+    },
+    {
+      "question_id": "gold-032",
+      "question": "What room is the Coastal Memory Group office in?",
+      "answerable": true,
+      "baseline": {
+        "answer": "The Coastal Memory Group office is in Room 214 in the East Archive wing [coastal-memory-group::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.2666666666666667,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "coastal-memory-group",
+          "storm-ledger-unit",
+          "saltmarsh-annex-library",
+          "coastal-memory-group"
+        ],
+        "latency_ms": 4276.825375010958,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 660,
+          "completion_tokens": 24,
+          "embedding_tokens": 10
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T144943_4e1c2e6c",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/baseline/traces/20261015T144943_4e1c2e6c.json"
+      },
+      "eval_guided": {
+        "answer": "The Coastal Memory Group office is in Room 214 in the East Archive wing [coastal-memory-group::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.2666666666666667,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "coastal-memory-group",
+          "storm-ledger-unit",
+          "saltmarsh-annex-library",
+          "coastal-memory-group"
+        ],
+        "latency_ms": 5828.950208000606,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 1,
+          "prompt_tokens": 1619,
+          "completion_tokens": 78,
+          "embedding_tokens": 10
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145236_3bd5af56",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/eval_guided/traces/20261015T145236_3bd5af56.json"
+      }
+    },
+    {
+      "question_id": "seed-004",
+      "question": "At the North Jetty Teaching Lab, how long is a booking held before it is cancelled if nobody taps in?",
+      "answerable": true,
+      "baseline": {
+        "answer": "At the North Jetty Teaching Lab, a booking is cancelled if no member taps in with a student card within 15 minutes of the start time [north-jetty-lab::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.16,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "south-jetty-lab",
+          "north-jetty-lab",
+          "south-jetty-lab",
+          "tideline-winter-recess"
+        ],
+        "latency_ms": 3911.5371250081807,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 599,
+          "completion_tokens": 40,
+          "embedding_tokens": 23
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T144947_704b3906",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/baseline/traces/20261015T144947_704b3906.json"
+      },
+      "eval_guided": {
+        "answer": "At the North Jetty Teaching Lab, a booking is cancelled if no member taps in with a student card within 15 minutes of the start time [north-jetty-lab::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.16,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "south-jetty-lab",
+          "north-jetty-lab",
+          "south-jetty-lab",
+          "tideline-winter-recess",
+          "harbor-library",
+          "tideline-winter-recess",
+          "harbor-library-2019-notice",
+          "saltmarsh-annex-library",
+          "north-jetty-lab",
+          "tideline-shuttle",
+          "saltmarsh-annex-library",
+          "harbor-library-2019-notice"
+        ],
+        "latency_ms": 12263.822749984683,
+        "usage": {
+          "chat_calls": 4,
+          "embedding_calls": 1,
+          "prompt_tokens": 4912,
+          "completion_tokens": 228,
+          "embedding_tokens": 23
+        },
+        "recovery_action": "expand",
+        "attributed_class": null,
+        "verification_outcome": "unchanged",
+        "previous_answer": "At the North Jetty Teaching Lab, a booking is cancelled if no member taps in with a student card within 15 minutes of the start time [north-jetty-lab::c000].",
+        "previous_f1": 0.16,
+        "f1_delta": 0.0,
+        "rewritten_query": null,
+        "run_id": "20261015T145248_9e704242",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/eval_guided/traces/20261015T145248_9e704242.json"
+      }
+    },
+    {
+      "question_id": "seed-005",
+      "question": "How many hours did the 1921 Green Lamp Flood last in Harbor Town?",
+      "answerable": true,
+      "baseline": {
+        "answer": "The 1921 Green Lamp Flood lasted 31 hours in Harbor Town, as stated in the public fact sheet of the Coastal Memory Group [coastal-memory-group::c001].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.17391304347826084,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "coastal-memory-group",
+          "storm-ledger-unit",
+          "harbor-library",
+          "saltmarsh-annex-library"
+        ],
+        "latency_ms": 3472.8874159918632,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 682,
+          "completion_tokens": 36,
+          "embedding_tokens": 16
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T144950_8100ac6d",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/baseline/traces/20261015T144950_8100ac6d.json"
+      },
+      "eval_guided": {
+        "answer": "The 1921 \"Green Lamp Flood\" lasted 31 hours in Harbor Town, as stated in the public fact sheet of the Coastal Memory Group [coastal-memory-group::c001].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.17391304347826084,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "coastal-memory-group",
+          "storm-ledger-unit",
+          "harbor-library",
+          "saltmarsh-annex-library"
+        ],
+        "latency_ms": 8470.847624994349,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 1,
+          "prompt_tokens": 1677,
+          "completion_tokens": 112,
+          "embedding_tokens": 16
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145257_52e327e0",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/eval_guided/traces/20261015T145257_52e327e0.json"
+      }
+    },
+    {
+      "question_id": "seed-006",
+      "question": "What time does the Tide Canteen kitchen close on Fridays?",
+      "answerable": true,
+      "baseline": {
+        "answer": "The Tide Canteen kitchen closes at 19:00 on Fridays, which is one hour earlier than other weekdays [tide-canteen::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.1111111111111111,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "tide-canteen",
+          "east-canteen",
+          "tideline-winter-recess",
+          "tide-canteen"
+        ],
+        "latency_ms": 3868.5141659807414,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 606,
+          "completion_tokens": 33,
+          "embedding_tokens": 13
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T144954_7a8b8bf7",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/baseline/traces/20261015T144954_7a8b8bf7.json"
+      },
+      "eval_guided": {
+        "answer": "The Tide Canteen kitchen closes at 19:00 on Fridays, one hour earlier than other weekdays [tide-canteen::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.125,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "tide-canteen",
+          "east-canteen",
+          "tideline-winter-recess",
+          "tide-canteen"
+        ],
+        "latency_ms": 10622.530458989786,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 1,
+          "prompt_tokens": 1518,
+          "completion_tokens": 97,
+          "embedding_tokens": 13
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145307_da96aee0",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/eval_guided/traces/20261015T145307_da96aee0.json"
+      }
+    },
+    {
+      "question_id": "gold-014",
+      "question": "At the South Jetty Teaching Lab, how long is a booking held before it is cancelled if nobody taps in?",
+      "answerable": true,
+      "baseline": {
+        "answer": "At the South Jetty Teaching Lab, a booking is cancelled if no member taps in with a student card within 10 minutes of the start time [south-jetty-lab::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.16,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "south-jetty-lab",
+          "north-jetty-lab",
+          "south-jetty-lab",
+          "harbor-library"
+        ],
+        "latency_ms": 3403.2693749759346,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 636,
+          "completion_tokens": 40,
+          "embedding_tokens": 23
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T144957_42092539",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/baseline/traces/20261015T144957_42092539.json"
+      },
+      "eval_guided": {
+        "answer": "At the South Jetty Teaching Lab, a booking is cancelled if no member taps in with a student card within 10 minutes of the start time [south-jetty-lab::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.16,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "south-jetty-lab",
+          "north-jetty-lab",
+          "south-jetty-lab",
+          "harbor-library"
+        ],
+        "latency_ms": 9164.256083982764,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 1,
+          "prompt_tokens": 1587,
+          "completion_tokens": 113,
+          "embedding_tokens": 23
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145316_353c7997",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/eval_guided/traces/20261015T145316_353c7997.json"
+      }
+    },
+    {
+      "question_id": "gold-016",
+      "question": "How many harbor credits does a standard meal cost at the East Canteen?",
+      "answerable": true,
+      "baseline": {
+        "answer": "A standard meal at the East Canteen costs 3 harbor credits [east-canteen::c001].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.4615384615384615,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "east-canteen",
+          "east-canteen",
+          "tide-canteen",
+          "tideline-shuttle"
+        ],
+        "latency_ms": 12049.327458982589,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 587,
+          "completion_tokens": 23,
+          "embedding_tokens": 16
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145009_6884eff4",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/baseline/traces/20261015T145009_6884eff4.json"
+      },
+      "eval_guided": {
+        "answer": "A standard meal at the East Canteen costs 3 harbor credits [east-canteen::c001].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.4615384615384615,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "east-canteen",
+          "east-canteen",
+          "tide-canteen",
+          "tideline-shuttle"
+        ],
+        "latency_ms": 8490.644000004977,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 1,
+          "prompt_tokens": 1472,
+          "completion_tokens": 89,
+          "embedding_tokens": 16
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145325_efb52fd3",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/eval_guided/traces/20261015T145325_efb52fd3.json"
+      }
+    },
+    {
+      "question_id": "gold-017",
+      "question": "What time does the East Canteen kitchen close on Fridays?",
+      "answerable": true,
+      "baseline": {
+        "answer": "The East Canteen kitchen closes at 20:00 on Fridays, the same as every other weekday [east-canteen::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.13333333333333333,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "east-canteen",
+          "tide-canteen",
+          "east-canteen",
+          "tide-canteen"
+        ],
+        "latency_ms": 3863.621708995197,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 583,
+          "completion_tokens": 30,
+          "embedding_tokens": 13
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145013_0c9be254",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/baseline/traces/20261015T145013_0c9be254.json"
+      },
+      "eval_guided": {
+        "answer": "The East Canteen kitchen closes at 20:00 on Fridays, the same as every other weekday [east-canteen::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.13333333333333333,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "east-canteen",
+          "tide-canteen",
+          "east-canteen",
+          "tide-canteen"
+        ],
+        "latency_ms": 6072.698583011515,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 1,
+          "prompt_tokens": 1471,
+          "completion_tokens": 96,
+          "embedding_tokens": 13
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145331_b89d14f6",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/eval_guided/traces/20261015T145331_b89d14f6.json"
+      }
+    },
+    {
+      "question_id": "gold-018",
+      "question": "How many digitized station reports does the Storm Ledger Unit hold?",
+      "answerable": true,
+      "baseline": {
+        "answer": "The Storm Ledger Unit holds 214 digitized station reports [storm-ledger-unit::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.19999999999999998,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "storm-ledger-unit",
+          "storm-ledger-unit",
+          "coastal-memory-group",
+          "coastal-memory-group"
+        ],
+        "latency_ms": 5290.770124993287,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 632,
+          "completion_tokens": 20,
+          "embedding_tokens": 13
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145019_a0af3c2a",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/baseline/traces/20261015T145019_a0af3c2a.json"
+      },
+      "eval_guided": {
+        "answer": "The Storm Ledger Unit holds 214 digitized station reports [storm-ledger-unit::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.19999999999999998,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "storm-ledger-unit",
+          "storm-ledger-unit",
+          "coastal-memory-group",
+          "coastal-memory-group"
+        ],
+        "latency_ms": 8073.917958012316,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 1,
+          "prompt_tokens": 1559,
+          "completion_tokens": 71,
+          "embedding_tokens": 13
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145339_04c3e6df",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/eval_guided/traces/20261015T145339_04c3e6df.json"
+      }
+    },
+    {
+      "question_id": "gold-019",
+      "question": "How many hours did the 1948 Black Mast Gale last in Harbor Town?",
+      "answerable": true,
+      "baseline": {
+        "answer": "The 1948 \"Black Mast Gale\" lasted 19 hours in Harbor Town [storm-ledger-unit::c001].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.3076923076923077,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "storm-ledger-unit",
+          "coastal-memory-group",
+          "harbor-library",
+          "tideline-shuttle"
+        ],
+        "latency_ms": 4910.000707983272,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 678,
+          "completion_tokens": 25,
+          "embedding_tokens": 16
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145024_fecad7aa",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/baseline/traces/20261015T145024_fecad7aa.json"
+      },
+      "eval_guided": {
+        "answer": "The 1948 \"Black Mast Gale\" lasted 19 hours in Harbor Town [storm-ledger-unit::c001].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.3076923076923077,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "storm-ledger-unit",
+          "coastal-memory-group",
+          "harbor-library",
+          "tideline-shuttle"
+        ],
+        "latency_ms": 6052.754375006771,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 1,
+          "prompt_tokens": 1656,
+          "completion_tokens": 93,
+          "embedding_tokens": 16
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145345_86e4f323",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/eval_guided/traces/20261015T145345_86e4f323.json"
+      }
+    },
+    {
+      "question_id": "gold-020",
+      "question": "How many minutes are there between Tideline runs during winter recess?",
+      "answerable": true,
+      "baseline": {
+        "answer": "During winter recess, the Tideline runs every 30 minutes from 08:00 to 18:00 [tideline-winter-recess::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.2857142857142857,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "tideline-winter-recess",
+          "tideline-shuttle",
+          "tideline-winter-recess",
+          "harbor-library"
+        ],
+        "latency_ms": 4556.913416017778,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 653,
+          "completion_tokens": 33,
+          "embedding_tokens": 14
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145028_310953a0",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/baseline/traces/20261015T145028_310953a0.json"
+      },
+      "eval_guided": {
+        "answer": "During winter recess, the Tideline runs every 30 minutes from 08:00 to 18:00 [tideline-winter-recess::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.2857142857142857,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "tideline-winter-recess",
+          "tideline-shuttle",
+          "tideline-winter-recess",
+          "harbor-library"
+        ],
+        "latency_ms": 5958.878250006819,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 1,
+          "prompt_tokens": 1614,
+          "completion_tokens": 116,
+          "embedding_tokens": 14
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145351_176652db",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/eval_guided/traces/20261015T145351_176652db.json"
+      }
+    },
+    {
+      "question_id": "gold-021",
+      "question": "What is the Harbor Institute Library's late-return fine per day?",
+      "answerable": true,
+      "baseline": {
+        "answer": "The Harbor Institute Library's late-return fine is 2 harbor credits per day, capped at 40 credits per item [harbor-library::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.2857142857142857,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "harbor-library",
+          "saltmarsh-annex-library",
+          "harbor-library-2019-notice",
+          "tideline-shuttle"
+        ],
+        "latency_ms": 5649.5350420009345,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 721,
+          "completion_tokens": 31,
+          "embedding_tokens": 13
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145034_d8c272d0",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/baseline/traces/20261015T145034_d8c272d0.json"
+      },
+      "eval_guided": {
+        "answer": "The Harbor Institute Library's late-return fine is 2 harbor credits per day, capped at 40 credits per item [harbor-library::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.2857142857142857,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "harbor-library",
+          "saltmarsh-annex-library",
+          "harbor-library-2019-notice",
+          "tideline-shuttle"
+        ],
+        "latency_ms": 5637.272625026526,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 1,
+          "prompt_tokens": 1748,
+          "completion_tokens": 103,
+          "embedding_tokens": 13
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145357_cdd58891",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/eval_guided/traces/20261015T145357_cdd58891.json"
+      }
+    },
+    {
+      "question_id": "gold-022",
+      "question": "What is the Saltmarsh Annex Library's late-return fine per day?",
+      "answerable": true,
+      "baseline": {
+        "answer": "The Saltmarsh Annex Library's late-return fine is 1 harbor credit per day, capped at 25 credits per item [saltmarsh-annex-library::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.2857142857142857,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "saltmarsh-annex-library",
+          "harbor-library",
+          "saltmarsh-annex-library",
+          "tideline-winter-recess"
+        ],
+        "latency_ms": 4978.921166999498,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 608,
+          "completion_tokens": 36,
+          "embedding_tokens": 14
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145039_62278ce5",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/baseline/traces/20261015T145039_62278ce5.json"
+      },
+      "eval_guided": {
+        "answer": "The Saltmarsh Annex Library's late-return fine is 1 harbor credit per day, capped at 25 credits per item [saltmarsh-annex-library::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.2857142857142857,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "saltmarsh-annex-library",
+          "harbor-library",
+          "saltmarsh-annex-library",
+          "tideline-winter-recess"
+        ],
+        "latency_ms": 6375.051582988817,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 1,
+          "prompt_tokens": 1527,
+          "completion_tokens": 110,
+          "embedding_tokens": 14
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145403_1c1aceb9",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/eval_guided/traces/20261015T145403_1c1aceb9.json"
+      }
+    },
+    {
+      "question_id": "gold-023",
+      "question": "Which floor of the Saltmarsh Annex Library is the quiet study floor?",
+      "answerable": true,
+      "baseline": {
+        "answer": "The quiet study floor of the Saltmarsh Annex Library is Level 2 [saltmarsh-annex-library::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.3076923076923077,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "saltmarsh-annex-library",
+          "harbor-library",
+          "coastal-memory-group",
+          "harbor-library-2019-notice"
+        ],
+        "latency_ms": 5427.1100829937495,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 661,
+          "completion_tokens": 26,
+          "embedding_tokens": 14
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145044_6c6bf3bf",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/baseline/traces/20261015T145044_6c6bf3bf.json"
+      },
+      "eval_guided": {
+        "answer": "The quiet study floor of the Saltmarsh Annex Library is Level 2 [saltmarsh-annex-library::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.3076923076923077,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "saltmarsh-annex-library",
+          "harbor-library",
+          "coastal-memory-group",
+          "harbor-library-2019-notice"
+        ],
+        "latency_ms": 8307.21062500379,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 1,
+          "prompt_tokens": 1623,
+          "completion_tokens": 81,
+          "embedding_tokens": 14
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145411_bc185d4c",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/eval_guided/traces/20261015T145411_bc185d4c.json"
+      }
+    },
+    {
+      "question_id": "seed-011",
+      "question": "What are the Saltmarsh Annex Library's Sunday hours?",
+      "answerable": true,
+      "baseline": {
+        "answer": "The Saltmarsh Annex Library's Sunday hours are 12:00–18:00 [saltmarsh-annex-library::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.3636363636363636,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "saltmarsh-annex-library",
+          "harbor-library-2019-notice",
+          "harbor-library",
+          "coastal-memory-group"
+        ],
+        "latency_ms": 6512.255041016033,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 693,
+          "completion_tokens": 29,
+          "embedding_tokens": 11
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145051_8dfc4257",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/baseline/traces/20261015T145051_8dfc4257.json"
+      },
+      "eval_guided": {
+        "answer": "The Saltmarsh Annex Library's Sunday hours are from 12:00 to 18:00 [saltmarsh-annex-library::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.33333333333333337,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "saltmarsh-annex-library",
+          "harbor-library-2019-notice",
+          "harbor-library",
+          "coastal-memory-group"
+        ],
+        "latency_ms": 6896.676375006791,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 1,
+          "prompt_tokens": 1692,
+          "completion_tokens": 102,
+          "embedding_tokens": 11
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145418_dd1a4a86",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/eval_guided/traces/20261015T145418_dd1a4a86.json"
+      }
+    },
+    {
+      "question_id": "seed-012",
+      "question": "What are the Harbor Institute Library's current Saturday hours?",
+      "answerable": true,
+      "baseline": {
+        "answer": "The Harbor Institute Library's current Saturday hours are 10:00 to 16:00 [harbor-library::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.33333333333333337,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "harbor-library",
+          "harbor-library-2019-notice",
+          "saltmarsh-annex-library",
+          "tideline-shuttle"
+        ],
+        "latency_ms": 5551.162709016353,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 719,
+          "completion_tokens": 26,
+          "embedding_tokens": 11
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145056_8512f905",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/baseline/traces/20261015T145056_8512f905.json"
+      },
+      "eval_guided": {
+        "answer": "The Harbor Institute Library's current Saturday hours are 10:00 to 16:00 [harbor-library::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.33333333333333337,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "harbor-library",
+          "harbor-library-2019-notice",
+          "saltmarsh-annex-library",
+          "tideline-shuttle"
+        ],
+        "latency_ms": 6927.742708998267,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 1,
+          "prompt_tokens": 1739,
+          "completion_tokens": 84,
+          "embedding_tokens": 11
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145425_ad0c9092",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/eval_guided/traces/20261015T145425_ad0c9092.json"
+      }
+    },
+    {
+      "question_id": "gold-025",
+      "question": "What were the Harbor Institute Library's Saturday hours during the 2019 East Wing renovation?",
+      "answerable": true,
+      "baseline": {
+        "answer": "During the 2019 East Wing renovation, the Harbor Institute Library's Saturday hours were from 12:00 to 15:00 [harbor-library-2019-notice::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.23529411764705882,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "harbor-library-2019-notice",
+          "harbor-library",
+          "harbor-library-2019-notice",
+          "saltmarsh-annex-library"
+        ],
+        "latency_ms": 4769.2396249913145,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 687,
+          "completion_tokens": 40,
+          "embedding_tokens": 18
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145101_138c6d64",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/baseline/traces/20261015T145101_138c6d64.json"
+      },
+      "eval_guided": {
+        "answer": "During the 2019 East Wing renovation, the Harbor Institute Library's Saturday hours were from 12:00 to 15:00 [harbor-library-2019-notice::c000].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.23529411764705882,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "harbor-library-2019-notice",
+          "harbor-library",
+          "harbor-library-2019-notice",
+          "saltmarsh-annex-library"
+        ],
+        "latency_ms": 6388.13000000664,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 1,
+          "prompt_tokens": 1689,
+          "completion_tokens": 110,
+          "embedding_tokens": 18
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145432_203cd923",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/eval_guided/traces/20261015T145432_203cd923.json"
+      }
+    },
+    {
+      "question_id": "seed-007",
+      "question": "Which shuttle stop is closest to the boat museum?",
+      "answerable": true,
+      "baseline": {
+        "answer": "There is no shuttle stop at the boat museum. The closest shuttle stop is Library Plaza, which is an 8-minute walk from the boat museum [tideline-shuttle::c001].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.16666666666666669,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "tideline-shuttle",
+          "tideline-shuttle",
+          "tideline-winter-recess",
+          "saltmarsh-annex-library"
+        ],
+        "latency_ms": 4374.537209019763,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 628,
+          "completion_tokens": 38,
+          "embedding_tokens": 10
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145105_b55f1c86",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/baseline/traces/20261015T145105_b55f1c86.json"
+      },
+      "eval_guided": {
+        "answer": "There is no shuttle stop at the boat museum. The closest shuttle stop is Library Plaza, which is an 8-minute walk from the boat museum [tideline-shuttle::c001].",
+        "exact_match": false,
+        "contains_answer": true,
+        "f1": 0.16666666666666669,
+        "abstained": false,
+        "retrieval_hit": true,
+        "retrieved_doc_ids": [
+          "tideline-shuttle",
+          "tideline-shuttle",
+          "tideline-winter-recess",
+          "saltmarsh-annex-library"
+        ],
+        "latency_ms": 7110.450874984963,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 1,
+          "prompt_tokens": 1569,
+          "completion_tokens": 127,
+          "embedding_tokens": 10
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145439_5e2d4904",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/eval_guided/traces/20261015T145439_5e2d4904.json"
+      }
+    },
+    {
+      "question_id": "seed-008",
+      "question": "What storm records does the Coastal Memory Group hold from 1955?",
+      "answerable": false,
+      "baseline": {
+        "answer": "The Coastal Memory Group does not hold any storm records after 1940, so it does not have records from 1955 [coastal-memory-group::c000]. However, the Storm Ledger Unit, which covers the period from 1940 to 1975, does have complete records for 1955 [storm-ledger-unit::c000].",
+        "exact_match": false,
+        "contains_answer": false,
+        "f1": 0.0,
+        "abstained": false,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "coastal-memory-group",
+          "storm-ledger-unit",
+          "coastal-memory-group",
+          "storm-ledger-unit"
+        ],
+        "latency_ms": 6182.930792012485,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 633,
+          "completion_tokens": 71,
+          "embedding_tokens": 14
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145112_e8b033a0",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/baseline/traces/20261015T145112_e8b033a0.json"
+      },
+      "eval_guided": {
+        "answer": "The Coastal Memory Group does not hold any storm records after 1940, and therefore does not have records from 1955 [coastal-memory-group::c000]. However, the Storm Ledger Unit, which covers records from 1940 to 1975, does have complete records for 1955 [storm-ledger-unit::c000].",
+        "exact_match": false,
+        "contains_answer": false,
+        "f1": 0.0,
+        "abstained": false,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "coastal-memory-group",
+          "storm-ledger-unit",
+          "coastal-memory-group",
+          "storm-ledger-unit",
+          "harbor-library-2019-notice",
+          "saltmarsh-annex-library",
+          "tideline-shuttle",
+          "tideline-winter-recess",
+          "harbor-library",
+          "tideline-winter-recess",
+          "south-jetty-lab",
+          "south-jetty-lab"
+        ],
+        "latency_ms": 19341.753499989863,
+        "usage": {
+          "chat_calls": 6,
+          "embedding_calls": 2,
+          "prompt_tokens": 6846,
+          "completion_tokens": 445,
+          "embedding_tokens": 28
+        },
+        "recovery_action": "expand",
+        "attributed_class": "evidence_insufficiency",
+        "verification_outcome": "still_failing",
+        "previous_answer": "The Coastal Memory Group does not hold any storm records after 1940, so it does not have records from 1955 [coastal-memory-group::c000]. However, the Storm Ledger Unit, which covers the period from 1940 to 1975, does have complete records for 1955 [storm-ledger-unit::c000].",
+        "previous_f1": 0.0,
+        "f1_delta": 0.0,
+        "rewritten_query": "What storm records does the Coastal Memory Group have from 1955?",
+        "run_id": "20261015T145458_9cddafea",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/eval_guided/traces/20261015T145458_9cddafea.json"
+      }
+    },
+    {
+      "question_id": "seed-009",
+      "question": "How much does a Tide Canteen meal cost in harbor credits?",
+      "answerable": false,
+      "baseline": {
+        "answer": "I do not know based on the retrieved documents.",
+        "exact_match": true,
+        "contains_answer": true,
+        "f1": 1.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "east-canteen",
+          "east-canteen",
+          "tide-canteen",
+          "tideline-shuttle"
+        ],
+        "latency_ms": 4779.230207990622,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 585,
+          "completion_tokens": 10,
+          "embedding_tokens": 14
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145116_3af5c862",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/baseline/traces/20261015T145116_3af5c862.json"
+      },
+      "eval_guided": {
+        "answer": "I do not know based on the retrieved documents.",
+        "exact_match": true,
+        "contains_answer": true,
+        "f1": 1.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "east-canteen",
+          "east-canteen",
+          "tideline-shuttle",
+          "tide-canteen",
+          "tide-canteen",
+          "harbor-library",
+          "tideline-winter-recess",
+          "saltmarsh-annex-library",
+          "tideline-winter-recess",
+          "coastal-memory-group",
+          "saltmarsh-annex-library",
+          "harbor-library-2019-notice"
+        ],
+        "latency_ms": 22758.934709010646,
+        "usage": {
+          "chat_calls": 8,
+          "embedding_calls": 2,
+          "prompt_tokens": 7843,
+          "completion_tokens": 329,
+          "embedding_tokens": 30
+        },
+        "recovery_action": "abstain",
+        "attributed_class": "evidence_insufficiency",
+        "verification_outcome": "still_failing",
+        "previous_answer": "I do not know based on the retrieved documents.",
+        "previous_f1": 1.0,
+        "f1_delta": 0.0,
+        "rewritten_query": "What is the cost of a meal at Tide Canteen in harbor credits?",
+        "run_id": "20261015T145521_db563fc0",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/eval_guided/traces/20261015T145521_db563fc0.json"
+      }
+    },
+    {
+      "question_id": "seed-010",
+      "question": "Who is the lab manager of the East Archive wing?",
+      "answerable": false,
+      "baseline": {
+        "answer": "I do not know based on the retrieved documents.",
+        "exact_match": true,
+        "contains_answer": true,
+        "f1": 1.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "coastal-memory-group",
+          "south-jetty-lab",
+          "storm-ledger-unit",
+          "north-jetty-lab"
+        ],
+        "latency_ms": 4130.550999980187,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 561,
+          "completion_tokens": 10,
+          "embedding_tokens": 11
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145120_b9a0eed5",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/baseline/traces/20261015T145120_b9a0eed5.json"
+      },
+      "eval_guided": {
+        "answer": "I do not know based on the retrieved documents.",
+        "exact_match": true,
+        "contains_answer": true,
+        "f1": 1.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "coastal-memory-group",
+          "south-jetty-lab",
+          "storm-ledger-unit",
+          "north-jetty-lab",
+          "harbor-library-2019-notice",
+          "storm-ledger-unit",
+          "saltmarsh-annex-library",
+          "coastal-memory-group",
+          "south-jetty-lab",
+          "north-jetty-lab",
+          "harbor-library",
+          "harbor-library-2019-notice"
+        ],
+        "latency_ms": 17112.48333399999,
+        "usage": {
+          "chat_calls": 6,
+          "embedding_calls": 1,
+          "prompt_tokens": 6313,
+          "completion_tokens": 181,
+          "embedding_tokens": 11
+        },
+        "recovery_action": "expand",
+        "attributed_class": "evidence_insufficiency",
+        "verification_outcome": "still_failing",
+        "previous_answer": "I do not know based on the retrieved documents.",
+        "previous_f1": 1.0,
+        "f1_delta": 0.0,
+        "rewritten_query": "Who is the lab manager of the East Archive wing?",
+        "run_id": "20261015T145538_81af2272",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/eval_guided/traces/20261015T145538_81af2272.json"
+      }
+    },
+    {
+      "question_id": "gold-026",
+      "question": "How many hours did the 1921 Green Lamp Flood last according to the Storm Ledger Unit?",
+      "answerable": false,
+      "baseline": {
+        "answer": "According to the Coastal Memory Group, the 1921 \"Green Lamp Flood\" lasted 31 hours in Harbor Town, not 48 [coastal-memory-group::c001]. The Storm Ledger Unit does not hold material on the 1921 Green Lamp Flood and refers those enquiries elsewhere [storm-ledger-unit::c001].",
+        "exact_match": false,
+        "contains_answer": false,
+        "f1": 0.0,
+        "abstained": false,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "coastal-memory-group",
+          "storm-ledger-unit",
+          "storm-ledger-unit",
+          "coastal-memory-group"
+        ],
+        "latency_ms": 4975.345208978979,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 638,
+          "completion_tokens": 66,
+          "embedding_tokens": 19
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145125_8917c35c",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/baseline/traces/20261015T145125_8917c35c.json"
+      },
+      "eval_guided": {
+        "answer": "According to the Coastal Memory Group, the 1921 \"Green Lamp Flood\" lasted 31 hours in Harbor Town, not 48 [coastal-memory-group::c001]. The Storm Ledger Unit does not hold material on the 1921 Green Lamp Flood and refers those enquiries elsewhere [storm-ledger-unit::c001].",
+        "exact_match": false,
+        "contains_answer": false,
+        "f1": 0.0,
+        "abstained": false,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "coastal-memory-group",
+          "storm-ledger-unit",
+          "storm-ledger-unit",
+          "coastal-memory-group"
+        ],
+        "latency_ms": 6845.945000008214,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 1,
+          "prompt_tokens": 1617,
+          "completion_tokens": 157,
+          "embedding_tokens": 19
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145545_c4e7e769",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/eval_guided/traces/20261015T145545_c4e7e769.json"
+      }
+    },
+    {
+      "question_id": "gold-027",
+      "question": "On which dates does Tideline winter recess run this year?",
+      "answerable": false,
+      "baseline": {
+        "answer": "I do not know based on the retrieved documents.",
+        "exact_match": true,
+        "contains_answer": true,
+        "f1": 1.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "tideline-winter-recess",
+          "tideline-winter-recess",
+          "tideline-shuttle",
+          "harbor-library-2019-notice"
+        ],
+        "latency_ms": 4286.168208986055,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 618,
+          "completion_tokens": 10,
+          "embedding_tokens": 13
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145130_daa2bf21",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/baseline/traces/20261015T145130_daa2bf21.json"
+      },
+      "eval_guided": {
+        "answer": "The evidence does not provide specific dates for the Tideline winter recess this year. It states that \"recess dates are published by the department office each year and are not listed here\" [tideline-winter-recess::c001]. Therefore, I do not know the dates for this year's winter recess.",
+        "exact_match": true,
+        "contains_answer": true,
+        "f1": 1.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "tideline-winter-recess",
+          "tideline-winter-recess",
+          "tideline-shuttle",
+          "harbor-library-2019-notice",
+          "harbor-library-2019-notice",
+          "harbor-library",
+          "saltmarsh-annex-library",
+          "tide-canteen",
+          "north-jetty-lab",
+          "south-jetty-lab",
+          "coastal-memory-group",
+          "storm-ledger-unit"
+        ],
+        "latency_ms": 18387.09329199628,
+        "usage": {
+          "chat_calls": 6,
+          "embedding_calls": 2,
+          "prompt_tokens": 6802,
+          "completion_tokens": 307,
+          "embedding_tokens": 26
+        },
+        "recovery_action": "expand",
+        "attributed_class": "evidence_insufficiency",
+        "verification_outcome": "still_failing",
+        "previous_answer": "I do not know based on the retrieved documents.",
+        "previous_f1": 1.0,
+        "f1_delta": 0.0,
+        "rewritten_query": "What are the dates for Tideline winter recess this year?",
+        "run_id": "20261015T145603_ca0d4523",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/eval_guided/traces/20261015T145603_ca0d4523.json"
+      }
+    },
+    {
+      "question_id": "gold-028",
+      "question": "At the North Jetty Teaching Lab, are safety glasses required at all times inside the wet bench area?",
+      "answerable": false,
+      "baseline": {
+        "answer": "I do not know based on the retrieved documents.",
+        "exact_match": true,
+        "contains_answer": true,
+        "f1": 1.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "south-jetty-lab",
+          "south-jetty-lab",
+          "north-jetty-lab",
+          "north-jetty-lab"
+        ],
+        "latency_ms": 4215.963957976783,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 577,
+          "completion_tokens": 10,
+          "embedding_tokens": 21
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145134_33840640",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/baseline/traces/20261015T145134_33840640.json"
+      },
+      "eval_guided": {
+        "answer": "I do not know based on the retrieved documents.",
+        "exact_match": true,
+        "contains_answer": true,
+        "f1": 1.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "south-jetty-lab",
+          "south-jetty-lab",
+          "north-jetty-lab",
+          "north-jetty-lab",
+          "tideline-winter-recess",
+          "saltmarsh-annex-library",
+          "harbor-library-2019-notice",
+          "saltmarsh-annex-library",
+          "harbor-library",
+          "tideline-winter-recess",
+          "harbor-library-2019-notice",
+          "tideline-shuttle"
+        ],
+        "latency_ms": 17366.003708011704,
+        "usage": {
+          "chat_calls": 6,
+          "embedding_calls": 2,
+          "prompt_tokens": 6295,
+          "completion_tokens": 199,
+          "embedding_tokens": 41
+        },
+        "recovery_action": "expand",
+        "attributed_class": "evidence_insufficiency",
+        "verification_outcome": "still_failing",
+        "previous_answer": "I do not know based on the retrieved documents.",
+        "previous_f1": 1.0,
+        "f1_delta": 0.0,
+        "rewritten_query": "Are safety glasses required at all times inside the wet bench area of the North Jetty Teaching Lab?",
+        "run_id": "20261015T145621_fd7a9903",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/eval_guided/traces/20261015T145621_fd7a9903.json"
+      }
+    },
+    {
+      "question_id": "gold-029",
+      "question": "How many hours did the 1948 Black Mast Gale last according to the Coastal Memory Group?",
+      "answerable": false,
+      "baseline": {
+        "answer": "According to the Storm Ledger Unit, the 1948 \"Black Mast Gale\" lasted 19 hours in Harbor Town [storm-ledger-unit::c001].",
+        "exact_match": false,
+        "contains_answer": false,
+        "f1": 0.0,
+        "abstained": false,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "coastal-memory-group",
+          "storm-ledger-unit",
+          "coastal-memory-group",
+          "storm-ledger-unit"
+        ],
+        "latency_ms": 4874.1828330093995,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 638,
+          "completion_tokens": 32,
+          "embedding_tokens": 19
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145139_d1aeca8c",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/baseline/traces/20261015T145139_d1aeca8c.json"
+      },
+      "eval_guided": {
+        "answer": "According to the Storm Ledger Unit, the 1948 \"Black Mast Gale\" lasted 19 hours in Harbor Town [storm-ledger-unit::c001].",
+        "exact_match": false,
+        "contains_answer": false,
+        "f1": 0.0,
+        "abstained": false,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "coastal-memory-group",
+          "storm-ledger-unit",
+          "coastal-memory-group",
+          "storm-ledger-unit"
+        ],
+        "latency_ms": 10971.242708998034,
+        "usage": {
+          "chat_calls": 2,
+          "embedding_calls": 1,
+          "prompt_tokens": 1583,
+          "completion_tokens": 115,
+          "embedding_tokens": 19
+        },
+        "recovery_action": "accept",
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145631_630ae2ed",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/eval_guided/traces/20261015T145631_630ae2ed.json"
+      }
+    },
+    {
+      "question_id": "gold-030",
+      "question": "How many hours ahead must a group room at the Saltmarsh Annex Library be booked?",
+      "answerable": false,
+      "baseline": {
+        "answer": "A group room at the Saltmarsh Annex Library cannot be booked because there are no group rooms available there. Readers who need a group room should book at the Harbor Desk instead [saltmarsh-annex-library::c000]. At the Harbor Institute Library, group rooms must be booked at least two hours ahead [harbor-library::c000].",
+        "exact_match": true,
+        "contains_answer": true,
+        "f1": 1.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "saltmarsh-annex-library",
+          "harbor-library",
+          "south-jetty-lab",
+          "north-jetty-lab"
+        ],
+        "latency_ms": 5459.147582994774,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 688,
+          "completion_tokens": 70,
+          "embedding_tokens": 17
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145144_8a717cb9",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/baseline/traces/20261015T145144_8a717cb9.json"
+      },
+      "eval_guided": {
+        "answer": "A group room at the Saltmarsh Annex Library cannot be booked because there are no group rooms available there. Readers who need a group room should book at the Harbor Desk instead [saltmarsh-annex-library::c000].",
+        "exact_match": true,
+        "contains_answer": true,
+        "f1": 1.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "saltmarsh-annex-library",
+          "harbor-library",
+          "south-jetty-lab",
+          "north-jetty-lab",
+          "coastal-memory-group",
+          "harbor-library-2019-notice",
+          "harbor-library-2019-notice",
+          "north-jetty-lab",
+          "saltmarsh-annex-library",
+          "coastal-memory-group",
+          "tideline-shuttle",
+          "south-jetty-lab"
+        ],
+        "latency_ms": 18344.824666011846,
+        "usage": {
+          "chat_calls": 6,
+          "embedding_calls": 1,
+          "prompt_tokens": 6727,
+          "completion_tokens": 390,
+          "embedding_tokens": 17
+        },
+        "recovery_action": "expand",
+        "attributed_class": "retrieval_miss",
+        "verification_outcome": "improved",
+        "previous_answer": "A group room at the Saltmarsh Annex Library cannot be booked because there are no group rooms available there. Readers who need a group room should book at the Harbor Desk instead [saltmarsh-annex-library::c000]. At the Harbor Institute Library, group rooms must be booked at least two hours ahead [harbor-library::c000].",
+        "previous_f1": 1.0,
+        "f1_delta": 0.0,
+        "rewritten_query": "How many hours ahead must a group room at the Saltmarsh Annex Library be booked?",
+        "run_id": "20261015T145650_252c26da",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/eval_guided/traces/20261015T145650_252c26da.json"
+      }
+    },
+    {
+      "question_id": "gold-031",
+      "question": "What time does breakfast end at the East Canteen?",
+      "answerable": false,
+      "baseline": {
+        "answer": "I do not know based on the retrieved documents.",
+        "exact_match": true,
+        "contains_answer": true,
+        "f1": 1.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "east-canteen",
+          "east-canteen",
+          "tide-canteen",
+          "saltmarsh-annex-library"
+        ],
+        "latency_ms": 3580.400542006828,
+        "usage": {
+          "chat_calls": 1,
+          "embedding_calls": 1,
+          "prompt_tokens": 664,
+          "completion_tokens": 10,
+          "embedding_tokens": 12
+        },
+        "recovery_action": null,
+        "attributed_class": null,
+        "verification_outcome": null,
+        "previous_answer": null,
+        "previous_f1": null,
+        "f1_delta": null,
+        "rewritten_query": null,
+        "run_id": "20261015T145148_245f5a56",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/baseline/traces/20261015T145148_245f5a56.json"
+      },
+      "eval_guided": {
+        "answer": "I do not know based on the retrieved documents.",
+        "exact_match": true,
+        "contains_answer": true,
+        "f1": 1.0,
+        "abstained": true,
+        "retrieval_hit": false,
+        "retrieved_doc_ids": [
+          "east-canteen",
+          "east-canteen",
+          "tide-canteen",
+          "saltmarsh-annex-library",
+          "tideline-winter-recess",
+          "harbor-library",
+          "tideline-winter-recess",
+          "tide-canteen",
+          "harbor-library-2019-notice",
+          "saltmarsh-annex-library",
+          "harbor-library-2019-notice",
+          "tideline-shuttle"
+        ],
+        "latency_ms": 13858.84495798382,
+        "usage": {
+          "chat_calls": 6,
+          "embedding_calls": 1,
+          "prompt_tokens": 6653,
+          "completion_tokens": 214,
+          "embedding_tokens": 12
+        },
+        "recovery_action": "expand",
+        "attributed_class": "evidence_insufficiency",
+        "verification_outcome": "still_failing",
+        "previous_answer": "I do not know based on the retrieved documents.",
+        "previous_f1": 1.0,
+        "f1_delta": 0.0,
+        "rewritten_query": "What time does breakfast end at the East Canteen?",
+        "run_id": "20261015T145704_16820fc8",
+        "trace_path": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor/eval_guided/traces/20261015T145704_16820fc8.json"
+      }
+    }
+  ],
+  "errors": {
+    "baseline": [],
+    "eval_guided": []
+  },
+  "excluded_question_ids": [],
+  "output_dir": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/output/20261015-prompt-hardened-harbor",
+  "results_dir": "/Users/siegfreidbugarin/Desktop/Signature Work/experiments/results/20261015-prompt-hardened-harbor"
+}
