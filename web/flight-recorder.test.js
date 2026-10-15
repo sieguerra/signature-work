@@ -739,3 +739,16 @@ test("live stages follow streamed start and end events", () => {
   assert.equal(recover.state, "fail");
   assert.equal(recover.note, "Regenerate");
 });
+
+test("a stage that runs again keeps its total time and count", () => {
+  const { liveStages } = require("./flight-recorder.js");
+  const stages = liveStages([
+    { type: "stage_start", stage: "retrieve" },
+    { type: "stage_end", stage: "retrieve", duration_ms: 100 },
+    { type: "stage_start", stage: "retrieve" },
+    { type: "stage_end", stage: "retrieve", duration_ms: 50 },
+  ]);
+  const retrieve = stages.find((stage) => stage.key === "retrieve");
+  assert.equal(retrieve.ms, 150);
+  assert.equal(retrieve.count, 2);
+});

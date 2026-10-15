@@ -12,6 +12,7 @@ const {
   qualityStatus,
   formatWhen,
   qualityTally,
+  labelAction,
   parseRoute,
   routeHash,
 } = require("./reliability.js");
@@ -241,4 +242,11 @@ test("qualityTally turns the /api/eval counts into labeled items (#115)", () => 
 test("qualityTally leaves out latency when the payload has none and shows pending proposals", () => {
   const labels = qualityTally({ n: 1, abstain: 0, proposed: 1, mean_latency_ms: null }).map((item) => item.label);
   assert.deepEqual(labels, ["Runs", "Abstentions", "Pending proposals"]);
+});
+
+test("accept and none read as words, not raw action names", () => {
+  assert.equal(labelAction("accept"), "Accepted");
+  assert.equal(labelAction("none"), "No recovery");
+  const labels = qualityTally({ n: 2, abstain: 0, by_action: { none: 1, accept: 1 } }).map((item) => item.label);
+  assert.ok(labels.includes("Accepted") && labels.includes("No recovery"));
 });

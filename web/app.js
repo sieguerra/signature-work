@@ -2091,19 +2091,65 @@ function agentCheck(group, key, title, detail, on) {
   </label>`;
 }
 
+// A built-in system cannot be edited, but its settings are still worth
+// showing: the pipeline it runs, the models, and how to make an editable copy.
+function agentReadOnlyHtml() {
+  const meta = state.meta || {};
+  const label = meta.corpus_label || "This system";
+  const chat = meta.configured_chat_model || "—";
+  const embed = meta.configured_embedding_model || "—";
+  const docs = meta.doc_count != null ? String(meta.doc_count) : "—";
+  const stage = (key, swatch, title, detail) =>
+    `<li><span class="agent-swatch is-${swatch}"></span><span class="agent-pipe-copy"><b>${escapeHtml(title)}</b><small>${escapeHtml(detail)}</small></span></li>`;
+  return `<div class="kn-page agent-readonly">
+    <header class="kn-head">
+      <div>
+        <h1>Configuration</h1>
+        <p>How ${escapeHtml(label)} responds. Built-in systems are read-only, so these settings are shown, not edited.</p>
+      </div>
+      <button type="button" class="primary" id="agent-new-workspace">${icon("plus", 14)} New system</button>
+    </header>
+    <div class="agent-ro-grid">
+      <section class="kn-sources agent-ro-card">
+        <h2>Pipeline</h2>
+        <ol class="agent-pipe">
+          ${stage("retrieve", "retrieval", "Retrieve", `${embed} · top 4 passages by default`)}
+          ${stage("generate", "generation", "Generate", `${chat} · temperature 0`)}
+          ${stage("judge", "judge", "Judge", "Evidence sufficiency and answer support, same model")}
+          ${stage("recover", "recovery", "Recover", "Current v1 policy: rewrite, expand, regenerate, or abstain")}
+          ${stage("verify", "success", "Verify", "Compares the judge flags before and after recovery")}
+        </ol>
+      </section>
+      <section class="kn-sources agent-ro-card">
+        <h2>Settings</h2>
+        <dl class="tc-facts-grid">
+          <div><dt>Chat model</dt><dd>${escapeHtml(chat)}</dd></div>
+          <div><dt>Embedding</dt><dd>${escapeHtml(embed)}</dd></div>
+          <div><dt>Sources</dt><dd><a href="#data">${escapeHtml(docs)} documents</a></dd></div>
+          <div><dt>Domain</dt><dd>${escapeHtml(meta.corpus_industry || "—")}</dd></div>
+          <div><dt>Instructions</dt><dd>Grounding rules only</dd></div>
+          <div><dt>Recovery policy</dt><dd>Current v1</dd></div>
+        </dl>
+      </section>
+      <section class="kn-sources agent-ro-card agent-ro-next">
+        <h2>Make an editable system</h2>
+        <ol class="agent-ro-steps">
+          <li><b>Create a system</b><span>Give it a name. It starts empty and fully editable.</span></li>
+          <li><b>Add sources</b><span>Upload TXT or PDF notes under Data.</span></li>
+          <li><b>Set how it responds</b><span>Tone, detail, grounding rules, model, and retrieval depth.</span></li>
+          <li><b>Test the loop</b><span>Run questions in Test Console and watch recovery work.</span></li>
+        </ol>
+      </section>
+    </div>
+  </div>`;
+}
+
 function renderAgent() {
   const root = $("pg-agent");
   if (!root) return;
   const writable = Boolean(state.meta && state.meta.writable);
   if (!writable) {
-    root.innerHTML = `<div class="agent-studio is-locked">
-      <div class="agent-locked">
-        <div class="agent-kicker">${icon("sliders", 14)} Configuration</div>
-        <h1>Response settings are saved on a system you own</h1>
-        <p>This demo is read-only. Create a system to set how it responds, which model it uses, and how many passages it retrieves.</p>
-        <button type="button" class="primary" id="agent-new-workspace">${icon("plus", 14)} New system</button>
-      </div>
-    </div>`;
+    root.innerHTML = agentReadOnlyHtml();
     return;
   }
   if (!state.agentBehavior) state.agentBehavior = AgentConfig.hydrate(null, state.draftConfig.instructions || "");
@@ -2392,22 +2438,20 @@ function renderApiPanel() {
   const root = $("pg-api");
   if (!root) return;
   const writable = Boolean(state.meta && state.meta.writable);
-  if (!writable) {
-    root.innerHTML = `<div class="api-page">
-      <header class="kn-head">
-        <div>
-          <h1>Integrations</h1>
-          <p>Evaluate responses from an external RAG application.</p>
-        </div>
-      </header>
-      <div class="kn-empty">
-        <h2>Keys belong to a system you own</h2>
-        <p>Create a system to issue an API key. Demo corpora are read-only and cannot have keys.</p>
-      </div>
-    </div>`;
-    return;
-  }
   root.innerHTML = renderProjectKeys();
+  if (!writable) {
+    // The API reference applies to every system; only keys need one you own.
+    const create = $("pg-create-key");
+    if (create) create.remove();
+    const keys = root.querySelector(".api-keys");
+    const locked = `<section class="api-keys api-keys-locked" aria-label="API keys">
+        <h2>API keys</h2>
+        <p>Keys belong to a system you own. Built-in systems are read-only and cannot issue keys.</p>
+        <button type="button" class="ghost" id="agent-new-workspace">${icon("plus", 14)} New system</button>
+      </section>`;
+    if (keys) keys.outerHTML = locked;
+    else root.querySelector(".api-page")?.insertAdjacentHTML("beforeend", locked);
+  }
 }
 
 function renderProjectKeys() {
@@ -4153,6 +4197,7 @@ function bind() {
     const newWorkspace = event.target.closest("#agent-new-workspace");
     if (newWorkspace) {
       event.preventDefault();
+      if (state.navCollapsed) setNavCollapsed(false);
       const form = $("new-workspace-form");
       form.hidden = false;
       $("new-workspace-name").focus();
@@ -4388,7 +4433,7 @@ function renderRelSummary(view) {
   if (!data) {
     root.innerHTML = state.overviewError
       ? `<p class="rel-empty">${escapeHtml(state.overviewError)}</p>`
-      : `<p class="rel-empty">Reliability history is still loading.</p>`;
+      : `<div class="rel-summary" aria-busy="true" aria-label="Loading reliability">${'<section class="sk-card"><span class="skeleton sk-line sk-short"></span><span class="skeleton sk-line"></span><span class="skeleton sk-line"></span></section>'.repeat(4)}</div>`;
     return;
   }
   if (!data.observed_runs) {
@@ -4930,7 +4975,7 @@ function liveFlightHtml() {
         stage.state === "running"
           ? `${stage.note ? `${stage.note} · ` : ""}running`
           : stage.ms != null
-            ? `${stage.note ? `${stage.note} · ` : ""}${formatFlightLatency(stage.ms)}`
+            ? `${stage.note ? `${stage.note} · ` : ""}${formatFlightLatency(stage.ms)}${stage.count > 1 ? ` · ×${stage.count}` : ""}`
             : stage.state === "fail"
               ? "failed"
               : "";
@@ -5336,6 +5381,18 @@ async function inspectOverviewRun(runId) {
   await openFlight(row.trace_ids || [runId], { stay: true, stepsFor: row.inspect_run_id || runId });
 }
 
+// Placeholder in the shape of the page while the overview loads, so the
+// first paint is the layout, not a blank canvas.
+function overviewSkeleton() {
+  const node = `<li class="loop-stage"><span class="loop-node skeleton"></span><span class="skeleton sk-line sk-short"></span><span class="skeleton sk-line"></span></li>`;
+  const card = (lines) => `<section class="ov-panel sk-card">${'<span class="skeleton sk-line"></span>'.repeat(lines)}</section>`;
+  return `<div class="ov-hero" aria-busy="true" aria-label="Loading overview">
+      <section class="ov-loop"><ol class="loop-map is-funnel">${node.repeat(5)}</ol></section>
+      <div class="ov-metrics is-side">${card(2)}${card(2)}</div>
+    </div>
+    <div class="ov-grid sk-grid">${card(4)}${card(4)}</div>`;
+}
+
 function renderOverview() {
   renderOverviewBody();
   if (state.overviewCountUp && state.overview) {
@@ -5356,7 +5413,7 @@ function renderOverviewBody() {
   const data = state.overview;
   if (!data) {
     if (lead) lead.textContent = "How reliable this RAG system is right now.";
-    root.innerHTML = "";
+    root.innerHTML = overviewSkeleton();
     return;
   }
   if (lead) lead.textContent = data.summary || "How reliable this RAG system is right now.";
