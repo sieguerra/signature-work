@@ -6,9 +6,11 @@ import json
 import os
 import queue
 import threading
+import uuid
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, HTTPException, UploadFile
@@ -18,7 +20,15 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from swrag.api.credentials import create_api_key, list_api_keys, revoke_api_key
-from swrag.api.public import READ_ONLY_DETAIL, RunBudget, demo_enabled, is_blocked, is_run, scrub
+from swrag.api.public import (
+    GENERIC_ERROR,
+    READ_ONLY_DETAIL,
+    RunBudget,
+    demo_enabled,
+    is_blocked,
+    is_run,
+    scrub,
+)
 from swrag.api.overview import logical_run_history, overview_for_traces
 from swrag.api.store import (
     delete_all_traces,
@@ -153,8 +163,11 @@ def create_app(
         _activate(app, entry, resolved_traces)
         yield
 
-    application = FastAPI(title="Groundloop", lifespan=lifespan)
-    application.state.demo = demo_enabled()
+    demo = demo_enabled()
+    # A public deployment does not publish its route list.
+    hidden = {"docs_url": None, "redoc_url": None, "openapi_url": None} if demo else {}
+    application = FastAPI(title="Groundloop", lifespan=lifespan, **hidden)
+    application.state.demo = demo
     application.state.run_budget = RunBudget.from_env()
 
     @application.middleware("http")
@@ -165,7 +178,8 @@ def create_app(
         method, path = request.method, request.url.path
         if is_blocked(method, path):
             return JSONResponse(status_code=403, content={"detail": READ_ONLY_DETAIL})
-        if is_run(method, path) and not application.state.run_budget.take():
+        counted = is_run(method, path)
+        if counted and not application.state.run_budget.take():
             per_day = application.state.run_budget.per_day
             return JSONResponse(
                 status_code=429,
@@ -175,12 +189,34 @@ def create_app(
                 },
             )
         response = await call_next(request)
+        if counted and response.status_code >= 400:
+            # Rejected before doing work (bad body, bad mode): not a run.
+            application.state.run_budget.give_back()
         content_type = response.headers.get("content-type", "")
         if path.startswith("/api/") and content_type.startswith("application/json"):
             body = b"".join([chunk async for chunk in response.body_iterator])
             data = scrub(json.loads(body or b"null"), str(repo_root()))
+            if response.status_code >= 500 and isinstance(data, dict):
+                data["detail"] = GENERIC_ERROR
             return JSONResponse(content=data, status_code=response.status_code)
         return response
+
+    @application.middleware("http")
+    async def same_origin_writes(request: Request, call_next):
+        """Refuse writes that a browser sends on behalf of another website.
+
+        The dashboard API is unauthenticated on localhost, so without this a
+        page on any site could upload documents or start paid scoring in the
+        open project. The token-authenticated /api/v1 API is exempt.
+        """
+        if request.method in {"GET", "HEAD", "OPTIONS"} or request.url.path.startswith("/api/v1/"):
+            return await call_next(request)
+        site = request.headers.get("sec-fetch-site", "")
+        origin = request.headers.get("origin", "")
+        foreign_origin = bool(origin) and urlparse(origin).netloc != request.headers.get("host", "")
+        if site == "cross-site" or foreign_origin:
+            return JSONResponse(status_code=403, content={"detail": "Cross-site request refused."})
+        return await call_next(request)
 
     @application.get("/api/meta")
     def meta() -> dict[str, Any]:
@@ -371,8 +407,15 @@ def create_app(
         return {"name": safe, "text": text}
 
     @application.post("/api/documents")
-    async def upload_document(file: UploadFile = File(...)) -> dict[str, Any]:
-        if not application.state.writable:
+    def upload_document(file: UploadFile = File(...)) -> dict[str, Any]:
+        # A plain def runs in FastAPI's threadpool, so waiting for index_lock
+        # while a run holds it no longer stalls the whole server.
+        # Capture the target system once: a system switch during the upload
+        # must not redirect the file into another (possibly read-only) corpus.
+        writable = bool(application.state.writable)
+        corpus_dir = Path(application.state.corpus_dir)
+        corpus_id = application.state.corpus_id
+        if not writable:
             raise HTTPException(
                 status_code=400,
                 detail="Built-in corpora are read-only. Create a project to upload documents.",
@@ -382,7 +425,7 @@ def create_app(
             name = safe_upload_name(raw_name)
         except ValueError as error:
             raise HTTPException(status_code=400, detail=str(error)) from error
-        data = await file.read()
+        data = file.file.read(MAX_UPLOAD_BYTES + 1)
         if not data:
             raise HTTPException(status_code=400, detail="file is empty")
         if len(data) > MAX_UPLOAD_BYTES:
@@ -390,16 +433,21 @@ def create_app(
                 status_code=400,
                 detail=f"file is larger than {MAX_UPLOAD_BYTES // (1024 * 1024)} MB",
             )
-        dest = Path(application.state.corpus_dir) / name
-        dest.write_bytes(data)
+        # Validate a temporary copy, then move it into place. A rejected
+        # re-upload must leave the existing document untouched.
+        dest = corpus_dir / name
+        staged = corpus_dir / f".upload-{uuid.uuid4().hex}{dest.suffix}"
+        staged.write_bytes(data)
         try:
-            validate_uploaded_file(dest)
+            validate_uploaded_file(staged)
         except (ValueError, UnicodeDecodeError) as error:
-            dest.unlink(missing_ok=True)
-            raise HTTPException(status_code=400, detail=str(error)) from error
-        _invalidate_indexes(application)
-        application.state.doc_count = corpus_file_count(application.state.corpus_dir)
-        return {"uploaded": name, "documents": list_documents(Path(application.state.corpus_dir))}
+            staged.unlink(missing_ok=True)
+            raise HTTPException(status_code=400, detail=str(error).replace(staged.name, name)) from error
+        os.replace(staged, dest)
+        _invalidate_indexes(application, corpus_id)
+        if application.state.corpus_id == corpus_id:
+            application.state.doc_count = corpus_file_count(corpus_dir)
+        return {"uploaded": name, "documents": list_documents(corpus_dir)}
 
     @application.delete("/api/documents/{name}")
     def remove_document(name: str) -> dict[str, Any]:
@@ -544,9 +592,16 @@ def create_app(
                     result = scrub(result, str(repo_root()))
                 events.put({"type": "done", "run": result})
             except HTTPException as error:
-                events.put({"type": "error", "status": error.status_code, "detail": error.detail})
+                detail = error.detail
+                if application.state.demo:
+                    # The stream answered 200, so the middleware cannot refund
+                    # or scrub; do both here.
+                    application.state.run_budget.give_back()
+                    detail = GENERIC_ERROR if error.status_code >= 500 else scrub(detail, str(repo_root()))
+                events.put({"type": "error", "status": error.status_code, "detail": detail})
             except Exception as error:  # pragma: no cover - defensive
-                events.put({"type": "error", "status": 500, "detail": str(error)})
+                detail = GENERIC_ERROR if application.state.demo else str(error)
+                events.put({"type": "error", "status": 500, "detail": detail})
             finally:
                 events.put(None)
 
@@ -816,8 +871,8 @@ def _index_for(application: FastAPI, *, retrieve_only: bool):
         return index
 
 
-def _invalidate_indexes(application: FastAPI) -> None:
-    corpus_id = application.state.corpus_id
+def _invalidate_indexes(application: FastAPI, corpus_id: str | None = None) -> None:
+    corpus_id = corpus_id or application.state.corpus_id
     with application.state.index_lock:
         for key in [item for item in application.state.indexes if item[0] == corpus_id]:
             del application.state.indexes[key]

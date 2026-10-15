@@ -91,3 +91,16 @@ def test_deployment_settings_come_from_the_environment(tmp_path: Path, monkeypat
         meta = client.get("/api/meta").json()
     assert meta["corpus_id"] == "harbor"
     assert meta["traces_dir"] == str(tmp_path / "harbor")
+
+
+def test_demo_blocks_external_evaluations_and_hides_route_docs(demo_client: TestClient) -> None:
+    response = demo_client.post("/api/v1/evaluations", json={"query": "q", "answer": "a", "contexts": [{"text": "t"}]})
+    assert response.status_code == 403
+    for path in ("/docs", "/redoc", "/openapi.json"):
+        assert demo_client.get(path).status_code == 404
+
+
+def test_rejected_requests_do_not_use_up_the_demo_budget(demo_client: TestClient) -> None:
+    assert demo_client.post("/api/runs", json={}).status_code == 422
+    assert demo_client.post("/api/runs", json={"question": "q", "mode": "nope"}).status_code == 400
+    assert demo_client.get("/api/meta").json()["demo"]["runs_left"] == 2

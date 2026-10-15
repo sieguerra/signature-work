@@ -29,6 +29,8 @@ _BLOCKED: tuple[tuple[str, str, bool], ...] = (
     ("DELETE", "/api/traces", True),
     ("DELETE", "/api/traces/", False),
     ("POST", "/api/traces/", False),
+    # External evaluations call the judge (model money) and write traces.
+    ("POST", "/api/v1/", False),
 )
 
 _RUNS: tuple[tuple[str, bool], ...] = (
@@ -40,6 +42,7 @@ _RUNS: tuple[tuple[str, bool], ...] = (
 _PRIVATE_KEYS = {"corpus_dir", "traces_dir", "base_url"}
 
 READ_ONLY_DETAIL = "This is a public demo, so it is read-only. Run Groundloop locally to change systems or data."
+GENERIC_ERROR = "The run could not finish. Please try again in a moment."
 
 
 def demo_enabled() -> bool:
@@ -89,6 +92,11 @@ class RunBudget:
                 return False
             self._used += 1
             return True
+
+    def give_back(self) -> None:
+        """Return a run that was rejected before it did any work."""
+        with self._lock:
+            self._used = max(0, self._used - 1)
 
     def left(self) -> int:
         with self._lock:

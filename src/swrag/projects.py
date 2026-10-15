@@ -19,6 +19,7 @@ from swrag.recovery.policy import (
     resolve_product_policy,
 )
 from swrag.corpus_registry import CorpusEntry, get_corpus, load_registry, traces_dir_for
+from swrag.ingestion.loader import corpus_files
 from swrag.ingestion.pdf import PdfExtractError, extract_pdf_pages
 
 PROJECTS_DIRNAME = Path("experiments") / "projects"
@@ -87,7 +88,7 @@ def create_project(
     if len(cleaned) > 80:
         raise ValueError("name is too long")
     folder_root = base or projects_root(root)
-    project_id = _allocate_id(cleaned, root=root, base=folder_root)
+    project_id = _allocate_id(cleaned, root=root, base=folder_root, traces_root=traces_root)
     folder = folder_root / project_id
     documents = folder / "documents"
     documents.mkdir(parents=True, exist_ok=False)
@@ -124,10 +125,7 @@ def list_documents(corpus_dir: Path) -> list[dict[str, object]]:
     if not corpus_dir.is_dir():
         return []
     rows: list[dict[str, object]] = []
-    for path in sorted(
-        (*corpus_dir.glob("*.txt"), *corpus_dir.glob("*.pdf")),
-        key=lambda item: item.name.lower(),
-    ):
+    for path in corpus_files(corpus_dir):
         rows.append(
             {
                 "name": path.name,
@@ -290,7 +288,8 @@ def read_document_text(path: Path) -> str:
 def validate_uploaded_file(path: Path) -> None:
     suffix = path.suffix.lower()
     if suffix == ".txt":
-        path.read_text(encoding="utf-8")
+        if not path.read_text(encoding="utf-8").strip():
+            raise ValueError(f"{path.name}: the file has no text")
         return
     if suffix != ".pdf":
         raise ValueError("only .txt and .pdf files can be uploaded")
@@ -337,11 +336,16 @@ def _entry_from_folder(folder: Path, traces_root: Path) -> CorpusEntry:
     )
 
 
-def _allocate_id(name: str, *, root: Path, base: Path) -> str:
-    slug = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")[:40] or "project"
+def _allocate_id(name: str, *, root: Path, base: Path, traces_root: Path | None = None) -> str:
+    # Strip hyphens again after truncating, or a 40-character cut can end in "-".
+    slug = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")[:40].strip("-") or "project"
     taken = {entry.id for entry in load_registry(root=root)}
     if base.is_dir():
         taken.update(path.name for path in base.iterdir() if path.is_dir())
+    # A deleted system's runs stay on disk. Never hand its id to a new system,
+    # or the new system would show the old one's runs.
+    if traces_root is not None and Path(traces_root).is_dir():
+        taken.update(path.name for path in Path(traces_root).iterdir() if path.is_dir() and any(path.iterdir()))
     candidate = slug
     index = 2
     while candidate in taken:
