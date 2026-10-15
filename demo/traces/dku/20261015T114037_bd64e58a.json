@@ -1,0 +1,611 @@
+{
+  "run_id": "20261015T114037_bd64e58a",
+  "timestamp": "2026-10-15T11:40:37.110096+00:00",
+  "query": "What are the DKU Library holiday closing hours?",
+  "retrieved_chunks": [
+    {
+      "chunk_id": "dku-library-hours::c000",
+      "doc_id": "dku-library-hours",
+      "title": "Dku Library Hours",
+      "score": 0.7765580751231735,
+      "text": "DKU Library — current locations and hours\n\nThese hours are the current regular schedule published on the DKU Library website. Holiday hours are announced separately and are not listed here.\n\nLibrary building: 08:00-23:00, Monday through Sunday.\n\n1st floor information desk:\nMonday-Friday: 09:00-21:00\nSaturday-Sunday: 14:00-21:00\n\nDVD and equipment loan: Monday-Friday, 09:00-17:30."
+    },
+    {
+      "chunk_id": "dku-library-guide-202501::c000",
+      "doc_id": "dku-library-guide-202501",
+      "title": "Dku Library Guide 202501",
+      "score": 0.6503112013499629,
+      "text": "DKU Library Guide (January 2025 brochure)\n\nThis document copies service hours and space facts from the January 2025 DKU Library Guide PDF. Where it disagrees with the later Locations & Hours website, treat the website as current and this brochure as dated January 2025.\n\nLibrary building: Monday-Sunday 08:00-23:00. Side gates use swipe access. The guide lists 23 self and group study rooms and 560 seats."
+    },
+    {
+      "chunk_id": "wuhan-university::c001",
+      "doc_id": "wuhan-university",
+      "title": "Wuhan University",
+      "score": 0.6242544264633939,
+      "text": "not list DKU class dates, DKU library hours, or Wuhan University library hours.\n\nSource: https://www.dukekunshan.edu.cn/about/welcome-to-duke-kunshan-university/ (retrieved 2026-09-10)"
+    },
+    {
+      "chunk_id": "registrar-fall-2026::c002",
+      "doc_id": "registrar-fall-2026",
+      "title": "Registrar Fall 2026",
+      "score": 0.621325544859505,
+      "text": "at 13:00.\n\nHoliday hours for the library are not listed on this registrar page.\n\nSource: https://registrar.dukekunshan.edu.cn/academic-calendar/ (retrieved 2026-09-10)"
+    },
+    {
+      "chunk_id": "dku-library-handbook-2021::c001",
+      "doc_id": "dku-library-handbook-2021",
+      "title": "Dku Library Handbook 2021",
+      "score": 0.5534916329116273,
+      "text": "as historical text. It does not describe the current dedicated library building.\n\nIn this 2021 handbook, the DKU Library is described as occupying two rooms on the first and second floor of the Academic Building. The listed phone number is (0512) 3665-7027. The listed email is dkulibrary@dukekunshan.edu.cn. The handbook also mentions a joint service relationship with Duke University Libraries (DUL)."
+    },
+    {
+      "chunk_id": "dku-library-hours::c001",
+      "doc_id": "dku-library-hours",
+      "title": "Dku Library Hours",
+      "score": 0.5421838854029998,
+      "text": "aturday-Sunday: 14:00-21:00\n\nDVD and equipment loan: Monday-Friday, 09:00-17:30.\n\nContact:\n(+86) 0512-36658756 (Monday-Friday, 09:00-17:00)\ndkulibrary@dukekunshan.edu.cn\nNo. 8 Duke Avenue, Kunshan, Jiangsu Province, China 215316\n\nThis page is about the Kunshan campus library. It is not Duke University Libraries in Durham, North Carolina.\n\nSource: https://library.dukekunshan.edu.cn/locations-hours/ (retrieved 2026-09-10)"
+    },
+    {
+      "chunk_id": "dku-library-handbook-2021::c000",
+      "doc_id": "dku-library-handbook-2021",
+      "title": "Dku Library Handbook 2021",
+      "score": 0.5421510739109116,
+      "text": "DKU Library — August 2021 student handbook (superseded)\n\nThis extract is from an August 2021 DKU Student Handbook. It is kept as historical text. It does not describe the current dedicated library building."
+    },
+    {
+      "chunk_id": "duke-university-durham::c001",
+      "doc_id": "duke-university-durham",
+      "title": "Duke University Durham",
+      "score": 0.5372383529704251,
+      "text": "more than 15,000 students in undergraduate, graduate, and professional programs.\n\nDuke University Libraries (including Perkins and Bostock on West Campus) are in Durham. They are not the DKU Library at No. 8 Duke Avenue, Kunshan. This note does not list Perkins closing times, because those hours are not copied here.\n\nDKU is described on Duke's international activity list alongside Duke-NUS in Singapore."
+    },
+    {
+      "chunk_id": "dku-library-handbook-2021::c002",
+      "doc_id": "dku-library-handbook-2021",
+      "title": "Dku Library Handbook 2021",
+      "score": 0.5288930595063663,
+      "text": "also mentions a joint service relationship with Duke University Libraries (DUL).\n\nDo not use these 2021 room locations or this 2021 phone number as the current library location or current service desk number.\n\nSource: DKU Student Handbook dated 21.08.19, archived copy at https://sites.nicholas.duke.edu/imep-dku/files/2023/04/21.08.19DKU-Student-Handbook.pdf (retrieved 2026-09-10)"
+    },
+    {
+      "chunk_id": "registrar-spring-2027::c000",
+      "doc_id": "registrar-spring-2027",
+      "title": "Registrar Spring 2027",
+      "score": 0.5088044181496142,
+      "text": "DKU Registrar — Spring 2027 dates\n\nAll residence halls reopen Saturday, 9 January 2027 at 09:00. Undergraduate and graduate classes begin Monday, 11 January 2027.\n\nSpring Festival Holiday: no classes Friday 5 February 2027 through Sunday 14 February 2027. Classes resume Monday 15 February 2027.\n\nGraduate and undergraduate commencement is Friday, 21 May 2027. All residence halls close Saturday, 22 May 2027 at 13:00.\n\nQing Ming (Tomb Sweeping Day): no classes Monday 5 April 2027."
+    },
+    {
+      "chunk_id": "registrar-fall-2026::c001",
+      "doc_id": "registrar-fall-2026",
+      "title": "Registrar Fall 2026",
+      "score": 0.4664584743953956,
+      "text": "ugust 2026 at 09:00. Returning students move in Friday, 21 August 2026 at 09:00.\n\nNational Day Holiday: no classes Thursday 1 October 2026 through Sunday 11 October 2026. Classes resume Monday 12 October 2026.\n\nMid-Autumn Festival: no classes Friday 25 September through Sunday 27 September 2026.\n\nAll residence halls close for Winter Break on Friday, 18 December 2026 at 13:00.\n\nHoliday hours for the library are not listed on this registrar page."
+    },
+    {
+      "chunk_id": "registrar-fall-2026::c000",
+      "doc_id": "registrar-fall-2026",
+      "title": "Registrar Fall 2026",
+      "score": 0.42720197979596036,
+      "text": "DKU Registrar — Fall 2026 dates\n\nUndergraduate and graduate classes begin Monday, 24 August 2026.\n\nNew international undergraduate students (Class of 2030) and international first-year graduate students move in Friday, 14 August 2026 at 09:00. New Chinese undergraduate and Chinese first-year graduate students move in Sunday, 16 August 2026 at 09:00. Returning students move in Friday, 21 August 2026 at 09:00."
+    }
+  ],
+  "answer": "The holiday hours for the DKU Library are not listed in the provided documents. Therefore, I do not know the holiday closing hours based on the retrieved documents.",
+  "model": "gpt-4o-mini",
+  "embedding_model": "text-embedding-3-small",
+  "top_k": 12,
+  "provider": {
+    "official_openai": false,
+    "configured_chat_model": "gpt-4o-mini",
+    "configured_embedding_model": "text-embedding-3-small",
+    "api_key_present": true
+  },
+  "question_id": null,
+  "runtime_evaluation": {
+    "evidence_sufficient": false,
+    "answer_supported": true,
+    "sufficiency_rationale": "The evidence does not provide any specific holiday closing hours for the DKU Library, only stating that holiday hours are announced separately.",
+    "support_rationale": "The generated answer correctly states that the holiday hours for the DKU Library are not listed in the provided documents.",
+    "judge": "llm-judge",
+    "model": "gpt-4o-mini",
+    "span_rejections": []
+  },
+  "diagnosis": {
+    "failure_class": null,
+    "rationale": "Evidence was judged insufficient. retrieval_miss vs evidence_insufficiency is not diagnosed on the first pass.",
+    "detector": "first-pass-runtime"
+  },
+  "recovery": {
+    "action": "expand",
+    "reason": "rewrite did not improve the result; widen top_k from 4 to 12 and retrieve again",
+    "attributed_class": "evidence_insufficiency",
+    "source": "policy",
+    "outcome_note": "widened top_k from 4 to 12",
+    "trigger": "judge",
+    "parameters": {
+      "from_k": 4,
+      "to_k": 12
+    }
+  },
+  "verification": {
+    "outcome": "still_failing",
+    "rationale": "recovery did not produce a supported, sufficient result"
+  },
+  "previous_answer": "I do not know the DKU Library holiday closing hours based on the retrieved documents.",
+  "rewritten_query": "What are the holiday closing hours for the DKU Library?",
+  "previous_retrieved_chunks": [
+    {
+      "chunk_id": "dku-library-hours::c000",
+      "doc_id": "dku-library-hours",
+      "title": "Dku Library Hours",
+      "score": 0.7856947578705221,
+      "text": "DKU Library — current locations and hours\n\nThese hours are the current regular schedule published on the DKU Library website. Holiday hours are announced separately and are not listed here.\n\nLibrary building: 08:00-23:00, Monday through Sunday.\n\n1st floor information desk:\nMonday-Friday: 09:00-21:00\nSaturday-Sunday: 14:00-21:00\n\nDVD and equipment loan: Monday-Friday, 09:00-17:30."
+    },
+    {
+      "chunk_id": "dku-library-guide-202501::c000",
+      "doc_id": "dku-library-guide-202501",
+      "title": "Dku Library Guide 202501",
+      "score": 0.6529947627753871,
+      "text": "DKU Library Guide (January 2025 brochure)\n\nThis document copies service hours and space facts from the January 2025 DKU Library Guide PDF. Where it disagrees with the later Locations & Hours website, treat the website as current and this brochure as dated January 2025.\n\nLibrary building: Monday-Sunday 08:00-23:00. Side gates use swipe access. The guide lists 23 self and group study rooms and 560 seats."
+    },
+    {
+      "chunk_id": "wuhan-university::c001",
+      "doc_id": "wuhan-university",
+      "title": "Wuhan University",
+      "score": 0.6412727199700538,
+      "text": "not list DKU class dates, DKU library hours, or Wuhan University library hours.\n\nSource: https://www.dukekunshan.edu.cn/about/welcome-to-duke-kunshan-university/ (retrieved 2026-09-10)"
+    },
+    {
+      "chunk_id": "registrar-fall-2026::c002",
+      "doc_id": "registrar-fall-2026",
+      "title": "Registrar Fall 2026",
+      "score": 0.6274843831793977,
+      "text": "at 13:00.\n\nHoliday hours for the library are not listed on this registrar page.\n\nSource: https://registrar.dukekunshan.edu.cn/academic-calendar/ (retrieved 2026-09-10)"
+    }
+  ],
+  "recovery_status": "applied",
+  "parent_run_id": null,
+  "latency_ms": 39742.243124987,
+  "probe_evaluation": {
+    "evidence_sufficient": false,
+    "answer_supported": null,
+    "sufficiency_rationale": "The evidence states that holiday hours are announced separately and are not listed in the provided texts.",
+    "support_rationale": "",
+    "judge": "llm-judge",
+    "model": "gpt-4o-mini",
+    "span_rejections": []
+  },
+  "retrieval_signal": {
+    "top_score": 0.7856947578705221,
+    "runner_up_score": 0.6529947627753871,
+    "relative_margin": 0.16889510050288914,
+    "weak_top": false,
+    "ambiguous_top": false,
+    "reason": "retrieval looks healthy",
+    "detector": "retrieval-score"
+  },
+  "agent_config": null,
+  "recovery_attempts": [
+    {
+      "index": 0,
+      "action": "rewrite",
+      "reason": "first-pass evidence insufficient: rewrite query and retrieve again",
+      "trigger": "judge",
+      "source": "policy",
+      "attributed_class": "evidence_insufficiency",
+      "outcome_note": "rewrite did not improve evidence and the first-pass answer already abstained",
+      "top_k": 4,
+      "retrieved_doc_ids": [
+        "dku-library-hours",
+        "dku-library-guide-202501",
+        "wuhan-university",
+        "registrar-fall-2026"
+      ],
+      "verification": {
+        "outcome": "still_failing",
+        "rationale": "evidence stayed insufficient after recovery; the loop abstained instead of answering"
+      },
+      "answer": "I do not know based on the retrieved documents.",
+      "answer_model": "abstain",
+      "answer_relation": "abstained",
+      "evidence_relation": "replaced",
+      "evaluation_source": "probe",
+      "executed": true,
+      "runtime_evaluation": {
+        "evidence_sufficient": false,
+        "answer_supported": null,
+        "sufficiency_rationale": "The evidence states that holiday hours are announced separately and are not listed in the provided texts.",
+        "support_rationale": "",
+        "judge": "llm-judge",
+        "model": "gpt-4o-mini",
+        "span_rejections": []
+      },
+      "diagnosis": {
+        "failure_class": "evidence_insufficiency",
+        "rationale": "Evidence remained insufficient after query rewrite and a second retrieve.",
+        "detector": "rewrite-outcome"
+      },
+      "latency_ms": 11142.189291975228,
+      "rewritten_query": "What are the holiday closing hours for the DKU Library?",
+      "search_query": "What are the holiday closing hours for the DKU Library?",
+      "retrieved_chunks": [
+        {
+          "chunk_id": "dku-library-hours::c000",
+          "doc_id": "dku-library-hours",
+          "title": "Dku Library Hours",
+          "score": 0.7765580751231735,
+          "text": "DKU Library — current locations and hours\n\nThese hours are the current regular schedule published on the DKU Library website. Holiday hours are announced separately and are not listed here.\n\nLibrary building: 08:00-23:00, Monday through Sunday.\n\n1st floor information desk:\nMonday-Friday: 09:00-21:00\nSaturday-Sunday: 14:00-21:00\n\nDVD and equipment loan: Monday-Friday, 09:00-17:30."
+        },
+        {
+          "chunk_id": "dku-library-guide-202501::c000",
+          "doc_id": "dku-library-guide-202501",
+          "title": "Dku Library Guide 202501",
+          "score": 0.6503112013499629,
+          "text": "DKU Library Guide (January 2025 brochure)\n\nThis document copies service hours and space facts from the January 2025 DKU Library Guide PDF. Where it disagrees with the later Locations & Hours website, treat the website as current and this brochure as dated January 2025.\n\nLibrary building: Monday-Sunday 08:00-23:00. Side gates use swipe access. The guide lists 23 self and group study rooms and 560 seats."
+        },
+        {
+          "chunk_id": "wuhan-university::c001",
+          "doc_id": "wuhan-university",
+          "title": "Wuhan University",
+          "score": 0.6242544264633939,
+          "text": "not list DKU class dates, DKU library hours, or Wuhan University library hours.\n\nSource: https://www.dukekunshan.edu.cn/about/welcome-to-duke-kunshan-university/ (retrieved 2026-09-10)"
+        },
+        {
+          "chunk_id": "registrar-fall-2026::c002",
+          "doc_id": "registrar-fall-2026",
+          "title": "Registrar Fall 2026",
+          "score": 0.621325544859505,
+          "text": "at 13:00.\n\nHoliday hours for the library are not listed on this registrar page.\n\nSource: https://registrar.dukekunshan.edu.cn/academic-calendar/ (retrieved 2026-09-10)"
+        }
+      ],
+      "probe_evaluation": {
+        "evidence_sufficient": false,
+        "answer_supported": null,
+        "sufficiency_rationale": "The evidence states that holiday hours are announced separately and are not listed in the provided texts.",
+        "support_rationale": "",
+        "judge": "llm-judge",
+        "model": "gpt-4o-mini",
+        "span_rejections": []
+      },
+      "usage": {
+        "chat_calls": 2,
+        "embedding_calls": 1,
+        "prompt_tokens": 1279,
+        "completion_tokens": 64,
+        "embedding_tokens": 12,
+        "tokens_observed": true
+      }
+    },
+    {
+      "index": 1,
+      "action": "expand",
+      "reason": "rewrite did not improve the result; widen top_k from 4 to 12 and retrieve again",
+      "trigger": "judge",
+      "source": "policy",
+      "attributed_class": "evidence_insufficiency",
+      "outcome_note": "widened top_k from 4 to 12",
+      "top_k": 12,
+      "retrieved_doc_ids": [
+        "dku-library-hours",
+        "dku-library-guide-202501",
+        "wuhan-university",
+        "registrar-fall-2026",
+        "dku-library-handbook-2021",
+        "dku-library-hours",
+        "dku-library-handbook-2021",
+        "duke-university-durham",
+        "dku-library-handbook-2021",
+        "registrar-spring-2027",
+        "registrar-fall-2026",
+        "registrar-fall-2026"
+      ],
+      "verification": {
+        "outcome": "improved",
+        "rationale": "answer_supported became true after recovery"
+      },
+      "answer": "The holiday hours for the DKU Library are not listed in the provided documents. Therefore, I do not know the holiday closing hours based on the retrieved documents.",
+      "answer_model": "gpt-4o-mini",
+      "answer_relation": "generated",
+      "evidence_relation": "widened",
+      "evaluation_source": "judge",
+      "executed": true,
+      "runtime_evaluation": {
+        "evidence_sufficient": false,
+        "answer_supported": true,
+        "sufficiency_rationale": "The evidence does not provide any specific holiday closing hours for the DKU Library, only stating that holiday hours are announced separately.",
+        "support_rationale": "The generated answer correctly states that the holiday hours for the DKU Library are not listed in the provided documents.",
+        "judge": "llm-judge",
+        "model": "gpt-4o-mini",
+        "span_rejections": []
+      },
+      "diagnosis": {
+        "failure_class": null,
+        "rationale": "Evidence was judged insufficient. retrieval_miss vs evidence_insufficiency is not diagnosed on the first pass.",
+        "detector": "first-pass-runtime"
+      },
+      "latency_ms": 15296.530666993931,
+      "parameters": {
+        "from_k": 4,
+        "to_k": 12
+      },
+      "search_query": "What are the holiday closing hours for the DKU Library?",
+      "retrieved_chunks": [
+        {
+          "chunk_id": "dku-library-hours::c000",
+          "doc_id": "dku-library-hours",
+          "title": "Dku Library Hours",
+          "score": 0.7765580751231735,
+          "text": "DKU Library — current locations and hours\n\nThese hours are the current regular schedule published on the DKU Library website. Holiday hours are announced separately and are not listed here.\n\nLibrary building: 08:00-23:00, Monday through Sunday.\n\n1st floor information desk:\nMonday-Friday: 09:00-21:00\nSaturday-Sunday: 14:00-21:00\n\nDVD and equipment loan: Monday-Friday, 09:00-17:30."
+        },
+        {
+          "chunk_id": "dku-library-guide-202501::c000",
+          "doc_id": "dku-library-guide-202501",
+          "title": "Dku Library Guide 202501",
+          "score": 0.6503112013499629,
+          "text": "DKU Library Guide (January 2025 brochure)\n\nThis document copies service hours and space facts from the January 2025 DKU Library Guide PDF. Where it disagrees with the later Locations & Hours website, treat the website as current and this brochure as dated January 2025.\n\nLibrary building: Monday-Sunday 08:00-23:00. Side gates use swipe access. The guide lists 23 self and group study rooms and 560 seats."
+        },
+        {
+          "chunk_id": "wuhan-university::c001",
+          "doc_id": "wuhan-university",
+          "title": "Wuhan University",
+          "score": 0.6242544264633939,
+          "text": "not list DKU class dates, DKU library hours, or Wuhan University library hours.\n\nSource: https://www.dukekunshan.edu.cn/about/welcome-to-duke-kunshan-university/ (retrieved 2026-09-10)"
+        },
+        {
+          "chunk_id": "registrar-fall-2026::c002",
+          "doc_id": "registrar-fall-2026",
+          "title": "Registrar Fall 2026",
+          "score": 0.621325544859505,
+          "text": "at 13:00.\n\nHoliday hours for the library are not listed on this registrar page.\n\nSource: https://registrar.dukekunshan.edu.cn/academic-calendar/ (retrieved 2026-09-10)"
+        },
+        {
+          "chunk_id": "dku-library-handbook-2021::c001",
+          "doc_id": "dku-library-handbook-2021",
+          "title": "Dku Library Handbook 2021",
+          "score": 0.5534916329116273,
+          "text": "as historical text. It does not describe the current dedicated library building.\n\nIn this 2021 handbook, the DKU Library is described as occupying two rooms on the first and second floor of the Academic Building. The listed phone number is (0512) 3665-7027. The listed email is dkulibrary@dukekunshan.edu.cn. The handbook also mentions a joint service relationship with Duke University Libraries (DUL)."
+        },
+        {
+          "chunk_id": "dku-library-hours::c001",
+          "doc_id": "dku-library-hours",
+          "title": "Dku Library Hours",
+          "score": 0.5421838854029998,
+          "text": "aturday-Sunday: 14:00-21:00\n\nDVD and equipment loan: Monday-Friday, 09:00-17:30.\n\nContact:\n(+86) 0512-36658756 (Monday-Friday, 09:00-17:00)\ndkulibrary@dukekunshan.edu.cn\nNo. 8 Duke Avenue, Kunshan, Jiangsu Province, China 215316\n\nThis page is about the Kunshan campus library. It is not Duke University Libraries in Durham, North Carolina.\n\nSource: https://library.dukekunshan.edu.cn/locations-hours/ (retrieved 2026-09-10)"
+        },
+        {
+          "chunk_id": "dku-library-handbook-2021::c000",
+          "doc_id": "dku-library-handbook-2021",
+          "title": "Dku Library Handbook 2021",
+          "score": 0.5421510739109116,
+          "text": "DKU Library — August 2021 student handbook (superseded)\n\nThis extract is from an August 2021 DKU Student Handbook. It is kept as historical text. It does not describe the current dedicated library building."
+        },
+        {
+          "chunk_id": "duke-university-durham::c001",
+          "doc_id": "duke-university-durham",
+          "title": "Duke University Durham",
+          "score": 0.5372383529704251,
+          "text": "more than 15,000 students in undergraduate, graduate, and professional programs.\n\nDuke University Libraries (including Perkins and Bostock on West Campus) are in Durham. They are not the DKU Library at No. 8 Duke Avenue, Kunshan. This note does not list Perkins closing times, because those hours are not copied here.\n\nDKU is described on Duke's international activity list alongside Duke-NUS in Singapore."
+        },
+        {
+          "chunk_id": "dku-library-handbook-2021::c002",
+          "doc_id": "dku-library-handbook-2021",
+          "title": "Dku Library Handbook 2021",
+          "score": 0.5288930595063663,
+          "text": "also mentions a joint service relationship with Duke University Libraries (DUL).\n\nDo not use these 2021 room locations or this 2021 phone number as the current library location or current service desk number.\n\nSource: DKU Student Handbook dated 21.08.19, archived copy at https://sites.nicholas.duke.edu/imep-dku/files/2023/04/21.08.19DKU-Student-Handbook.pdf (retrieved 2026-09-10)"
+        },
+        {
+          "chunk_id": "registrar-spring-2027::c000",
+          "doc_id": "registrar-spring-2027",
+          "title": "Registrar Spring 2027",
+          "score": 0.5088044181496142,
+          "text": "DKU Registrar — Spring 2027 dates\n\nAll residence halls reopen Saturday, 9 January 2027 at 09:00. Undergraduate and graduate classes begin Monday, 11 January 2027.\n\nSpring Festival Holiday: no classes Friday 5 February 2027 through Sunday 14 February 2027. Classes resume Monday 15 February 2027.\n\nGraduate and undergraduate commencement is Friday, 21 May 2027. All residence halls close Saturday, 22 May 2027 at 13:00.\n\nQing Ming (Tomb Sweeping Day): no classes Monday 5 April 2027."
+        },
+        {
+          "chunk_id": "registrar-fall-2026::c001",
+          "doc_id": "registrar-fall-2026",
+          "title": "Registrar Fall 2026",
+          "score": 0.4664584743953956,
+          "text": "ugust 2026 at 09:00. Returning students move in Friday, 21 August 2026 at 09:00.\n\nNational Day Holiday: no classes Thursday 1 October 2026 through Sunday 11 October 2026. Classes resume Monday 12 October 2026.\n\nMid-Autumn Festival: no classes Friday 25 September through Sunday 27 September 2026.\n\nAll residence halls close for Winter Break on Friday, 18 December 2026 at 13:00.\n\nHoliday hours for the library are not listed on this registrar page."
+        },
+        {
+          "chunk_id": "registrar-fall-2026::c000",
+          "doc_id": "registrar-fall-2026",
+          "title": "Registrar Fall 2026",
+          "score": 0.42720197979596036,
+          "text": "DKU Registrar — Fall 2026 dates\n\nUndergraduate and graduate classes begin Monday, 24 August 2026.\n\nNew international undergraduate students (Class of 2030) and international first-year graduate students move in Friday, 14 August 2026 at 09:00. New Chinese undergraduate and Chinese first-year graduate students move in Sunday, 16 August 2026 at 09:00. Returning students move in Friday, 21 August 2026 at 09:00."
+        }
+      ],
+      "usage": {
+        "chat_calls": 2,
+        "embedding_calls": 0,
+        "prompt_tokens": 3259,
+        "completion_tokens": 113,
+        "embedding_tokens": 0,
+        "tokens_observed": true
+      }
+    }
+  ],
+  "first_pass_evaluation": {
+    "evidence_sufficient": false,
+    "answer_supported": true,
+    "sufficiency_rationale": "The evidence states that holiday hours are announced separately and are not listed in the provided documents, indicating that the specific information is not available.",
+    "support_rationale": "The generated answer correctly states that the information about holiday closing hours is not known based on the retrieved documents.",
+    "judge": "llm-judge",
+    "model": "gpt-4o-mini",
+    "span_rejections": []
+  },
+  "trace_schema_version": 2,
+  "run_mode": "loop",
+  "initial": {
+    "query": "What are the DKU Library holiday closing hours?",
+    "retrieved_chunks": [
+      {
+        "chunk_id": "dku-library-hours::c000",
+        "doc_id": "dku-library-hours",
+        "title": "Dku Library Hours",
+        "score": 0.7856947578705221,
+        "text": "DKU Library — current locations and hours\n\nThese hours are the current regular schedule published on the DKU Library website. Holiday hours are announced separately and are not listed here.\n\nLibrary building: 08:00-23:00, Monday through Sunday.\n\n1st floor information desk:\nMonday-Friday: 09:00-21:00\nSaturday-Sunday: 14:00-21:00\n\nDVD and equipment loan: Monday-Friday, 09:00-17:30."
+      },
+      {
+        "chunk_id": "dku-library-guide-202501::c000",
+        "doc_id": "dku-library-guide-202501",
+        "title": "Dku Library Guide 202501",
+        "score": 0.6529947627753871,
+        "text": "DKU Library Guide (January 2025 brochure)\n\nThis document copies service hours and space facts from the January 2025 DKU Library Guide PDF. Where it disagrees with the later Locations & Hours website, treat the website as current and this brochure as dated January 2025.\n\nLibrary building: Monday-Sunday 08:00-23:00. Side gates use swipe access. The guide lists 23 self and group study rooms and 560 seats."
+      },
+      {
+        "chunk_id": "wuhan-university::c001",
+        "doc_id": "wuhan-university",
+        "title": "Wuhan University",
+        "score": 0.6412727199700538,
+        "text": "not list DKU class dates, DKU library hours, or Wuhan University library hours.\n\nSource: https://www.dukekunshan.edu.cn/about/welcome-to-duke-kunshan-university/ (retrieved 2026-09-10)"
+      },
+      {
+        "chunk_id": "registrar-fall-2026::c002",
+        "doc_id": "registrar-fall-2026",
+        "title": "Registrar Fall 2026",
+        "score": 0.6274843831793977,
+        "text": "at 13:00.\n\nHoliday hours for the library are not listed on this registrar page.\n\nSource: https://registrar.dukekunshan.edu.cn/academic-calendar/ (retrieved 2026-09-10)"
+      }
+    ],
+    "answer": "I do not know the DKU Library holiday closing hours based on the retrieved documents.",
+    "model": "gpt-4o-mini",
+    "top_k": 4,
+    "runtime_evaluation": {
+      "evidence_sufficient": false,
+      "answer_supported": true,
+      "sufficiency_rationale": "The evidence states that holiday hours are announced separately and are not listed in the provided documents, indicating that the specific information is not available.",
+      "support_rationale": "The generated answer correctly states that the information about holiday closing hours is not known based on the retrieved documents.",
+      "judge": "llm-judge",
+      "model": "gpt-4o-mini",
+      "span_rejections": []
+    },
+    "retrieval_signal": {
+      "top_score": 0.7856947578705221,
+      "runner_up_score": 0.6529947627753871,
+      "relative_margin": 0.16889510050288914,
+      "weak_top": false,
+      "ambiguous_top": false,
+      "reason": "retrieval looks healthy",
+      "detector": "retrieval-score"
+    },
+    "diagnosis": {
+      "failure_class": null,
+      "rationale": "Evidence was judged insufficient. retrieval_miss vs evidence_insufficiency is not diagnosed on the first pass.",
+      "detector": "first-pass-runtime"
+    },
+    "latency_ms": 13301.769332989352
+  },
+  "usage": {
+    "chat_calls": 6,
+    "embedding_calls": 2,
+    "prompt_tokens": 5772,
+    "completion_tokens": 276,
+    "embedding_tokens": 22,
+    "tokens_observed": true
+  },
+  "recovery_policy": "v1",
+  "stage_timings": [
+    {
+      "stage": "retrieve",
+      "attempt": null,
+      "top_k": 4,
+      "started_ms": 50.5,
+      "duration_ms": 3184.1,
+      "status": "ok"
+    },
+    {
+      "stage": "generate",
+      "attempt": null,
+      "started_ms": 3234.8,
+      "duration_ms": 5541.2,
+      "status": "ok"
+    },
+    {
+      "stage": "judge",
+      "attempt": null,
+      "started_ms": 8776.4,
+      "duration_ms": 4573.3,
+      "status": "ok"
+    },
+    {
+      "stage": "diagnose",
+      "attempt": null,
+      "started_ms": 13350.0,
+      "duration_ms": 0.8,
+      "status": "ok"
+    },
+    {
+      "stage": "retrieve",
+      "attempt": 0,
+      "top_k": 4,
+      "started_ms": 16852.2,
+      "duration_ms": 4538.7,
+      "status": "ok"
+    },
+    {
+      "stage": "judge",
+      "attempt": 0,
+      "started_ms": 21391.1,
+      "duration_ms": 3102.6,
+      "status": "ok"
+    },
+    {
+      "stage": "diagnose",
+      "attempt": 0,
+      "started_ms": 24494.0,
+      "duration_ms": 0.1,
+      "status": "ok"
+    },
+    {
+      "stage": "recover",
+      "attempt": 0,
+      "action": "rewrite",
+      "started_ms": 13352.3,
+      "duration_ms": 11142.1,
+      "status": "ok"
+    },
+    {
+      "stage": "retrieve",
+      "attempt": 1,
+      "top_k": 12,
+      "started_ms": 24495.6,
+      "duration_ms": 6.6,
+      "status": "ok"
+    },
+    {
+      "stage": "generate",
+      "attempt": 1,
+      "started_ms": 24502.2,
+      "duration_ms": 7275.5,
+      "status": "ok"
+    },
+    {
+      "stage": "judge",
+      "attempt": 1,
+      "started_ms": 31778.0,
+      "duration_ms": 8013.5,
+      "status": "ok"
+    },
+    {
+      "stage": "diagnose",
+      "attempt": 1,
+      "started_ms": 39791.7,
+      "duration_ms": 0.1,
+      "status": "ok"
+    },
+    {
+      "stage": "recover",
+      "attempt": 1,
+      "action": "expand",
+      "started_ms": 24495.6,
+      "duration_ms": 15296.5,
+      "status": "ok"
+    },
+    {
+      "stage": "verify",
+      "attempt": null,
+      "started_ms": 39792.4,
+      "duration_ms": 0.0,
+      "status": "ok"
+    }
+  ]
+}

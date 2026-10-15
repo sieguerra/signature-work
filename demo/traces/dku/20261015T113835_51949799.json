@@ -1,0 +1,664 @@
+{
+  "run_id": "20261015T113835_51949799",
+  "timestamp": "2026-10-15T11:38:35.553866+00:00",
+  "query": "What are Perkins Library Saturday hours at Duke University in Durham?",
+  "retrieved_chunks": [
+    {
+      "chunk_id": "duke-university-durham::c001",
+      "doc_id": "duke-university-durham",
+      "title": "Duke University Durham",
+      "score": 0.6748124550354991,
+      "text": "more than 15,000 students in undergraduate, graduate, and professional programs.\n\nDuke University Libraries (including Perkins and Bostock on West Campus) are in Durham. They are not the DKU Library at No. 8 Duke Avenue, Kunshan. This note does not list Perkins closing times, because those hours are not copied here.\n\nDKU is described on Duke's international activity list alongside Duke-NUS in Singapore."
+    },
+    {
+      "chunk_id": "dku-library-hours::c001",
+      "doc_id": "dku-library-hours",
+      "title": "Dku Library Hours",
+      "score": 0.6007273206148561,
+      "text": "aturday-Sunday: 14:00-21:00\n\nDVD and equipment loan: Monday-Friday, 09:00-17:30.\n\nContact:\n(+86) 0512-36658756 (Monday-Friday, 09:00-17:00)\ndkulibrary@dukekunshan.edu.cn\nNo. 8 Duke Avenue, Kunshan, Jiangsu Province, China 215316\n\nThis page is about the Kunshan campus library. It is not Duke University Libraries in Durham, North Carolina.\n\nSource: https://library.dukekunshan.edu.cn/locations-hours/ (retrieved 2026-09-10)"
+    },
+    {
+      "chunk_id": "registrar-fall-2026::c002",
+      "doc_id": "registrar-fall-2026",
+      "title": "Registrar Fall 2026",
+      "score": 0.5735590715850095,
+      "text": "at 13:00.\n\nHoliday hours for the library are not listed on this registrar page.\n\nSource: https://registrar.dukekunshan.edu.cn/academic-calendar/ (retrieved 2026-09-10)"
+    },
+    {
+      "chunk_id": "wuhan-university::c001",
+      "doc_id": "wuhan-university",
+      "title": "Wuhan University",
+      "score": 0.5382247849483849,
+      "text": "not list DKU class dates, DKU library hours, or Wuhan University library hours.\n\nSource: https://www.dukekunshan.edu.cn/about/welcome-to-duke-kunshan-university/ (retrieved 2026-09-10)"
+    },
+    {
+      "chunk_id": "dku-library-hours::c000",
+      "doc_id": "dku-library-hours",
+      "title": "Dku Library Hours",
+      "score": 0.5349046832725743,
+      "text": "DKU Library — current locations and hours\n\nThese hours are the current regular schedule published on the DKU Library website. Holiday hours are announced separately and are not listed here.\n\nLibrary building: 08:00-23:00, Monday through Sunday.\n\n1st floor information desk:\nMonday-Friday: 09:00-21:00\nSaturday-Sunday: 14:00-21:00\n\nDVD and equipment loan: Monday-Friday, 09:00-17:30."
+    },
+    {
+      "chunk_id": "dku-library-handbook-2021::c002",
+      "doc_id": "dku-library-handbook-2021",
+      "title": "Dku Library Handbook 2021",
+      "score": 0.5295497406669083,
+      "text": "also mentions a joint service relationship with Duke University Libraries (DUL).\n\nDo not use these 2021 room locations or this 2021 phone number as the current library location or current service desk number.\n\nSource: DKU Student Handbook dated 21.08.19, archived copy at https://sites.nicholas.duke.edu/imep-dku/files/2023/04/21.08.19DKU-Student-Handbook.pdf (retrieved 2026-09-10)"
+    },
+    {
+      "chunk_id": "dku-library-handbook-2021::c001",
+      "doc_id": "dku-library-handbook-2021",
+      "title": "Dku Library Handbook 2021",
+      "score": 0.49968277428685454,
+      "text": "as historical text. It does not describe the current dedicated library building.\n\nIn this 2021 handbook, the DKU Library is described as occupying two rooms on the first and second floor of the Academic Building. The listed phone number is (0512) 3665-7027. The listed email is dkulibrary@dukekunshan.edu.cn. The handbook also mentions a joint service relationship with Duke University Libraries (DUL)."
+    },
+    {
+      "chunk_id": "dku-library-guide-202501::c000",
+      "doc_id": "dku-library-guide-202501",
+      "title": "Dku Library Guide 202501",
+      "score": 0.4744642392346374,
+      "text": "DKU Library Guide (January 2025 brochure)\n\nThis document copies service hours and space facts from the January 2025 DKU Library Guide PDF. Where it disagrees with the later Locations & Hours website, treat the website as current and this brochure as dated January 2025.\n\nLibrary building: Monday-Sunday 08:00-23:00. Side gates use swipe access. The guide lists 23 self and group study rooms and 560 seats."
+    },
+    {
+      "chunk_id": "dku-library-guide-202501::c001",
+      "doc_id": "dku-library-guide-202501",
+      "title": "Dku Library Guide 202501",
+      "score": 0.422556721344349,
+      "text": "s use swipe access. The guide lists 23 self and group study rooms and 560 seats.\n\n1st floor information desk in this brochure:\nMonday-Thursday: 09:00-21:00\nFriday: 09:00-17:30\nSaturday: 14:00-18:00\nSunday: 14:00-20:00\n\nThe Tea House is on the 3rd floor and connects to a sky garden. The Meditation Room is on the 4th floor (LIB4-16) and looks over the Academic Quad."
+    },
+    {
+      "chunk_id": "dku-library-guide-202501::c002",
+      "doc_id": "dku-library-guide-202501",
+      "title": "Dku Library Guide 202501",
+      "score": 0.39988528912335847,
+      "text": "Meditation Room is on the 4th floor (LIB4-16) and looks over the Academic Quad.\n\nSource: https://library.dukekunshan.edu.cn/wp-content/uploads/2025/01/Duke-Kunshan-University-Library-Guide-202501.pdf (January 2025 guide; retrieved 2026-09-10)"
+    },
+    {
+      "chunk_id": "duke-university-durham::c000",
+      "doc_id": "duke-university-durham",
+      "title": "Duke University Durham",
+      "score": 0.3957522095203661,
+      "text": "Duke University, Durham, North Carolina (not the Kunshan campus)\n\nDuke University's home campus is in Durham, North Carolina, United States, on nearly 9,000 acres. Duke traces its roots to 1838 and officially became Duke University in 1924. Duke enrolls more than 15,000 students in undergraduate, graduate, and professional programs."
+    },
+    {
+      "chunk_id": "conference-center::c001",
+      "doc_id": "conference-center",
+      "title": "Conference Center",
+      "score": 0.39545657485851027,
+      "text": "campus restaurant and a Family Mart in the Community Center are also mentioned.\n\nThis note does not list room rates, a weekday shuttle timetable, or Halal Dining meal times (those times are on the commencement dining note).\n\nSource: https://www.dukekunshan.edu.cn/conference-center/ (retrieved 2026-09-10)"
+    }
+  ],
+  "answer": "I do not know based on the retrieved documents.",
+  "model": "abstain",
+  "embedding_model": "text-embedding-3-small",
+  "top_k": 12,
+  "provider": {
+    "official_openai": false,
+    "configured_chat_model": "gpt-4o-mini",
+    "configured_embedding_model": "text-embedding-3-small",
+    "api_key_present": true
+  },
+  "question_id": null,
+  "runtime_evaluation": {
+    "evidence_sufficient": false,
+    "answer_supported": null,
+    "sufficiency_rationale": "The retrieved evidence does not provide any specific hours for Perkins Library on Saturdays.",
+    "support_rationale": "The loop abstained, so there is no answer to support.",
+    "judge": "llm-judge",
+    "model": "gpt-4o-mini",
+    "span_rejections": []
+  },
+  "diagnosis": {
+    "failure_class": null,
+    "rationale": "Evidence was judged insufficient. retrieval_miss vs evidence_insufficiency is not diagnosed on the first pass.",
+    "detector": "first-pass-runtime"
+  },
+  "recovery": {
+    "action": "abstain",
+    "reason": "expand ended with insufficient evidence; abstain instead of answering",
+    "attributed_class": "evidence_insufficiency",
+    "source": "policy",
+    "outcome_note": "replaced the last answer with the abstention; no judge call",
+    "trigger": "judge"
+  },
+  "verification": {
+    "outcome": "still_failing",
+    "rationale": "evidence stayed insufficient after recovery; the loop abstained instead of answering"
+  },
+  "previous_answer": "I do not know the Saturday hours for Perkins Library at Duke University in Durham based on the retrieved documents.",
+  "rewritten_query": "What are the Saturday hours for Perkins Library at Duke University in Durham, North Carolina?",
+  "previous_retrieved_chunks": [
+    {
+      "chunk_id": "duke-university-durham::c001",
+      "doc_id": "duke-university-durham",
+      "title": "Duke University Durham",
+      "score": 0.6908294833871085,
+      "text": "more than 15,000 students in undergraduate, graduate, and professional programs.\n\nDuke University Libraries (including Perkins and Bostock on West Campus) are in Durham. They are not the DKU Library at No. 8 Duke Avenue, Kunshan. This note does not list Perkins closing times, because those hours are not copied here.\n\nDKU is described on Duke's international activity list alongside Duke-NUS in Singapore."
+    },
+    {
+      "chunk_id": "dku-library-hours::c001",
+      "doc_id": "dku-library-hours",
+      "title": "Dku Library Hours",
+      "score": 0.5981178769114138,
+      "text": "aturday-Sunday: 14:00-21:00\n\nDVD and equipment loan: Monday-Friday, 09:00-17:30.\n\nContact:\n(+86) 0512-36658756 (Monday-Friday, 09:00-17:00)\ndkulibrary@dukekunshan.edu.cn\nNo. 8 Duke Avenue, Kunshan, Jiangsu Province, China 215316\n\nThis page is about the Kunshan campus library. It is not Duke University Libraries in Durham, North Carolina.\n\nSource: https://library.dukekunshan.edu.cn/locations-hours/ (retrieved 2026-09-10)"
+    },
+    {
+      "chunk_id": "registrar-fall-2026::c002",
+      "doc_id": "registrar-fall-2026",
+      "title": "Registrar Fall 2026",
+      "score": 0.5633369414568004,
+      "text": "at 13:00.\n\nHoliday hours for the library are not listed on this registrar page.\n\nSource: https://registrar.dukekunshan.edu.cn/academic-calendar/ (retrieved 2026-09-10)"
+    },
+    {
+      "chunk_id": "wuhan-university::c001",
+      "doc_id": "wuhan-university",
+      "title": "Wuhan University",
+      "score": 0.5440304811946773,
+      "text": "not list DKU class dates, DKU library hours, or Wuhan University library hours.\n\nSource: https://www.dukekunshan.edu.cn/about/welcome-to-duke-kunshan-university/ (retrieved 2026-09-10)"
+    }
+  ],
+  "recovery_status": "applied",
+  "parent_run_id": null,
+  "latency_ms": 36900.65825000056,
+  "probe_evaluation": {
+    "evidence_sufficient": false,
+    "answer_supported": null,
+    "sufficiency_rationale": "The retrieved evidence does not provide specific hours for Perkins Library on Saturdays.",
+    "support_rationale": "",
+    "judge": "llm-judge",
+    "model": "gpt-4o-mini",
+    "span_rejections": []
+  },
+  "retrieval_signal": {
+    "top_score": 0.6908294833871085,
+    "runner_up_score": 0.5981178769114138,
+    "relative_margin": 0.13420331457356666,
+    "weak_top": false,
+    "ambiguous_top": false,
+    "reason": "retrieval looks healthy",
+    "detector": "retrieval-score"
+  },
+  "agent_config": null,
+  "recovery_attempts": [
+    {
+      "index": 0,
+      "action": "rewrite",
+      "reason": "first-pass evidence insufficient: rewrite query and retrieve again",
+      "trigger": "judge",
+      "source": "policy",
+      "attributed_class": "evidence_insufficiency",
+      "outcome_note": "rewrite did not improve evidence and the first-pass answer already abstained",
+      "top_k": 4,
+      "retrieved_doc_ids": [
+        "duke-university-durham",
+        "dku-library-hours",
+        "registrar-fall-2026",
+        "wuhan-university"
+      ],
+      "verification": {
+        "outcome": "still_failing",
+        "rationale": "evidence stayed insufficient after recovery; the loop abstained instead of answering"
+      },
+      "answer": "I do not know based on the retrieved documents.",
+      "answer_model": "abstain",
+      "answer_relation": "abstained",
+      "evidence_relation": "replaced",
+      "evaluation_source": "probe",
+      "executed": true,
+      "runtime_evaluation": {
+        "evidence_sufficient": false,
+        "answer_supported": null,
+        "sufficiency_rationale": "The retrieved evidence does not provide specific hours for Perkins Library on Saturdays.",
+        "support_rationale": "",
+        "judge": "llm-judge",
+        "model": "gpt-4o-mini",
+        "span_rejections": []
+      },
+      "diagnosis": {
+        "failure_class": "evidence_insufficiency",
+        "rationale": "Evidence remained insufficient after query rewrite and a second retrieve.",
+        "detector": "rewrite-outcome"
+      },
+      "latency_ms": 15713.444708002498,
+      "rewritten_query": "What are the Saturday hours for Perkins Library at Duke University in Durham, North Carolina?",
+      "search_query": "What are the Saturday hours for Perkins Library at Duke University in Durham, North Carolina?",
+      "retrieved_chunks": [
+        {
+          "chunk_id": "duke-university-durham::c001",
+          "doc_id": "duke-university-durham",
+          "title": "Duke University Durham",
+          "score": 0.6748124550354991,
+          "text": "more than 15,000 students in undergraduate, graduate, and professional programs.\n\nDuke University Libraries (including Perkins and Bostock on West Campus) are in Durham. They are not the DKU Library at No. 8 Duke Avenue, Kunshan. This note does not list Perkins closing times, because those hours are not copied here.\n\nDKU is described on Duke's international activity list alongside Duke-NUS in Singapore."
+        },
+        {
+          "chunk_id": "dku-library-hours::c001",
+          "doc_id": "dku-library-hours",
+          "title": "Dku Library Hours",
+          "score": 0.6007273206148561,
+          "text": "aturday-Sunday: 14:00-21:00\n\nDVD and equipment loan: Monday-Friday, 09:00-17:30.\n\nContact:\n(+86) 0512-36658756 (Monday-Friday, 09:00-17:00)\ndkulibrary@dukekunshan.edu.cn\nNo. 8 Duke Avenue, Kunshan, Jiangsu Province, China 215316\n\nThis page is about the Kunshan campus library. It is not Duke University Libraries in Durham, North Carolina.\n\nSource: https://library.dukekunshan.edu.cn/locations-hours/ (retrieved 2026-09-10)"
+        },
+        {
+          "chunk_id": "registrar-fall-2026::c002",
+          "doc_id": "registrar-fall-2026",
+          "title": "Registrar Fall 2026",
+          "score": 0.5735590715850095,
+          "text": "at 13:00.\n\nHoliday hours for the library are not listed on this registrar page.\n\nSource: https://registrar.dukekunshan.edu.cn/academic-calendar/ (retrieved 2026-09-10)"
+        },
+        {
+          "chunk_id": "wuhan-university::c001",
+          "doc_id": "wuhan-university",
+          "title": "Wuhan University",
+          "score": 0.5382247849483849,
+          "text": "not list DKU class dates, DKU library hours, or Wuhan University library hours.\n\nSource: https://www.dukekunshan.edu.cn/about/welcome-to-duke-kunshan-university/ (retrieved 2026-09-10)"
+        }
+      ],
+      "probe_evaluation": {
+        "evidence_sufficient": false,
+        "answer_supported": null,
+        "sufficiency_rationale": "The retrieved evidence does not provide specific hours for Perkins Library on Saturdays.",
+        "support_rationale": "",
+        "judge": "llm-judge",
+        "model": "gpt-4o-mini",
+        "span_rejections": []
+      },
+      "usage": {
+        "chat_calls": 2,
+        "embedding_calls": 1,
+        "prompt_tokens": 1335,
+        "completion_tokens": 65,
+        "embedding_tokens": 17,
+        "tokens_observed": true
+      }
+    },
+    {
+      "index": 1,
+      "action": "expand",
+      "reason": "rewrite did not improve the result; widen top_k from 4 to 12 and retrieve again",
+      "trigger": "judge",
+      "source": "policy",
+      "attributed_class": "evidence_insufficiency",
+      "outcome_note": "widened top_k from 4 to 12",
+      "top_k": 12,
+      "retrieved_doc_ids": [
+        "duke-university-durham",
+        "dku-library-hours",
+        "registrar-fall-2026",
+        "wuhan-university",
+        "dku-library-hours",
+        "dku-library-handbook-2021",
+        "dku-library-handbook-2021",
+        "dku-library-guide-202501",
+        "dku-library-guide-202501",
+        "dku-library-guide-202501",
+        "duke-university-durham",
+        "conference-center"
+      ],
+      "verification": {
+        "outcome": "improved",
+        "rationale": "answer_supported became true after recovery"
+      },
+      "answer": "I do not know the Saturday hours for Perkins Library at Duke University in Durham based on the retrieved documents.",
+      "answer_model": "gpt-4o-mini",
+      "answer_relation": "generated",
+      "evidence_relation": "widened",
+      "evaluation_source": "judge",
+      "executed": true,
+      "runtime_evaluation": {
+        "evidence_sufficient": false,
+        "answer_supported": true,
+        "sufficiency_rationale": "The retrieved evidence does not provide any specific hours for Perkins Library on Saturdays.",
+        "support_rationale": "The generated answer correctly states that it does not know the Saturday hours, which is supported by the evidence.",
+        "judge": "llm-judge",
+        "model": "gpt-4o-mini",
+        "span_rejections": []
+      },
+      "diagnosis": {
+        "failure_class": null,
+        "rationale": "Evidence was judged insufficient. retrieval_miss vs evidence_insufficiency is not diagnosed on the first pass.",
+        "detector": "first-pass-runtime"
+      },
+      "latency_ms": 8361.704458977329,
+      "parameters": {
+        "from_k": 4,
+        "to_k": 12
+      },
+      "search_query": "What are the Saturday hours for Perkins Library at Duke University in Durham, North Carolina?",
+      "retrieved_chunks": [
+        {
+          "chunk_id": "duke-university-durham::c001",
+          "doc_id": "duke-university-durham",
+          "title": "Duke University Durham",
+          "score": 0.6748124550354991,
+          "text": "more than 15,000 students in undergraduate, graduate, and professional programs.\n\nDuke University Libraries (including Perkins and Bostock on West Campus) are in Durham. They are not the DKU Library at No. 8 Duke Avenue, Kunshan. This note does not list Perkins closing times, because those hours are not copied here.\n\nDKU is described on Duke's international activity list alongside Duke-NUS in Singapore."
+        },
+        {
+          "chunk_id": "dku-library-hours::c001",
+          "doc_id": "dku-library-hours",
+          "title": "Dku Library Hours",
+          "score": 0.6007273206148561,
+          "text": "aturday-Sunday: 14:00-21:00\n\nDVD and equipment loan: Monday-Friday, 09:00-17:30.\n\nContact:\n(+86) 0512-36658756 (Monday-Friday, 09:00-17:00)\ndkulibrary@dukekunshan.edu.cn\nNo. 8 Duke Avenue, Kunshan, Jiangsu Province, China 215316\n\nThis page is about the Kunshan campus library. It is not Duke University Libraries in Durham, North Carolina.\n\nSource: https://library.dukekunshan.edu.cn/locations-hours/ (retrieved 2026-09-10)"
+        },
+        {
+          "chunk_id": "registrar-fall-2026::c002",
+          "doc_id": "registrar-fall-2026",
+          "title": "Registrar Fall 2026",
+          "score": 0.5735590715850095,
+          "text": "at 13:00.\n\nHoliday hours for the library are not listed on this registrar page.\n\nSource: https://registrar.dukekunshan.edu.cn/academic-calendar/ (retrieved 2026-09-10)"
+        },
+        {
+          "chunk_id": "wuhan-university::c001",
+          "doc_id": "wuhan-university",
+          "title": "Wuhan University",
+          "score": 0.5382247849483849,
+          "text": "not list DKU class dates, DKU library hours, or Wuhan University library hours.\n\nSource: https://www.dukekunshan.edu.cn/about/welcome-to-duke-kunshan-university/ (retrieved 2026-09-10)"
+        },
+        {
+          "chunk_id": "dku-library-hours::c000",
+          "doc_id": "dku-library-hours",
+          "title": "Dku Library Hours",
+          "score": 0.5349046832725743,
+          "text": "DKU Library — current locations and hours\n\nThese hours are the current regular schedule published on the DKU Library website. Holiday hours are announced separately and are not listed here.\n\nLibrary building: 08:00-23:00, Monday through Sunday.\n\n1st floor information desk:\nMonday-Friday: 09:00-21:00\nSaturday-Sunday: 14:00-21:00\n\nDVD and equipment loan: Monday-Friday, 09:00-17:30."
+        },
+        {
+          "chunk_id": "dku-library-handbook-2021::c002",
+          "doc_id": "dku-library-handbook-2021",
+          "title": "Dku Library Handbook 2021",
+          "score": 0.5295497406669083,
+          "text": "also mentions a joint service relationship with Duke University Libraries (DUL).\n\nDo not use these 2021 room locations or this 2021 phone number as the current library location or current service desk number.\n\nSource: DKU Student Handbook dated 21.08.19, archived copy at https://sites.nicholas.duke.edu/imep-dku/files/2023/04/21.08.19DKU-Student-Handbook.pdf (retrieved 2026-09-10)"
+        },
+        {
+          "chunk_id": "dku-library-handbook-2021::c001",
+          "doc_id": "dku-library-handbook-2021",
+          "title": "Dku Library Handbook 2021",
+          "score": 0.49968277428685454,
+          "text": "as historical text. It does not describe the current dedicated library building.\n\nIn this 2021 handbook, the DKU Library is described as occupying two rooms on the first and second floor of the Academic Building. The listed phone number is (0512) 3665-7027. The listed email is dkulibrary@dukekunshan.edu.cn. The handbook also mentions a joint service relationship with Duke University Libraries (DUL)."
+        },
+        {
+          "chunk_id": "dku-library-guide-202501::c000",
+          "doc_id": "dku-library-guide-202501",
+          "title": "Dku Library Guide 202501",
+          "score": 0.4744642392346374,
+          "text": "DKU Library Guide (January 2025 brochure)\n\nThis document copies service hours and space facts from the January 2025 DKU Library Guide PDF. Where it disagrees with the later Locations & Hours website, treat the website as current and this brochure as dated January 2025.\n\nLibrary building: Monday-Sunday 08:00-23:00. Side gates use swipe access. The guide lists 23 self and group study rooms and 560 seats."
+        },
+        {
+          "chunk_id": "dku-library-guide-202501::c001",
+          "doc_id": "dku-library-guide-202501",
+          "title": "Dku Library Guide 202501",
+          "score": 0.422556721344349,
+          "text": "s use swipe access. The guide lists 23 self and group study rooms and 560 seats.\n\n1st floor information desk in this brochure:\nMonday-Thursday: 09:00-21:00\nFriday: 09:00-17:30\nSaturday: 14:00-18:00\nSunday: 14:00-20:00\n\nThe Tea House is on the 3rd floor and connects to a sky garden. The Meditation Room is on the 4th floor (LIB4-16) and looks over the Academic Quad."
+        },
+        {
+          "chunk_id": "dku-library-guide-202501::c002",
+          "doc_id": "dku-library-guide-202501",
+          "title": "Dku Library Guide 202501",
+          "score": 0.39988528912335847,
+          "text": "Meditation Room is on the 4th floor (LIB4-16) and looks over the Academic Quad.\n\nSource: https://library.dukekunshan.edu.cn/wp-content/uploads/2025/01/Duke-Kunshan-University-Library-Guide-202501.pdf (January 2025 guide; retrieved 2026-09-10)"
+        },
+        {
+          "chunk_id": "duke-university-durham::c000",
+          "doc_id": "duke-university-durham",
+          "title": "Duke University Durham",
+          "score": 0.3957522095203661,
+          "text": "Duke University, Durham, North Carolina (not the Kunshan campus)\n\nDuke University's home campus is in Durham, North Carolina, United States, on nearly 9,000 acres. Duke traces its roots to 1838 and officially became Duke University in 1924. Duke enrolls more than 15,000 students in undergraduate, graduate, and professional programs."
+        },
+        {
+          "chunk_id": "conference-center::c001",
+          "doc_id": "conference-center",
+          "title": "Conference Center",
+          "score": 0.39545657485851027,
+          "text": "campus restaurant and a Family Mart in the Community Center are also mentioned.\n\nThis note does not list room rates, a weekday shuttle timetable, or Halal Dining meal times (those times are on the commencement dining note).\n\nSource: https://www.dukekunshan.edu.cn/conference-center/ (retrieved 2026-09-10)"
+        }
+      ],
+      "usage": {
+        "chat_calls": 2,
+        "embedding_calls": 0,
+        "prompt_tokens": 3120,
+        "completion_tokens": 91,
+        "embedding_tokens": 0,
+        "tokens_observed": true
+      }
+    },
+    {
+      "index": 2,
+      "action": "abstain",
+      "reason": "expand ended with insufficient evidence; abstain instead of answering",
+      "trigger": "judge",
+      "source": "policy",
+      "attributed_class": "evidence_insufficiency",
+      "outcome_note": "replaced the last answer with the abstention; no judge call",
+      "top_k": 12,
+      "retrieved_doc_ids": [
+        "duke-university-durham",
+        "dku-library-hours",
+        "registrar-fall-2026",
+        "wuhan-university",
+        "dku-library-hours",
+        "dku-library-handbook-2021",
+        "dku-library-handbook-2021",
+        "dku-library-guide-202501",
+        "dku-library-guide-202501",
+        "dku-library-guide-202501",
+        "duke-university-durham",
+        "conference-center"
+      ],
+      "verification": {
+        "outcome": "still_failing",
+        "rationale": "evidence stayed insufficient after recovery; the loop abstained instead of answering"
+      },
+      "answer": "I do not know based on the retrieved documents.",
+      "answer_model": "abstain",
+      "answer_relation": "abstained",
+      "evidence_relation": "unchanged",
+      "evaluation_source": "carried",
+      "executed": true,
+      "runtime_evaluation": {
+        "evidence_sufficient": false,
+        "answer_supported": null,
+        "sufficiency_rationale": "The retrieved evidence does not provide any specific hours for Perkins Library on Saturdays.",
+        "support_rationale": "The loop abstained, so there is no answer to support.",
+        "judge": "llm-judge",
+        "model": "gpt-4o-mini",
+        "span_rejections": []
+      },
+      "diagnosis": {
+        "failure_class": null,
+        "rationale": "Evidence was judged insufficient. retrieval_miss vs evidence_insufficiency is not diagnosed on the first pass.",
+        "detector": "first-pass-runtime"
+      },
+      "latency_ms": 0.19866600632667542
+    }
+  ],
+  "first_pass_evaluation": {
+    "evidence_sufficient": false,
+    "answer_supported": true,
+    "sufficiency_rationale": "The retrieved evidence does not provide specific hours for Perkins Library on Saturdays.",
+    "support_rationale": "The generated answer correctly states that the documents do not contain the Saturday hours for Perkins Library.",
+    "judge": "llm-judge",
+    "model": "gpt-4o-mini",
+    "span_rejections": []
+  },
+  "trace_schema_version": 2,
+  "run_mode": "loop",
+  "initial": {
+    "query": "What are Perkins Library Saturday hours at Duke University in Durham?",
+    "retrieved_chunks": [
+      {
+        "chunk_id": "duke-university-durham::c001",
+        "doc_id": "duke-university-durham",
+        "title": "Duke University Durham",
+        "score": 0.6908294833871085,
+        "text": "more than 15,000 students in undergraduate, graduate, and professional programs.\n\nDuke University Libraries (including Perkins and Bostock on West Campus) are in Durham. They are not the DKU Library at No. 8 Duke Avenue, Kunshan. This note does not list Perkins closing times, because those hours are not copied here.\n\nDKU is described on Duke's international activity list alongside Duke-NUS in Singapore."
+      },
+      {
+        "chunk_id": "dku-library-hours::c001",
+        "doc_id": "dku-library-hours",
+        "title": "Dku Library Hours",
+        "score": 0.5981178769114138,
+        "text": "aturday-Sunday: 14:00-21:00\n\nDVD and equipment loan: Monday-Friday, 09:00-17:30.\n\nContact:\n(+86) 0512-36658756 (Monday-Friday, 09:00-17:00)\ndkulibrary@dukekunshan.edu.cn\nNo. 8 Duke Avenue, Kunshan, Jiangsu Province, China 215316\n\nThis page is about the Kunshan campus library. It is not Duke University Libraries in Durham, North Carolina.\n\nSource: https://library.dukekunshan.edu.cn/locations-hours/ (retrieved 2026-09-10)"
+      },
+      {
+        "chunk_id": "registrar-fall-2026::c002",
+        "doc_id": "registrar-fall-2026",
+        "title": "Registrar Fall 2026",
+        "score": 0.5633369414568004,
+        "text": "at 13:00.\n\nHoliday hours for the library are not listed on this registrar page.\n\nSource: https://registrar.dukekunshan.edu.cn/academic-calendar/ (retrieved 2026-09-10)"
+      },
+      {
+        "chunk_id": "wuhan-university::c001",
+        "doc_id": "wuhan-university",
+        "title": "Wuhan University",
+        "score": 0.5440304811946773,
+        "text": "not list DKU class dates, DKU library hours, or Wuhan University library hours.\n\nSource: https://www.dukekunshan.edu.cn/about/welcome-to-duke-kunshan-university/ (retrieved 2026-09-10)"
+      }
+    ],
+    "answer": "I do not know the Saturday hours for Perkins Library at Duke University in Durham based on the retrieved documents.",
+    "model": "gpt-4o-mini",
+    "top_k": 4,
+    "runtime_evaluation": {
+      "evidence_sufficient": false,
+      "answer_supported": true,
+      "sufficiency_rationale": "The retrieved evidence does not provide specific hours for Perkins Library on Saturdays.",
+      "support_rationale": "The generated answer correctly states that the documents do not contain the Saturday hours for Perkins Library.",
+      "judge": "llm-judge",
+      "model": "gpt-4o-mini",
+      "span_rejections": []
+    },
+    "retrieval_signal": {
+      "top_score": 0.6908294833871085,
+      "runner_up_score": 0.5981178769114138,
+      "relative_margin": 0.13420331457356666,
+      "weak_top": false,
+      "ambiguous_top": false,
+      "reason": "retrieval looks healthy",
+      "detector": "retrieval-score"
+    },
+    "diagnosis": {
+      "failure_class": null,
+      "rationale": "Evidence was judged insufficient. retrieval_miss vs evidence_insufficiency is not diagnosed on the first pass.",
+      "detector": "first-pass-runtime"
+    },
+    "latency_ms": 12824.247624987038
+  },
+  "usage": {
+    "chat_calls": 6,
+    "embedding_calls": 2,
+    "prompt_tokens": 5749,
+    "completion_tokens": 243,
+    "embedding_tokens": 29,
+    "tokens_observed": true
+  },
+  "recovery_policy": "v1",
+  "stage_timings": [
+    {
+      "stage": "retrieve",
+      "attempt": null,
+      "top_k": 4,
+      "started_ms": 2.7,
+      "duration_ms": 3114.7,
+      "status": "ok"
+    },
+    {
+      "stage": "generate",
+      "attempt": null,
+      "started_ms": 3117.5,
+      "duration_ms": 5855.1,
+      "status": "ok"
+    },
+    {
+      "stage": "judge",
+      "attempt": null,
+      "started_ms": 8972.7,
+      "duration_ms": 3853.7,
+      "status": "ok"
+    },
+    {
+      "stage": "diagnose",
+      "attempt": null,
+      "started_ms": 12826.5,
+      "duration_ms": 0.0,
+      "status": "ok"
+    },
+    {
+      "stage": "retrieve",
+      "attempt": 0,
+      "top_k": 4,
+      "started_ms": 17002.0,
+      "duration_ms": 5539.9,
+      "status": "ok"
+    },
+    {
+      "stage": "judge",
+      "attempt": 0,
+      "started_ms": 22542.0,
+      "duration_ms": 5997.5,
+      "status": "ok"
+    },
+    {
+      "stage": "diagnose",
+      "attempt": 0,
+      "started_ms": 28539.6,
+      "duration_ms": 0.2,
+      "status": "ok"
+    },
+    {
+      "stage": "recover",
+      "attempt": 0,
+      "action": "rewrite",
+      "started_ms": 12827.0,
+      "duration_ms": 15713.4,
+      "status": "ok"
+    },
+    {
+      "stage": "retrieve",
+      "attempt": 1,
+      "top_k": 12,
+      "started_ms": 28541.0,
+      "duration_ms": 17.9,
+      "status": "ok"
+    },
+    {
+      "stage": "generate",
+      "attempt": 1,
+      "started_ms": 28558.9,
+      "duration_ms": 4248.8,
+      "status": "ok"
+    },
+    {
+      "stage": "judge",
+      "attempt": 1,
+      "started_ms": 32807.8,
+      "duration_ms": 4094.3,
+      "status": "ok"
+    },
+    {
+      "stage": "diagnose",
+      "attempt": 1,
+      "started_ms": 36902.2,
+      "duration_ms": 0.1,
+      "status": "ok"
+    },
+    {
+      "stage": "recover",
+      "attempt": 1,
+      "action": "expand",
+      "started_ms": 28541.0,
+      "duration_ms": 8361.6,
+      "status": "ok"
+    },
+    {
+      "stage": "recover",
+      "attempt": 2,
+      "action": "abstain",
+      "started_ms": 36903.0,
+      "duration_ms": 0.2,
+      "status": "ok"
+    },
+    {
+      "stage": "verify",
+      "attempt": null,
+      "started_ms": 36903.3,
+      "duration_ms": 0.0,
+      "status": "ok"
+    }
+  ]
+}

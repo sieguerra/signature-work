@@ -1,0 +1,34 @@
+{
+  "run_id": "20260916T194905_ca7844c8",
+  "timestamp": "2026-09-16T19:49:05.211279+00:00",
+  "query": "How many seats does the DKU Library list?",
+  "retrieved_chunks": [
+    {
+      "chunk_id": "wuhan-university::c001",
+      "doc_id": "wuhan-university",
+      "title": "Wuhan University",
+      "score": 0.314970394174356,
+      "text": "not list DKU class dates, DKU library hours, or Wuhan University library hours.\n\nSource: https://www.dukekunshan.edu.cn/about/welcome-to-duke-kunshan-university/ (retrieved 2026-09-10)"
+    }
+  ],
+  "answer": "",
+  "model": "none",
+  "embedding_model": "fake-hash",
+  "top_k": 1,
+  "provider": {
+    "official_openai": false,
+    "configured_chat_model": "gpt-4o-mini",
+    "configured_embedding_model": "text-embedding-3-small",
+    "api_key_present": true
+  },
+  "question_id": null,
+  "runtime_evaluation": null,
+  "diagnosis": null,
+  "recovery": null,
+  "verification": null,
+  "previous_answer": null,
+  "rewritten_query": null,
+  "previous_retrieved_chunks": null,
+  "recovery_status": null,
+  "parent_run_id": null
+}

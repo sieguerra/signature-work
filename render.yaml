@@ -1,0 +1,31 @@
+# Groundloop live public demo on Render's free plan (no credit card).
+# Render reads this file when you choose New > Blueprint and pick this repo.
+# See docs/deploy.md for the steps and what the free plan does and does not do.
+services:
+  - type: web
+    name: groundloop
+    runtime: python
+    plan: free
+    buildCommand: pip install -e .
+    startCommand: python scripts/run_ui.py
+    healthCheckPath: /api/meta
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      - key: HOST
+        value: 0.0.0.0
+      # Public demo mode: pinned system, read-only data, capped live runs.
+      - key: GROUNDLOOP_DEMO
+        value: "1"
+      - key: GROUNDLOOP_DAILY_RUNS
+        value: "25"
+      - key: GROUNDLOOP_SYSTEM
+        value: dku
+      - key: GROUNDLOOP_TRACES_ROOT
+        value: demo/traces
+      # Set these in the Render dashboard, never in this file. Leave
+      # OPENAI_API_KEY empty for a browse-only demo that costs nothing.
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_BASE_URL
+        sync: false

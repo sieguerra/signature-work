@@ -1,0 +1,48 @@
+{
+  "run_id": "20260921T041047_0b90c9ad",
+  "timestamp": "2026-09-21T04:10:47.798470+00:00",
+  "query": "What is the street address of the DKU Library?",
+  "retrieved_chunks": [
+    {
+      "chunk_id": "wuhan-university::c001",
+      "doc_id": "wuhan-university",
+      "title": "Wuhan University",
+      "score": 0.29814239699997197,
+      "text": "not list DKU class dates, DKU library hours, or Wuhan University library hours.\n\nSource: https://www.dukekunshan.edu.cn/about/welcome-to-duke-kunshan-university/ (retrieved 2026-09-10)"
+    }
+  ],
+  "answer": "",
+  "model": "none",
+  "embedding_model": "fake-hash",
+  "top_k": 1,
+  "provider": {
+    "official_openai": false,
+    "configured_chat_model": "gpt-4o-mini",
+    "configured_embedding_model": "text-embedding-3-small",
+    "api_key_present": true
+  },
+  "question_id": null,
+  "runtime_evaluation": null,
+  "diagnosis": null,
+  "recovery": null,
+  "verification": null,
+  "previous_answer": null,
+  "rewritten_query": null,
+  "previous_retrieved_chunks": null,
+  "recovery_status": null,
+  "parent_run_id": null,
+  "latency_ms": 24.125833999278257,
+  "probe_evaluation": null,
+  "retrieval_signal": {
+    "top_score": 0.29814239699997197,
+    "runner_up_score": null,
+    "relative_margin": null,
+    "weak_top": false,
+    "ambiguous_top": false,
+    "reason": "retrieval looks healthy",
+    "detector": "retrieval-score"
+  },
+  "agent_config": null,
+  "recovery_attempts": null,
+  "first_pass_evaluation": null
+}

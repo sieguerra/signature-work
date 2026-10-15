@@ -1,0 +1,87 @@
+{
+  "run_id": "20260921T091118_70e6430e",
+  "timestamp": "2026-09-21T09:11:18.234785+00:00",
+  "query": "When is the DKU library information desk open on Saturday?",
+  "retrieved_chunks": [
+    {
+      "chunk_id": "dku-library-hours::c000",
+      "doc_id": "dku-library-hours",
+      "title": "Dku Library Hours",
+      "score": 0.749274783900863,
+      "text": "DKU Library — current locations and hours\n\nThese hours are the current regular schedule published on the DKU Library website. Holiday hours are announced separately and are not listed here.\n\nLibrary building: 08:00-23:00, Monday through Sunday.\n\n1st floor information desk:\nMonday-Friday: 09:00-21:00\nSaturday-Sunday: 14:00-21:00\n\nDVD and equipment loan: Monday-Friday, 09:00-17:30."
+    },
+    {
+      "chunk_id": "dku-library-guide-202501::c000",
+      "doc_id": "dku-library-guide-202501",
+      "title": "Dku Library Guide 202501",
+      "score": 0.6638824445249687,
+      "text": "DKU Library Guide (January 2025 brochure)\n\nThis document copies service hours and space facts from the January 2025 DKU Library Guide PDF. Where it disagrees with the later Locations & Hours website, treat the website as current and this brochure as dated January 2025.\n\nLibrary building: Monday-Sunday 08:00-23:00. Side gates use swipe access. The guide lists 23 self and group study rooms and 560 seats."
+    },
+    {
+      "chunk_id": "dku-library-hours::c001",
+      "doc_id": "dku-library-hours",
+      "title": "Dku Library Hours",
+      "score": 0.5922685357065594,
+      "text": "aturday-Sunday: 14:00-21:00\n\nDVD and equipment loan: Monday-Friday, 09:00-17:30.\n\nContact:\n(+86) 0512-36658756 (Monday-Friday, 09:00-17:00)\ndkulibrary@dukekunshan.edu.cn\nNo. 8 Duke Avenue, Kunshan, Jiangsu Province, China 215316\n\nThis page is about the Kunshan campus library. It is not Duke University Libraries in Durham, North Carolina.\n\nSource: https://library.dukekunshan.edu.cn/locations-hours/ (retrieved 2026-09-10)"
+    },
+    {
+      "chunk_id": "wuhan-university::c001",
+      "doc_id": "wuhan-university",
+      "title": "Wuhan University",
+      "score": 0.5842558540611916,
+      "text": "not list DKU class dates, DKU library hours, or Wuhan University library hours.\n\nSource: https://www.dukekunshan.edu.cn/about/welcome-to-duke-kunshan-university/ (retrieved 2026-09-10)"
+    }
+  ],
+  "answer": "The DKU library information desk is open on Saturday from 14:00 to 21:00 [dku-library-hours::c000].",
+  "model": "gpt-4o-mini",
+  "embedding_model": "text-embedding-3-small",
+  "top_k": 4,
+  "provider": {
+    "official_openai": false,
+    "configured_chat_model": "gpt-4o-mini",
+    "configured_embedding_model": "text-embedding-3-small",
+    "api_key_present": true
+  },
+  "question_id": null,
+  "runtime_evaluation": {
+    "evidence_sufficient": true,
+    "answer_supported": true,
+    "sufficiency_rationale": "The evidence provides the specific hours for the information desk on Saturday.",
+    "support_rationale": "The generated answer accurately reflects the hours stated in the evidence.",
+    "judge": "llm-judge",
+    "model": "gpt-4o-mini"
+  },
+  "diagnosis": {
+    "failure_class": null,
+    "rationale": "Evidence was sufficient and the answer was supported.",
+    "detector": "first-pass-runtime"
+  },
+  "recovery": {
+    "action": "accept",
+    "reason": "no first-pass failure to recover from",
+    "attributed_class": null,
+    "source": "policy",
+    "outcome_note": "",
+    "trigger": ""
+  },
+  "verification": null,
+  "previous_answer": null,
+  "rewritten_query": null,
+  "previous_retrieved_chunks": null,
+  "recovery_status": "applied",
+  "parent_run_id": null,
+  "latency_ms": 4817.660958004126,
+  "probe_evaluation": null,
+  "retrieval_signal": {
+    "top_score": 0.749274783900863,
+    "runner_up_score": 0.6638824445249687,
+    "relative_margin": 0.11396665310331945,
+    "weak_top": false,
+    "ambiguous_top": false,
+    "reason": "retrieval looks healthy",
+    "detector": "retrieval-score"
+  },
+  "agent_config": null,
+  "recovery_attempts": null,
+  "first_pass_evaluation": null
+}

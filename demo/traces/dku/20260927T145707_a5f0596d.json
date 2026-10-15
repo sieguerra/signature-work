@@ -1,0 +1,87 @@
+{
+  "run_id": "20260927T145707_a5f0596d",
+  "timestamp": "2026-09-27T14:57:07.906641+00:00",
+  "query": "How many seats does the DKU Library list?",
+  "retrieved_chunks": [
+    {
+      "chunk_id": "dku-library-guide-202501::c000",
+      "doc_id": "dku-library-guide-202501",
+      "title": "Dku Library Guide 202501",
+      "score": 0.642643443260261,
+      "text": "DKU Library Guide (January 2025 brochure)\n\nThis document copies service hours and space facts from the January 2025 DKU Library Guide PDF. Where it disagrees with the later Locations & Hours website, treat the website as current and this brochure as dated January 2025.\n\nLibrary building: Monday-Sunday 08:00-23:00. Side gates use swipe access. The guide lists 23 self and group study rooms and 560 seats."
+    },
+    {
+      "chunk_id": "dku-library-handbook-2021::c001",
+      "doc_id": "dku-library-handbook-2021",
+      "title": "Dku Library Handbook 2021",
+      "score": 0.5938007301059259,
+      "text": "as historical text. It does not describe the current dedicated library building.\n\nIn this 2021 handbook, the DKU Library is described as occupying two rooms on the first and second floor of the Academic Building. The listed phone number is (0512) 3665-7027. The listed email is dkulibrary@dukekunshan.edu.cn. The handbook also mentions a joint service relationship with Duke University Libraries (DUL)."
+    },
+    {
+      "chunk_id": "dku-library-hours::c000",
+      "doc_id": "dku-library-hours",
+      "title": "Dku Library Hours",
+      "score": 0.5801711514297196,
+      "text": "DKU Library — current locations and hours\n\nThese hours are the current regular schedule published on the DKU Library website. Holiday hours are announced separately and are not listed here.\n\nLibrary building: 08:00-23:00, Monday through Sunday.\n\n1st floor information desk:\nMonday-Friday: 09:00-21:00\nSaturday-Sunday: 14:00-21:00\n\nDVD and equipment loan: Monday-Friday, 09:00-17:30."
+    },
+    {
+      "chunk_id": "duke-university-durham::c001",
+      "doc_id": "duke-university-durham",
+      "title": "Duke University Durham",
+      "score": 0.550425190184693,
+      "text": "more than 15,000 students in undergraduate, graduate, and professional programs.\n\nDuke University Libraries (including Perkins and Bostock on West Campus) are in Durham. They are not the DKU Library at No. 8 Duke Avenue, Kunshan. This note does not list Perkins closing times, because those hours are not copied here.\n\nDKU is described on Duke's international activity list alongside Duke-NUS in Singapore."
+    }
+  ],
+  "answer": "The DKU Library lists 560 seats [dku-library-guide-202501::c000].",
+  "model": "gpt-4o-mini",
+  "embedding_model": "text-embedding-3-small",
+  "top_k": 4,
+  "provider": {
+    "official_openai": false,
+    "configured_chat_model": "gpt-4o-mini",
+    "configured_embedding_model": "text-embedding-3-small",
+    "api_key_present": true
+  },
+  "question_id": null,
+  "runtime_evaluation": {
+    "evidence_sufficient": true,
+    "answer_supported": true,
+    "sufficiency_rationale": "The evidence explicitly states that the DKU Library has 560 seats.",
+    "support_rationale": "",
+    "judge": "llm-judge",
+    "model": "gpt-4o-mini"
+  },
+  "diagnosis": {
+    "failure_class": null,
+    "rationale": "Evidence was sufficient and the answer was supported.",
+    "detector": "first-pass-runtime"
+  },
+  "recovery": {
+    "action": "accept",
+    "reason": "no first-pass failure to recover from",
+    "attributed_class": null,
+    "source": "policy",
+    "outcome_note": "",
+    "trigger": ""
+  },
+  "verification": null,
+  "previous_answer": null,
+  "rewritten_query": null,
+  "previous_retrieved_chunks": null,
+  "recovery_status": "applied",
+  "parent_run_id": null,
+  "latency_ms": 11584.572583000408,
+  "probe_evaluation": null,
+  "retrieval_signal": {
+    "top_score": 0.642643443260261,
+    "runner_up_score": 0.5938007301059259,
+    "relative_margin": 0.07600281877388503,
+    "weak_top": false,
+    "ambiguous_top": false,
+    "reason": "retrieval looks healthy",
+    "detector": "retrieval-score"
+  },
+  "agent_config": null,
+  "recovery_attempts": null,
+  "first_pass_evaluation": null
+}
