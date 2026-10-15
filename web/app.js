@@ -217,7 +217,7 @@ function renderShell() {
     const count = state.logicalRuns.length ? state.logicalRuns.length : state.traces.length;
     runs.textContent = count ? String(count) : "";
   }
-  document.title = `${VIEW_TITLES[state.view] || "Groundloop"} · ${label} · Groundloop`;
+  document.title = `${VIEW_TITLES[state.view] || "GroundLoop"} · ${label} · GroundLoop`;
 }
 
 function renderRunState() {

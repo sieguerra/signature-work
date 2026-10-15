@@ -166,7 +166,7 @@ def create_app(
     demo = demo_enabled()
     # A public deployment does not publish its route list.
     hidden = {"docs_url": None, "redoc_url": None, "openapi_url": None} if demo else {}
-    application = FastAPI(title="Groundloop", lifespan=lifespan, **hidden)
+    application = FastAPI(title="GroundLoop", lifespan=lifespan, **hidden)
     application.state.demo = demo
     application.state.run_budget = RunBudget.from_env()
 

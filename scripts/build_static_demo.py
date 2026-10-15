@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build a static, read-only snapshot of the Groundloop console.
+"""Build a static, read-only snapshot of the GroundLoop console.
 
 The snapshot is plain files (HTML, CSS, JS, and JSON copies of the API
 responses for one system), so it can be served by any free static host such

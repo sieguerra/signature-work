@@ -1,6 +1,6 @@
 # Signature Work
 
-**Groundloop** is the product name of this software (the Python package is still `swrag`): agentic RAG that checks its own answers. To share it, see [docs/deploy.md](docs/deploy.md).
+**GroundLoop** is the product name of this software (the Python package is still `swrag`): agentic RAG that checks its own answers. To share it, see [docs/deploy.md](docs/deploy.md).
 
 Software for **evaluation-guided Agentic RAG**: the system answers a question, evaluates the result, diagnoses a failure, recovers, and verifies whether recovery helped.
 

@@ -1,4 +1,4 @@
-# Groundloop live public demo on Render's free plan (no credit card).
+# GroundLoop live public demo on Render's free plan (no credit card).
 # Render reads this file when you choose New > Blueprint and pick this repo.
 # See docs/deploy.md for the steps and what the free plan does and does not do.
 services:
