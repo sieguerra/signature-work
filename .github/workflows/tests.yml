@@ -42,3 +42,22 @@ jobs:
         env:
           OPENAI_API_KEY: ""
         run: pytest -q
+
+  # The console's pure logic (flight recorder, reliability filters, theme,
+  # agent config) has node:test suites next to the files in web/. No npm
+  # install: they use only the Node standard library.
+  web:
+    name: web (node 20)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Check scripts parse
+        run: for f in web/*.js; do node --check "$f"; done
+
+      - name: Run tests
+        run: node --test web/*.test.js
