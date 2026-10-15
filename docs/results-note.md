@@ -121,3 +121,27 @@ rank agreement and explain the unanswerable cell as a vocabulary difference.
   on 2026-10-15 under #142, after these answers were generated.
 - Every table here is one run per configuration. There are no repeated
   seeds and no confidence intervals.
+
+## Depth sweep (added 2026-10-16)
+
+`experiments/rescored/v5-sweep-20261015/summary.md` summarizes nine live
+runs (`20261015-v5-<collection>-r<1,2,3>`, commit `b125064`). Each runs
+baseline and loop at top_k 1, 2 and 4, plus a plain baseline at top_k 8.
+
+Contains-answer rate, mean of three repeats:
+
+| | base k1 | loop k1 | base k2 | loop k2 | base k4 | loop k4 | base k8 |
+|:--|:--|:--|:--|:--|:--|:--|:--|
+| Harbor | 0.870 | 1.000 | 0.913 | 0.986 | 1.000 | 1.000 | 1.000 |
+| DKU | 0.809 | 0.966 | 0.933 | 1.000 | 0.966 | 1.000 | 1.000 |
+| Kestrel | 0.917 | 1.000 | 1.000 | 1.000 | 1.000 | 1.000 | 1.000 |
+
+- Across the 27 loop runs, the loop fixed 49 questions and broke 6 relative
+  to the same-depth baseline.
+- Of those 6, five are correct premise rejections the phrase lists miss, and
+  one is real (seed-007 at k2).
+- The k8 baseline costs 39 to 47 percent of the loop at k1.
+- The rank-rule verdict agrees on 59 of 73 answerable recoveries.
+- The gold-029 relabelling case is described in #164.
+- One run dropped dku-020 after an API timeout.
+

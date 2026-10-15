@@ -451,3 +451,32 @@ How I verified the result:
 `experiments/results/` are untouched; the 2026-10-15 reruns are new folders.
 The second reviewer for #107 has to be a person and is still open.
 
+---
+
+### 2026-10-16
+
+Tool: Claude Code (Claude Opus)
+
+Purpose: Harder benchmark, cost-matched baseline, wrong-source check, paper revision
+
+What AI assisted with:
+Added the wrong-source and provenance checks (#163, #164), per-condition
+retrieval depth, the v5 depth sweep configs, and the sweep summary script.
+Ran the sweep three times per collection (#165) and rescored earlier runs
+(#166). Revised `paper/signature-work.tex` (abstract, methods, results,
+discussion, conclusions) from those folders.
+
+Important suggestions produced:
+Compare the loop with a plain top_k 8 baseline; report fixed and broken
+counts per repeat; disclose the gold-029 relabelling as a false repair.
+
+What I independently decided or changed:
+I asked Claude to do this work and draft the paper revision. I still need to
+check every number against its folder, own the discussion and conclusions,
+and write the Signature Work narrative myself.
+
+How I verified the result:
+`pytest` and CI on every PR. Each paper figure is copied from
+`experiments/rescored/v5-sweep-20261015/summary.json` or a named rescore
+folder.
+
