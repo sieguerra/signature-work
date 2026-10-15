@@ -224,3 +224,122 @@ def test_model_clients_have_a_timeout(monkeypatch: pytest.MonkeyPatch) -> None:
     assert client.timeout == 60.0 and client.max_retries == DEFAULT_MAX_RETRIES
     monkeypatch.setenv("SWRAG_OPENAI_TIMEOUT", "15")
     assert openai_client(None).timeout == 15.0
+
+
+# --- #139: gap-aware stops and confirm mode -------------------------------
+
+def _conflict_corpus(tmp_path: Path) -> Path:
+    corpus = tmp_path / "conflict"
+    corpus.mkdir()
+    (corpus / "amber-2024.txt").write_text(
+        "Line Amber Sunday headway 2024\n\nWhat is Line Amber's Sunday headway? "
+        "Line Amber Sunday headway is 20 minutes according to the 2024 timetable.\n",
+        encoding="utf-8",
+    )
+    (corpus / "amber-2025.txt").write_text(
+        "Line Amber timetable 2025\n\nLine Amber Sunday headway is 15 minutes according to the 2025 timetable.\n",
+        encoding="utf-8",
+    )
+    return corpus
+
+
+class _Amber:
+    def generate(self, query: str, retrieval: RetrievalResult) -> GenerationResult:
+        del query, retrieval
+        return GenerationResult(answer="Line Amber runs every 20 minutes on Sunday.", model="scripted")
+
+
+AMBER = "What is Line Amber's Sunday headway?"
+
+
+def _gap_run(tmp_path: Path, *, budget: int) -> dict:
+    corpus = _conflict_corpus(tmp_path)
+    result = run_with_recovery(
+        AMBER,
+        corpus_dir=corpus,
+        output_dir=tmp_path / "out",
+        embedder=FakeEmbedder(),
+        generator=_Amber(),  # type: ignore[arg-type]
+        judge=_Judge(_eval(True, True)),
+        recovery_policy="gap_aware",
+        max_recoveries=budget,
+    )
+    return json.loads(result.trace_path.read_text(encoding="utf-8"))
+
+
+def test_a_first_pass_conflict_stop_keeps_the_original_answer_in_the_trace(tmp_path: Path) -> None:
+    trace = _gap_run(tmp_path, budget=1)
+    assert trace["recovery"]["action"] == "abstain"
+    assert trace["previous_answer"] == "Line Amber runs every 20 minutes on Sunday."
+    assert trace["initial"]["answer"] == trace["previous_answer"]
+    assert trace["first_pass_evaluation"]["answer_supported"] is True
+    assert [item["action"] for item in trace["recovery_attempts"]] == ["abstain"]
+    assert trace["verification"]["outcome"] == STILL_FAILING
+
+
+def test_a_first_pass_conflict_stop_respects_a_zero_budget(tmp_path: Path) -> None:
+    trace = _gap_run(tmp_path, budget=0)
+    assert trace["recovery"]["action"] == "accept"
+    assert trace["answer"] == "Line Amber runs every 20 minutes on Sunday."
+
+
+def test_confirm_mode_proposes_the_same_conflict_stop(tmp_path: Path) -> None:
+    from swrag.orchestration.loop import run_first_pass
+
+    corpus = _conflict_corpus(tmp_path)
+    result = run_first_pass(
+        AMBER,
+        corpus_dir=corpus,
+        output_dir=tmp_path / "out",
+        embedder=FakeEmbedder(),
+        generator=_Amber(),  # type: ignore[arg-type]
+        judge=_Judge(_eval(True, True)),
+        recovery_policy="gap_aware",
+    )
+    trace = json.loads(result.trace_path.read_text(encoding="utf-8"))
+    assert trace["recovery"]["action"] == "abstain"
+    assert trace["recovery_status"] == "proposed"
+
+
+def test_confirm_mode_finishes_like_auto_mode(tmp_path: Path) -> None:
+    from swrag.orchestration.loop import apply_recovery, run_first_pass
+
+    answers = _Answers("unsupported first", "regenerated with 99:99")
+    parent = run_first_pass(
+        QUESTION,
+        corpus_dir=CORPUS,
+        output_dir=tmp_path,
+        embedder=FakeEmbedder(),
+        generator=answers,  # type: ignore[arg-type]
+        judge=_Judge(_eval(True, False)),
+    )
+    child = apply_recovery(
+        parent.run_id,
+        output_dir=tmp_path,
+        corpus_dir=CORPUS,
+        embedder=FakeEmbedder(),
+        generator=answers,  # type: ignore[arg-type]
+        regenerator=answers,
+        judge=_Judge(_eval(True, False, ("99:99",))),
+    )
+    trace = json.loads(child.trace_path.read_text(encoding="utf-8"))
+    assert [item["action"] for item in trace["recovery_attempts"]] == ["regenerate", "abstain"]
+    assert trace["answer"].startswith("I do not know")
+    assert trace["verification"]["outcome"] == STILL_FAILING
+    assert trace["previous_answer"] == "unsupported first"
+
+
+def test_external_evaluations_without_scores_do_not_propose_expand() -> None:
+    """#147: missing scores are not weak retrieval."""
+    from swrag.api.external import query_state_from_external
+    from swrag.recovery.policy import select_recovery
+
+    state = query_state_from_external(
+        query="When does the desk open?",
+        answer="It opens at 9.",
+        contexts=[{"text": "The desk opens at 9.", "score": None}],
+        judge=_Judge(_eval(True, True)),
+    )
+    assert state.retrieval_signal is None
+    decision = select_recovery(state.diagnosis, state.runtime_evaluation, state.retrieval_signal)
+    assert decision.action == "accept"

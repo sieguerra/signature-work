@@ -144,7 +144,13 @@ def query_state_from_external(
         generation=generation,
         runtime_evaluation=evaluation,
         diagnosis=diagnosis,
-        retrieval_signal=retrieval_signal(retrieval),
+        # Scores are optional on this endpoint. Without any, a missing score
+        # would read as 0.0 and always look like weak retrieval (#147).
+        retrieval_signal=(
+            retrieval_signal(retrieval)
+            if any(item.get("score") is not None for item in contexts)
+            else None
+        ),
     )
 
 
