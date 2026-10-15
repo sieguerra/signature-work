@@ -203,6 +203,11 @@ def build_comparison(
     )
 
     loop_outcomes = summaries[loop_id].outcomes if loop_id is not None else ()
+    baseline_id = next(
+        (str(item["id"]) for item in config["conditions"] if item["mode"] != MODE_LOOP),
+        None,
+    )
+    baseline_outcomes = summaries[baseline_id].outcomes if baseline_id is not None else ()
     return {
         "name": config.get("name"),
         "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -222,6 +227,7 @@ def build_comparison(
         "quality": quality,
         "verification_vs_gold": verification,
         "by_failure_class": _by_failure_class(loop_outcomes),
+        "by_gold_class": by_gold_class(baseline_outcomes, loop_outcomes),
         "conditions": {
             condition_id: _summary_without_outcomes(summaries[condition_id])
             for condition_id in condition_ids
@@ -352,7 +358,47 @@ def _verification_table(outcomes: tuple[QuestionOutcome, ...]) -> dict[str, Any]
         "by_runtime_outcome": by_outcome,
         "by_recovery_action": by_action,
         "by_attributed_class": by_class,
+        "rank_rule": rank_rule_agreement(recovered),
     }
+
+
+def rank_rule_agreement(outcomes: tuple[QuestionOutcome, ...] | list[QuestionOutcome]) -> dict[str, Any]:
+    """Runtime verdict vs the gold rank transition (issue #132).
+
+    ``verification/v2/gold_transition.py`` ranks each answer correct,
+    abstained-on-answerable, or wrong, and labels before -> after as improved,
+    degraded, unchanged (correct both times), or still_failing (wrong both
+    times). Unlike the F1-sign rule above, a correct abstention kept correct
+    is "unchanged", and a paraphrase that moves F1 a little inside the same
+    rank does not count as a disagreement. Reported next to, not instead of,
+    the F1-sign counts; which one a write-up uses is the author's choice.
+
+    Read the unanswerable split with care: the runtime calls a kept abstention
+    on a corpus gap ``still_failing`` (the evidence is still missing), while
+    the rank rule calls it ``unchanged`` (correct before and after). That is a
+    vocabulary difference, not a wrong verdict; ``runtime_vs_gold_transition``
+    shows it as the still_failing -> unchanged cell.
+    """
+    from swrag.verification.v2.gold_transition import transition_label
+
+    def _empty() -> dict[str, Any]:
+        return {"n": 0, "agrees": 0, "disagrees": 0}
+
+    overall = _empty()
+    split = {"answerable": _empty(), "unanswerable": _empty()}
+    confusion: dict[str, dict[str, int]] = {}
+    for item in outcomes:
+        if item.previous_score is None or item.verification_outcome is None:
+            continue
+        gold = transition_label(item.previous_score, item.score)
+        runtime = item.verification_outcome
+        confusion.setdefault(runtime, {}).setdefault(gold, 0)
+        confusion[runtime][gold] += 1
+        hit = runtime == gold
+        for row in (overall, split["answerable" if item.answerable else "unanswerable"]):
+            row["n"] += 1
+            row["agrees" if hit else "disagrees"] += 1
+    return {**overall, "by_answerability": split, "runtime_vs_gold_transition": confusion}
 
 
 def _verdict_agrees(outcome: str | None, f1_delta: float) -> bool:
@@ -405,6 +451,65 @@ def _by_failure_class(outcomes: tuple[QuestionOutcome, ...]) -> dict[str, Any]:
                 sum(item.score.f1 for item in answerable) / len(answerable) if answerable else None
             ),
             "verification_counts": verification,
+        }
+    return report
+
+
+def gold_class(item: QuestionOutcome) -> str:
+    """ADR 005's offline failure class for one first-pass (baseline) outcome.
+
+    Unanswerable questions are evidence_insufficiency (corpus gap). For
+    answerable ones: a correct answer is no_failure; otherwise a missed
+    supporting document is retrieval_miss, and a retrieved one with a wrong
+    answer is unsupported_generation. An abstention on an answerable question
+    with the document retrieved also counts as unsupported_generation.
+    """
+    if not item.answerable:
+        return "evidence_insufficiency"
+    if item.score.contains_answer and not item.score.abstained:
+        return "no_failure"
+    if item.supporting_doc_ids and not item.retrieval_hit:
+        return "retrieval_miss"
+    return "unsupported_generation"
+
+
+def by_gold_class(
+    baseline: tuple[QuestionOutcome, ...] | list[QuestionOutcome],
+    loop: tuple[QuestionOutcome, ...] | list[QuestionOutcome],
+) -> dict[str, Any]:
+    """Baseline vs loop per offline gold class, plus the runtime's attribution (#146).
+
+    The gold class comes from the baseline outcome, which is the loop's first
+    pass. This credits a recovery against the class it should repair (ADR 002)
+    and shows where the runtime attribution disagrees with gold.
+    """
+    loop_by_id = {item.question_id: item for item in loop}
+    groups: dict[str, list[tuple[QuestionOutcome, QuestionOutcome]]] = {}
+    for first in baseline:
+        after = loop_by_id.get(first.question_id)
+        if after is not None:
+            groups.setdefault(gold_class(first), []).append((first, after))
+
+    def _rate(values: list[bool]) -> float | None:
+        return sum(values) / len(values) if values else None
+
+    report: dict[str, Any] = {}
+    for key, pairs in sorted(groups.items()):
+        answerable = [pair for pair in pairs if pair[0].answerable]
+        unanswerable = [pair for pair in pairs if not pair[0].answerable]
+        attributed: dict[str, int] = {}
+        for _, after in pairs:
+            name = after.attributed_class or ("no_recovery" if after.recovery_action in (None, "accept") else "unattributed")
+            attributed[name] = attributed.get(name, 0) + 1
+        report[key] = {
+            "n": len(pairs),
+            "answerable_n": len(answerable),
+            "unanswerable_n": len(unanswerable),
+            "baseline_contains_answer": _rate([b.score.contains_answer for b, _ in answerable]),
+            "loop_contains_answer": _rate([a.score.contains_answer for _, a in answerable]),
+            "baseline_unanswerable_abstention": _rate([b.score.abstained for b, _ in unanswerable]),
+            "loop_unanswerable_abstention": _rate([a.score.abstained for _, a in unanswerable]),
+            "runtime_attribution": attributed,
         }
     return report
 
