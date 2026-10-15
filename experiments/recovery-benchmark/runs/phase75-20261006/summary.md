@@ -2,7 +2,7 @@
 
 One reviewer (`reviewer-1`). Labels were not edited after scoring.
 
-60 of 60 triggered runs are labeled. The 40 runs that did not recover were not labeled. 19 triggered before-states are unclear and are left out of the rates below. No second reviewer. The 39-question future holdout was not used.
+60 of 60 triggered runs are labeled. The 40-run non-trigger sample was labeled later by the same reviewer (see Non-trigger sample below). 19 triggered before-states are unclear and are left out of the rates below. No second reviewer. The 39-question future holdout was not used.
 
 ## Decided triggered runs (41)
 
