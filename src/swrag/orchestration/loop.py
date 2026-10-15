@@ -63,6 +63,7 @@ from swrag.recovery.policy import (
     EXPAND,
     REGENERATE,
     REWRITE,
+    still_unsupported,
     normalize_policy,
     select_next_recovery,
     select_recovery,
@@ -295,7 +296,9 @@ def run_with_recovery(
         overall = None
         if first_eval is not None and state.runtime_evaluation is not None:
             overall = verify_runtime(first_eval, state.runtime_evaluation)
-            if overall.outcome == IMPROVED:
+            # Sufficient evidence alone is not a repair: an answer the judge or
+            # the span check rejected still needs the next recovery (#134).
+            if overall.outcome == IMPROVED and not still_unsupported(state.runtime_evaluation):
                 break
 
         if len(attempts) >= max_recoveries:
@@ -356,6 +359,10 @@ def run_with_recovery(
                 or state.runtime_evaluation.span_rejections
             ):
                 overall_verification = Verification(outcome=STILL_FAILING, rationale=_ABSTAIN_RATIONALE)
+            elif last_applied.decision.action == ABSTAIN and not is_abstention(first_answer or ""):
+                # The loop gave up on an answer it could not ground. Support
+                # going from false to null is not "unchanged" (#138, #139).
+                overall_verification = Verification(outcome=STILL_FAILING, rationale=_GAVE_UP_RATIONALE)
             else:
                 overall_verification = verify_runtime(first_eval, state.runtime_evaluation)
 
@@ -537,6 +544,9 @@ def _first_pass_state(
 _ABSTAIN_RATIONALE = (
     "evidence stayed insufficient after recovery; the loop abstained instead of answering"
 )
+_GAVE_UP_RATIONALE = (
+    "recovery did not produce a grounded answer; the loop abstained instead of answering"
+)
 
 
 def _needs_terminal_abstain(last: RecoveryDecision, state: QueryState) -> bool:
@@ -548,14 +558,23 @@ def _needs_terminal_abstain(last: RecoveryDecision, state: QueryState) -> bool:
     refusal is normalized to the abstention, anything else abstains.
     """
     evaluation = state.runtime_evaluation
-    if last.action not in {EXPAND, REGENERATE} or evaluation is None:
+    if evaluation is None:
         return False
     answer = state.generation.answer.strip()
     if answer == ABSTAIN_ANSWER:
         return False
+    if last.action == REWRITE:
+        # A failed rewrite already chose between keeping and abstaining; a
+        # successful one can still produce a rejected clock or number (#134).
+        return bool(evaluation.span_rejections)
+    if last.action not in {EXPAND, REGENERATE}:
+        return False
     # A rejected clock is not grounded, even when the judge called the
     # evidence sufficient because a nearby time was present.
     if evaluation.span_rejections:
+        return True
+    # An empty answer after recovery is not an answer (#138).
+    if not answer:
         return True
     if evaluation.evidence_sufficient:
         return False
@@ -774,10 +793,19 @@ def _apply_expand(
     verification = None
     if state.runtime_evaluation is not None and nxt.runtime_evaluation is not None:
         verification = verify_runtime(state.runtime_evaluation, nxt.runtime_evaluation)
+    attributed = decision.attributed_class
+    if (
+        attributed == EVIDENCE_INSUFFICIENCY
+        and nxt.runtime_evaluation is not None
+        and nxt.runtime_evaluation.evidence_sufficient
+    ):
+        # A failed rewrite labelled this a corpus gap, but the wider retrieval
+        # found sufficient evidence, so it was a retrieval miss (ADR 005, #135).
+        attributed = RETRIEVAL_MISS
     next_decision = RecoveryDecision(
         action=EXPAND,
         reason=decision.reason,
-        attributed_class=decision.attributed_class,
+        attributed_class=attributed,
         source=decision.source,
         outcome_note=(
             f"widened top_k from {state.retrieval.top_k} to {nxt.retrieval.top_k}"

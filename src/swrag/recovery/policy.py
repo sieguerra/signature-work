@@ -199,6 +199,18 @@ def select_recovery(
     )
 
 
+def still_unsupported(evaluation: RuntimeEvaluation | None) -> bool:
+    """Evidence is sufficient but the answer is not grounded in it.
+
+    An evidence flip from insufficient to sufficient verifies as improved, yet
+    the answer on that evidence can still be unsupported or carry a fact the
+    span check rejected. That state is not a repair (#134).
+    """
+    if evaluation is None or not evaluation.evidence_sufficient:
+        return False
+    return evaluation.answer_supported is False or bool(evaluation.span_rejections)
+
+
 def select_next_recovery(
     *,
     last: RecoveryDecision,
@@ -219,7 +231,7 @@ def select_next_recovery(
     if last.action in {ACCEPT, ABSTAIN}:
         return None
     outcome = getattr(verification, "outcome", None)
-    if outcome == IMPROVED:
+    if outcome == IMPROVED and not still_unsupported(evaluation):
         return None
     if (
         evaluation is not None

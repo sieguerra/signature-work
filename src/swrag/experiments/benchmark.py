@@ -20,6 +20,7 @@ from swrag.experiments.runner import (
     MODE_LOOP,
     ExperimentSummary,
     QuestionOutcome,
+    _summarize,
     run_experiment,
 )
 from swrag.generation.openai_generator import OpenAIGenerator
@@ -101,6 +102,12 @@ def run_benchmark(
     for condition in config["conditions"]:
         mode = str(condition["mode"])
         condition_id = str(condition["id"])
+        # The index already holds the corpus vectors. Clearing the query cache
+        # means a later condition does not get free embeddings of questions an
+        # earlier condition paid for (#133).
+        clear = getattr(resolved_embedder, "clear_cache", None)
+        if callable(clear):
+            clear()
         condition_judge = judge if mode == MODE_LOOP else None
         if mode == MODE_LOOP and condition_judge is None:
             from swrag.evaluation.llm_judge import LLMJudge
@@ -150,6 +157,15 @@ def build_comparison(
 ) -> dict[str, Any]:
     """Pair per-question outcomes and compute factual deltas. No interpretation."""
     condition_ids = [str(item["id"]) for item in config["conditions"]]
+    # Compare like with like: a question that errored in any condition is
+    # dropped from every condition and listed (#140).
+    errors = {cid: list(getattr(summaries[cid], "errors", ()) or ()) for cid in condition_ids}
+    answered = [{item.question_id for item in summaries[cid].outcomes} for cid in condition_ids]
+    common = set.intersection(*answered) if answered else set()
+    errored_ids = {item["question_id"] for rows in errors.values() for item in rows}
+    excluded = sorted((set().union(*answered) - common) | (errored_ids - common))
+    if any(len(ids) != len(common) for ids in answered):
+        summaries = {cid: _restrict(summaries[cid], common) for cid in condition_ids}
     metrics = (
         "answerable_exact_match",
         "answerable_contains_answer",
@@ -158,6 +174,7 @@ def build_comparison(
         "answerable_abstention_rate",
         "retrieval_hit_rate",
         "mean_latency_ms",
+        "median_latency_ms",
         "total_chat_calls",
         "total_embedding_calls",
         "total_prompt_tokens",
@@ -166,10 +183,10 @@ def build_comparison(
     )
     quality: dict[str, Any] = {}
     for metric in metrics:
-        row = {condition_id: getattr(summaries[condition_id], metric) for condition_id in condition_ids}
+        row = {condition_id: getattr(summaries[condition_id], metric, None) for condition_id in condition_ids}
         if len(condition_ids) == 2:
             left, right = condition_ids
-            row["delta"] = row[right] - row[left]
+            row["delta"] = None if row[left] is None or row[right] is None else row[right] - row[left]
         quality[metric] = row
 
     paired = _pair_outcomes(summaries, condition_ids)
@@ -210,7 +227,23 @@ def build_comparison(
             for condition_id in condition_ids
         },
         "paired_outcomes": paired,
+        "errors": errors,
+        "excluded_question_ids": excluded,
     }
+
+
+def _restrict(summary: ExperimentSummary, question_ids: set[str]) -> ExperimentSummary:
+    """Recompute one condition's summary over a subset of its questions."""
+    return _summarize(
+        [item for item in summary.outcomes if item.question_id in question_ids],
+        run_label=summary.run_label,
+        gold_path=summary.gold_path,
+        corpus_dir=summary.corpus_dir,
+        output_dir=summary.output_dir,
+        top_k=summary.top_k,
+        condition=summary.condition,
+        errors=summary.errors,
+    )
 
 
 def _pair_outcomes(

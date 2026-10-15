@@ -41,7 +41,7 @@ from swrag.api.store import (
     save_quality,
 )
 from swrag.api.v1 import build_v1_router
-from swrag.config import load_provider_config
+from swrag.config import load_provider_config, openai_client
 from swrag.tracing import progress
 from swrag.usage import capture_usage
 from swrag.evaluation.quality_metrics import score_trace
@@ -774,7 +774,7 @@ def _default_quality_scorer() -> tuple[Any, str]:
     from openai import OpenAI
 
     config = load_provider_config()
-    return OpenAI(base_url=config.base_url), config.chat_model
+    return openai_client(config.base_url), config.chat_model
 
 
 def _selected_policy(application: FastAPI, requested: str | None) -> str:
