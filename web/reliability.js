@@ -151,6 +151,45 @@
     return "Not scored";
   }
 
+  // Hash routing for the console: "#view" or "#reliability/<tab>".
+  // Summary is the internal "overview" tab and has no suffix in the URL.
+  const RELIABILITY_TABS = ["overview", "runs", "recoveries", "quality"];
+
+  function parseRoute(hash, views, aliases) {
+    const raw = String(hash || "").replace(/^#/, "");
+    const [head, suffix] = raw.split("/", 2);
+    const known = Array.isArray(views) ? views : [];
+    const alias = aliases && aliases[head];
+    const view = alias || (known.includes(head) ? head : known[0] || "overview");
+    let tab = "overview";
+    if (view === "reliability" && RELIABILITY_TABS.includes(suffix)) tab = suffix;
+    return { view, tab };
+  }
+
+  function routeHash(view, tab) {
+    if (view === "reliability" && tab && tab !== "overview" && RELIABILITY_TABS.includes(tab)) {
+      return `#reliability/${tab}`;
+    }
+    return `#${view}`;
+  }
+
+  // One display format for every timestamp. Traces store UTC ISO strings
+  // with an offset, so this converts to the viewer's local time instead of
+  // slicing the raw string (which showed UTC on some screens, local on others).
+  function formatWhen(value, options) {
+    const opts = options || {};
+    const empty = opts.empty === undefined ? "—" : opts.empty;
+    if (!value) return empty;
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return String(value);
+    const now = opts.now ? new Date(opts.now) : new Date();
+    const format = { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" };
+    if (opts.timeZone) format.timeZone = opts.timeZone;
+    const year = (d) => Number(new Intl.DateTimeFormat("en-US", { year: "numeric", timeZone: format.timeZone }).format(d));
+    if (year(date) !== year(now)) format.year = "numeric";
+    return date.toLocaleString(opts.locale, format);
+  }
+
   return {
     filterLogicalRuns,
     recoveryCases,
@@ -164,5 +203,9 @@
     labelTrigger,
     labelDiagnosis,
     qualityStatus,
+    formatWhen,
+    parseRoute,
+    routeHash,
+    RELIABILITY_TABS,
   };
 });

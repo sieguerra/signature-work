@@ -232,6 +232,7 @@ def test_index_page_and_assets_are_served(tmp_path: Path) -> None:
     with _client(tmp_path) as client:
         page = client.get("/")
         assert page.status_code == 200
+        assert page.headers["cache-control"] == "no-cache"
         assert "Trace explorer" in page.text
         assert "delete-all-runs" in page.text
         assert "Test Console" in page.text

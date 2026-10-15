@@ -97,11 +97,12 @@ const VIEW_PANELS = {
   integrations: "api",
 };
 
+function parseRoute(raw) {
+  return window.ReliabilityView.parseRoute(raw, VIEWS, VIEW_ALIASES);
+}
+
 function canonicalView(raw) {
-  const hash = String(raw || "").replace(/^#/, "");
-  if (VIEW_ALIASES[hash]) return VIEW_ALIASES[hash];
-  if (VIEWS.includes(hash)) return hash;
-  return "overview";
+  return parseRoute(raw).view;
 }
 
 function currentView() {
@@ -109,12 +110,25 @@ function currentView() {
 }
 
 function applyView() {
-  const raw = location.hash.replace(/^#/, "");
-  const view = canonicalView(raw);
-  if (raw !== view) history.replaceState(null, "", `#${view}`);
+  const route = parseRoute(location.hash);
+  const view = route.view;
+  const canonical = window.ReliabilityView.routeHash(view, route.tab);
+  if (location.hash !== canonical) history.replaceState(null, "", canonical);
+  const changed = state.view !== view;
   state.view = view;
+  if (view === "reliability" && state.evalTab !== route.tab) {
+    state.evalTab = route.tab;
+    applyEvalTab();
+  }
   const app = document.getElementById("app");
   app.dataset.view = VIEW_PANELS[view];
+  // Each view scrolls inside its own panel, which kept its old offset while
+  // hidden. Opening a different page starts at the top. This runs after the
+  // panel is shown, because a hidden panel ignores scrollTop.
+  if (changed) {
+    const panel = document.getElementById(`view-${VIEW_PANELS[view]}`);
+    if (panel) panel.scrollTop = 0;
+  }
   app.classList.toggle("inspect-collapsed", state.inspectCollapsed);
   app.classList.toggle("library-collapsed", state.libraryCollapsed);
   app.classList.toggle("nav-collapsed", state.navCollapsed);
@@ -589,7 +603,7 @@ function renderRunList() {
     .map((item) => {
       const active = item.run_id === state.selectedId ? " active" : "";
       const child = item.parent_run_id ? " child-run" : "";
-      const when = (item.timestamp || "").replace("T", " ").slice(0, 19);
+      const when = item.timestamp ? window.ReliabilityView.formatWhen(item.timestamp) : "";
       return `<div class="run-item${active}${child}" data-id="${escapeHtml(item.run_id)}">
         <button type="button" class="run-select">
           <div class="q">${escapeHtml(item.query || "(no query)")}</div>
@@ -999,6 +1013,9 @@ async function loadTraces() {
 function setEvalTab(tab) {
   state.evalTab = tab;
   applyEvalTab();
+  // The URL records the tab so reload, sharing, and Back restore it.
+  const hash = window.ReliabilityView.routeHash("reliability", tab);
+  if (location.hash !== hash) location.hash = hash;
 }
 
 function applyEvalTab() {
@@ -1009,6 +1026,7 @@ function applyEvalTab() {
     const on = button.dataset.evalTab === state.evalTab;
     button.classList.toggle("active", on);
     button.setAttribute("aria-selected", on ? "true" : "false");
+    button.tabIndex = on ? 0 : -1;
   });
 }
 
@@ -2241,13 +2259,6 @@ print(urllib.request.urlopen(request).read().decode())`;
   -H "Authorization: Bearer swr_your_key" \\
   -H "Content-Type: application/json" \\
   -d '${body}'`;
-}
-
-function formatStamp(value) {
-  if (!value) return "—";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return String(value);
-  return date.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
 }
 
 function renderApiPanel() {
@@ -3626,6 +3637,20 @@ function bind() {
       renderReliability();
     });
   });
+  $("view-evaluation").querySelector(".eval-tabs").addEventListener("keydown", (event) => {
+    const tabs = window.ReliabilityView.RELIABILITY_TABS;
+    if (!event.target.closest("[data-eval-tab]")) return;
+    const index = tabs.indexOf(state.evalTab);
+    let next = null;
+    if (event.key === "ArrowRight") next = tabs[(index + 1) % tabs.length];
+    else if (event.key === "ArrowLeft") next = tabs[(index - 1 + tabs.length) % tabs.length];
+    else if (event.key === "Home") next = tabs[0];
+    else if (event.key === "End") next = tabs[tabs.length - 1];
+    if (!next) return;
+    event.preventDefault();
+    setEvalTab(next);
+    $("view-evaluation").querySelector(`[data-eval-tab="${next}"]`)?.focus();
+  });
   $("view-evaluation").addEventListener("click", (event) => {
     const tab = event.target.closest("[data-eval-tab]");
     if (tab) {
@@ -4210,9 +4235,7 @@ function applyRelPreset(key, value) {
 }
 
 function relWhen(value) {
-  const text = String(value || "").trim();
-  if (!text) return "—";
-  return text.replace("T", " ").slice(0, 16);
+  return window.ReliabilityView.formatWhen(value);
 }
 
 function relFraction(part) {
@@ -4248,7 +4271,7 @@ function renderRelSummary(view) {
     return;
   }
   const pending = (state.logicalRuns || []).filter((run) => run.recovery_pending).length;
-  const unattributed = (state.logicalRuns || []).filter((run) => run.judged && !(run.diagnoses || []).length).length;
+  const unattributed = data.unattributed || 0;
   const outcomes = data.outcomes || {};
   const labels = view || {
     labelDiagnosis: (name) => name,
@@ -4907,7 +4930,6 @@ function formatFlightLatency(ms) {
 async function inspectOverviewRun(runId) {
   if (!runId) return;
   setEvalTab("runs");
-  if (location.hash !== "#reliability") location.hash = "#reliability";
   applyView();
   const row = (state.logicalRuns || []).find(
     (run) =>
@@ -5100,9 +5122,11 @@ function signalCount(bucket) {
 
 function overviewDiagnoses(data) {
   const rows = data.diagnoses || [];
-  if (!rows.length) return `<p class="ov-empty">No failure diagnoses yet.</p>`;
-  const max = Math.max(...rows.map((row) => row.count || 0), 1);
-  return `${rows.map((row) => barRow(labelDiagnosis(row.name), row.count || 0, max, "diagnosis")).join("")}
+  const unattributed = data.unattributed || 0;
+  if (!rows.length && !unattributed) return `<p class="ov-empty">No failure diagnoses yet.</p>`;
+  const max = Math.max(...rows.map((row) => row.count || 0), unattributed, 1);
+  const unattributedRow = unattributed ? barRow("Not attributed", unattributed, max, "diagnosis") : "";
+  return `${rows.map((row) => barRow(labelDiagnosis(row.name), row.count || 0, max, "diagnosis")).join("")}${unattributedRow}
     <p class="ov-sub">Observed failure classes. Retrieval miss and evidence insufficiency can be assigned after a rewrite.</p>`;
 }
 
@@ -5208,10 +5232,7 @@ function formatLatency(ms) {
 }
 
 function formatStamp(value) {
-  if (!value) return "";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return String(value);
-  return date.toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+  return window.ReliabilityView.formatWhen(value);
 }
 
 async function boot() {

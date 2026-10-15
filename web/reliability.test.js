@@ -10,6 +10,9 @@ const {
   labelVerification,
   presentVerification,
   qualityStatus,
+  formatWhen,
+  parseRoute,
+  routeHash,
 } = require("./reliability.js");
 
 function run(overrides) {
@@ -135,4 +138,43 @@ test("gap-aware runs can be filtered without treating a safe stop as a rewrite",
   assert.equal(presentVerification(rows[0]), "Safe stop");
   assert.equal(labelVerification(rows[0]), "Still failing");
   assert.equal(filterLogicalRuns(rows, { policy: "all" }).length, 2);
+});
+
+test("formatWhen shows a UTC trace time in the viewer's zone, not the raw UTC string", () => {
+  const stamp = "2026-10-05T17:35:09.785652+00:00";
+  const opts = { locale: "en-US", now: "2026-10-15T00:00:00Z" };
+  assert.equal(formatWhen(stamp, { ...opts, timeZone: "Asia/Manila" }), "Oct 6, 01:35 AM");
+  assert.equal(formatWhen(stamp, { ...opts, timeZone: "UTC" }), "Oct 5, 05:35 PM");
+});
+
+test("formatWhen adds the year only when it is not the current year", () => {
+  const out = formatWhen("2025-03-01T12:00:00Z", { locale: "en-US", timeZone: "UTC", now: "2026-10-15T00:00:00Z" });
+  assert.equal(out, "Mar 1, 2025, 12:00 PM");
+});
+
+test("formatWhen keeps an empty placeholder and passes unparseable text through", () => {
+  assert.equal(formatWhen(""), "—");
+  assert.equal(formatWhen(null, { empty: "" }), "");
+  assert.equal(formatWhen("not a date"), "not a date");
+});
+
+const VIEWS = ["overview", "test", "reliability", "data", "configuration", "integrations"];
+const ALIASES = { evaluation: "reliability", playground: "test" };
+
+test("parseRoute reads the Reliability tab from the hash", () => {
+  assert.deepEqual(parseRoute("#reliability/quality", VIEWS, ALIASES), { view: "reliability", tab: "quality" });
+  assert.deepEqual(parseRoute("#reliability", VIEWS, ALIASES), { view: "reliability", tab: "overview" });
+  assert.deepEqual(parseRoute("#evaluation", VIEWS, ALIASES), { view: "reliability", tab: "overview" });
+  assert.deepEqual(parseRoute("#overview", VIEWS, ALIASES), { view: "overview", tab: "overview" });
+});
+
+test("parseRoute keeps an unknown Reliability suffix on Reliability Summary", () => {
+  assert.deepEqual(parseRoute("#reliability/nope", VIEWS, ALIASES), { view: "reliability", tab: "overview" });
+  assert.deepEqual(parseRoute("#nowhere", VIEWS, ALIASES), { view: "overview", tab: "overview" });
+});
+
+test("routeHash gives Summary no suffix and other tabs one", () => {
+  assert.equal(routeHash("reliability", "overview"), "#reliability");
+  assert.equal(routeHash("reliability", "runs"), "#reliability/runs");
+  assert.equal(routeHash("data", "runs"), "#data");
 });

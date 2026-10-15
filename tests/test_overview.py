@@ -507,3 +507,32 @@ def test_overview_endpoint_follows_the_active_system(tmp_path: Path) -> None:
         assert harbor["recovery_required"]["count"] == 0
         assert harbor["recent_activity"][0]["query"] == "Harbor only question"
         assert "DKU only question" not in json.dumps(harbor)
+
+
+def test_unattributed_counts_only_runs_that_needed_recovery_without_a_class() -> None:
+    overview = _overview(
+        [
+            _trace(
+                "no-class",
+                runtime_evaluation=_eval(True, False),
+                recovery={"action": "regenerate"},
+                recovery_status="applied",
+            ),
+            _trace(
+                "classified",
+                runtime_evaluation=_eval(True, False),
+                diagnosis={"failure_class": "unsupported_generation"},
+                recovery={"action": "regenerate"},
+                recovery_status="applied",
+            ),
+            _trace(
+                "accepted",
+                runtime_evaluation=_eval(True, True),
+                recovery={"action": "accept"},
+                recovery_status="applied",
+            ),
+        ]
+    )
+    assert overview["recovery_required"]["count"] == 2
+    assert overview["unattributed"] == 1
+    assert overview["diagnoses"] == [{"name": "unsupported_generation", "count": 1}]
