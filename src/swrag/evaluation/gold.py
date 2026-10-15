@@ -62,6 +62,11 @@ def _parse_question(payload: object, where: str) -> GoldQuestion:
     if not answerable and answers:
         raise ValueError(f"{where}: unanswerable questions must have an empty 'answers'")
 
+    rejections = tuple(str(item) for item in payload.get("rejections", ()))
+    traps = tuple(str(item) for item in payload.get("traps", ()))
+    if answerable and (rejections or traps):
+        raise ValueError(f"{where}: 'rejections' and 'traps' are for unanswerable questions only")
+
     return GoldQuestion(
         question_id=str(payload["question_id"]),
         question=str(payload["question"]),
@@ -69,4 +74,6 @@ def _parse_question(payload: object, where: str) -> GoldQuestion:
         answers=answers,
         supporting_doc_ids=tuple(str(item) for item in payload.get("supporting_doc_ids", ())),
         notes=str(payload.get("notes", "")),
+        rejections=rejections,
+        traps=traps,
     )

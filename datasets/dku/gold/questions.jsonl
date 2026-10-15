@@ -42,7 +42,7 @@
 
 # --- Unanswerable: corpus-gap, wrong venue, leakage traps ---
 {"question_id": "dku-031", "question": "What time does breakfast end at Halal Dining at the Conference Center?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "Halal Dining lists lunch and dinner only. Sounds answerable because University Dining does serve breakfast."}
-{"question_id": "dku-032", "question": "What time does breakfast end at Executive Dining in the Academic Building?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "Executive Dining lists lunch only."}
+{"question_id": "dku-032", "question": "What time does breakfast end at Executive Dining in the Academic Building?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "Executive Dining lists lunch only.", "rejections": ["no breakfast", "does not serve breakfast", "does not offer breakfast", "lunch only"]}
 {"question_id": "dku-033", "question": "What are Perkins Library Saturday hours at Duke University in Durham?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "Durham doc exists but lists no Perkins hours. Pretraining leakage trap."}
 {"question_id": "dku-034", "question": "Which restaurant in Dayu Bay is closest to the DKU campus?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "Dayu Bay is named; no restaurant names."}
 {"question_id": "dku-035", "question": "What is the current weekday shuttle timetable from Kunshan South Station to the DKU campus?", "answerable": false, "answers": [], "supporting_doc_ids": [], "notes": "Taxi fare is stated; no timetable."}
