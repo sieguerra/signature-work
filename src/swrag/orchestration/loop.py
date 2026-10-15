@@ -241,7 +241,7 @@ def run_with_recovery(
     previous_chunks_to_store: tuple[dict, ...] | None = None
 
     while _should_apply(current_decision.action, attempts_so_far=len(attempts)):
-        if len(attempts) >= max_recoveries:
+        if _budget_spent(attempts, max_recoveries):
             break
         usage_before = usage_checkpoint()
         attempt_started = time.perf_counter()
@@ -317,7 +317,7 @@ def run_with_recovery(
             if overall.outcome == IMPROVED and not still_unsupported(state.runtime_evaluation):
                 break
 
-        if len(attempts) >= max_recoveries:
+        if _budget_spent(attempts, max_recoveries):
             break
         nxt = select_next_recovery(
             last=applied.decision,
@@ -330,6 +330,8 @@ def run_with_recovery(
             evidence_texts=_evidence_texts(state),
         )
         if nxt is None:
+            break
+        if not applied.executed and nxt.action == applied.decision.action:
             break
         if nxt.attributed_class is None and applied.decision.attributed_class is not None:
             nxt = replace(nxt, attributed_class=applied.decision.attributed_class)
@@ -773,6 +775,22 @@ def _initial_from_state(state: QueryState, latency_ms: float) -> dict[str, Any]:
         diagnosis=diagnosis.as_trace_payload() if diagnosis is not None else None,
         latency_ms=latency_ms,
     )
+
+
+# An expand already at the top_k cap does nothing and costs nothing, so it does
+# not use the budget and the loop may try the next action (issue #147). Other
+# unexecuted attempts (a rewrite skipped because generation is off) are
+# recorded proposals and still end the run. This bounds how many no-ops follow.
+_NOOP_ALLOWANCE = 2
+
+
+def _is_free_noop(item: dict[str, Any]) -> bool:
+    return item.get("executed") is False and item.get("action") == EXPAND
+
+
+def _budget_spent(attempts: list[dict[str, Any]], max_recoveries: int) -> bool:
+    executed = sum(1 for item in attempts if not _is_free_noop(item))
+    return executed >= max_recoveries or len(attempts) >= max_recoveries + _NOOP_ALLOWANCE
 
 
 def _attempt_payload(

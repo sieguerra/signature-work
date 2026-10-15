@@ -104,23 +104,28 @@ def _report(summary: ExperimentSummary, *, retrieve_only: bool) -> None:
 
     if retrieve_only:
         print("Answers were not generated (--retrieve-only), so correctness is not meaningful.")
-        print(f"  retrieval hit rate       {summary.retrieval_hit_rate:.3f}")
+        print(f"  retrieval hit rate       {_fmt(summary.retrieval_hit_rate)}")
         return
 
     print("Answerable questions")
-    print(f"  exact match              {summary.answerable_exact_match:.3f}")
-    print(f"  contains answer          {summary.answerable_contains_answer:.3f}")
-    print(f"  token F1                 {summary.answerable_f1:.3f}")
-    print(f"  abstained (should be 0)  {summary.answerable_abstention_rate:.3f}")
+    print(f"  exact match              {_fmt(summary.answerable_exact_match)}")
+    print(f"  contains answer          {_fmt(summary.answerable_contains_answer)}")
+    print(f"  token F1                 {_fmt(summary.answerable_f1)}")
+    print(f"  abstained (should be 0)  {_fmt(summary.answerable_abstention_rate)}")
     print()
     print("Unanswerable questions")
-    print(f"  abstained (should be 1)  {summary.unanswerable_abstention_rate:.3f}")
+    print(f"  abstained (should be 1)  {_fmt(summary.unanswerable_abstention_rate)}")
     print()
     print("Retrieval")
-    print(f"  hit rate                 {summary.retrieval_hit_rate:.3f}")
+    print(f"  hit rate                 {_fmt(summary.retrieval_hit_rate)}")
     print()
     print("Per-class numbers above are the ones to read. The pooled aggregate is")
     print("recorded in summary.json but mixes two classes with opposite success criteria.")
+
+
+
+def _fmt(value: float | None) -> str:
+    return "n/a" if value is None else f"{value:.3f}"
 
 
 if __name__ == "__main__":
