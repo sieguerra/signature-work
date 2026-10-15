@@ -99,17 +99,17 @@ class ExperimentSummary:
     total: int
     answerable_total: int
     unanswerable_total: int
-    exact_match: float
-    contains_answer: float
-    f1: float
-    answerable_exact_match: float
-    answerable_contains_answer: float
-    answerable_f1: float
-    unanswerable_abstention_rate: float
-    answerable_abstention_rate: float
-    retrieval_hit_rate: float
+    exact_match: float | None
+    contains_answer: float | None
+    f1: float | None
+    answerable_exact_match: float | None
+    answerable_contains_answer: float | None
+    answerable_f1: float | None
+    unanswerable_abstention_rate: float | None
+    answerable_abstention_rate: float | None
+    retrieval_hit_rate: float | None
     condition: str = MODE_BASELINE
-    mean_latency_ms: float = 0.0
+    mean_latency_ms: float | None = 0.0
     total_chat_calls: int = 0
     total_embedding_calls: int = 0
     total_prompt_tokens: int = 0
@@ -379,10 +379,10 @@ def _median(values: list[float]) -> float | None:
     return (ordered[middle - 1] + ordered[middle]) / 2
 
 
-def _mean(values: list[bool] | list[float]) -> float:
-    """Mean of a possibly-empty sequence; empty means 0.0, not an error."""
+def _mean(values: list[bool] | list[float]) -> float | None:
+    """Mean of a possibly-empty sequence; empty means None (no data), not 0.0 (issue #147)."""
     if not values:
-        return 0.0
+        return None
     return sum(float(value) for value in values) / len(values)
 
 
