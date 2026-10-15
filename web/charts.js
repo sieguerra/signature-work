@@ -1,29 +1,29 @@
-// Evaluation overview charts. Plain SVG/HTML, no chart library.
+// Evaluation overview charts. Colors are CSS variables (--c-*) so charts follow the theme. Plain SVG/HTML, no chart library.
 // Every number is computed from runtime trace signals; gold labels never reach the UI.
 
 const CHART_COLORS = {
-  passed: "#3dd68c",
-  flagged: "#e8b849",
-  not_judged: "#5d6578",
-  none: "#5d6578",
-  proposed: "#7aa2ff",
-  accepted: "#8fa3bf",
-  improved: "#3dd68c",
-  unchanged: "#e8b849",
-  still_failing: "#f07187",
-  degraded: "#c2415a",
-  pending: "#7aa2ff",
-  answered: "#7aa2ff",
-  abstained: "#b48cff",
-  rewrite: "#e8b849",
-  expand: "#6cc5e0",
-  regenerate: "#f0a35e",
-  abstain: "#b48cff",
-  accept: "#3dd68c",
-  evidence_insufficiency: "#e8b849",
-  retrieval_miss: "#6cc5e0",
-  unsupported_generation: "#f07187",
-  unattributed: "#5d6578",
+  passed: "var(--c-pass)",
+  flagged: "var(--c-flag)",
+  not_judged: "var(--c-none)",
+  none: "var(--c-none)",
+  proposed: "var(--c-blue)",
+  accepted: "var(--c-slate)",
+  improved: "var(--c-pass)",
+  unchanged: "var(--c-flag)",
+  still_failing: "var(--c-fail)",
+  degraded: "var(--c-fail-strong)",
+  pending: "var(--c-blue)",
+  answered: "var(--c-blue)",
+  abstained: "var(--c-violet)",
+  rewrite: "var(--c-flag)",
+  expand: "var(--c-cyan)",
+  regenerate: "var(--c-orange)",
+  abstain: "var(--c-violet)",
+  accept: "var(--c-pass)",
+  evidence_insufficiency: "var(--c-flag)",
+  retrieval_miss: "var(--c-cyan)",
+  unsupported_generation: "var(--c-fail)",
+  unattributed: "var(--c-none)",
 };
 
 const OUTCOME_LABELS = {
@@ -38,7 +38,7 @@ const OUTCOME_LABELS = {
 
 function chartColor(key) {
   const last = String(key).split(" → ").pop();
-  return CHART_COLORS[key] || CHART_COLORS[last] || "#8b93a6";
+  return CHART_COLORS[key] || CHART_COLORS[last] || "var(--c-slate)";
 }
 
 function chartEsc(value) {
@@ -199,7 +199,7 @@ function donutSvg(entries, centerLabel) {
       entries.length === 1
         ? `M${cx - R},${cy} A${R},${R} 0 1 1 ${cx + R},${cy} A${R},${R} 0 1 1 ${cx - R},${cy} M${cx - r},${cy} A${r},${r} 0 1 0 ${cx + r},${cy} A${r},${r} 0 1 0 ${cx - r},${cy} Z`
         : `M${p(angle, R)} A${R},${R} 0 ${large} 1 ${p(end, R)} L${p(end, r)} A${r},${r} 0 ${large} 0 ${p(angle, r)} Z`;
-    arcs += `<path d="${d}" fill="${chartColor(key)}" fill-rule="evenodd"><title>${chartEsc(`${OUTCOME_LABELS[key] || key}: ${count}`)}</title></path>`;
+    arcs += `<path d="${d}" style="fill:${chartColor(key)}" fill-rule="evenodd"><title>${chartEsc(`${OUTCOME_LABELS[key] || key}: ${count}`)}</title></path>`;
     angle = end;
   }
   const legend = entries
@@ -295,7 +295,7 @@ function timelineSvg(runs) {
     const outcome = outcomeKey(run);
     const color = run.abstained ? chartColor("abstained") : chartColor(outcome);
     const tip = `${run.query}\n${(OUTCOME_LABELS[outcome] || outcome)}${run.path.length ? ` · ${run.path.join(" → ")}` : ""}${run.abstained ? " · abstained" : ""}\n${run.latency_ms ? `${(run.latency_ms / 1000).toFixed(1)} s` : "no latency"}`;
-    bars += `<rect class="tl-bar" data-chart-run="${chartEsc(run.run_id)}" x="${x}" y="${base - h}" width="${barW}" height="${h}" rx="2" fill="${color}"><title>${chartEsc(tip)}</title></rect>`;
+    bars += `<rect class="tl-bar" data-chart-run="${chartEsc(run.run_id)}" x="${x}" y="${base - h}" width="${barW}" height="${h}" rx="2" style="fill:${color}"><title>${chartEsc(tip)}</title></rect>`;
     if (run.path.length) {
       bars += `<text x="${x + barW / 2}" y="${base + 12}" class="tl-steps">${run.path.length}</text>`;
     }
@@ -654,7 +654,7 @@ function qualityCard({ trace, firstEval, finalEval, recovered, abstained, firstA
   </section>`;
 }
 
-const DOC_PALETTE = ["#7aa2ff", "#3dd68c", "#e8b849", "#f07187", "#b48cff", "#6cc5e0", "#f0a35e", "#8fa3bf"];
+const DOC_PALETTE = ["var(--c-blue)", "var(--c-pass)", "var(--c-flag)", "var(--c-fail)", "var(--c-violet)", "var(--c-cyan)", "var(--c-orange)", "var(--c-slate)"];
 
 function ring(slices, centerTop, centerSub, size = 120) {
   const total = slices.reduce((sum, slice) => sum + slice.count, 0);
@@ -668,17 +668,17 @@ function ring(slices, centerTop, centerSub, size = 120) {
     .map((slice, _, shown) => {
       const title = `<title>${chartEsc(`${slice.label}: ${slice.count}`)}</title>`;
       if (shown.length === 1) {
-        return `<circle cx="${c}" cy="${c}" r="${(R + r) / 2}" fill="none" stroke="${slice.color}" stroke-width="${R - r}">${title}</circle>`;
+        return `<circle cx="${c}" cy="${c}" r="${(R + r) / 2}" fill="none" style="stroke:${slice.color}" stroke-width="${R - r}">${title}</circle>`;
       }
       const sweep = (slice.count / total) * Math.PI * 2;
       const end = angle + sweep;
       const large = sweep > Math.PI ? 1 : 0;
       const d = `M${point(angle, R)} A${R},${R} 0 ${large} 1 ${point(end, R)} L${point(end, r)} A${r},${r} 0 ${large} 0 ${point(angle, r)} Z`;
       angle = end;
-      return `<path d="${d}" fill="${slice.color}">${title}</path>`;
+      return `<path d="${d}" style="fill:${slice.color}">${title}</path>`;
     })
     .join("");
-  const track = total ? "" : `<circle cx="${c}" cy="${c}" r="${(R + r) / 2}" fill="none" stroke="var(--bg-elev-2)" stroke-width="${R - r}"/>`;
+  const track = total ? "" : `<circle cx="${c}" cy="${c}" r="${(R + r) / 2}" fill="none" style="stroke:var(--c-track)" stroke-width="${R - r}"/>`;
   return `<svg class="ring" viewBox="0 0 ${size} ${size}" role="img" aria-label="${chartEsc(centerSub)}">${track}${arcs}<text x="${c}" y="${c + 2}" class="ring-n${String(centerTop).length > 4 ? " small" : ""}">${chartEsc(centerTop)}</text><text x="${c}" y="${c + 18}" class="ring-sub">${chartEsc(centerSub)}</text></svg>`;
 }
 
@@ -701,19 +701,19 @@ function checksRing(evaluation, label, abstainedFinal) {
     const sufficient = evaluation.evidence_sufficient === true;
     return ring(
       [
-        { label: sufficient ? "evidence enough" : "evidence still not enough", count: 1, color: sufficient ? "#3dd68c" : "#f07187" },
-        { label: "no answer to check", count: 1, color: "#b48cff" },
+        { label: sufficient ? "evidence enough" : "evidence still not enough", count: 1, color: sufficient ? "var(--c-pass)" : "var(--c-fail)" },
+        { label: "no answer to check", count: 1, color: "var(--c-violet)" },
       ],
       "no answer",
       label,
       110,
     );
   }
-  const color = passed === 2 ? "#3dd68c" : passed === 1 ? "#e8b849" : "#f07187";
+  const color = passed === 2 ? "var(--c-pass)" : passed === 1 ? "var(--c-flag)" : "var(--c-fail)";
   return ring(
     [
       { label: "checks passed", count: passed, color },
-      { label: "failed", count: 2 - passed, color: "#2a3140" },
+      { label: "failed", count: 2 - passed, color: "var(--c-track)" },
     ],
     `${passed}/2`,
     label,
@@ -732,8 +732,8 @@ function runCircles({ firstEval, finalEval, recovered, firstChunks, finalChunks,
     const kept = finalChunks.length - added.size;
     const dropped = firstChunks.filter((chunk) => !finalIds.has(chunk.chunk_id)).length;
     const slices = [
-      { label: "kept from first try", count: kept, color: "#5d6578" },
-      { label: "new from the fixes", count: added.size, color: "#7aa2ff" },
+      { label: "kept from first try", count: kept, color: "var(--c-none)" },
+      { label: "new from the fixes", count: added.size, color: "var(--c-blue)" },
     ];
     evidence = `<section class="chart-card circle-card"><h3>Passages after the fixes</h3>
       <div class="rings">${ring(slices, String(finalChunks.length), "passages")}${ringLegend(slices)}</div>

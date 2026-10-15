@@ -356,7 +356,14 @@ function commandList() {
       label: "Refresh runs",
       icon: "refresh-cw",
       run: () => loadTraces().catch((error) => showError(error.message)),
-    }
+    },
+    ...window.Theme.PREFS.map((pref) => ({
+      group: "Theme",
+      label: { system: "Use system theme", light: "Light theme", dark: "Dark theme" }[pref],
+      icon: { system: "monitor", light: "sun", dark: "moon" }[pref],
+      hint: window.Theme.readPref() === pref ? "Current" : "",
+      run: () => window.Theme.apply(pref),
+    }))
   );
   const activeId = state.meta && state.meta.corpus_id;
   state.corpora
@@ -425,7 +432,29 @@ function runCmdk(index) {
   item.run();
 }
 
+function renderThemeToggle() {
+  const button = $("theme-toggle");
+  const ico = $("theme-ico");
+  if (!button || !ico) return;
+  const next = window.Theme.toggled(window.Theme.current());
+  const label = next === "light" ? "Switch to light theme" : "Switch to dark theme";
+  ico.innerHTML = icon(next === "light" ? "sun" : "moon", 15);
+  button.setAttribute("aria-label", label);
+  button.dataset.tip = next === "light" ? "Light theme" : "Dark theme";
+}
+
 function bindShell() {
+  const themeButton = $("theme-toggle");
+  if (themeButton) {
+    themeButton.addEventListener("click", () => window.Theme.apply(window.Theme.toggled(window.Theme.current())));
+  }
+  document.addEventListener("themechange", () => {
+    renderThemeToggle();
+    // Charts read CSS variables, so they repaint on their own. Anything that
+    // cached a computed color would re-render here.
+  });
+  window.Theme.watchSystem();
+  renderThemeToggle();
   ["open-cmdk", "topbar-cmdk"].forEach((id) => {
     const button = $(id);
     if (button) button.addEventListener("click", openCmdk);
