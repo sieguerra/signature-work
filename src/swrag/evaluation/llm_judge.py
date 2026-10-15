@@ -123,7 +123,7 @@ class LLMJudge:
             model=self.model_name,
         )
         evaluation = constrain_support_to_evidence(evaluation, answer=answer, retrieval=retrieval)
-        return constrain_source_attribution(evaluation, question=question, answer=answer)
+        return constrain_source_attribution(evaluation, question=question, answer=answer, retrieval=retrieval)
 
 
 def extract_checkable_facts(answer: str) -> tuple[str, ...]:
@@ -227,17 +227,58 @@ def wrong_source(question: str, answer: str) -> str | None:
     return credited[0]
 
 
+_NUMBER = re.compile(r"\b\d+(?:\.\d+)?\b")
+
+
+def misattributed_numbers(question: str, answer: str, retrieval: RetrievalResult | None) -> tuple[str, tuple[str, ...]] | None:
+    """Numbers the answer credits to the asked source that the source's own passages lack.
+
+    Closes the relabelling gap found in the v5 sweep: after the wrong-source
+    rejection, a recovery rewrote "according to the Storm Ledger Unit, 19
+    hours" as "according to the Coastal Memory Group, 19 hours". The asked
+    source must be named in a retrieved chunk title; if none is retrieved the
+    check cannot tell and stays silent. Numbers already in the question are
+    ignored.
+    """
+    if retrieval is None or not retrieval.chunks:
+        return None
+    asked = [name for name in attributed_sources(question)]
+    if not asked:
+        return None
+    credited = {name.lower() for name in attributed_sources(answer)}
+    for name in asked:
+        if name.lower() not in credited:
+            continue
+        own = [s.chunk.text for s in retrieval.chunks if name.lower() in (s.chunk.title or "").lower()]
+        if not own:
+            continue
+        in_question = set(_NUMBER.findall(_CITATION.sub(" ", question)))
+        stated = [n for n in _NUMBER.findall(_CITATION.sub(" ", answer)) if n not in in_question]
+        source_text = " ".join(own)
+        missing = tuple(dict.fromkeys(n for n in stated if not re.search(rf"(?<![\d.]){re.escape(n)}(?![\d.])", source_text)))
+        if missing:
+            return name, missing
+    return None
+
+
 def constrain_source_attribution(
     evaluation: RuntimeEvaluation,
     *,
     question: str,
     answer: str,
+    retrieval: RetrievalResult | None = None,
 ) -> RuntimeEvaluation:
-    """Reject support when the answer credits a source the question did not ask about."""
+    """Reject support when the answer credits the wrong source, or a figure the asked source lacks."""
     other = wrong_source(question, answer)
     if other is None:
-        return evaluation
-    note = f"Source check rejected support: the answer reports {other}, not the source the question names."
+        found = misattributed_numbers(question, answer, retrieval)
+        if found is None:
+            return evaluation
+        name, missing = found
+        other = f"{name} without {', '.join(missing)}"
+        note = f"Source check rejected support: {', '.join(missing)} is not in {name}'s retrieved passages."
+    else:
+        note = f"Source check rejected support: the answer reports {other}, not the source the question names."
     rationale = evaluation.support_rationale
     return RuntimeEvaluation(
         evidence_sufficient=evaluation.evidence_sufficient,

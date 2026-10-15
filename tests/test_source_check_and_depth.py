@@ -64,3 +64,34 @@ def test_each_condition_can_set_its_own_depth(tmp_path: Path) -> None:
     assert comparison["conditions"]["baseline_k8"]["top_k"] == 8
     first = comparison["paired_outcomes"][0]
     assert len(first["baseline_k1"]["retrieved_doc_ids"]) <= 1 < len(first["baseline_k8"]["retrieved_doc_ids"])
+
+
+def _retrieval_with(title: str, text: str):
+    from swrag.types import Chunk, RetrievalResult, ScoredChunk
+
+    chunk = Chunk(chunk_id="cmg::c000", doc_id="cmg", title=title, text=text, start_char=0, end_char=len(text))
+    return RetrievalResult(query="q", chunks=(ScoredChunk(chunk, 0.9),), top_k=1, embedding_model="fake")
+
+
+def test_a_relabelled_figure_is_rejected_when_the_asked_source_lacks_it() -> None:
+    from swrag.evaluation.llm_judge import misattributed_numbers
+
+    cmg = _retrieval_with("Coastal Memory Group", "48 logbooks from 1912 to 1938. The group does not hold records after 1940.")
+    relabelled = 'According to the Coastal Memory Group, the 1948 "Black Mast Gale" lasted 19 hours.'
+    assert misattributed_numbers(ASKED_CMG, relabelled, cmg) == ("Coastal Memory Group", ("19",))
+    accepted = RuntimeEvaluation(
+        evidence_sufficient=True, answer_supported=True, sufficiency_rationale="", support_rationale="", judge="llm-judge", model="m"
+    )
+    checked = constrain_source_attribution(accepted, question=ASKED_CMG, answer=relabelled, retrieval=cmg)
+    assert checked.answer_supported is False
+    assert checked.span_rejections == ("source: Coastal Memory Group without 19",)
+
+
+def test_the_provenance_check_passes_true_figures_and_stays_silent_without_the_source() -> None:
+    from swrag.evaluation.llm_judge import misattributed_numbers
+
+    cmg = _retrieval_with("Coastal Memory Group", "The 1921 Green Lamp Flood lasted 31 hours in Harbor Town.")
+    asked = "How many hours did the 1921 Green Lamp Flood last according to the Coastal Memory Group?"
+    assert misattributed_numbers(asked, "According to the Coastal Memory Group, it lasted 31 hours.", cmg) is None
+    other = _retrieval_with("Storm Ledger Unit", "Nothing relevant.")
+    assert misattributed_numbers(asked, "According to the Coastal Memory Group, it lasted 99 hours.", other) is None
