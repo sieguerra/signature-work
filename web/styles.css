@@ -5,67 +5,99 @@
 
 /* ---------- 1. Tokens ---------- */
 :root {
+  /* Color. Neutral grays in the spirit of Linear and Vercel Geist: almost no
+     chroma in surfaces, color kept for meaning (stage, status, action).
+     Dark is the default; light overrides the same names below. */
+  color-scheme: dark;
+
   /* Surfaces, darkest to lightest. Steps are small so layers read without glow. */
-  --bg-app: #090b10;
-  --bg-sidebar: #0c1017;
-  --bg-surface: #121722;
-  --bg-surface-elevated: #181e2b;
+  --bg-app: #0b0b0d;
+  --bg-sidebar: #0f0f12;
+  --bg-surface: #141417;
+  --bg-surface-elevated: #1b1b1f;
   --bg-hover: rgba(255, 255, 255, 0.045);
-  --bg-active: rgba(124, 140, 255, 0.12);
+  --bg-active: rgba(123, 131, 255, 0.14);
   --bg: var(--bg-app);
-  --surface-0: #0e1219;
+  --surface-0: #111114;
   --surface-1: var(--bg-surface);
   --surface-2: var(--bg-surface-elevated);
-  --surface-3: #212838;
+  --surface-3: #26262b;
   --surface-hover: var(--bg-hover);
-  --surface-active: rgba(255, 255, 255, 0.08);
+  --surface-active: rgba(255, 255, 255, 0.075);
 
   /* Borders */
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-default: rgba(255, 255, 255, 0.12);
+  --border-subtle: rgba(255, 255, 255, 0.07);
+  --border-default: rgba(255, 255, 255, 0.11);
   --border: var(--border-default);
-  --border-strong: rgba(255, 255, 255, 0.2);
+  --border-strong: rgba(255, 255, 255, 0.19);
 
   /* Text */
-  --text-primary: rgba(244, 246, 251, 0.94);
-  --text-secondary: rgba(226, 230, 240, 0.74);
-  --text-muted: rgba(206, 212, 226, 0.54);
-  --text-disabled: rgba(206, 212, 226, 0.32);
+  --text-primary: #ededef;
+  --text-secondary: #a1a1aa;
+  --text-muted: #73737d;
+  --text-disabled: #4f4f57;
   --text: var(--text-primary);
   --text-2: var(--text-secondary);
   --text-3: var(--text-muted);
-  --text-on-accent: #0a0d1a;
+  --text-on-accent: #0b0b14;
 
-  /* Brand */
-  --brand: #7c8cff;
-  --brand-hover: #909dff;
-  --brand-soft: rgba(124, 140, 255, 0.14);
-  --brand-line: rgba(124, 140, 255, 0.42);
+  /* Brand: one accent, used for primary actions, focus, and selection */
+  --brand: #7b83ff;
+  --brand-hover: #8f96ff;
+  --brand-soft: rgba(123, 131, 255, 0.14);
+  --brand-line: rgba(123, 131, 255, 0.45);
 
-  /* Semantic: pipeline stages */
-  --retrieval: #22c7d6;
-  --retrieval-soft: rgba(34, 199, 214, 0.13);
-  --generation: #9b7cff;
-  --generation-soft: rgba(155, 124, 255, 0.14);
-  --judge: #f5c451;
-  --judge-soft: rgba(245, 196, 81, 0.13);
+  /* Agent stages. Each step of the loop keeps one color across the app. */
+  --retrieval: #2cc4d3;
+  --retrieval-soft: rgba(44, 196, 211, 0.13);
+  --generation: #a08bff;
+  --generation-soft: rgba(160, 139, 255, 0.14);
+  --judge: #f1c14e;
+  --judge-soft: rgba(241, 193, 78, 0.13);
   --recovery: #ff8a5b;
   --recovery-soft: rgba(255, 138, 91, 0.13);
 
-  /* Semantic: status */
-  --success: #3ddc97;
-  --success-soft: rgba(61, 220, 151, 0.13);
-  --warning: #f5c451;
-  --warning-soft: rgba(245, 196, 81, 0.13);
-  --danger: #ff6275;
-  --danger-soft: rgba(255, 98, 117, 0.13);
-  --danger-text: #ffb3bd;
-  --abstain: #b48cff;
-  --abstain-soft: rgba(180, 140, 255, 0.14);
-  --info: #9eb6ee;
-  --info-soft: rgba(158, 182, 238, 0.14);
-  --safe: #9eb6ee;
-  --safe-soft: rgba(158, 182, 238, 0.14);
+  /* Status */
+  --success: #3ccf8e;
+  --success-soft: rgba(60, 207, 142, 0.13);
+  --warning: #f1c14e;
+  --warning-soft: rgba(241, 193, 78, 0.13);
+  --danger: #ff6b7a;
+  --danger-soft: rgba(255, 107, 122, 0.13);
+  --danger-line: rgba(255, 107, 122, 0.3);
+  --danger-text: #ffb3bb;
+  --abstain: #b597ff;
+  --abstain-soft: rgba(181, 151, 255, 0.14);
+  --info: #9db4ec;
+  --info-soft: rgba(157, 180, 236, 0.14);
+  --info-line: rgba(157, 180, 236, 0.38);
+  --safe: #9db4ec;
+  --safe-soft: rgba(157, 180, 236, 0.14);
+
+  /* Chrome that used to be hard-coded */
+  --tooltip-bg: #26262b;
+  --tooltip-text: #ededef;
+  --backdrop: rgba(0, 0, 0, 0.6);
+  --scrollbar: rgba(255, 255, 255, 0.12);
+  --scrollbar-hover: rgba(255, 255, 255, 0.2);
+  --grid-dot: rgba(255, 255, 255, 0.055);
+  --edge: rgba(255, 255, 255, 0.28);
+  --avatar-ring: rgba(255, 255, 255, 0.14);
+  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  --hero-glow: rgba(160, 139, 255, 0.09);
+
+  /* Chart series. charts.js reads these names so charts follow the theme. */
+  --c-pass: var(--success);
+  --c-flag: var(--warning);
+  --c-none: #5b5b66;
+  --c-blue: #7aa2ff;
+  --c-slate: #8f9bb3;
+  --c-fail: #f07187;
+  --c-fail-strong: #c2415a;
+  --c-violet: var(--abstain);
+  --c-cyan: #6cc5e0;
+  --c-orange: #f0a35e;
+  --c-track: #2a2a31;
 
   /* Spacing (4px base) */
   --sp-1: 4px;
@@ -107,6 +139,8 @@
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.22);
   --shadow-lg: 0 18px 50px rgba(0, 0, 0, 0.45), 0 0 0 1px var(--border);
+  --shadow-pop: 0 24px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--border);
+  --shadow-btn: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.4);
   --inset-top: inset 0 1px 0 rgba(255, 255, 255, 0.04);
   --ring: 0 0 0 2px var(--bg), 0 0 0 4px var(--brand-line);
 
@@ -142,6 +176,91 @@
   --radius: var(--r-lg);
   --nav: var(--nav-w);
   --top: var(--topbar-h);
+}
+
+/* Light theme. Same token names, so every component follows. White content
+   on a faintly gray canvas, a slightly darker sidebar, depth from soft shadows
+   rather than lighter surfaces. Stage and status colors are darkened for
+   contrast on white. */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --bg-app: #f7f7f8;
+  --bg-sidebar: #f1f1f3;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #ffffff;
+  --bg-hover: rgba(15, 15, 20, 0.045);
+  --bg-active: rgba(79, 82, 221, 0.1);
+  --surface-0: #ffffff;
+  --surface-3: #ececef;
+  --surface-active: rgba(15, 15, 20, 0.07);
+
+  --border-subtle: rgba(15, 15, 20, 0.08);
+  --border-default: rgba(15, 15, 20, 0.12);
+  --border-strong: rgba(15, 15, 20, 0.22);
+
+  --text-primary: #18181b;
+  --text-secondary: #52525b;
+  --text-muted: #71717a;
+  --text-disabled: #a1a1aa;
+  --text-on-accent: #ffffff;
+
+  --brand: #4f52dd;
+  --brand-hover: #3f42c9;
+  --brand-soft: rgba(79, 82, 221, 0.1);
+  --brand-line: rgba(79, 82, 221, 0.4);
+
+  --retrieval: #0b8e9b;
+  --retrieval-soft: rgba(11, 142, 155, 0.1);
+  --generation: #6d4fe0;
+  --generation-soft: rgba(109, 79, 224, 0.1);
+  --judge: #a86a00;
+  --judge-soft: rgba(196, 132, 0, 0.12);
+  --recovery: #d1542a;
+  --recovery-soft: rgba(209, 84, 42, 0.1);
+
+  --success: #12854f;
+  --success-soft: rgba(18, 133, 79, 0.1);
+  --warning: #a86a00;
+  --warning-soft: rgba(196, 132, 0, 0.12);
+  --danger: #d32f45;
+  --danger-soft: rgba(211, 47, 69, 0.09);
+  --danger-line: rgba(211, 47, 69, 0.3);
+  --danger-text: #b4233a;
+  --abstain: #7c4ddb;
+  --abstain-soft: rgba(124, 77, 219, 0.1);
+  --info: #3d5fb8;
+  --info-soft: rgba(61, 95, 184, 0.09);
+  --info-line: rgba(61, 95, 184, 0.32);
+  --safe: #3d5fb8;
+  --safe-soft: rgba(61, 95, 184, 0.09);
+
+  --tooltip-bg: #18181b;
+  --tooltip-text: #fafafa;
+  --backdrop: rgba(24, 24, 27, 0.32);
+  --scrollbar: rgba(15, 15, 20, 0.16);
+  --scrollbar-hover: rgba(15, 15, 20, 0.28);
+  --grid-dot: rgba(15, 15, 20, 0.09);
+  --edge: rgba(15, 15, 20, 0.3);
+  --avatar-ring: rgba(15, 15, 20, 0.1);
+  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  --hero-glow: rgba(109, 79, 224, 0.06);
+
+  --c-none: #b4b4bd;
+  --c-blue: #3b6fe0;
+  --c-slate: #64748b;
+  --c-fail: #d6455d;
+  --c-fail-strong: #a8243b;
+  --c-cyan: #1593b5;
+  --c-orange: #d9792b;
+  --c-track: #e7e7eb;
+
+  --shadow-sm: 0 1px 2px rgba(15, 15, 20, 0.06);
+  --shadow-md: 0 4px 16px rgba(15, 15, 20, 0.07);
+  --shadow-lg: 0 12px 36px rgba(15, 15, 20, 0.12), 0 0 0 1px var(--border-subtle);
+  --shadow-pop: 0 24px 64px rgba(15, 15, 20, 0.18), 0 0 0 1px var(--border-subtle);
+  --shadow-btn: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 1px 2px rgba(15, 15, 20, 0.15);
+  --inset-top: 0 1px 2px rgba(15, 15, 20, 0.04);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -182,7 +301,7 @@ body {
 }
 
 ::selection {
-  background: rgba(124, 140, 255, 0.32);
+  background: var(--brand-line);
 }
 
 a {
@@ -232,7 +351,7 @@ pre {
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+  scrollbar-color: var(--scrollbar) transparent;
 }
 
 ::-webkit-scrollbar {
@@ -241,14 +360,14 @@ pre {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--scrollbar);
   border: 3px solid transparent;
   border-radius: var(--r-full);
   background-clip: content-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(255, 255, 255, 0.18);
+  background-color: var(--scrollbar-hover);
 }
 
 /* ---------- 3. Primitives ---------- */
@@ -349,7 +468,7 @@ button.primary,
 .btn-primary {
   background: var(--brand);
   border-color: transparent;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 1px 2px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-btn);
   color: var(--text-on-accent);
   font-weight: 600;
 }
@@ -439,7 +558,7 @@ button.ghost:disabled {
   appearance: none;
   -webkit-appearance: none;
   padding-right: 28px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.5)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-image: var(--select-chevron);
   background-repeat: no-repeat;
   background-position: right 9px center;
   cursor: pointer;
@@ -534,7 +653,7 @@ details > summary:hover {
 .eval-tabs button.active,
 .seg-tabs button.active {
   background: var(--surface-3);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35), inset 0 0 0 1px var(--border);
+  box-shadow: var(--shadow-sm), inset 0 0 0 1px var(--border);
   color: var(--text);
 }
 
@@ -662,9 +781,9 @@ details > summary:hover {
   transform: translate(-50%, -2px);
   padding: 5px 8px;
   border-radius: var(--r-sm);
-  background: #1d2230;
+  background: var(--tooltip-bg);
   box-shadow: var(--shadow-lg);
-  color: var(--text);
+  color: var(--tooltip-text);
   font-size: var(--fs-2xs);
   font-weight: 500;
   letter-spacing: 0;
@@ -730,7 +849,7 @@ details > summary:hover {
   gap: 10px;
   margin-top: 10px;
   padding: 10px 12px 10px 36px;
-  border: 1px solid rgba(255, 98, 117, 0.28);
+  border: 1px solid var(--danger-line);
   border-radius: var(--r-lg);
   background: linear-gradient(0deg, var(--danger-soft), var(--danger-soft)), var(--surface-1);
   color: var(--danger-text);
@@ -913,7 +1032,7 @@ details > summary:hover {
   height: 22px;
   border-radius: var(--r-sm);
   background: conic-gradient(from 210deg, var(--retrieval), var(--brand), var(--generation), var(--recovery), var(--retrieval));
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+  box-shadow: inset 0 0 0 1px var(--avatar-ring);
 }
 
 .brand-mark::after {
@@ -982,7 +1101,7 @@ details > summary:hover {
   height: 20px;
   border-radius: 5px;
   background: var(--brand-soft);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 0 0 1px var(--avatar-ring);
   color: var(--text);
   font-size: 10.5px;
   font-weight: 650;
@@ -1203,7 +1322,7 @@ details > summary:hover {
   height: 7px;
   border-radius: 50%;
   background: var(--text-3);
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 0 3px var(--bg-hover);
 }
 
 .env-dot.is-ok::before {
@@ -1459,10 +1578,10 @@ details > summary:hover {
 
 @keyframes pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(124, 140, 255, 0.55);
+    box-shadow: 0 0 0 0 var(--brand-line);
   }
   100% {
-    box-shadow: 0 0 0 7px rgba(124, 140, 255, 0);
+    box-shadow: 0 0 0 7px transparent;
   }
 }
 
@@ -1504,7 +1623,7 @@ details > summary:hover {
   justify-content: center;
   align-items: flex-start;
   padding-top: 14vh;
-  background: rgba(4, 6, 10, 0.55);
+  background: var(--backdrop);
   animation: fade-in var(--dur) var(--ease);
 }
 
@@ -1517,7 +1636,7 @@ details > summary:hover {
   overflow: hidden;
   border-radius: var(--r-2xl);
   background: var(--surface-2);
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--border);
+  box-shadow: var(--shadow-pop);
   animation: pop-in var(--dur-slow) var(--ease-out);
 }
 
@@ -3289,7 +3408,7 @@ button.palette-item.is-on {
   overflow: hidden;
   outline: none;
   background-color: var(--bg);
-  background-image: radial-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1px);
+  background-image: radial-gradient(var(--grid-dot) 1px, transparent 1px);
   background-size: 18px 18px;
   touch-action: none;
 }
@@ -3318,7 +3437,7 @@ button.palette-item.is-on {
 
 .pg-edge {
   fill: none;
-  stroke: rgba(255, 255, 255, 0.28);
+  stroke: var(--edge);
   stroke-width: 1.75;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -3354,18 +3473,18 @@ button.palette-item.is-on {
   background: var(--bg-elev);
   border: 1px solid var(--line-strong);
   border-radius: 8px;
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-md);
   cursor: grab;
   user-select: none;
 }
 
 .flow-node.is-selected {
   border-color: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent), 0 10px 28px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0 0 1px var(--accent), var(--shadow-md);
 }
 
 .flow-node.is-error {
-  border-color: rgba(255, 98, 117, 0.6);
+  border-color: var(--danger);
 }
 
 .flow-body {
@@ -4822,7 +4941,7 @@ button.flow-port:hover,
   justify-content: center;
   padding: 48px 24px;
   background:
-    radial-gradient(ellipse at 20% 0%, rgba(155, 124, 255, 0.09), transparent 46%),
+    radial-gradient(ellipse at 20% 0%, var(--hero-glow), transparent 46%),
     var(--bg);
 }
 
@@ -5166,7 +5285,7 @@ button.flow-port:hover,
   align-items: center;
   justify-content: center;
   padding: 24px;
-  background: rgba(0, 0, 0, 0.55);
+  background: var(--backdrop);
 }
 
 .api-dialog-card {
@@ -6062,7 +6181,7 @@ button.flow-port:hover,
 }
 
 .tc-phase.is-safe {
-  box-shadow: inset 0 0 0 1px rgba(158, 182, 238, 0.35);
+  box-shadow: inset 0 0 0 1px var(--info-line);
 }
 
 .tc-safe-note {
@@ -6132,7 +6251,7 @@ button.flow-port:hover,
 }
 
 .tc-answer.is-safe {
-  box-shadow: inset 0 0 0 1px rgba(158, 182, 238, 0.4);
+  box-shadow: inset 0 0 0 1px var(--info-line);
 }
 
 .tc-k {
@@ -6307,8 +6426,8 @@ button.flow-port:hover,
   margin-top: 8px;
   padding: 14px 16px;
   border-radius: var(--r-md);
-  background: rgba(255, 98, 117, 0.06);
-  box-shadow: inset 0 0 0 1px rgba(255, 98, 117, 0.28);
+  background: var(--danger-soft);
+  box-shadow: inset 0 0 0 1px var(--danger-line);
 }
 
 .api-code {
@@ -6530,4 +6649,349 @@ button.flow-port:hover,
 .rel-filters input {
   width: 100%;
   min-width: 0;
+}
+
+/* Square icon button (theme toggle). */
+.btn.btn-icon {
+  width: 28px;
+  padding: 0;
+  justify-content: center;
+}
+
+.theme-ico {
+  display: inline-flex;
+}
+
+/* ---------- Agent loop map (Test Console) ----------
+   Six stages, each a node colored by its stage when it ran, by status when it
+   flagged or verified, and dashed when it was not part of the run. */
+.loop-map {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0;
+  margin: 14px 0 4px;
+  padding: 14px 12px;
+  list-style: none;
+  border-radius: var(--r-xl);
+  background: var(--bg-surface);
+  box-shadow: inset 0 0 0 1px var(--border-subtle), var(--inset-top);
+}
+
+.loop-stage {
+  --stage: var(--text-muted);
+  --stage-soft: var(--surface-3);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  text-align: center;
+}
+
+/* Connector from this node to the next one. */
+.loop-stage:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 17px;
+  left: calc(50% + 22px);
+  right: calc(-50% + 22px);
+  height: 2px;
+  border-radius: 2px;
+  background: var(--border-default);
+}
+
+.loop-stage:not(.is-skipped):not(.is-idle):has(+ .loop-stage:not(.is-skipped):not(.is-idle))::after {
+  background: linear-gradient(90deg, var(--stage), var(--border-strong));
+  opacity: 0.6;
+}
+
+.loop-node {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--stage-soft);
+  color: var(--stage);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--stage) 35%, transparent);
+  transition: transform var(--dur) var(--ease);
+}
+
+.loop-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.loop-label {
+  color: var(--text);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+}
+
+.loop-note {
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 11px;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.loop-stage.is-done.is-retrieve { --stage: var(--retrieval); --stage-soft: var(--retrieval-soft); }
+.loop-stage.is-done.is-generate { --stage: var(--generation); --stage-soft: var(--generation-soft); }
+.loop-stage.is-done.is-judge { --stage: var(--judge); --stage-soft: var(--judge-soft); }
+.loop-stage.is-done.is-diagnose { --stage: var(--text-secondary); --stage-soft: var(--surface-3); }
+.loop-stage.is-done.is-recover { --stage: var(--recovery); --stage-soft: var(--recovery-soft); }
+.loop-stage.is-flagged { --stage: var(--warning); --stage-soft: var(--warning-soft); }
+.loop-stage.is-pending { --stage: var(--brand); --stage-soft: var(--brand-soft); }
+.loop-stage.is-pass { --stage: var(--success); --stage-soft: var(--success-soft); }
+.loop-stage.is-fail { --stage: var(--danger); --stage-soft: var(--danger-soft); }
+.loop-stage.is-safe { --stage: var(--info); --stage-soft: var(--info-soft); }
+.loop-stage.is-neutral { --stage: var(--text-secondary); --stage-soft: var(--surface-3); }
+
+.loop-stage.is-flagged .loop-note,
+.loop-stage.is-fail .loop-note { color: var(--stage); }
+.loop-stage.is-pass .loop-note { color: var(--success); }
+
+.loop-stage.is-skipped .loop-node,
+.loop-stage.is-idle .loop-node,
+.loop-stage.is-pending .loop-node {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--border-strong);
+}
+
+.loop-stage.is-pending .loop-node {
+  box-shadow: inset 0 0 0 1.5px var(--brand);
+  animation: loop-pulse 1.6s var(--ease) infinite;
+}
+
+.loop-stage.is-skipped .loop-node { color: var(--text-disabled); }
+.loop-stage.is-skipped .loop-label { color: var(--text-muted); }
+
+/* Idle: the outline of the loop, each node in its stage color but quiet. */
+.loop-map.is-idle .loop-stage.is-retrieve { --stage: var(--retrieval); }
+.loop-map.is-idle .loop-stage.is-generate { --stage: var(--generation); }
+.loop-map.is-idle .loop-stage.is-judge { --stage: var(--judge); }
+.loop-map.is-idle .loop-stage.is-diagnose { --stage: var(--text-secondary); }
+.loop-map.is-idle .loop-stage.is-recover { --stage: var(--recovery); }
+.loop-map.is-idle .loop-stage.is-verify { --stage: var(--success); }
+.loop-map.is-idle .loop-node { color: var(--stage); }
+.loop-map.is-idle .loop-note { display: none; }
+
+@keyframes loop-pulse {
+  0%, 100% { box-shadow: inset 0 0 0 1.5px var(--brand), 0 0 0 0 var(--brand-soft); }
+  50% { box-shadow: inset 0 0 0 1.5px var(--brand), 0 0 0 6px transparent; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loop-stage.is-pending .loop-node { animation: none; }
+}
+
+@media (max-width: 700px) {
+  .loop-map {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    row-gap: 16px;
+  }
+  .loop-stage:nth-child(3)::after { display: none; }
+}
+
+/* Idle Test Console: a real empty state instead of floating chips. */
+.tc-flight > .tc-idle,
+.tc-idle {
+  min-height: 0;
+  justify-content: flex-start;
+  align-items: stretch;
+  gap: 8px;
+  margin: 18px 0 8px;
+  padding: 22px 20px 18px;
+  border-radius: var(--r-xl);
+  background: var(--bg-surface);
+  box-shadow: inset 0 0 0 1px var(--border-subtle);
+}
+
+.tc-idle-kicker {
+  margin: 0;
+  color: var(--brand);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.tc-idle-title {
+  margin: 0;
+  color: var(--text);
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.tc-idle .tc-empty {
+  max-width: 62ch;
+  font-size: var(--fs-sm);
+}
+
+.tc-idle .loop-map {
+  margin-top: 10px;
+  background: transparent;
+  box-shadow: none;
+  padding: 8px 0 0;
+}
+
+.tc-idle.tc-idle-side {
+  margin: 0;
+  padding: 16px;
+}
+
+/* Step timeline: an icon per step on one continuous rail. */
+.tc-step {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 10px;
+  padding: 7px 0;
+}
+
+.tc-step:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  top: 31px;
+  bottom: -7px;
+  left: 11px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--border-subtle);
+}
+
+.tc-flight .tc-step .tc-rail {
+  --stage: var(--brand);
+  --stage-soft: var(--brand-soft);
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  margin-top: 0;
+  border-radius: 50%;
+  background: var(--stage-soft);
+  color: var(--stage);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--stage) 30%, transparent);
+}
+
+.tc-flight .tc-step.is-query .tc-rail { --stage: var(--text-secondary); --stage-soft: var(--surface-3); }
+.tc-flight .tc-step.is-retrieve .tc-rail { --stage: var(--retrieval); --stage-soft: var(--retrieval-soft); }
+.tc-flight .tc-step.is-generate .tc-rail { --stage: var(--generation); --stage-soft: var(--generation-soft); }
+.tc-flight .tc-step.is-judge .tc-rail { --stage: var(--judge); --stage-soft: var(--judge-soft); }
+.tc-flight .tc-step.is-diagnose .tc-rail { --stage: var(--text-secondary); --stage-soft: var(--surface-3); }
+.tc-flight .tc-step.is-recover .tc-rail,
+.tc-flight .tc-step.is-why .tc-rail,
+.tc-flight .tc-step.is-source .tc-rail,
+.tc-flight .tc-step.is-trigger .tc-rail { --stage: var(--recovery); --stage-soft: var(--recovery-soft); }
+.tc-flight .tc-step.is-abstain .tc-rail { --stage: var(--abstain); --stage-soft: var(--abstain-soft); }
+.tc-flight .tc-step.is-verify .tc-rail { --stage: var(--success); --stage-soft: var(--success-soft); }
+.tc-flight .tc-phase.is-safe .tc-rail { --stage: var(--info); --stage-soft: var(--info-soft); }
+
+.tc-step-title {
+  padding-top: 2px;
+  font-size: var(--fs-sm);
+}
+
+.tc-phase {
+  border-radius: var(--r-xl);
+  padding: 14px 16px 10px;
+}
+
+.tc-phase h2 {
+  margin-bottom: 6px;
+  color: var(--text);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+
+/* ---------- Overview hero: agent loop funnel + attention cards ---------- */
+.ov-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 280px);
+  gap: 10px;
+}
+
+.ov-loop {
+  padding: 14px 16px 16px;
+  border-radius: var(--r-xl);
+  background: var(--bg-surface);
+  box-shadow: inset 0 0 0 1px var(--border-subtle), var(--inset-top);
+}
+
+.ov-loop-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.ov-loop-head h2 {
+  margin: 0;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+
+.ov-loop-head span {
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+}
+
+.loop-map.is-funnel {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin: 8px 0 0;
+  padding: 6px 0 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.loop-value {
+  color: var(--text);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.15;
+}
+
+.loop-map.is-funnel .loop-note {
+  white-space: normal;
+}
+
+.loop-map.is-funnel .loop-stage.is-done.is-verify { --stage: var(--success); --stage-soft: var(--success-soft); }
+
+.ov-metrics.is-side {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+}
+
+/* The five-card grid rules no longer apply to the side pair. */
+.ov-metrics.is-side > .ov-metric {
+  grid-column: auto !important;
+}
+
+@media (max-width: 1100px) {
+  .ov-hero { grid-template-columns: minmax(0, 1fr); }
+  .ov-metrics.is-side { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 700px) {
+  .loop-map.is-funnel { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .ov-metrics.is-side { grid-template-columns: minmax(0, 1fr); }
+}
+
+.ov-loop {
+  display: flex;
+  flex-direction: column;
+}
+
+.ov-loop .loop-map.is-funnel {
+  flex: 1 1 auto;
+  align-content: center;
 }

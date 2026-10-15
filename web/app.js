@@ -356,7 +356,14 @@ function commandList() {
       label: "Refresh runs",
       icon: "refresh-cw",
       run: () => loadTraces().catch((error) => showError(error.message)),
-    }
+    },
+    ...window.Theme.PREFS.map((pref) => ({
+      group: "Theme",
+      label: { system: "Use system theme", light: "Light theme", dark: "Dark theme" }[pref],
+      icon: { system: "monitor", light: "sun", dark: "moon" }[pref],
+      hint: window.Theme.readPref() === pref ? "Current" : "",
+      run: () => window.Theme.apply(pref),
+    }))
   );
   const activeId = state.meta && state.meta.corpus_id;
   state.corpora
@@ -425,7 +432,29 @@ function runCmdk(index) {
   item.run();
 }
 
+function renderThemeToggle() {
+  const button = $("theme-toggle");
+  const ico = $("theme-ico");
+  if (!button || !ico) return;
+  const next = window.Theme.toggled(window.Theme.current());
+  const label = next === "light" ? "Switch to light theme" : "Switch to dark theme";
+  ico.innerHTML = icon(next === "light" ? "sun" : "moon", 15);
+  button.setAttribute("aria-label", label);
+  button.dataset.tip = next === "light" ? "Light theme" : "Dark theme";
+}
+
 function bindShell() {
+  const themeButton = $("theme-toggle");
+  if (themeButton) {
+    themeButton.addEventListener("click", () => window.Theme.apply(window.Theme.toggled(window.Theme.current())));
+  }
+  document.addEventListener("themechange", () => {
+    renderThemeToggle();
+    // Charts read CSS variables, so they repaint on their own. Anything that
+    // cached a computed color would re-render here.
+  });
+  window.Theme.watchSystem();
+  renderThemeToggle();
   ["open-cmdk", "topbar-cmdk"].forEach((id) => {
     const button = $(id);
     if (button) button.addEventListener("click", openCmdk);
@@ -4631,21 +4660,62 @@ function renderFlightHistory() {
     .join("");
 }
 
+// Icon per agent stage and per flight step kind. One icon language for the
+// loop map and the step timeline.
+const STAGE_ICONS = {
+  retrieve: "search",
+  generate: "sparkles",
+  judge: "scale",
+  diagnose: "activity",
+  recover: "wrench",
+  verify: "shield-check",
+  query: "message-square",
+  why: "info",
+  source: "git-branch",
+  trigger: "zap",
+  abstain: "ban",
+};
+
+const STAGE_STATE_LABELS = {
+  idle: "Not run yet",
+  done: "Done",
+  flagged: "Flagged",
+  pending: "Waiting for confirmation",
+  skipped: "Not part of this run",
+  pass: "Passed",
+  fail: "Failed",
+  neutral: "No change",
+  safe: "Safe stop",
+};
+
+function loopMapHtml(flight) {
+  const stages = window.FlightRecorder.loopStages(flight);
+  return `<ol class="loop-map${flight ? "" : " is-idle"}" aria-label="Agent loop">${stages
+    .map(
+      (stage) => `<li class="loop-stage is-${escapeHtml(stage.key)} is-${escapeHtml(stage.state)}">
+        <span class="loop-node" title="${escapeHtml(`${stage.label}: ${STAGE_STATE_LABELS[stage.state] || stage.state}`)}">${icon(STAGE_ICONS[stage.key], 15)}</span>
+        <span class="loop-text">
+          <span class="loop-label">${escapeHtml(stage.label)}</span>
+          <span class="loop-note">${escapeHtml(stage.note || STAGE_STATE_LABELS[stage.state] || "")}</span>
+        </span>
+        <span class="sr-only">${escapeHtml(STAGE_STATE_LABELS[stage.state] || stage.state)}</span>
+      </li>`
+    )
+    .join("")}</ol>`;
+}
+
 function flightIdleHtml() {
   return `<div class="tc-idle">
-    <p class="tc-empty">Run a test query to inspect retrieval, evaluation, recovery, and verification.</p>
-    <ol class="tc-flow" aria-label="What a run shows">
-      <li>Retrieve</li>
-      <li>Judge</li>
-      <li>Recover</li>
-      <li>Verify</li>
-    </ol>
+    <p class="tc-idle-kicker">Agent loop</p>
+    <h2 class="tc-idle-title">Ask a question and watch the loop work</h2>
+    <p class="tc-empty">The agent retrieves passages, drafts an answer, judges its own grounding, diagnoses a failure, recovers, and verifies whether the recovery helped.</p>
+    ${loopMapHtml(null)}
   </div>`;
 }
 
 function flightHtml(flight, options) {
   const proposal = options && options.propose === false ? "" : flightProposal(flight);
-  return `${flightSummary(flight)}${proposal}${flightWarning(flight)}${flight.phases.map((phase) => phaseHtml(phase, flight)).join("")}${answerCompare(flight)}${evidenceCompare(flight)}`;
+  return `${loopMapHtml(flight)}${flightSummary(flight)}${proposal}${flightWarning(flight)}${flight.phases.map((phase) => phaseHtml(phase, flight)).join("")}${answerCompare(flight)}${evidenceCompare(flight)}`;
 }
 
 function flightSummary(flight) {
@@ -4773,7 +4843,7 @@ function phaseHtml(phase, flight) {
       const title = shown.title;
       const detail = diagnosisText(shown.detail);
       return `<div class="tc-step is-${escapeHtml(step.kind || "step")}${step.kind === "verify" ? " is-verify" : ""}">
-        <span class="tc-rail" aria-hidden="true"></span>
+        <span class="tc-rail" aria-hidden="true">${icon(STAGE_ICONS[step.kind] || "info", 12)}</span>
         <div>
           <div class="tc-step-title">${escapeHtml(title)}</div>
           ${detail ? `<div class="tc-step-detail">${escapeHtml(detail)}</div>` : ""}
@@ -5002,13 +5072,53 @@ function renderOverview() {
   `;
 }
 
+// Overview hero: the agent loop as a funnel over every recorded run, with the
+// two attention numbers beside it. Same counts the old five cards showed.
 function overviewMetrics(data) {
   const required = data.recovery_required || {};
   const verified = data.verified_improved || {};
-  return `<div class="ov-metrics">
-    ${metric("Judged runs", String(data.judged_runs || 0), data.judged_runs ? "Runtime evaluations" : "No judged runs yet")}
-    ${rateMetric("Recovery required", required, "of judged runs", "No judged runs")}
-    ${rateMetric("Verified improved", verified, "of applied recoveries", "No applied recoveries")}
+  const outcomes = data.outcomes || {};
+  const ofText = (bucket, suffix) =>
+    bucket.total ? `${formatPercent(bucket.rate) || "0%"} ${suffix}` : "";
+  const stages = [
+    { key: "retrieve", label: "Retrieve", value: data.observed_runs || 0, note: "runs recorded" },
+    { key: "judge", label: "Judge", value: data.judged_runs || 0, note: data.judged_runs ? "judged at runtime" : "no judged runs yet" },
+    {
+      key: "diagnose",
+      label: "Needs recovery",
+      value: required.count || 0,
+      note: ofText(required, "of judged runs") || "nothing judged",
+      tone: required.count ? "flagged" : "",
+    },
+    { key: "recover", label: "Recover", value: outcomes.applied || 0, note: "recoveries applied" },
+    {
+      key: "verify",
+      label: "Verified improved",
+      value: verified.total ? `${verified.count || 0}/${verified.total}` : "—",
+      note: ofText(verified, "of applied recoveries") || "no applied recoveries",
+      tone: verified.count ? "pass" : "",
+    },
+  ];
+  const funnel = stages
+    .map((stage) => {
+      const empty = stage.value === 0 || stage.value === "—";
+      const state = empty ? "skipped" : stage.tone || "done";
+      return `<li class="loop-stage is-${stage.key} is-${state}">
+        <span class="loop-node">${icon(STAGE_ICONS[stage.key], 15)}</span>
+        <span class="loop-text">
+          <span class="loop-value">${escapeHtml(String(stage.value))}</span>
+          <span class="loop-label">${escapeHtml(stage.label)}</span>
+          <span class="loop-note">${escapeHtml(stage.note)}</span>
+        </span>
+      </li>`;
+    })
+    .join("");
+  return `<div class="ov-hero">
+    <section class="ov-loop" aria-label="Agent loop across all runs">
+      <div class="ov-loop-head"><h2>Agent loop</h2><span>All recorded runs in this system</span></div>
+      <ol class="loop-map is-funnel">${funnel}</ol>
+    </section>
+    <div class="ov-metrics is-side">
     ${metric(
       "Unresolved",
       String(data.unresolved || 0),
@@ -5020,6 +5130,7 @@ function overviewMetrics(data) {
       String(data.safe_stops || 0),
       "Bounded recovery stopped. Not an improved answer."
     )}
+    </div>
   </div>`;
 }
 

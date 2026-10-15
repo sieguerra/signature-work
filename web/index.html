@@ -4,8 +4,23 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>swrag · Reliability</title>
-    <meta name="color-scheme" content="dark" />
-    <link rel="stylesheet" href="/static/styles.css?v=71" />
+    <meta name="color-scheme" content="dark light" />
+    <script>
+      // Same rule as theme.js, run before first paint so the page never flashes the wrong theme.
+      (function () {
+        var pref = "system";
+        try { pref = localStorage.getItem("swrag.theme") || "system"; } catch (e) {}
+        if (pref !== "light" && pref !== "dark") pref = "system";
+        var light = false;
+        try { light = window.matchMedia("(prefers-color-scheme: light)").matches; } catch (e) {}
+        document.documentElement.dataset.theme = pref === "system" ? (light ? "light" : "dark") : pref;
+        document.documentElement.dataset.themePref = pref;
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
+    <link rel="stylesheet" href="/static/styles.css?v=76" />
   </head>
   <body>
     <div id="app" data-view="overview">
@@ -88,6 +103,9 @@
           </nav>
           <div class="topbar-actions" id="topbar-actions">
             <span class="run-state" id="run-state" role="status" aria-live="polite"></span>
+            <button type="button" class="btn btn-ghost btn-sm btn-icon" id="theme-toggle" aria-label="Switch to light theme" data-tip="Light theme" data-tip-align="end">
+              <span class="theme-ico" id="theme-ico" aria-hidden="true"></span>
+            </button>
             <button type="button" class="btn btn-ghost btn-sm" id="topbar-cmdk" aria-label="Open command palette" data-tip="Command palette" data-tip-align="end">
               <span data-icon="command" data-icon-size="13"></span><span>K</span>
             </button>
@@ -307,11 +325,12 @@
       </div>
       <div class="toasts" id="toasts" aria-live="polite"></div>
     </div>
-    <script src="/static/icons.js?v=43"></script>
-    <script src="/static/charts.js?v=47"></script>
-    <script src="/static/flight-recorder.js?v=5"></script>
+    <script src="/static/theme.js?v=1"></script>
+    <script src="/static/icons.js?v=44"></script>
+    <script src="/static/charts.js?v=48"></script>
+    <script src="/static/flight-recorder.js?v=6"></script>
     <script src="/static/reliability.js?v=5"></script>
     <script src="/static/agent-config.js?v=46"></script>
-    <script src="/static/app.js?v=68"></script>
+    <script src="/static/app.js?v=71"></script>
   </body>
 </html>

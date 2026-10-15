@@ -635,3 +635,43 @@ test("a still-failing run that is not a safe stop keeps its own words", () => {
   const step = { kind: "verify", title: "Still failing", detail: "x", outcome: "still_failing" };
   assert.equal(presentStep(phase, step, "still_failing").title, "Still failing");
 });
+
+test("loop map: a regenerate that improved reads flagged judge, done recover, passing verify", () => {
+  const { loopStages } = require("./flight-recorder.js");
+  const flight = buildFlight([
+    {
+      run_id: "loop-1",
+      query: "When does the library open?",
+      run_mode: "loop",
+      answer: "Dude, 8 to 10.",
+      retrieved_chunks: [chunk("a", 0.6)],
+      first_pass_evaluation: { evidence_sufficient: true, answer_supported: false },
+      runtime_evaluation: { evidence_sufficient: true, answer_supported: true },
+      recovery: { action: "regenerate" },
+      recovery_status: "applied",
+      verification: { outcome: "improved" },
+      recovery_attempts: [{ action: "regenerate", executed: true, answer_relation: "generated", answer: "8:00 to 22:00." }],
+    },
+  ]);
+  const stages = Object.fromEntries(loopStages(flight).map((stage) => [stage.key, stage]));
+  assert.deepEqual(Object.keys(stages), ["retrieve", "generate", "judge", "diagnose", "recover", "verify"]);
+  assert.equal(stages.retrieve.state, "done");
+  assert.equal(stages.retrieve.note, "1 passage");
+  assert.equal(stages.judge.state, "flagged");
+  assert.equal(stages.judge.note, "Answer unsupported");
+  assert.equal(stages.recover.state, "done");
+  assert.equal(stages.recover.note, "Regenerate");
+  assert.equal(stages.verify.state, "pass");
+});
+
+test("loop map: retrieve only skips everything after retrieval", () => {
+  const { loopStages } = require("./flight-recorder.js");
+  const flight = buildFlight([{ run_id: "r", query: "q", run_mode: "retrieve_only", retrieved_chunks: [chunk("a", 0.5), chunk("b", 0.4)] }]);
+  const states = loopStages(flight).map((stage) => `${stage.key}:${stage.state}`);
+  assert.deepEqual(states, ["retrieve:done", "generate:skipped", "judge:skipped", "diagnose:skipped", "recover:skipped", "verify:skipped"]);
+});
+
+test("loop map with no run is the idle outline", () => {
+  const { loopStages } = require("./flight-recorder.js");
+  assert.ok(loopStages(null).every((stage) => stage.state === "idle"));
+});
