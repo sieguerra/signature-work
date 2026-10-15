@@ -1,0 +1,13 @@
+<!-- Groundloop mark: the agent loop as four stage arcs (retrieve, generate,
+     judge, recover) around a verified, grounded answer. Light variant. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Groundloop">
+  <rect width="32" height="32" rx="8" fill="#ffffff"/>
+  <rect x="0.5" y="0.5" width="31" height="31" rx="7.5" fill="none" stroke="#0f0f14" stroke-opacity="0.12"/>
+  <g fill="none" stroke-width="2.8" stroke-linecap="round">
+    <path d="M17.6 7.75 A8.4 8.4 0 0 1 24.25 14.4" stroke="#0b9aa8"/>
+    <path d="M24.25 17.6 A8.4 8.4 0 0 1 17.6 24.25" stroke="#6d4fe0"/>
+    <path d="M14.4 24.25 A8.4 8.4 0 0 1 7.75 17.6" stroke="#e0a100"/>
+    <path d="M7.75 14.4 A8.4 8.4 0 0 1 14.4 7.75" stroke="#e2602f"/>
+  </g>
+  <circle cx="16" cy="16" r="3.1" fill="#12a05f"/>
+</svg>

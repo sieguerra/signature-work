@@ -1,4 +1,5 @@
-// Light / dark theme. The preference is "system", "light", or "dark"; the
+// Light / dark theme. The preference is "light" (the default), "dark", or
+// "system" (follow the OS); the
 // applied theme is always "light" or "dark" on <html data-theme>. index.html
 // runs the same resolution inline before first paint so there is no flash.
 
@@ -9,9 +10,10 @@
 })(typeof globalThis !== "undefined" ? globalThis : this, function () {
   const KEY = "swrag.theme";
   const PREFS = ["system", "light", "dark"];
+  const DEFAULT_PREF = "light";
 
   function normalize(pref) {
-    return PREFS.includes(pref) ? pref : "system";
+    return PREFS.includes(pref) ? pref : DEFAULT_PREF;
   }
 
   function resolveTheme(pref, systemPrefersLight) {
@@ -38,7 +40,7 @@
     try {
       return normalize(localStorage.getItem(KEY));
     } catch {
-      return "system";
+      return DEFAULT_PREF;
     }
   }
 
@@ -71,5 +73,5 @@
     }
   }
 
-  return { KEY, PREFS, normalize, resolveTheme, toggled, readPref, apply, current, watchSystem };
+  return { KEY, PREFS, DEFAULT_PREF, normalize, resolveTheme, toggled, readPref, apply, current, watchSystem };
 });

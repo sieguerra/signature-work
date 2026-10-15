@@ -9,10 +9,11 @@ test("system follows the OS, explicit choices win", () => {
   assert.equal(resolveTheme("dark", true), "dark");
 });
 
-test("unknown or missing preferences fall back to system", () => {
-  assert.equal(normalize(null), "system");
-  assert.equal(normalize("sepia"), "system");
-  assert.equal(resolveTheme(undefined, true), "light");
+test("unknown or missing preferences fall back to light, the default", () => {
+  assert.equal(normalize(null), "light");
+  assert.equal(normalize("sepia"), "light");
+  assert.equal(resolveTheme(undefined, false), "light");
+  assert.equal(resolveTheme("system", false), "dark");
 });
 
 test("the toggle flips what is on screen", () => {
