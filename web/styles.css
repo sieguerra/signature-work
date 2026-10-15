@@ -6661,3 +6661,337 @@ button.flow-port:hover,
 .theme-ico {
   display: inline-flex;
 }
+
+/* ---------- Agent loop map (Test Console) ----------
+   Six stages, each a node colored by its stage when it ran, by status when it
+   flagged or verified, and dashed when it was not part of the run. */
+.loop-map {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0;
+  margin: 14px 0 4px;
+  padding: 14px 12px;
+  list-style: none;
+  border-radius: var(--r-xl);
+  background: var(--bg-surface);
+  box-shadow: inset 0 0 0 1px var(--border-subtle), var(--inset-top);
+}
+
+.loop-stage {
+  --stage: var(--text-muted);
+  --stage-soft: var(--surface-3);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  text-align: center;
+}
+
+/* Connector from this node to the next one. */
+.loop-stage:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 17px;
+  left: calc(50% + 22px);
+  right: calc(-50% + 22px);
+  height: 2px;
+  border-radius: 2px;
+  background: var(--border-default);
+}
+
+.loop-stage:not(.is-skipped):not(.is-idle):has(+ .loop-stage:not(.is-skipped):not(.is-idle))::after {
+  background: linear-gradient(90deg, var(--stage), var(--border-strong));
+  opacity: 0.6;
+}
+
+.loop-node {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--stage-soft);
+  color: var(--stage);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--stage) 35%, transparent);
+  transition: transform var(--dur) var(--ease);
+}
+
+.loop-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.loop-label {
+  color: var(--text);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+}
+
+.loop-note {
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 11px;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.loop-stage.is-done.is-retrieve { --stage: var(--retrieval); --stage-soft: var(--retrieval-soft); }
+.loop-stage.is-done.is-generate { --stage: var(--generation); --stage-soft: var(--generation-soft); }
+.loop-stage.is-done.is-judge { --stage: var(--judge); --stage-soft: var(--judge-soft); }
+.loop-stage.is-done.is-diagnose { --stage: var(--text-secondary); --stage-soft: var(--surface-3); }
+.loop-stage.is-done.is-recover { --stage: var(--recovery); --stage-soft: var(--recovery-soft); }
+.loop-stage.is-flagged { --stage: var(--warning); --stage-soft: var(--warning-soft); }
+.loop-stage.is-pending { --stage: var(--brand); --stage-soft: var(--brand-soft); }
+.loop-stage.is-pass { --stage: var(--success); --stage-soft: var(--success-soft); }
+.loop-stage.is-fail { --stage: var(--danger); --stage-soft: var(--danger-soft); }
+.loop-stage.is-safe { --stage: var(--info); --stage-soft: var(--info-soft); }
+.loop-stage.is-neutral { --stage: var(--text-secondary); --stage-soft: var(--surface-3); }
+
+.loop-stage.is-flagged .loop-note,
+.loop-stage.is-fail .loop-note { color: var(--stage); }
+.loop-stage.is-pass .loop-note { color: var(--success); }
+
+.loop-stage.is-skipped .loop-node,
+.loop-stage.is-idle .loop-node,
+.loop-stage.is-pending .loop-node {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--border-strong);
+}
+
+.loop-stage.is-pending .loop-node {
+  box-shadow: inset 0 0 0 1.5px var(--brand);
+  animation: loop-pulse 1.6s var(--ease) infinite;
+}
+
+.loop-stage.is-skipped .loop-node { color: var(--text-disabled); }
+.loop-stage.is-skipped .loop-label { color: var(--text-muted); }
+
+/* Idle: the outline of the loop, each node in its stage color but quiet. */
+.loop-map.is-idle .loop-stage.is-retrieve { --stage: var(--retrieval); }
+.loop-map.is-idle .loop-stage.is-generate { --stage: var(--generation); }
+.loop-map.is-idle .loop-stage.is-judge { --stage: var(--judge); }
+.loop-map.is-idle .loop-stage.is-diagnose { --stage: var(--text-secondary); }
+.loop-map.is-idle .loop-stage.is-recover { --stage: var(--recovery); }
+.loop-map.is-idle .loop-stage.is-verify { --stage: var(--success); }
+.loop-map.is-idle .loop-node { color: var(--stage); }
+.loop-map.is-idle .loop-note { display: none; }
+
+@keyframes loop-pulse {
+  0%, 100% { box-shadow: inset 0 0 0 1.5px var(--brand), 0 0 0 0 var(--brand-soft); }
+  50% { box-shadow: inset 0 0 0 1.5px var(--brand), 0 0 0 6px transparent; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loop-stage.is-pending .loop-node { animation: none; }
+}
+
+@media (max-width: 700px) {
+  .loop-map {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    row-gap: 16px;
+  }
+  .loop-stage:nth-child(3)::after { display: none; }
+}
+
+/* Idle Test Console: a real empty state instead of floating chips. */
+.tc-flight > .tc-idle,
+.tc-idle {
+  min-height: 0;
+  justify-content: flex-start;
+  align-items: stretch;
+  gap: 8px;
+  margin: 18px 0 8px;
+  padding: 22px 20px 18px;
+  border-radius: var(--r-xl);
+  background: var(--bg-surface);
+  box-shadow: inset 0 0 0 1px var(--border-subtle);
+}
+
+.tc-idle-kicker {
+  margin: 0;
+  color: var(--brand);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.tc-idle-title {
+  margin: 0;
+  color: var(--text);
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.tc-idle .tc-empty {
+  max-width: 62ch;
+  font-size: var(--fs-sm);
+}
+
+.tc-idle .loop-map {
+  margin-top: 10px;
+  background: transparent;
+  box-shadow: none;
+  padding: 8px 0 0;
+}
+
+.tc-idle.tc-idle-side {
+  margin: 0;
+  padding: 16px;
+}
+
+/* Step timeline: an icon per step on one continuous rail. */
+.tc-step {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 10px;
+  padding: 7px 0;
+}
+
+.tc-step:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  top: 31px;
+  bottom: -7px;
+  left: 11px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--border-subtle);
+}
+
+.tc-flight .tc-step .tc-rail {
+  --stage: var(--brand);
+  --stage-soft: var(--brand-soft);
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  margin-top: 0;
+  border-radius: 50%;
+  background: var(--stage-soft);
+  color: var(--stage);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--stage) 30%, transparent);
+}
+
+.tc-flight .tc-step.is-query .tc-rail { --stage: var(--text-secondary); --stage-soft: var(--surface-3); }
+.tc-flight .tc-step.is-retrieve .tc-rail { --stage: var(--retrieval); --stage-soft: var(--retrieval-soft); }
+.tc-flight .tc-step.is-generate .tc-rail { --stage: var(--generation); --stage-soft: var(--generation-soft); }
+.tc-flight .tc-step.is-judge .tc-rail { --stage: var(--judge); --stage-soft: var(--judge-soft); }
+.tc-flight .tc-step.is-diagnose .tc-rail { --stage: var(--text-secondary); --stage-soft: var(--surface-3); }
+.tc-flight .tc-step.is-recover .tc-rail,
+.tc-flight .tc-step.is-why .tc-rail,
+.tc-flight .tc-step.is-source .tc-rail,
+.tc-flight .tc-step.is-trigger .tc-rail { --stage: var(--recovery); --stage-soft: var(--recovery-soft); }
+.tc-flight .tc-step.is-abstain .tc-rail { --stage: var(--abstain); --stage-soft: var(--abstain-soft); }
+.tc-flight .tc-step.is-verify .tc-rail { --stage: var(--success); --stage-soft: var(--success-soft); }
+.tc-flight .tc-phase.is-safe .tc-rail { --stage: var(--info); --stage-soft: var(--info-soft); }
+
+.tc-step-title {
+  padding-top: 2px;
+  font-size: var(--fs-sm);
+}
+
+.tc-phase {
+  border-radius: var(--r-xl);
+  padding: 14px 16px 10px;
+}
+
+.tc-phase h2 {
+  margin-bottom: 6px;
+  color: var(--text);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+
+/* ---------- Overview hero: agent loop funnel + attention cards ---------- */
+.ov-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 280px);
+  gap: 10px;
+}
+
+.ov-loop {
+  padding: 14px 16px 16px;
+  border-radius: var(--r-xl);
+  background: var(--bg-surface);
+  box-shadow: inset 0 0 0 1px var(--border-subtle), var(--inset-top);
+}
+
+.ov-loop-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.ov-loop-head h2 {
+  margin: 0;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+
+.ov-loop-head span {
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+}
+
+.loop-map.is-funnel {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin: 8px 0 0;
+  padding: 6px 0 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.loop-value {
+  color: var(--text);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.15;
+}
+
+.loop-map.is-funnel .loop-note {
+  white-space: normal;
+}
+
+.loop-map.is-funnel .loop-stage.is-done.is-verify { --stage: var(--success); --stage-soft: var(--success-soft); }
+
+.ov-metrics.is-side {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+}
+
+/* The five-card grid rules no longer apply to the side pair. */
+.ov-metrics.is-side > .ov-metric {
+  grid-column: auto !important;
+}
+
+@media (max-width: 1100px) {
+  .ov-hero { grid-template-columns: minmax(0, 1fr); }
+  .ov-metrics.is-side { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 700px) {
+  .loop-map.is-funnel { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .ov-metrics.is-side { grid-template-columns: minmax(0, 1fr); }
+}
+
+.ov-loop {
+  display: flex;
+  flex-direction: column;
+}
+
+.ov-loop .loop-map.is-funnel {
+  flex: 1 1 auto;
+  align-content: center;
+}

@@ -656,6 +656,79 @@
     return String(value || "").trim().toLowerCase();
   }
 
+  // The agent loop as six stages, each with what happened on this run. Drawn
+  // as the loop map at the top of a Test Console run. States: done, flagged
+  // (the judge or diagnosis found a problem), pass / fail / neutral / safe
+  // (verification), pending (proposed, not applied), skipped (not part of
+  // this run). Never invents a stage the trace does not show.
+  const LOOP_STAGES = [
+    ["retrieve", "Retrieve"],
+    ["generate", "Generate"],
+    ["judge", "Judge"],
+    ["diagnose", "Diagnose"],
+    ["recover", "Recover"],
+    ["verify", "Verify"],
+  ];
+
+  function loopStages(flight) {
+    if (!flight) return LOOP_STAGES.map(([key, label]) => ({ key, label, state: "idle", note: "" }));
+    const initial = (flight.phases || []).find((phase) => phase.key === "initial") || { steps: [] };
+    const has = (kind) => initial.steps.some((step) => step.kind === kind);
+    const step = (kind) => initial.steps.find((item) => item.kind === kind);
+    const evaluation = flight.before && flight.before.evaluation;
+    const flagged = Boolean(
+      evaluation && (evaluation.evidence_sufficient === false || evaluation.answer_supported === false)
+    );
+    const attempts = (flight.attempts || []).filter((attempt) => attempt.executed !== false);
+    const stages = {};
+
+    stages.retrieve = { state: has("retrieve") ? "done" : "skipped", note: has("retrieve") ? step("retrieve").detail : "" };
+    stages.generate = has("generate")
+      ? { state: "done", note: "Answer drafted" }
+      : { state: "skipped", note: flight.runMode === "retrieve_only" ? "Retrieve only" : "" };
+    if (!evaluation) stages.judge = { state: "skipped", note: "Not judged" };
+    else if (flagged) {
+      stages.judge = {
+        state: "flagged",
+        note: evaluation.evidence_sufficient === false ? "Evidence insufficient" : "Answer unsupported",
+      };
+    } else stages.judge = { state: "done", note: "Looks grounded" };
+
+    const recoveryNeeded = flagged || attempts.length > 0 || Boolean(flight.pending);
+    if (!recoveryNeeded) stages.diagnose = { state: "skipped", note: evaluation ? "Nothing to diagnose" : "" };
+    else {
+      const raw = String((flight.before && flight.before.diagnosis) || "");
+      const attributed = raw && raw !== "Diagnosis not yet attributed.";
+      stages.diagnose = { state: attributed ? "flagged" : "done", note: attributed ? DIAGNOSIS_LABELS[raw] || raw : "Not attributed" };
+    }
+
+    if (flight.pending) stages.recover = { state: "pending", note: `${labelAction(flight.pending.action)} proposed` };
+    else if (attempts.length) {
+      const path = attempts.map((attempt) => (attempt.stopReason ? "Safe stop" : labelAction(attempt.action)));
+      stages.recover = { state: "done", note: path.join(" → ") };
+    } else stages.recover = { state: "skipped", note: evaluation && !flagged ? "Not needed" : "" };
+
+    const outcome = flight.status === "safe_stop" ? "safe_stop" : flight.verification;
+    const verifyState = {
+      improved: "pass",
+      unchanged: "neutral",
+      still_failing: "fail",
+      degraded: "fail",
+      safe_stop: "safe",
+    }[outcome];
+    stages.verify = verifyState
+      ? { state: verifyState, note: outcome === "safe_stop" ? "Safe stop" : labelOutcome(outcome) }
+      : { state: "skipped", note: "" };
+
+    return LOOP_STAGES.map(([key, label]) => ({ key, label, ...stages[key] }));
+  }
+
+  const DIAGNOSIS_LABELS = {
+    unsupported_generation: "Unsupported generation",
+    retrieval_miss: "Retrieval miss",
+    evidence_insufficiency: "Evidence insufficiency",
+  };
+
   const SAFE_STOP_NOTE = "Bounded recovery stopped because sufficient support was not found.";
 
   // How one flight step reads on screen. Inside a safe stop the heading is the
@@ -687,6 +760,8 @@
     labelAction,
     labelOutcome,
     presentStep,
+    loopStages,
+    LOOP_STAGES,
     SAFE_STOP_NOTE,
     sourceLabel,
   };
