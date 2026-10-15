@@ -15,7 +15,7 @@ site="$root/dist/site"
 "$root/.venv/bin/python" "$root/scripts/build_static_demo.py" --out "$site"
 
 if ! gh repo view "$repo" >/dev/null 2>&1; then
-  gh repo create "$repo" --public --description "Groundloop: agentic RAG that checks its own answers (read-only demo)"
+  gh repo create "$repo" --public --description "GroundLoop: agentic RAG that checks its own answers (read-only demo)"
 fi
 
 cd "$site"
@@ -23,7 +23,7 @@ rm -rf .git
 git init -q -b main
 git add -A
 git -c user.name="$(git -C "$root" config user.name)" -c user.email="$(git -C "$root" config user.email)" \
-  commit -q -m "Publish Groundloop snapshot $(date -u +%Y-%m-%dT%H:%MZ)"
+  commit -q -m "Publish GroundLoop snapshot $(date -u +%Y-%m-%dT%H:%MZ)"
 git push -q --force "https://github.com/$repo.git" main
 
 gh api -X POST "repos/$repo/pages" -f "source[branch]=main" -f "source[path]=/" >/dev/null 2>&1 \

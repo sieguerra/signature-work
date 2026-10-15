@@ -41,7 +41,7 @@ _RUNS: tuple[tuple[str, bool], ...] = (
 
 _PRIVATE_KEYS = {"corpus_dir", "traces_dir", "base_url"}
 
-READ_ONLY_DETAIL = "This is a public demo, so it is read-only. Run Groundloop locally to change systems or data."
+READ_ONLY_DETAIL = "This is a public demo, so it is read-only. Run GroundLoop locally to change systems or data."
 GENERIC_ERROR = "The run could not finish. Please try again in a moment."
 
 

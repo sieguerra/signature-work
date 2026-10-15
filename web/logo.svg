@@ -1,6 +1,6 @@
-<!-- Groundloop mark: the agent loop as four stage arcs (retrieve, generate,
+<!-- GroundLoop mark: the agent loop as four stage arcs (retrieve, generate,
      judge, recover) around a verified, grounded answer. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Groundloop">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="GroundLoop">
   <rect width="32" height="32" rx="8" fill="#141417"/>
   <rect x="0.5" y="0.5" width="31" height="31" rx="7.5" fill="none" stroke="#ffffff" stroke-opacity="0.1"/>
   <g fill="none" stroke-width="2.8" stroke-linecap="round">

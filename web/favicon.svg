@@ -1,7 +1,7 @@
-<!-- Groundloop tab icon: the stage ring and verified dot with no tile, so it
+<!-- GroundLoop tab icon: the stage ring and verified dot with no tile, so it
      sits directly on the browser tab. Light colors, dark-scheme colors when
      the OS is dark. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Groundloop">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="GroundLoop">
   <style>
     @media (prefers-color-scheme: dark) {
       .a1 { stroke: #2cc4d3; } .a2 { stroke: #a08bff; } .a3 { stroke: #f1c14e; } .a4 { stroke: #ff8a5b; } .dot { fill: #3ccf8e; }

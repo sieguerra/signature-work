@@ -1,6 +1,6 @@
-# Sharing Groundloop
+# Sharing GroundLoop
 
-There are two free ways to put Groundloop in front of other people. Most of the
+There are two free ways to put GroundLoop in front of other people. Most of the
 time you want the first one.
 
 | | Snapshot (GitHub Pages) | Live demo (Render free) |
