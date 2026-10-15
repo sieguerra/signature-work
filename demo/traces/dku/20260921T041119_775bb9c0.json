@@ -1,0 +1,189 @@
+{
+  "run_id": "20260921T041119_775bb9c0",
+  "timestamp": "2026-09-21T04:11:19.048503+00:00",
+  "query": "How large is the DKU campus in acres?",
+  "retrieved_chunks": [
+    {
+      "chunk_id": "duke-university-durham::c001",
+      "doc_id": "duke-university-durham",
+      "title": "Duke University Durham",
+      "score": 0.538456284739776,
+      "text": "more than 15,000 students in undergraduate, graduate, and professional programs.\n\nDuke University Libraries (including Perkins and Bostock on West Campus) are in Durham. They are not the DKU Library at No. 8 Duke Avenue, Kunshan. This note does not list Perkins closing times, because those hours are not copied here.\n\nDKU is described on Duke's international activity list alongside Duke-NUS in Singapore."
+    },
+    {
+      "chunk_id": "dku-library-handbook-2021::c001",
+      "doc_id": "dku-library-handbook-2021",
+      "title": "Dku Library Handbook 2021",
+      "score": 0.525893587792657,
+      "text": "as historical text. It does not describe the current dedicated library building.\n\nIn this 2021 handbook, the DKU Library is described as occupying two rooms on the first and second floor of the Academic Building. The listed phone number is (0512) 3665-7027. The listed email is dkulibrary@dukekunshan.edu.cn. The handbook also mentions a joint service relationship with Duke University Libraries (DUL)."
+    },
+    {
+      "chunk_id": "duke-university-durham::c000",
+      "doc_id": "duke-university-durham",
+      "title": "Duke University Durham",
+      "score": 0.5103423296485566,
+      "text": "Duke University, Durham, North Carolina (not the Kunshan campus)\n\nDuke University's home campus is in Durham, North Carolina, United States, on nearly 9,000 acres. Duke traces its roots to 1838 and officially became Duke University in 1924. Duke enrolls more than 15,000 students in undergraduate, graduate, and professional programs."
+    },
+    {
+      "chunk_id": "conference-center::c000",
+      "doc_id": "conference-center",
+      "title": "Conference Center",
+      "score": 0.5086420800957334,
+      "text": "Duke Kunshan University Conference Center\n\nThe Conference Center is on the DKU campus in Kunshan. It has over 200 guest rooms, a gym, and on-campus parking. The auditorium holds up to 300 guests. The grand ballroom can be divided into two rooms.\n\nDining venues named for Conference Center guests include the Conference Center Restaurant, Executive Dining Restaurant, and Water Pavilion. A campus restaurant and a Family Mart in the Community Center are also mentioned."
+    },
+    {
+      "chunk_id": "dku-library-guide-202501::c000",
+      "doc_id": "dku-library-guide-202501",
+      "title": "Dku Library Guide 202501",
+      "score": 0.5060343772302225,
+      "text": "DKU Library Guide (January 2025 brochure)\n\nThis document copies service hours and space facts from the January 2025 DKU Library Guide PDF. Where it disagrees with the later Locations & Hours website, treat the website as current and this brochure as dated January 2025.\n\nLibrary building: Monday-Sunday 08:00-23:00. Side gates use swipe access. The guide lists 23 self and group study rooms and 560 seats."
+    },
+    {
+      "chunk_id": "dayu-bay::c000",
+      "doc_id": "dayu-bay",
+      "title": "Dayu Bay",
+      "score": 0.5017171957062634,
+      "text": "Dayu Bay commercial center\n\nDayu Bay is a short walk from the DKU campus. The commencement visitor guide gives the walking distance as 500 meters. Visitors may park for free in the Dayu Bay commercial center parking lot.\n\nThe guide says an array of restaurants is located there. This local note does not name any restaurant, does not list opening hours, and does not list prices.\n\nSource: https://commencement.dukekunshan.edu.cn/plan-your-visit/ (retrieved 2026-09-10)"
+    },
+    {
+      "chunk_id": "dku-about::c001",
+      "doc_id": "dku-about",
+      "title": "Dku About",
+      "score": 0.48855353225284637,
+      "text": "g Semester. The four-year undergraduate bachelor's program began in August 2018.\n\nThe campus covers 200 acres in Kunshan's Yangcheng Lake Science and Technology Park. The street address is No. 8 Duke Avenue, Kunshan, Jiangsu Province, China 215316.\n\nThis note is a short local summary of public facts. It does not list tuition, enrollment headcounts, or the names of current officers.\n\nSource: https://www.dukekunshan.edu.cn/about/welcome-to-duke-kunshan-university/ (retrieved 2026-09-10)"
+    },
+    {
+      "chunk_id": "dku-library-handbook-2021::c002",
+      "doc_id": "dku-library-handbook-2021",
+      "title": "Dku Library Handbook 2021",
+      "score": 0.4875511358697368,
+      "text": "also mentions a joint service relationship with Duke University Libraries (DUL).\n\nDo not use these 2021 room locations or this 2021 phone number as the current library location or current service desk number.\n\nSource: DKU Student Handbook dated 21.08.19, archived copy at https://sites.nicholas.duke.edu/imep-dku/files/2023/04/21.08.19DKU-Student-Handbook.pdf (retrieved 2026-09-10)"
+    }
+  ],
+  "answer": "The DKU campus covers 200 acres in Kunshan's Yangcheng Lake Science and Technology Park [dku-about::c001].",
+  "model": "gpt-4o-mini",
+  "embedding_model": "text-embedding-3-small",
+  "top_k": 8,
+  "provider": {
+    "official_openai": false,
+    "configured_chat_model": "gpt-4o-mini",
+    "configured_embedding_model": "text-embedding-3-small",
+    "api_key_present": true
+  },
+  "question_id": null,
+  "runtime_evaluation": {
+    "evidence_sufficient": true,
+    "answer_supported": true,
+    "sufficiency_rationale": "The evidence explicitly states that the DKU campus covers 200 acres.",
+    "support_rationale": "The generated answer accurately reflects the information provided in the evidence regarding the size of the DKU campus.",
+    "judge": "llm-judge",
+    "model": "gpt-4o-mini"
+  },
+  "diagnosis": {
+    "failure_class": null,
+    "rationale": "Evidence was sufficient and the answer was supported.",
+    "detector": "first-pass-runtime"
+  },
+  "recovery": {
+    "action": "expand",
+    "reason": "rewrite did not improve the result; widen top_k from 1 to 8 and retrieve again",
+    "attributed_class": null,
+    "source": "policy",
+    "outcome_note": "widened top_k from 1 to 8",
+    "trigger": "judge",
+    "parameters": {
+      "from_k": 1,
+      "to_k": 8
+    }
+  },
+  "verification": {
+    "outcome": "improved",
+    "rationale": "evidence_sufficient became true after recovery"
+  },
+  "previous_answer": "I do not know based on the retrieved documents.",
+  "rewritten_query": "What is the size of the DKU campus in acres?",
+  "previous_retrieved_chunks": [
+    {
+      "chunk_id": "duke-university-durham::c001",
+      "doc_id": "duke-university-durham",
+      "title": "Duke University Durham",
+      "score": 0.5526747768302216,
+      "text": "more than 15,000 students in undergraduate, graduate, and professional programs.\n\nDuke University Libraries (including Perkins and Bostock on West Campus) are in Durham. They are not the DKU Library at No. 8 Duke Avenue, Kunshan. This note does not list Perkins closing times, because those hours are not copied here.\n\nDKU is described on Duke's international activity list alongside Duke-NUS in Singapore."
+    }
+  ],
+  "recovery_status": "applied",
+  "parent_run_id": null,
+  "latency_ms": 13906.319042001996,
+  "probe_evaluation": {
+    "evidence_sufficient": false,
+    "answer_supported": null,
+    "sufficiency_rationale": "The evidence does not provide any information about the size of the DKU campus in acres.",
+    "support_rationale": "",
+    "judge": "llm-judge",
+    "model": "gpt-4o-mini"
+  },
+  "retrieval_signal": {
+    "top_score": 0.5526747768302216,
+    "runner_up_score": null,
+    "relative_margin": null,
+    "weak_top": false,
+    "ambiguous_top": false,
+    "reason": "retrieval looks healthy",
+    "detector": "retrieval-score"
+  },
+  "agent_config": null,
+  "recovery_attempts": [
+    {
+      "index": 0,
+      "action": "rewrite",
+      "reason": "first-pass evidence insufficient: rewrite query and retrieve again",
+      "trigger": "judge",
+      "attributed_class": "evidence_insufficiency",
+      "outcome_note": "rewrite did not improve evidence and the first-pass answer already abstained",
+      "top_k": 1,
+      "retrieved_doc_ids": [
+        "duke-university-durham"
+      ],
+      "verification": {
+        "outcome": "still_failing",
+        "rationale": "recovery did not produce a supported, sufficient result"
+      },
+      "rewritten_query": "What is the size of the DKU campus in acres?"
+    },
+    {
+      "index": 1,
+      "action": "expand",
+      "reason": "rewrite did not improve the result; widen top_k from 1 to 8 and retrieve again",
+      "trigger": "judge",
+      "attributed_class": null,
+      "outcome_note": "widened top_k from 1 to 8",
+      "top_k": 8,
+      "retrieved_doc_ids": [
+        "duke-university-durham",
+        "dku-library-handbook-2021",
+        "duke-university-durham",
+        "conference-center",
+        "dku-library-guide-202501",
+        "dayu-bay",
+        "dku-about",
+        "dku-library-handbook-2021"
+      ],
+      "verification": {
+        "outcome": "improved",
+        "rationale": "evidence_sufficient became true after recovery"
+      },
+      "parameters": {
+        "from_k": 1,
+        "to_k": 8
+      }
+    }
+  ],
+  "first_pass_evaluation": {
+    "evidence_sufficient": false,
+    "answer_supported": null,
+    "sufficiency_rationale": "The retrieved evidence does not provide any information about the size of the DKU campus in acres.",
+    "support_rationale": "",
+    "judge": "llm-judge",
+    "model": "gpt-4o-mini"
+  }
+}

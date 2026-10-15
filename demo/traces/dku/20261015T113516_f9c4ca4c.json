@@ -1,0 +1,131 @@
+{
+  "run_id": "20261015T113516_f9c4ca4c",
+  "timestamp": "2026-10-15T11:35:16.528055+00:00",
+  "query": "How far is Shanghai Pudong International Airport from Kunshan according to the commencement visitor guide?",
+  "retrieved_chunks": [
+    {
+      "chunk_id": "getting-to-dku::c000",
+      "doc_id": "getting-to-dku",
+      "title": "Getting To Dku",
+      "score": 0.6878620286198931,
+      "text": "Getting to Duke Kunshan University\n\nShanghai Pudong International Airport (PVG) is 92 kilometers east of Kunshan. Shanghai Hongqiao International Airport (SHA) is 42 kilometers east of Kunshan. Sunan Shuofang International Airport (WUX) is 41 kilometers west of Kunshan. Kunshan South Railway Station is 12 kilometers southeast of Duke Kunshan.\n\nFrom Kunshan South Station, a taxi to campus is described as costing around 30 RMB (from the International Students Zone pre-arrival note)."
+    },
+    {
+      "chunk_id": "getting-to-dku::c001",
+      "doc_id": "getting-to-dku",
+      "title": "Getting To Dku",
+      "score": 0.5571176862297039,
+      "text": "s costing around 30 RMB (from the International Students Zone pre-arrival note).\n\nThis note does not publish a current weekday campus-shuttle timetable from Kunshan South, and it does not list taxi fares from PVG.\n\nSource: https://commencement.dukekunshan.edu.cn/plan-your-visit/ and https://campus-life.dukekunshan.edu.cn/pre-arrival-and-orientation/international-students-zone/ (retrieved 2026-09-10)"
+    },
+    {
+      "chunk_id": "conference-center::c000",
+      "doc_id": "conference-center",
+      "title": "Conference Center",
+      "score": 0.4263990966911869,
+      "text": "Duke Kunshan University Conference Center\n\nThe Conference Center is on the DKU campus in Kunshan. It has over 200 guest rooms, a gym, and on-campus parking. The auditorium holds up to 300 guests. The grand ballroom can be divided into two rooms.\n\nDining venues named for Conference Center guests include the Conference Center Restaurant, Executive Dining Restaurant, and Water Pavilion. A campus restaurant and a Family Mart in the Community Center are also mentioned."
+    },
+    {
+      "chunk_id": "dku-about::c001",
+      "doc_id": "dku-about",
+      "title": "Dku About",
+      "score": 0.4181194792582041,
+      "text": "g Semester. The four-year undergraduate bachelor's program began in August 2018.\n\nThe campus covers 200 acres in Kunshan's Yangcheng Lake Science and Technology Park. The street address is No. 8 Duke Avenue, Kunshan, Jiangsu Province, China 215316.\n\nThis note is a short local summary of public facts. It does not list tuition, enrollment headcounts, or the names of current officers.\n\nSource: https://www.dukekunshan.edu.cn/about/welcome-to-duke-kunshan-university/ (retrieved 2026-09-10)"
+    }
+  ],
+  "answer": "Shanghai Pudong International Airport (PVG) is 92 kilometers east of Kunshan according to the commencement visitor guide [getting-to-dku::c000].",
+  "model": "gpt-4o-mini",
+  "embedding_model": "text-embedding-3-small",
+  "top_k": 4,
+  "provider": {
+    "official_openai": false,
+    "configured_chat_model": "gpt-4o-mini",
+    "configured_embedding_model": "text-embedding-3-small",
+    "api_key_present": true
+  },
+  "question_id": null,
+  "runtime_evaluation": {
+    "evidence_sufficient": true,
+    "answer_supported": true,
+    "sufficiency_rationale": "The evidence explicitly states that Shanghai Pudong International Airport is 92 kilometers east of Kunshan.",
+    "support_rationale": "The generated answer accurately reflects the information provided in the evidence.",
+    "judge": "llm-judge",
+    "model": "gpt-4o-mini",
+    "span_rejections": []
+  },
+  "diagnosis": {
+    "failure_class": null,
+    "rationale": "Evidence was sufficient and the answer was supported.",
+    "detector": "first-pass-runtime"
+  },
+  "recovery": {
+    "action": "accept",
+    "reason": "no first-pass failure to recover from",
+    "attributed_class": null,
+    "source": "policy",
+    "outcome_note": "",
+    "trigger": ""
+  },
+  "verification": null,
+  "previous_answer": null,
+  "rewritten_query": null,
+  "previous_retrieved_chunks": null,
+  "recovery_status": "applied",
+  "parent_run_id": null,
+  "latency_ms": 14409.664915991016,
+  "probe_evaluation": null,
+  "retrieval_signal": {
+    "top_score": 0.6878620286198931,
+    "runner_up_score": 0.5571176862297039,
+    "relative_margin": 0.19007349868186635,
+    "weak_top": false,
+    "ambiguous_top": false,
+    "reason": "retrieval looks healthy",
+    "detector": "retrieval-score"
+  },
+  "agent_config": null,
+  "recovery_attempts": null,
+  "first_pass_evaluation": null,
+  "trace_schema_version": 2,
+  "run_mode": "loop",
+  "initial": null,
+  "usage": {
+    "chat_calls": 2,
+    "embedding_calls": 1,
+    "prompt_tokens": 1495,
+    "completion_tokens": 97,
+    "embedding_tokens": 19,
+    "tokens_observed": true
+  },
+  "recovery_policy": "v1",
+  "stage_timings": [
+    {
+      "stage": "retrieve",
+      "attempt": null,
+      "top_k": 4,
+      "started_ms": 2.2,
+      "duration_ms": 2293.6,
+      "status": "ok"
+    },
+    {
+      "stage": "generate",
+      "attempt": null,
+      "started_ms": 2295.8,
+      "duration_ms": 5522.5,
+      "status": "ok"
+    },
+    {
+      "stage": "judge",
+      "attempt": null,
+      "started_ms": 7818.4,
+      "duration_ms": 6592.9,
+      "status": "ok"
+    },
+    {
+      "stage": "diagnose",
+      "attempt": null,
+      "started_ms": 14411.4,
+      "duration_ms": 0.1,
+      "status": "ok"
+    }
+  ]
+}

@@ -217,7 +217,7 @@ function renderShell() {
     const count = state.logicalRuns.length ? state.logicalRuns.length : state.traces.length;
     runs.textContent = count ? String(count) : "";
   }
-  document.title = `${VIEW_TITLES[state.view] || "swrag"} · ${label} · swrag`;
+  document.title = `${VIEW_TITLES[state.view] || "Groundloop"} · ${label} · Groundloop`;
 }
 
 function renderRunState() {
@@ -251,7 +251,9 @@ function renderEnvStatus() {
   const keyOn = Boolean(meta.api_key_present);
   const provider = meta.official_openai ? "OpenAI" : "custom backend";
   if (dot) dot.className = `env-dot ${keyOn ? "is-ok" : "is-warn"}`;
-  announce(keyOn ? meta.configured_chat_model || "Connected" : "No API key");
+  const snapshot = Boolean(meta.demo && meta.demo.snapshot);
+  if (snapshot && dot) dot.className = "env-dot is-ok";
+  announce(snapshot ? "Read-only snapshot" : keyOn ? meta.configured_chat_model || "Connected" : "No API key");
   if (btn) btn.dataset.tip = keyOn ? `${meta.configured_chat_model} · ${provider}` : "No API key: retrieve only";
   if (!pop) return;
   const row = (iconName, key, value, tone = "") =>
@@ -603,10 +605,47 @@ async function streamRun(body, onEvent) {
   throw new Error("The run stream ended before the run finished.");
 }
 
+// Public deployments: a live demo (GROUNDLOOP_DEMO) or a static snapshot.
+// Either way controls that would change data are hidden, and a badge says
+// what kind of copy this is.
+function demoInfo() {
+  const demo = (state.meta && state.meta.demo) || {};
+  return { live: Boolean(demo.enabled), snapshot: Boolean(demo.snapshot), runsLeft: demo.runs_left, dailyRuns: demo.daily_runs };
+}
+
+function renderDemoBadge() {
+  const info = demoInfo();
+  const publicCopy = info.live || info.snapshot;
+  document.documentElement.classList.toggle("is-demo", publicCopy);
+  document.documentElement.classList.toggle("is-snapshot", info.snapshot);
+  let badge = $("demo-badge");
+  if (!publicCopy) {
+    if (badge) badge.remove();
+    return;
+  }
+  if (!badge) {
+    const actions = $("topbar-actions");
+    if (!actions) return;
+    actions.insertAdjacentHTML("afterbegin", `<span class="demo-badge" id="demo-badge"></span>`);
+    badge = $("demo-badge");
+  }
+  const text = info.snapshot
+    ? "Read-only snapshot"
+    : `Public demo · ${info.runsLeft ?? 0} live run${info.runsLeft === 1 ? "" : "s"} left today`;
+  const tip = info.snapshot
+    ? "A saved copy of recorded runs. Asking new questions needs the live version or a local install."
+    : "A shared public copy. Data cannot be changed, and live runs are capped per day.";
+  badge.innerHTML = `${icon(info.snapshot ? "eye" : "zap", 12)}<span>${escapeHtml(text)}</span>`;
+  badge.dataset.tip = tip;
+  badge.dataset.tipWrap = "";
+  badge.dataset.tipAlign = "end";
+}
+
 async function loadMeta() {
   state.meta = await api("/api/meta");
   renderEnvStatus();
   renderShell();
+  renderDemoBadge();
   if (!state.meta.api_key_present) {
     const mode = $("mode");
     if (mode) mode.value = "retrieve_only";
@@ -622,10 +661,10 @@ async function loadCorpora() {
   const select = $("corpus");
   const active = payload.active_id || (state.meta && state.meta.corpus_id) || "";
   const workspaces = state.corpora.filter((item) => item.writable);
-  if (!workspaces.length) {
+  if (!state.corpora.length) {
     select.innerHTML = `<option value="">No system yet</option>`;
     const form = $("new-workspace-form");
-    if (form) form.hidden = false;
+    if (form && !demoInfo().live && !demoInfo().snapshot) form.hidden = false;
     return;
   }
   const activeIsWorkspace = workspaces.some((item) => item.id === active);
@@ -1433,6 +1472,7 @@ async function runQuestion(fromPlayground) {
       });
     }
     await loadTraces();
+    if (demoInfo().live) loadMeta().catch(() => {});
     render();
   } catch (error) {
     window.clearInterval(liveTimer);

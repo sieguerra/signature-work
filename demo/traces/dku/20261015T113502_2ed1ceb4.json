@@ -1,0 +1,131 @@
+{
+  "run_id": "20261015T113502_2ed1ceb4",
+  "timestamp": "2026-10-15T11:35:02.086780+00:00",
+  "query": "On what date do DKU residence halls close for Winter Break in Fall 2026?",
+  "retrieved_chunks": [
+    {
+      "chunk_id": "registrar-spring-2027::c000",
+      "doc_id": "registrar-spring-2027",
+      "title": "Registrar Spring 2027",
+      "score": 0.6929059143067713,
+      "text": "DKU Registrar — Spring 2027 dates\n\nAll residence halls reopen Saturday, 9 January 2027 at 09:00. Undergraduate and graduate classes begin Monday, 11 January 2027.\n\nSpring Festival Holiday: no classes Friday 5 February 2027 through Sunday 14 February 2027. Classes resume Monday 15 February 2027.\n\nGraduate and undergraduate commencement is Friday, 21 May 2027. All residence halls close Saturday, 22 May 2027 at 13:00.\n\nQing Ming (Tomb Sweeping Day): no classes Monday 5 April 2027."
+    },
+    {
+      "chunk_id": "registrar-fall-2026::c001",
+      "doc_id": "registrar-fall-2026",
+      "title": "Registrar Fall 2026",
+      "score": 0.6403119628515134,
+      "text": "ugust 2026 at 09:00. Returning students move in Friday, 21 August 2026 at 09:00.\n\nNational Day Holiday: no classes Thursday 1 October 2026 through Sunday 11 October 2026. Classes resume Monday 12 October 2026.\n\nMid-Autumn Festival: no classes Friday 25 September through Sunday 27 September 2026.\n\nAll residence halls close for Winter Break on Friday, 18 December 2026 at 13:00.\n\nHoliday hours for the library are not listed on this registrar page."
+    },
+    {
+      "chunk_id": "registrar-fall-2026::c000",
+      "doc_id": "registrar-fall-2026",
+      "title": "Registrar Fall 2026",
+      "score": 0.6110326762325768,
+      "text": "DKU Registrar — Fall 2026 dates\n\nUndergraduate and graduate classes begin Monday, 24 August 2026.\n\nNew international undergraduate students (Class of 2030) and international first-year graduate students move in Friday, 14 August 2026 at 09:00. New Chinese undergraduate and Chinese first-year graduate students move in Sunday, 16 August 2026 at 09:00. Returning students move in Friday, 21 August 2026 at 09:00."
+    },
+    {
+      "chunk_id": "wuhan-university::c001",
+      "doc_id": "wuhan-university",
+      "title": "Wuhan University",
+      "score": 0.5257746251911143,
+      "text": "not list DKU class dates, DKU library hours, or Wuhan University library hours.\n\nSource: https://www.dukekunshan.edu.cn/about/welcome-to-duke-kunshan-university/ (retrieved 2026-09-10)"
+    }
+  ],
+  "answer": "DKU residence halls close for Winter Break on Friday, 18 December 2026 at 13:00 [registrar-fall-2026::c001].",
+  "model": "gpt-4o-mini",
+  "embedding_model": "text-embedding-3-small",
+  "top_k": 4,
+  "provider": {
+    "official_openai": false,
+    "configured_chat_model": "gpt-4o-mini",
+    "configured_embedding_model": "text-embedding-3-small",
+    "api_key_present": true
+  },
+  "question_id": null,
+  "runtime_evaluation": {
+    "evidence_sufficient": true,
+    "answer_supported": true,
+    "sufficiency_rationale": "The evidence explicitly states that all residence halls close for Winter Break on Friday, 18 December 2026 at 13:00.",
+    "support_rationale": "The generated answer accurately reflects the information provided in the evidence regarding the closing date and time of the residence halls.",
+    "judge": "llm-judge",
+    "model": "gpt-4o-mini",
+    "span_rejections": []
+  },
+  "diagnosis": {
+    "failure_class": null,
+    "rationale": "Evidence was sufficient and the answer was supported.",
+    "detector": "first-pass-runtime"
+  },
+  "recovery": {
+    "action": "accept",
+    "reason": "no first-pass failure to recover from",
+    "attributed_class": null,
+    "source": "policy",
+    "outcome_note": "",
+    "trigger": ""
+  },
+  "verification": null,
+  "previous_answer": null,
+  "rewritten_query": null,
+  "previous_retrieved_chunks": null,
+  "recovery_status": "applied",
+  "parent_run_id": null,
+  "latency_ms": 10594.330791005632,
+  "probe_evaluation": null,
+  "retrieval_signal": {
+    "top_score": 0.6929059143067713,
+    "runner_up_score": 0.6403119628515134,
+    "relative_margin": 0.07590345293541961,
+    "weak_top": false,
+    "ambiguous_top": false,
+    "reason": "retrieval looks healthy",
+    "detector": "retrieval-score"
+  },
+  "agent_config": null,
+  "recovery_attempts": null,
+  "first_pass_evaluation": null,
+  "trace_schema_version": 2,
+  "run_mode": "loop",
+  "initial": null,
+  "usage": {
+    "chat_calls": 2,
+    "embedding_calls": 1,
+    "prompt_tokens": 1487,
+    "completion_tokens": 117,
+    "embedding_tokens": 18,
+    "tokens_observed": true
+  },
+  "recovery_policy": "v1",
+  "stage_timings": [
+    {
+      "stage": "retrieve",
+      "attempt": null,
+      "top_k": 4,
+      "started_ms": 2.1,
+      "duration_ms": 2213.1,
+      "status": "ok"
+    },
+    {
+      "stage": "generate",
+      "attempt": null,
+      "started_ms": 2215.2,
+      "duration_ms": 2822.8,
+      "status": "ok"
+    },
+    {
+      "stage": "judge",
+      "attempt": null,
+      "started_ms": 5038.0,
+      "duration_ms": 5557.8,
+      "status": "ok"
+    },
+    {
+      "stage": "diagnose",
+      "attempt": null,
+      "started_ms": 10595.9,
+      "duration_ms": 0.1,
+      "status": "ok"
+    }
+  ]
+}

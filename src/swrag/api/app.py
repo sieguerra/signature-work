@@ -12,11 +12,13 @@ from typing import Any
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, HTTPException, UploadFile
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi import Request
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from swrag.api.credentials import create_api_key, list_api_keys, revoke_api_key
+from swrag.api.public import READ_ONLY_DETAIL, RunBudget, demo_enabled, is_blocked, is_run, scrub
 from swrag.api.overview import logical_run_history, overview_for_traces
 from swrag.api.store import (
     delete_all_traces,
@@ -114,6 +116,11 @@ def create_app(
     """Build the UI server. The RAG packages stay importable without FastAPI."""
     load_dotenv(repo_root() / ".env")
     root = repo_root()
+    # Deployments point these at committed demo data (see render.yaml).
+    traces_root = traces_root or os.environ.get("GROUNDLOOP_TRACES_ROOT") or None
+    corpus_id = corpus_id or os.environ.get("GROUNDLOOP_SYSTEM") or None
+    if traces_root is not None and not Path(traces_root).is_absolute():
+        traces_root = root / traces_root
     resolved_traces_root = Path(traces_root) if traces_root else root / "experiments" / "output"
     resolved_projects_root = Path(projects_root) if projects_root else root / "experiments" / "projects"
 
@@ -146,7 +153,34 @@ def create_app(
         _activate(app, entry, resolved_traces)
         yield
 
-    application = FastAPI(title="swrag trace explorer", lifespan=lifespan)
+    application = FastAPI(title="Groundloop", lifespan=lifespan)
+    application.state.demo = demo_enabled()
+    application.state.run_budget = RunBudget.from_env()
+
+    @application.middleware("http")
+    async def public_demo(request: Request, call_next):
+        """Gate the API for a shared public deployment (GROUNDLOOP_DEMO=1)."""
+        if not application.state.demo:
+            return await call_next(request)
+        method, path = request.method, request.url.path
+        if is_blocked(method, path):
+            return JSONResponse(status_code=403, content={"detail": READ_ONLY_DETAIL})
+        if is_run(method, path) and not application.state.run_budget.take():
+            per_day = application.state.run_budget.per_day
+            return JSONResponse(
+                status_code=429,
+                content={
+                    "detail": f"The public demo has used its {per_day} live runs for today. "
+                    "Browse the recorded runs, or come back tomorrow."
+                },
+            )
+        response = await call_next(request)
+        content_type = response.headers.get("content-type", "")
+        if path.startswith("/api/") and content_type.startswith("application/json"):
+            body = b"".join([chunk async for chunk in response.body_iterator])
+            data = scrub(json.loads(body or b"null"), str(repo_root()))
+            return JSONResponse(content=data, status_code=response.status_code)
+        return response
 
     @application.get("/api/meta")
     def meta() -> dict[str, Any]:
@@ -161,6 +195,11 @@ def create_app(
         payload["doc_count"] = application.state.doc_count
         payload["writable"] = bool(application.state.writable)
         payload["agent_config"] = application.state.agent_config
+        payload["demo"] = {
+            "enabled": bool(application.state.demo),
+            "daily_runs": application.state.run_budget.per_day if application.state.demo else None,
+            "runs_left": application.state.run_budget.left() if application.state.demo else None,
+        }
         return payload
 
     def _workspace_kwargs() -> dict[str, Path]:
@@ -172,10 +211,11 @@ def create_app(
 
     @application.get("/api/corpora")
     def corpora() -> dict[str, Any]:
-        return {
-            "active_id": application.state.corpus_id,
-            "corpora": [item.as_payload() for item in list_workspaces(**_workspace_kwargs())],
-        }
+        items = [item.as_payload() for item in list_workspaces(**_workspace_kwargs())]
+        if application.state.demo:
+            # A public demo is pinned to the system it started on.
+            items = [item for item in items if item.get("id") == application.state.corpus_id]
+        return {"active_id": application.state.corpus_id, "corpora": items}
 
     @application.post("/api/corpus")
     def select_corpus(body: CorpusSelectRequest) -> dict[str, Any]:
@@ -500,6 +540,8 @@ def create_app(
         def worker() -> None:
             try:
                 result = _run_and_load(body, question, listener=events.put)
+                if application.state.demo:
+                    result = scrub(result, str(repo_root()))
                 events.put({"type": "done", "run": result})
             except HTTPException as error:
                 events.put({"type": "error", "status": error.status_code, "detail": error.detail})

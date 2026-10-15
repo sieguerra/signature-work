@@ -1,0 +1,71 @@
+{
+  "run_id": "20260916T194914_b30ae85f",
+  "timestamp": "2026-09-16T19:49:14.482302+00:00",
+  "query": "What time does breakfast end at Halal Dining at the Conference Center?",
+  "retrieved_chunks": [
+    {
+      "chunk_id": "conference-center-dining::c000",
+      "doc_id": "conference-center-dining",
+      "title": "Conference Center Dining",
+      "score": 0.6384331623453581,
+      "text": "Campus dining — Conference Center Halal Dining\n\nHalal Dining @ Conference Center:\nLunch 11:00-13:30\nDinner 17:00-19:30\n\nNo breakfast hours are listed for Halal Dining at the Conference Center.\n\nThis venue is not University Dining in the Academic Building. It does not list prices.\n\nSource: https://commencement.dukekunshan.edu.cn/plan-your-visit/ (retrieved 2026-09-10)"
+    },
+    {
+      "chunk_id": "academic-building-dining::c000",
+      "doc_id": "academic-building-dining",
+      "title": "Academic Building Dining",
+      "score": 0.5094261882997647,
+      "text": "Campus dining — Academic Building\n\nThree dining halls on campus serve Chinese, Western, and Halal dishes. This note covers only the two Academic Building venues.\n\nUniversity Dining @ Academic Building:\nBreakfast 07:00-09:30\nLunch 11:00-13:30\nDinner 17:00-19:30\n\nExecutive Dining @ Academic Building:\nLunch 11:00-13:30\nNo breakfast hours and no dinner hours are listed for Executive Dining.\n\nThis note does not list menu prices, meal-plan costs, or dish names."
+    },
+    {
+      "chunk_id": "conference-center::c001",
+      "doc_id": "conference-center",
+      "title": "Conference Center",
+      "score": 0.4657517492747957,
+      "text": "campus restaurant and a Family Mart in the Community Center are also mentioned.\n\nThis note does not list room rates, a weekday shuttle timetable, or Halal Dining meal times (those times are on the commencement dining note).\n\nSource: https://www.dukekunshan.edu.cn/conference-center/ (retrieved 2026-09-10)"
+    },
+    {
+      "chunk_id": "conference-center::c000",
+      "doc_id": "conference-center",
+      "title": "Conference Center",
+      "score": 0.33938952557238233,
+      "text": "Duke Kunshan University Conference Center\n\nThe Conference Center is on the DKU campus in Kunshan. It has over 200 guest rooms, a gym, and on-campus parking. The auditorium holds up to 300 guests. The grand ballroom can be divided into two rooms.\n\nDining venues named for Conference Center guests include the Conference Center Restaurant, Executive Dining Restaurant, and Water Pavilion. A campus restaurant and a Family Mart in the Community Center are also mentioned."
+    }
+  ],
+  "answer": "I do not know based on the retrieved documents.",
+  "model": "gpt-4o-mini",
+  "embedding_model": "text-embedding-3-small",
+  "top_k": 4,
+  "provider": {
+    "official_openai": false,
+    "configured_chat_model": "gpt-4o-mini",
+    "configured_embedding_model": "text-embedding-3-small",
+    "api_key_present": true
+  },
+  "question_id": null,
+  "runtime_evaluation": {
+    "evidence_sufficient": false,
+    "answer_supported": null,
+    "sufficiency_rationale": "The evidence does not provide any information about breakfast hours for Halal Dining at the Conference Center.",
+    "support_rationale": "",
+    "judge": "llm-judge",
+    "model": "gpt-4o-mini"
+  },
+  "diagnosis": {
+    "failure_class": null,
+    "rationale": "Evidence was judged insufficient. retrieval_miss vs evidence_insufficiency is not diagnosed on the first pass.",
+    "detector": "first-pass-runtime"
+  },
+  "recovery": {
+    "action": "rewrite",
+    "reason": "first-pass evidence insufficient: rewrite query and retrieve again",
+    "attributed_class": null,
+    "source": "policy"
+  },
+  "verification": null,
+  "previous_answer": null,
+  "rewritten_query": null,
+  "previous_retrieved_chunks": null,
+  "recovery_status": "proposed",
+  "parent_run_id": null
+}

@@ -1,0 +1,498 @@
+{
+  "run_id": "20261005T232037_76b10710",
+  "timestamp": "2026-10-05T23:20:37.530299+00:00",
+  "query": "What is the street address of the DKU Library?",
+  "retrieved_chunks": [
+    {
+      "chunk_id": "dku-library-handbook-2021::c001",
+      "doc_id": "dku-library-handbook-2021",
+      "title": "Dku Library Handbook 2021",
+      "score": 0.6667210813675507,
+      "text": "as historical text. It does not describe the current dedicated library building.\n\nIn this 2021 handbook, the DKU Library is described as occupying two rooms on the first and second floor of the Academic Building. The listed phone number is (0512) 3665-7027. The listed email is dkulibrary@dukekunshan.edu.cn. The handbook also mentions a joint service relationship with Duke University Libraries (DUL)."
+    },
+    {
+      "chunk_id": "dku-library-hours::c000",
+      "doc_id": "dku-library-hours",
+      "title": "Dku Library Hours",
+      "score": 0.653133724023541,
+      "text": "DKU Library — current locations and hours\n\nThese hours are the current regular schedule published on the DKU Library website. Holiday hours are announced separately and are not listed here.\n\nLibrary building: 08:00-23:00, Monday through Sunday.\n\n1st floor information desk:\nMonday-Friday: 09:00-21:00\nSaturday-Sunday: 14:00-21:00\n\nDVD and equipment loan: Monday-Friday, 09:00-17:30."
+    },
+    {
+      "chunk_id": "dku-library-handbook-2021::c002",
+      "doc_id": "dku-library-handbook-2021",
+      "title": "Dku Library Handbook 2021",
+      "score": 0.6223315675220394,
+      "text": "also mentions a joint service relationship with Duke University Libraries (DUL).\n\nDo not use these 2021 room locations or this 2021 phone number as the current library location or current service desk number.\n\nSource: DKU Student Handbook dated 21.08.19, archived copy at https://sites.nicholas.duke.edu/imep-dku/files/2023/04/21.08.19DKU-Student-Handbook.pdf (retrieved 2026-09-10)"
+    },
+    {
+      "chunk_id": "dku-library-guide-202501::c000",
+      "doc_id": "dku-library-guide-202501",
+      "title": "Dku Library Guide 202501",
+      "score": 0.6221966587354144,
+      "text": "DKU Library Guide (January 2025 brochure)\n\nThis document copies service hours and space facts from the January 2025 DKU Library Guide PDF. Where it disagrees with the later Locations & Hours website, treat the website as current and this brochure as dated January 2025.\n\nLibrary building: Monday-Sunday 08:00-23:00. Side gates use swipe access. The guide lists 23 self and group study rooms and 560 seats."
+    },
+    {
+      "chunk_id": "duke-university-durham::c001",
+      "doc_id": "duke-university-durham",
+      "title": "Duke University Durham",
+      "score": 0.5834755633468576,
+      "text": "more than 15,000 students in undergraduate, graduate, and professional programs.\n\nDuke University Libraries (including Perkins and Bostock on West Campus) are in Durham. They are not the DKU Library at No. 8 Duke Avenue, Kunshan. This note does not list Perkins closing times, because those hours are not copied here.\n\nDKU is described on Duke's international activity list alongside Duke-NUS in Singapore."
+    },
+    {
+      "chunk_id": "dku-library-handbook-2021::c000",
+      "doc_id": "dku-library-handbook-2021",
+      "title": "Dku Library Handbook 2021",
+      "score": 0.5773994056935849,
+      "text": "DKU Library — August 2021 student handbook (superseded)\n\nThis extract is from an August 2021 DKU Student Handbook. It is kept as historical text. It does not describe the current dedicated library building."
+    },
+    {
+      "chunk_id": "wuhan-university::c001",
+      "doc_id": "wuhan-university",
+      "title": "Wuhan University",
+      "score": 0.5593545249304684,
+      "text": "not list DKU class dates, DKU library hours, or Wuhan University library hours.\n\nSource: https://www.dukekunshan.edu.cn/about/welcome-to-duke-kunshan-university/ (retrieved 2026-09-10)"
+    },
+    {
+      "chunk_id": "dku-library-hours::c001",
+      "doc_id": "dku-library-hours",
+      "title": "Dku Library Hours",
+      "score": 0.5230383358630413,
+      "text": "aturday-Sunday: 14:00-21:00\n\nDVD and equipment loan: Monday-Friday, 09:00-17:30.\n\nContact:\n(+86) 0512-36658756 (Monday-Friday, 09:00-17:00)\ndkulibrary@dukekunshan.edu.cn\nNo. 8 Duke Avenue, Kunshan, Jiangsu Province, China 215316\n\nThis page is about the Kunshan campus library. It is not Duke University Libraries in Durham, North Carolina.\n\nSource: https://library.dukekunshan.edu.cn/locations-hours/ (retrieved 2026-09-10)"
+    },
+    {
+      "chunk_id": "wuhan-university::c000",
+      "doc_id": "wuhan-university",
+      "title": "Wuhan University",
+      "score": 0.44686442319577296,
+      "text": "Wuhan University (partner institution, not the DKU campus)\n\nWuhan University is in Hubei province in central China. It is a partner in Duke Kunshan University. It is not in Kunshan and is not the DKU library, dining halls, or registrar.\n\nWuhan University's history is traced to the Ziqiang Institute founded in 1893 by Zhang Zhidong. In 1928 the institute was renamed Wuhan National University.\n\nThis note does not list DKU class dates, DKU library hours, or Wuhan University library hours."
+    },
+    {
+      "chunk_id": "dayu-bay::c000",
+      "doc_id": "dayu-bay",
+      "title": "Dayu Bay",
+      "score": 0.4405103111915522,
+      "text": "Dayu Bay commercial center\n\nDayu Bay is a short walk from the DKU campus. The commencement visitor guide gives the walking distance as 500 meters. Visitors may park for free in the Dayu Bay commercial center parking lot.\n\nThe guide says an array of restaurants is located there. This local note does not name any restaurant, does not list opening hours, and does not list prices.\n\nSource: https://commencement.dukekunshan.edu.cn/plan-your-visit/ (retrieved 2026-09-10)"
+    },
+    {
+      "chunk_id": "dku-library-guide-202501::c002",
+      "doc_id": "dku-library-guide-202501",
+      "title": "Dku Library Guide 202501",
+      "score": 0.43079819199142105,
+      "text": "Meditation Room is on the 4th floor (LIB4-16) and looks over the Academic Quad.\n\nSource: https://library.dukekunshan.edu.cn/wp-content/uploads/2025/01/Duke-Kunshan-University-Library-Guide-202501.pdf (January 2025 guide; retrieved 2026-09-10)"
+    },
+    {
+      "chunk_id": "registrar-fall-2026::c002",
+      "doc_id": "registrar-fall-2026",
+      "title": "Registrar Fall 2026",
+      "score": 0.43027783431731287,
+      "text": "at 13:00.\n\nHoliday hours for the library are not listed on this registrar page.\n\nSource: https://registrar.dukekunshan.edu.cn/academic-calendar/ (retrieved 2026-09-10)"
+    }
+  ],
+  "answer": "The street address of the DKU Library is No. 8 Duke Avenue, Kunshan, Jiangsu Province, China 215316 [dku-library-hours::c001].",
+  "model": "gpt-4o-mini",
+  "embedding_model": "text-embedding-3-small",
+  "top_k": 12,
+  "provider": {
+    "official_openai": false,
+    "configured_chat_model": "gpt-4o-mini",
+    "configured_embedding_model": "text-embedding-3-small",
+    "api_key_present": true
+  },
+  "question_id": null,
+  "runtime_evaluation": {
+    "evidence_sufficient": true,
+    "answer_supported": true,
+    "sufficiency_rationale": "The evidence explicitly states the street address of the DKU Library as No. 8 Duke Avenue, Kunshan, Jiangsu Province, China 215316.",
+    "support_rationale": "The generated answer matches the address provided in the evidence.",
+    "judge": "llm-judge",
+    "model": "gpt-4o-mini"
+  },
+  "diagnosis": {
+    "failure_class": null,
+    "rationale": "Evidence was sufficient and the answer was supported.",
+    "detector": "first-pass-runtime"
+  },
+  "recovery": {
+    "action": "expand",
+    "reason": "rewrite did not improve the result; widen top_k from 4 to 12 and retrieve again",
+    "attributed_class": "evidence_insufficiency",
+    "source": "policy",
+    "outcome_note": "widened top_k from 4 to 12",
+    "trigger": "judge",
+    "parameters": {
+      "from_k": 4,
+      "to_k": 12
+    }
+  },
+  "verification": {
+    "outcome": "improved",
+    "rationale": "evidence_sufficient became true after recovery"
+  },
+  "previous_answer": "I do not know the street address of the DKU Library based on the retrieved documents.",
+  "rewritten_query": "What is the current street address of the DKU Library?",
+  "previous_retrieved_chunks": [
+    {
+      "chunk_id": "dku-library-handbook-2021::c001",
+      "doc_id": "dku-library-handbook-2021",
+      "title": "Dku Library Handbook 2021",
+      "score": 0.6732477476936446,
+      "text": "as historical text. It does not describe the current dedicated library building.\n\nIn this 2021 handbook, the DKU Library is described as occupying two rooms on the first and second floor of the Academic Building. The listed phone number is (0512) 3665-7027. The listed email is dkulibrary@dukekunshan.edu.cn. The handbook also mentions a joint service relationship with Duke University Libraries (DUL)."
+    },
+    {
+      "chunk_id": "dku-library-hours::c000",
+      "doc_id": "dku-library-hours",
+      "title": "Dku Library Hours",
+      "score": 0.6607831272664334,
+      "text": "DKU Library — current locations and hours\n\nThese hours are the current regular schedule published on the DKU Library website. Holiday hours are announced separately and are not listed here.\n\nLibrary building: 08:00-23:00, Monday through Sunday.\n\n1st floor information desk:\nMonday-Friday: 09:00-21:00\nSaturday-Sunday: 14:00-21:00\n\nDVD and equipment loan: Monday-Friday, 09:00-17:30."
+    },
+    {
+      "chunk_id": "dku-library-guide-202501::c000",
+      "doc_id": "dku-library-guide-202501",
+      "title": "Dku Library Guide 202501",
+      "score": 0.6282260784928134,
+      "text": "DKU Library Guide (January 2025 brochure)\n\nThis document copies service hours and space facts from the January 2025 DKU Library Guide PDF. Where it disagrees with the later Locations & Hours website, treat the website as current and this brochure as dated January 2025.\n\nLibrary building: Monday-Sunday 08:00-23:00. Side gates use swipe access. The guide lists 23 self and group study rooms and 560 seats."
+    },
+    {
+      "chunk_id": "dku-library-handbook-2021::c002",
+      "doc_id": "dku-library-handbook-2021",
+      "title": "Dku Library Handbook 2021",
+      "score": 0.6131636632269439,
+      "text": "also mentions a joint service relationship with Duke University Libraries (DUL).\n\nDo not use these 2021 room locations or this 2021 phone number as the current library location or current service desk number.\n\nSource: DKU Student Handbook dated 21.08.19, archived copy at https://sites.nicholas.duke.edu/imep-dku/files/2023/04/21.08.19DKU-Student-Handbook.pdf (retrieved 2026-09-10)"
+    }
+  ],
+  "recovery_status": "applied",
+  "parent_run_id": null,
+  "latency_ms": 15631.004958006088,
+  "probe_evaluation": {
+    "evidence_sufficient": false,
+    "answer_supported": null,
+    "sufficiency_rationale": "The evidence does not provide a specific street address for the DKU Library.",
+    "support_rationale": "",
+    "judge": "llm-judge",
+    "model": "gpt-4o-mini"
+  },
+  "retrieval_signal": {
+    "top_score": 0.6732477476936446,
+    "runner_up_score": 0.6607831272664334,
+    "relative_margin": 0.018514165802873368,
+    "weak_top": false,
+    "ambiguous_top": true,
+    "reason": "top two chunks are within 1.9%, below 2.0%",
+    "detector": "retrieval-score"
+  },
+  "agent_config": null,
+  "recovery_attempts": [
+    {
+      "index": 0,
+      "action": "rewrite",
+      "reason": "first-pass evidence insufficient: rewrite query and retrieve again",
+      "trigger": "judge",
+      "source": "policy",
+      "attributed_class": "evidence_insufficiency",
+      "outcome_note": "rewrite did not improve evidence and the first-pass answer already abstained",
+      "top_k": 4,
+      "retrieved_doc_ids": [
+        "dku-library-handbook-2021",
+        "dku-library-hours",
+        "dku-library-handbook-2021",
+        "dku-library-guide-202501"
+      ],
+      "verification": {
+        "outcome": "still_failing",
+        "rationale": "evidence stayed insufficient after recovery; the loop abstained instead of answering"
+      },
+      "answer": "I do not know based on the retrieved documents.",
+      "answer_model": "abstain",
+      "answer_relation": "abstained",
+      "evidence_relation": "replaced",
+      "evaluation_source": "probe",
+      "executed": true,
+      "runtime_evaluation": {
+        "evidence_sufficient": false,
+        "answer_supported": null,
+        "sufficiency_rationale": "The evidence does not provide a specific street address for the DKU Library.",
+        "support_rationale": "",
+        "judge": "llm-judge",
+        "model": "gpt-4o-mini"
+      },
+      "diagnosis": {
+        "failure_class": "evidence_insufficiency",
+        "rationale": "Evidence remained insufficient after query rewrite and a second retrieve.",
+        "detector": "rewrite-outcome"
+      },
+      "latency_ms": 5114.284500014037,
+      "rewritten_query": "What is the current street address of the DKU Library?",
+      "search_query": "What is the current street address of the DKU Library?",
+      "retrieved_chunks": [
+        {
+          "chunk_id": "dku-library-handbook-2021::c001",
+          "doc_id": "dku-library-handbook-2021",
+          "title": "Dku Library Handbook 2021",
+          "score": 0.6667210813675507,
+          "text": "as historical text. It does not describe the current dedicated library building.\n\nIn this 2021 handbook, the DKU Library is described as occupying two rooms on the first and second floor of the Academic Building. The listed phone number is (0512) 3665-7027. The listed email is dkulibrary@dukekunshan.edu.cn. The handbook also mentions a joint service relationship with Duke University Libraries (DUL)."
+        },
+        {
+          "chunk_id": "dku-library-hours::c000",
+          "doc_id": "dku-library-hours",
+          "title": "Dku Library Hours",
+          "score": 0.653133724023541,
+          "text": "DKU Library — current locations and hours\n\nThese hours are the current regular schedule published on the DKU Library website. Holiday hours are announced separately and are not listed here.\n\nLibrary building: 08:00-23:00, Monday through Sunday.\n\n1st floor information desk:\nMonday-Friday: 09:00-21:00\nSaturday-Sunday: 14:00-21:00\n\nDVD and equipment loan: Monday-Friday, 09:00-17:30."
+        },
+        {
+          "chunk_id": "dku-library-handbook-2021::c002",
+          "doc_id": "dku-library-handbook-2021",
+          "title": "Dku Library Handbook 2021",
+          "score": 0.6223315675220394,
+          "text": "also mentions a joint service relationship with Duke University Libraries (DUL).\n\nDo not use these 2021 room locations or this 2021 phone number as the current library location or current service desk number.\n\nSource: DKU Student Handbook dated 21.08.19, archived copy at https://sites.nicholas.duke.edu/imep-dku/files/2023/04/21.08.19DKU-Student-Handbook.pdf (retrieved 2026-09-10)"
+        },
+        {
+          "chunk_id": "dku-library-guide-202501::c000",
+          "doc_id": "dku-library-guide-202501",
+          "title": "Dku Library Guide 202501",
+          "score": 0.6221966587354144,
+          "text": "DKU Library Guide (January 2025 brochure)\n\nThis document copies service hours and space facts from the January 2025 DKU Library Guide PDF. Where it disagrees with the later Locations & Hours website, treat the website as current and this brochure as dated January 2025.\n\nLibrary building: Monday-Sunday 08:00-23:00. Side gates use swipe access. The guide lists 23 self and group study rooms and 560 seats."
+        }
+      ],
+      "probe_evaluation": {
+        "evidence_sufficient": false,
+        "answer_supported": null,
+        "sufficiency_rationale": "The evidence does not provide a specific street address for the DKU Library.",
+        "support_rationale": "",
+        "judge": "llm-judge",
+        "model": "gpt-4o-mini"
+      },
+      "usage": {
+        "chat_calls": 2,
+        "embedding_calls": 1,
+        "prompt_tokens": 1481,
+        "completion_tokens": 61,
+        "embedding_tokens": 12,
+        "tokens_observed": true
+      }
+    },
+    {
+      "index": 1,
+      "action": "expand",
+      "reason": "rewrite did not improve the result; widen top_k from 4 to 12 and retrieve again",
+      "trigger": "judge",
+      "source": "policy",
+      "attributed_class": "evidence_insufficiency",
+      "outcome_note": "widened top_k from 4 to 12",
+      "top_k": 12,
+      "retrieved_doc_ids": [
+        "dku-library-handbook-2021",
+        "dku-library-hours",
+        "dku-library-handbook-2021",
+        "dku-library-guide-202501",
+        "duke-university-durham",
+        "dku-library-handbook-2021",
+        "wuhan-university",
+        "dku-library-hours",
+        "wuhan-university",
+        "dayu-bay",
+        "dku-library-guide-202501",
+        "registrar-fall-2026"
+      ],
+      "verification": {
+        "outcome": "improved",
+        "rationale": "evidence_sufficient became true after recovery"
+      },
+      "answer": "The street address of the DKU Library is No. 8 Duke Avenue, Kunshan, Jiangsu Province, China 215316 [dku-library-hours::c001].",
+      "answer_model": "gpt-4o-mini",
+      "answer_relation": "generated",
+      "evidence_relation": "widened",
+      "evaluation_source": "judge",
+      "executed": true,
+      "runtime_evaluation": {
+        "evidence_sufficient": true,
+        "answer_supported": true,
+        "sufficiency_rationale": "The evidence explicitly states the street address of the DKU Library as No. 8 Duke Avenue, Kunshan, Jiangsu Province, China 215316.",
+        "support_rationale": "The generated answer matches the address provided in the evidence.",
+        "judge": "llm-judge",
+        "model": "gpt-4o-mini"
+      },
+      "diagnosis": {
+        "failure_class": null,
+        "rationale": "Evidence was sufficient and the answer was supported.",
+        "detector": "first-pass-runtime"
+      },
+      "latency_ms": 4965.235957992263,
+      "parameters": {
+        "from_k": 4,
+        "to_k": 12
+      },
+      "search_query": "What is the current street address of the DKU Library?",
+      "retrieved_chunks": [
+        {
+          "chunk_id": "dku-library-handbook-2021::c001",
+          "doc_id": "dku-library-handbook-2021",
+          "title": "Dku Library Handbook 2021",
+          "score": 0.6667210813675507,
+          "text": "as historical text. It does not describe the current dedicated library building.\n\nIn this 2021 handbook, the DKU Library is described as occupying two rooms on the first and second floor of the Academic Building. The listed phone number is (0512) 3665-7027. The listed email is dkulibrary@dukekunshan.edu.cn. The handbook also mentions a joint service relationship with Duke University Libraries (DUL)."
+        },
+        {
+          "chunk_id": "dku-library-hours::c000",
+          "doc_id": "dku-library-hours",
+          "title": "Dku Library Hours",
+          "score": 0.653133724023541,
+          "text": "DKU Library — current locations and hours\n\nThese hours are the current regular schedule published on the DKU Library website. Holiday hours are announced separately and are not listed here.\n\nLibrary building: 08:00-23:00, Monday through Sunday.\n\n1st floor information desk:\nMonday-Friday: 09:00-21:00\nSaturday-Sunday: 14:00-21:00\n\nDVD and equipment loan: Monday-Friday, 09:00-17:30."
+        },
+        {
+          "chunk_id": "dku-library-handbook-2021::c002",
+          "doc_id": "dku-library-handbook-2021",
+          "title": "Dku Library Handbook 2021",
+          "score": 0.6223315675220394,
+          "text": "also mentions a joint service relationship with Duke University Libraries (DUL).\n\nDo not use these 2021 room locations or this 2021 phone number as the current library location or current service desk number.\n\nSource: DKU Student Handbook dated 21.08.19, archived copy at https://sites.nicholas.duke.edu/imep-dku/files/2023/04/21.08.19DKU-Student-Handbook.pdf (retrieved 2026-09-10)"
+        },
+        {
+          "chunk_id": "dku-library-guide-202501::c000",
+          "doc_id": "dku-library-guide-202501",
+          "title": "Dku Library Guide 202501",
+          "score": 0.6221966587354144,
+          "text": "DKU Library Guide (January 2025 brochure)\n\nThis document copies service hours and space facts from the January 2025 DKU Library Guide PDF. Where it disagrees with the later Locations & Hours website, treat the website as current and this brochure as dated January 2025.\n\nLibrary building: Monday-Sunday 08:00-23:00. Side gates use swipe access. The guide lists 23 self and group study rooms and 560 seats."
+        },
+        {
+          "chunk_id": "duke-university-durham::c001",
+          "doc_id": "duke-university-durham",
+          "title": "Duke University Durham",
+          "score": 0.5834755633468576,
+          "text": "more than 15,000 students in undergraduate, graduate, and professional programs.\n\nDuke University Libraries (including Perkins and Bostock on West Campus) are in Durham. They are not the DKU Library at No. 8 Duke Avenue, Kunshan. This note does not list Perkins closing times, because those hours are not copied here.\n\nDKU is described on Duke's international activity list alongside Duke-NUS in Singapore."
+        },
+        {
+          "chunk_id": "dku-library-handbook-2021::c000",
+          "doc_id": "dku-library-handbook-2021",
+          "title": "Dku Library Handbook 2021",
+          "score": 0.5773994056935849,
+          "text": "DKU Library — August 2021 student handbook (superseded)\n\nThis extract is from an August 2021 DKU Student Handbook. It is kept as historical text. It does not describe the current dedicated library building."
+        },
+        {
+          "chunk_id": "wuhan-university::c001",
+          "doc_id": "wuhan-university",
+          "title": "Wuhan University",
+          "score": 0.5593545249304684,
+          "text": "not list DKU class dates, DKU library hours, or Wuhan University library hours.\n\nSource: https://www.dukekunshan.edu.cn/about/welcome-to-duke-kunshan-university/ (retrieved 2026-09-10)"
+        },
+        {
+          "chunk_id": "dku-library-hours::c001",
+          "doc_id": "dku-library-hours",
+          "title": "Dku Library Hours",
+          "score": 0.5230383358630413,
+          "text": "aturday-Sunday: 14:00-21:00\n\nDVD and equipment loan: Monday-Friday, 09:00-17:30.\n\nContact:\n(+86) 0512-36658756 (Monday-Friday, 09:00-17:00)\ndkulibrary@dukekunshan.edu.cn\nNo. 8 Duke Avenue, Kunshan, Jiangsu Province, China 215316\n\nThis page is about the Kunshan campus library. It is not Duke University Libraries in Durham, North Carolina.\n\nSource: https://library.dukekunshan.edu.cn/locations-hours/ (retrieved 2026-09-10)"
+        },
+        {
+          "chunk_id": "wuhan-university::c000",
+          "doc_id": "wuhan-university",
+          "title": "Wuhan University",
+          "score": 0.44686442319577296,
+          "text": "Wuhan University (partner institution, not the DKU campus)\n\nWuhan University is in Hubei province in central China. It is a partner in Duke Kunshan University. It is not in Kunshan and is not the DKU library, dining halls, or registrar.\n\nWuhan University's history is traced to the Ziqiang Institute founded in 1893 by Zhang Zhidong. In 1928 the institute was renamed Wuhan National University.\n\nThis note does not list DKU class dates, DKU library hours, or Wuhan University library hours."
+        },
+        {
+          "chunk_id": "dayu-bay::c000",
+          "doc_id": "dayu-bay",
+          "title": "Dayu Bay",
+          "score": 0.4405103111915522,
+          "text": "Dayu Bay commercial center\n\nDayu Bay is a short walk from the DKU campus. The commencement visitor guide gives the walking distance as 500 meters. Visitors may park for free in the Dayu Bay commercial center parking lot.\n\nThe guide says an array of restaurants is located there. This local note does not name any restaurant, does not list opening hours, and does not list prices.\n\nSource: https://commencement.dukekunshan.edu.cn/plan-your-visit/ (retrieved 2026-09-10)"
+        },
+        {
+          "chunk_id": "dku-library-guide-202501::c002",
+          "doc_id": "dku-library-guide-202501",
+          "title": "Dku Library Guide 202501",
+          "score": 0.43079819199142105,
+          "text": "Meditation Room is on the 4th floor (LIB4-16) and looks over the Academic Quad.\n\nSource: https://library.dukekunshan.edu.cn/wp-content/uploads/2025/01/Duke-Kunshan-University-Library-Guide-202501.pdf (January 2025 guide; retrieved 2026-09-10)"
+        },
+        {
+          "chunk_id": "registrar-fall-2026::c002",
+          "doc_id": "registrar-fall-2026",
+          "title": "Registrar Fall 2026",
+          "score": 0.43027783431731287,
+          "text": "at 13:00.\n\nHoliday hours for the library are not listed on this registrar page.\n\nSource: https://registrar.dukekunshan.edu.cn/academic-calendar/ (retrieved 2026-09-10)"
+        }
+      ],
+      "usage": {
+        "chat_calls": 2,
+        "embedding_calls": 0,
+        "prompt_tokens": 3143,
+        "completion_tokens": 113,
+        "embedding_tokens": 0,
+        "tokens_observed": true
+      }
+    }
+  ],
+  "first_pass_evaluation": {
+    "evidence_sufficient": false,
+    "answer_supported": true,
+    "sufficiency_rationale": "The retrieved evidence does not provide the specific street address of the DKU Library.",
+    "support_rationale": "The generated answer correctly states that the evidence does not contain the street address.",
+    "judge": "llm-judge",
+    "model": "gpt-4o-mini"
+  },
+  "trace_schema_version": 2,
+  "run_mode": "loop",
+  "initial": {
+    "query": "What is the street address of the DKU Library?",
+    "retrieved_chunks": [
+      {
+        "chunk_id": "dku-library-handbook-2021::c001",
+        "doc_id": "dku-library-handbook-2021",
+        "title": "Dku Library Handbook 2021",
+        "score": 0.6732477476936446,
+        "text": "as historical text. It does not describe the current dedicated library building.\n\nIn this 2021 handbook, the DKU Library is described as occupying two rooms on the first and second floor of the Academic Building. The listed phone number is (0512) 3665-7027. The listed email is dkulibrary@dukekunshan.edu.cn. The handbook also mentions a joint service relationship with Duke University Libraries (DUL)."
+      },
+      {
+        "chunk_id": "dku-library-hours::c000",
+        "doc_id": "dku-library-hours",
+        "title": "Dku Library Hours",
+        "score": 0.6607831272664334,
+        "text": "DKU Library — current locations and hours\n\nThese hours are the current regular schedule published on the DKU Library website. Holiday hours are announced separately and are not listed here.\n\nLibrary building: 08:00-23:00, Monday through Sunday.\n\n1st floor information desk:\nMonday-Friday: 09:00-21:00\nSaturday-Sunday: 14:00-21:00\n\nDVD and equipment loan: Monday-Friday, 09:00-17:30."
+      },
+      {
+        "chunk_id": "dku-library-guide-202501::c000",
+        "doc_id": "dku-library-guide-202501",
+        "title": "Dku Library Guide 202501",
+        "score": 0.6282260784928134,
+        "text": "DKU Library Guide (January 2025 brochure)\n\nThis document copies service hours and space facts from the January 2025 DKU Library Guide PDF. Where it disagrees with the later Locations & Hours website, treat the website as current and this brochure as dated January 2025.\n\nLibrary building: Monday-Sunday 08:00-23:00. Side gates use swipe access. The guide lists 23 self and group study rooms and 560 seats."
+      },
+      {
+        "chunk_id": "dku-library-handbook-2021::c002",
+        "doc_id": "dku-library-handbook-2021",
+        "title": "Dku Library Handbook 2021",
+        "score": 0.6131636632269439,
+        "text": "also mentions a joint service relationship with Duke University Libraries (DUL).\n\nDo not use these 2021 room locations or this 2021 phone number as the current library location or current service desk number.\n\nSource: DKU Student Handbook dated 21.08.19, archived copy at https://sites.nicholas.duke.edu/imep-dku/files/2023/04/21.08.19DKU-Student-Handbook.pdf (retrieved 2026-09-10)"
+      }
+    ],
+    "answer": "I do not know the street address of the DKU Library based on the retrieved documents.",
+    "model": "gpt-4o-mini",
+    "top_k": 4,
+    "runtime_evaluation": {
+      "evidence_sufficient": false,
+      "answer_supported": true,
+      "sufficiency_rationale": "The retrieved evidence does not provide the specific street address of the DKU Library.",
+      "support_rationale": "The generated answer correctly states that the evidence does not contain the street address.",
+      "judge": "llm-judge",
+      "model": "gpt-4o-mini"
+    },
+    "retrieval_signal": {
+      "top_score": 0.6732477476936446,
+      "runner_up_score": 0.6607831272664334,
+      "relative_margin": 0.018514165802873368,
+      "weak_top": false,
+      "ambiguous_top": true,
+      "reason": "top two chunks are within 1.9%, below 2.0%",
+      "detector": "retrieval-score"
+    },
+    "diagnosis": {
+      "failure_class": null,
+      "rationale": "Evidence was judged insufficient. retrieval_miss vs evidence_insufficiency is not diagnosed on the first pass.",
+      "detector": "first-pass-runtime"
+    },
+    "latency_ms": 5526.031624991447
+  },
+  "usage": {
+    "chat_calls": 6,
+    "embedding_calls": 3,
+    "prompt_tokens": 6061,
+    "completion_tokens": 257,
+    "embedding_tokens": 2789,
+    "tokens_observed": true
+  }
+}
