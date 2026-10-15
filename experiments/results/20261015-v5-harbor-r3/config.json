@@ -1,0 +1,45 @@
+{
+  "name": "v5_harbor_depth_sweep",
+  "description": "Depth sweep (top_k 1, 2, 4) for baseline and loop, plus a plain baseline at top_k 8 as a cost-matched comparison. Added 2026-10-16.",
+  "gold_path": "/private/tmp/claude-501/-Users-siegfreidbugarin/a7ca6171-322c-49d5-a44d-818cc49a161e/scratchpad/wt-sweep/datasets/gold/questions.jsonl",
+  "corpus_dir": "/private/tmp/claude-501/-Users-siegfreidbugarin/a7ca6171-322c-49d5-a44d-818cc49a161e/scratchpad/wt-sweep/datasets/corpus",
+  "top_k": 4,
+  "max_recoveries": 2,
+  "conditions": [
+    {
+      "id": "baseline_k1",
+      "mode": "baseline",
+      "top_k": 1
+    },
+    {
+      "id": "loop_k1",
+      "mode": "loop",
+      "top_k": 1
+    },
+    {
+      "id": "baseline_k2",
+      "mode": "baseline",
+      "top_k": 2
+    },
+    {
+      "id": "loop_k2",
+      "mode": "loop",
+      "top_k": 2
+    },
+    {
+      "id": "baseline_k4",
+      "mode": "baseline",
+      "top_k": 4
+    },
+    {
+      "id": "loop_k4",
+      "mode": "loop",
+      "top_k": 4
+    },
+    {
+      "id": "baseline_k8",
+      "mode": "baseline",
+      "top_k": 8
+    }
+  ]
+}
