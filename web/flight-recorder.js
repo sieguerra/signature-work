@@ -800,14 +800,22 @@
     for (const event of events || []) {
       const key = event && event.stage;
       if (!states[key]) continue;
+      // A stage can run again inside a recovery attempt. The node keeps the
+      // total time across runs and how many times it ran.
+      const prior = states[key];
       if (event.type === "stage_start") {
-        states[key] = { state: "running", ms: null, note: key === "recover" && event.action ? labelAction(event.action) : "" };
+        states[key] = {
+          state: "running",
+          ms: prior.ms,
+          count: prior.count || 0,
+          note: key === "recover" && event.action ? labelAction(event.action) : prior.note,
+        };
       } else if (event.type === "stage_end") {
-        const prior = states[key];
         const ms = Number(event.duration_ms);
         states[key] = {
           state: event.status === "error" ? "fail" : "done",
           ms: Number.isFinite(ms) ? (prior.ms || 0) + ms : prior.ms,
+          count: (prior.count || 0) + 1,
           note: key === "recover" && event.action ? labelAction(event.action) : prior.note,
         };
       }

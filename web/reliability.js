@@ -78,6 +78,8 @@
     if (action === "expand") return "Expand";
     if (action === "regenerate") return "Regenerate";
     if (action === "abstain") return "Safe abstention";
+    if (action === "accept") return "Accepted";
+    if (action === "none") return "No recovery";
     return action || "";
   }
 

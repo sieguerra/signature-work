@@ -7194,10 +7194,7 @@ button:active:not(:disabled) {
 .rel-detail-empty h2 { margin: 6px 0 0; color: var(--text); font-size: var(--fs-md); }
 .rel-detail-empty p { margin: 0; font-size: var(--fs-sm); }
 
-@media (min-width: 1700px) {
-  .rel-runs-table .c-init,
-  .rel-runs-table .c-lat { display: table-cell; }
-}
+
 
 @media (max-width: 1100px) {
   #view-evaluation[data-tab="runs"] .rel-panel[data-rel-panel="runs"] {
@@ -7597,3 +7594,82 @@ h2 .info-tip { font-size: inherit; }
 .tl-row.is-nested .tl-bar { opacity: 0.55; }
 .tl-ms { color: var(--text-muted); font-size: 11px; font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right; }
 .is-entering .tl-bar { transform-origin: left center; animation: grow-x 420ms var(--ease-out) 380ms both; }
+
+/* Configuration on a read-only system: pipeline, settings, next steps. */
+.agent-ro-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+}
+.agent-ro-next { grid-column: 1 / -1; }
+.agent-ro-card .agent-pipe { margin: 0; }
+.tc-facts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 16px;
+  margin: 0;
+}
+.tc-facts-grid dt { color: var(--text-muted); font-size: 11px; }
+.tc-facts-grid dd { margin: 3px 0 0; color: var(--text); font-size: var(--fs-sm); font-weight: 550; }
+.agent-ro-steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+.agent-ro-steps li {
+  position: relative;
+  display: grid;
+  gap: 4px;
+  padding: 12px 12px 12px 44px;
+  border-radius: var(--r-lg);
+  background: var(--bg-app);
+  box-shadow: inset 0 0 0 1px var(--border-subtle);
+  counter-increment: step;
+}
+.agent-ro-steps li::before {
+  content: counter(step);
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--brand-soft);
+  color: var(--brand);
+  font-size: 12px;
+  font-weight: 600;
+}
+.agent-ro-steps b { color: var(--text); font-size: var(--fs-sm); }
+.agent-ro-steps span { color: var(--text-2); font-size: var(--fs-xs); line-height: 1.45; }
+.api-keys-locked p { margin: 0 0 12px; color: var(--text-2); font-size: var(--fs-sm); }
+@media (max-width: 1000px) {
+  .agent-ro-grid { grid-template-columns: minmax(0, 1fr); }
+  .agent-ro-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) { .agent-ro-steps { grid-template-columns: minmax(0, 1fr); } }
+
+/* Runs list: show extra columns only when the list itself is wide. */
+#rel-panel-runs > #rel-runs { container-type: inline-size; }
+.rel-runs-table .c-init,
+.rel-runs-table .c-lat { display: none; }
+@container (min-width: 880px) {
+  .rel-runs-table .c-init,
+  .rel-runs-table .c-lat { display: table-cell; }
+}
+
+/* Loading placeholders in the page's own shapes. */
+.sk-line { display: block; height: 10px; margin: 8px 0; }
+.sk-short { width: 40%; }
+.sk-card { min-height: 120px; padding: 16px; }
+.sk-card .sk-line:first-child { width: 30%; height: 12px; margin-top: 0; }
+.loop-stage .loop-node.skeleton { box-shadow: none; }
+.loop-stage .sk-line { width: 60%; }
+.sk-grid { margin-top: 10px; }
+@media (prefers-reduced-motion: reduce) { .skeleton { animation: none; } }
