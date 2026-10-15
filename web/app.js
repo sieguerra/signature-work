@@ -1146,16 +1146,9 @@ async function loadEval() {
   renderEvalCharts();
   const strip = $("eval-strip");
   if (!strip) return;
-  const actions = Object.entries(payload.by_action || {})
-    .map(([name, count]) => `${name}=${count}`)
-    .join(" · ");
-  const verifies = Object.entries(payload.by_verification || {})
-    .map(([name, count]) => `${name}=${count}`)
-    .join(" · ");
-  const proposed = payload.proposed ? ` · proposed=${payload.proposed}` : "";
-  const latency =
-    payload.mean_latency_ms == null ? "" : ` · mean latency ${Math.round(payload.mean_latency_ms)}ms`;
-  strip.textContent = `n=${payload.n} · abstain=${payload.abstain}${proposed}${actions ? ` · ${actions}` : ""}${verifies ? ` · ${verifies}` : ""}${latency}`;
+  strip.innerHTML = `<span class="eval-strip-title">Runtime tallies</span>${window.ReliabilityView.qualityTally(payload)
+    .map((item) => `<span class="eval-stat"><b>${escapeHtml(item.value)}</b> ${escapeHtml(item.label)}</span>`)
+    .join("")}`;
 }
 
 async function selectRun(runId) {
@@ -4772,13 +4765,11 @@ function flightWarning(flight) {
 
 function phaseHtml(phase, flight) {
   const safePhase = String(phase.title || "") === "Recovery · Safe stop";
-  const safeVerify = Boolean(flight && flight.status === "safe_stop" && phase.key === "verification");
   const steps = (phase.steps || [])
     .map((step) => {
-      const title = safeVerify ? "Verifier recorded" : step.title || "";
-      const detail = safeVerify
-        ? `${step.title || "Verifier result"}. Bounded recovery stopped because sufficient support was not found. This stored result stays in the trace and is not a second status.`
-        : diagnosisText(step.detail || "");
+      const shown = window.FlightRecorder.presentStep(phase, step, flight && flight.status);
+      const title = shown.title;
+      const detail = diagnosisText(shown.detail);
       return `<div class="tc-step is-${escapeHtml(step.kind || "step")}${step.kind === "verify" ? " is-verify" : ""}">
         <span class="tc-rail" aria-hidden="true"></span>
         <div>

@@ -11,6 +11,7 @@ const {
   presentVerification,
   qualityStatus,
   formatWhen,
+  qualityTally,
   parseRoute,
   routeHash,
 } = require("./reliability.js");
@@ -215,4 +216,29 @@ test("routeHash gives Summary no suffix and other tabs one", () => {
   assert.equal(routeHash("reliability", "overview"), "#reliability");
   assert.equal(routeHash("reliability", "runs"), "#reliability/runs");
   assert.equal(routeHash("data", "runs"), "#data");
+});
+
+test("qualityTally turns the /api/eval counts into labeled items (#115)", () => {
+  const items = qualityTally({
+    n: 2,
+    abstain: 1,
+    proposed: 0,
+    by_action: { regenerate: 2, abstain: 1 },
+    by_verification: { improved: 1, still_failing: 1 },
+    mean_latency_ms: 11403.1,
+  });
+  assert.deepEqual(items, [
+    { label: "Runs", value: "2" },
+    { label: "Abstentions", value: "1" },
+    { label: "Regenerate", value: "2" },
+    { label: "Safe abstention", value: "1" },
+    { label: "Improved", value: "1" },
+    { label: "Still failing", value: "1" },
+    { label: "Mean latency", value: "11.4s" },
+  ]);
+});
+
+test("qualityTally leaves out latency when the payload has none and shows pending proposals", () => {
+  const labels = qualityTally({ n: 1, abstain: 0, proposed: 1, mean_latency_ms: null }).map((item) => item.label);
+  assert.deepEqual(labels, ["Runs", "Abstentions", "Pending proposals"]);
 });

@@ -585,3 +585,53 @@ test("a conditional rewrite stays a rewrite and missing usage is not shown as ze
   );
   assert.equal(formatUsage({ tokens_observed: true, prompt_tokens: 12, completion_tokens: 4 }), "12 prompt tokens · 4 completion tokens");
 });
+
+test("a safe-stop phase reads as one status, with the verifier result labeled as recorded (#114)", () => {
+  const { presentStep } = require("./flight-recorder.js");
+  const flight = buildFlight([
+    {
+      run_id: "gap-stop",
+      query: "What is the fee?",
+      run_mode: "loop",
+      recovery_policy: "v2c_gap_aware",
+      answer: "I do not know based on the retrieved documents.",
+      retrieved_chunks: [chunk("a", 0.4)],
+      runtime_evaluation: { evidence_sufficient: false, answer_supported: null },
+      verification: { outcome: "still_failing" },
+      recovery_attempts: [
+        { action: "expand", executed: true, top_k: 12, answer_relation: "generated", answer: "maybe" },
+        {
+          action: "abstain",
+          executed: true,
+          answer_relation: "abstained",
+          answer: "I do not know based on the retrieved documents.",
+          verification: { outcome: "still_failing" },
+          parameters: {
+            stop_reason: "the retrieved sources give more than one value and the question does not choose one",
+            conflict_signal: true,
+            decision_source: "deterministic_b1",
+            recovery_opportunity: "CONFLICT",
+          },
+        },
+      ],
+    },
+  ]);
+  assert.equal(flight.status, "safe_stop");
+  const stop = flight.phases.find((phase) => phase.title === "Recovery · Safe stop");
+  const verify = stop.steps.find((step) => step.kind === "verify");
+  assert.equal(verify.outcome, "still_failing");
+  const titles = stop.steps.map((step) => presentStep(stop, step, flight.status).title);
+  assert.ok(!titles.includes("Still failing"));
+  assert.ok(!titles.includes("Safe abstention"));
+  assert.ok(!titles.includes("Attempt check"));
+  assert.ok(titles.includes("Verifier recorded"));
+  assert.ok(titles.includes("Stopped answer"));
+  assert.match(presentStep(stop, verify, flight.status).detail, /^Still failing\. Bounded recovery stopped/);
+});
+
+test("a still-failing run that is not a safe stop keeps its own words", () => {
+  const { presentStep } = require("./flight-recorder.js");
+  const phase = { key: "verification", title: "Runtime verification" };
+  const step = { kind: "verify", title: "Still failing", detail: "x", outcome: "still_failing" };
+  assert.equal(presentStep(phase, step, "still_failing").title, "Still failing");
+});

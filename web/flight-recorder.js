@@ -656,6 +656,28 @@
     return String(value || "").trim().toLowerCase();
   }
 
+  const SAFE_STOP_NOTE = "Bounded recovery stopped because sufficient support was not found.";
+
+  // How one flight step reads on screen. Inside a safe stop the heading is the
+  // status, so the attempt's stored verifier words are introduced as the
+  // recorded result instead of a second status, and the abstention is the
+  // stopped answer. step.outcome is left alone for anything that reads data.
+  function presentStep(phase, step, flightStatus) {
+    const safePhase = String((phase && phase.title) || "") === "Recovery · Safe stop";
+    const safeVerify = flightStatus === "safe_stop" && phase && phase.key === "verification";
+    if (safeVerify || (safePhase && step.kind === "verify")) {
+      const stored = safeVerify ? step.title : step.detail;
+      return {
+        title: "Verifier recorded",
+        detail: `${stored || "Verifier result"}. ${SAFE_STOP_NOTE} This stored result stays in the trace and is not a second status.`,
+      };
+    }
+    if (safePhase && step.kind === "abstain") {
+      return { title: "Stopped answer", detail: step.detail || "" };
+    }
+    return { title: step.title || "", detail: step.detail || "" };
+  }
+
   return {
     ABSTAIN_ANSWER,
     ACTION_EFFECT,
@@ -664,6 +686,8 @@
     modeNote,
     labelAction,
     labelOutcome,
+    presentStep,
+    SAFE_STOP_NOTE,
     sourceLabel,
   };
 });

@@ -156,6 +156,26 @@
     return "Not scored";
   }
 
+  // Labeled runtime tallies for the Quality tab header, from /api/eval.
+  // Same counts the old "n=… · abstain=…" line printed, with words.
+  function qualityTally(payload) {
+    const data = payload || {};
+    const items = [{ label: "Runs", value: String(data.n || 0) }];
+    items.push({ label: "Abstentions", value: String(data.abstain || 0) });
+    if (data.proposed) items.push({ label: "Pending proposals", value: String(data.proposed) });
+    Object.entries(data.by_action || {}).forEach(([name, count]) => {
+      items.push({ label: labelAction(name), value: String(count) });
+    });
+    Object.entries(data.by_verification || {}).forEach(([name, count]) => {
+      items.push({ label: labelVerification({ verification: name }), value: String(count) });
+    });
+    if (data.mean_latency_ms != null) {
+      const ms = Number(data.mean_latency_ms);
+      items.push({ label: "Mean latency", value: ms >= 1000 ? `${(ms / 1000).toFixed(1)}s` : `${Math.round(ms)}ms` });
+    }
+    return items;
+  }
+
   // Hash routing for the console: "#view" or "#reliability/<tab>".
   // Summary is the internal "overview" tab and has no suffix in the URL.
   const RELIABILITY_TABS = ["overview", "runs", "recoveries", "quality"];
@@ -209,6 +229,7 @@
     labelDiagnosis,
     qualityStatus,
     formatWhen,
+    qualityTally,
     parseRoute,
     routeHash,
     RELIABILITY_TABS,
