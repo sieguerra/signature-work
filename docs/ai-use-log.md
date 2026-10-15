@@ -421,3 +421,33 @@ How I verified the result:
 `pytest` with a scripted judge (no live OpenAI on the v1 path). Harbor
 `experiments/results/20260910T070623/` untouched.
 
+---
+
+### 2026-10-15
+
+Tool: Claude Code (Claude Opus)
+
+Purpose: Backend and engine audit, fixes, and the decisions left open by it
+
+What AI assisted with:
+Audited the engine, scoring and benchmarks (issues #130 to #148), wrote the
+fixes (PRs #149 to #161), reran the three v4 benchmarks live on the hardened
+prompts, rescored the frozen snapshots without model calls, and drafted
+`docs/results-note.md` from the stored numbers.
+
+Important suggestions produced:
+seed-007 relabelled answerable; false-premise rejections count as
+abstentions, with a near-neighbour trap for seed-009 (#158); an expand at the
+top_k cap does not use the recovery budget (#159); evidence delimited as
+untrusted data (#161); report rank-rule agreement, answerable-only as the
+headline (#132, #155).
+
+What I independently decided or changed:
+I asked Claude to make these decisions on my behalf. I still need to review
+each one, and rewrite the results note in my own words before citing it.
+
+How I verified the result:
+`pytest` (offline, scripted judge) and CI on every PR. Earlier snapshots in
+`experiments/results/` are untouched; the 2026-10-15 reruns are new folders.
+The second reviewer for #107 has to be a person and is still open.
+
