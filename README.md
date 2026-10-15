@@ -46,7 +46,8 @@ Optional flags: `--corpus`, `--output-dir`, `--top-k`, `--evaluate`, `--recover`
 gold set. Needs `OPENAI_API_KEY`.
 
 `--recover` runs the evaluation-guided loop (implies `--evaluate`): diagnose,
-maybe constrained-regenerate, then verify improved / unchanged / degraded /
+then regenerate, rewrite and retrieve again, or widen retrieval (expand) as the
+policy selects, then verify improved / unchanged / degraded /
 still_failing.
 
 ## Score the gold set
