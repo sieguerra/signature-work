@@ -117,7 +117,9 @@ def run_benchmark(
             gold_path=config["gold_path"],
             corpus_dir=config["corpus_dir"],
             output_root=batch_dir,
-            top_k=top_k,
+            # A condition may set its own retrieval depth, so one batch can
+            # hold a depth sweep or a cost-matched wider baseline.
+            top_k=int(condition.get("top_k", top_k)),
             embedder=resolved_embedder,
             generate=generate,
             run_label=condition_id,
