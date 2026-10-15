@@ -61,6 +61,12 @@ class GoldQuestion:
     answers: tuple[str, ...] = field(default_factory=tuple)
     supporting_doc_ids: tuple[str, ...] = field(default_factory=tuple)
     notes: str = ""
+    # Unanswerable rows only (issue #142). ``rejections``: phrases that show the
+    # answer correctly rejected a false premise, scored as an abstention.
+    # ``traps``: a near-neighbour's fact; an answer stating one is an attempt
+    # even if it also hedges.
+    rejections: tuple[str, ...] = field(default_factory=tuple)
+    traps: tuple[str, ...] = field(default_factory=tuple)
 
 
 @dataclass(frozen=True)

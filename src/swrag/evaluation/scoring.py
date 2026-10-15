@@ -145,6 +145,14 @@ def score_answer(
     # here, never at runtime.
     if abstained is None and did_abstain and gold.answerable and contains_answer(prediction, gold.answers):
         did_abstain = False
+    # Unanswerable rows can list a correct false-premise rejection and a
+    # near-neighbour trap (issue #142). A trap wins: "3 credits, but the rest
+    # is not specified" states a wrong fact, so it is an attempt.
+    if abstained is None and not gold.answerable:
+        if gold.traps and contains_answer(prediction, gold.traps):
+            did_abstain = False
+        elif not did_abstain and gold.rejections and contains_answer(prediction, gold.rejections):
+            did_abstain = True
 
     if not gold.answerable:
         return AnswerScore(

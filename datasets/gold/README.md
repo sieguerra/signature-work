@@ -23,6 +23,8 @@ ignored, so the file can be grouped with comments.
 | `answers` | if answerable | Acceptable short answers. Empty when `answerable` is `false` |
 | `supporting_doc_ids` | no | Which corpus documents contain the answer. Used to check retrieval |
 | `notes` | no | Why this question exists, or what makes it hard |
+| `rejections` | no | Unanswerable only. Phrases showing the answer correctly rejected a false premise; such an answer scores as an abstention (issue #142) |
+| `traps` | no | Unanswerable only. A near-neighbour's fact; an answer that states one is an attempt even if it also hedges (issue #142) |
 
 ## Writing good questions
 
@@ -54,8 +56,9 @@ detail tests retrieval. Note which you intended in `notes`.
 
 ## Current state
 
-`questions.jsonl` is the V1 gold set (issue #5): 32 questions, 22 answerable
-and 10 unanswerable. Every corpus document is the supporting document for at
+`questions.jsonl` is the V1 gold set (issue #5): 32 questions, 23 answerable
+and 9 unanswerable. seed-007 was relabelled answerable on 2026-10-15 (issue #142):
+the corpus names Library Plaza as the walk-from stop for the boat museum. Every corpus document is the supporting document for at
 least one answerable question. Contrast pairs cover the near-neighbour
 entities from ADR 004 (two libraries, two labs, two canteens, two archive
 units, current vs superseded library hours, term vs recess shuttle).
