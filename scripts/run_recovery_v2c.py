@@ -8,6 +8,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+from swrag.experiments.guard import refuse_committed
 from swrag.evaluation.llm_judge import LLMJudge
 from swrag.orchestration.loop import run_with_recovery
 from swrag.pipeline.baseline import build_corpus_index
@@ -32,7 +33,14 @@ def main() -> None:
     parser.add_argument("--regressions", action="store_true")
     parser.add_argument("--select", action="store_true")
     parser.add_argument("--holdout", action="store_true")
+    parser.add_argument(
+        "--overwrite-committed",
+        action="store_true",
+        help="Allow replacing the committed phase8c panels.",
+    )
     args = parser.parse_args()
+    if (args.development or args.regressions or args.select) and not args.holdout:
+        refuse_committed(OUT, overwrite=args.overwrite_committed)
     if args.holdout:
         _require_selection()
         criteria = json.loads((GAP / "promotion_criteria.json").read_text())

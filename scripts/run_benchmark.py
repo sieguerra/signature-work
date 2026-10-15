@@ -40,8 +40,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--results-root",
         type=Path,
-        default=root / "experiments" / "results",
-        help="Parent for committed comparison snapshots (never overwritten)",
+        default=None,
+        help=(
+            "Parent for committed comparison snapshots (never overwritten). Default "
+            "experiments/results, or experiments/output/retrieve-only-checks with --retrieve-only"
+        ),
     )
     parser.add_argument("--label", default=None, help="Name this batch instead of using a timestamp")
     parser.add_argument(
@@ -55,6 +58,14 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     load_dotenv(repo_root() / ".env")
     args = build_parser().parse_args(argv)
+    if args.label and ("/" in args.label or "\\" in args.label or ".." in args.label):
+        print("--label must be a plain folder name", file=sys.stderr)
+        return 1
+    if args.results_root is None:
+        # A retrieve-only harness check has no answers; keep it out of the
+        # committed results folder (#144).
+        sub = ("experiments", "output", "retrieve-only-checks") if args.retrieve_only else ("experiments", "results")
+        args.results_root = repo_root().joinpath(*sub)
 
     if not args.retrieve_only and not os.environ.get("OPENAI_API_KEY"):
         print(
