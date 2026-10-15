@@ -18,6 +18,7 @@ from swrag.ingestion.loader import load_documents
 from swrag.retrieval.embedder import Embedder
 from swrag.retrieval.memory_index import InMemoryIndex
 from swrag.retrieval.openai_embedder import OpenAIEmbedder
+from swrag.tracing import progress
 from swrag.tracing.schema import SCHEMA_VERSION
 from swrag.tracing.tracer import write_trace
 from swrag.usage import usage_for_trace
@@ -78,22 +79,26 @@ def execute_query(
     the corpus (the experiment runner and query-rewrite recovery both do this).
     """
     resolved = index if index is not None else build_corpus_index(corpus_dir, embedder)
-    retrieval = resolved.search(search_query or query, top_k=top_k)
+    with progress.stage("retrieve", top_k=top_k):
+        retrieval = resolved.search(search_query or query, top_k=top_k)
 
     if generate:
-        generation = (generator or OpenAIGenerator()).generate(query, retrieval)
+        with progress.stage("generate"):
+            generation = (generator or OpenAIGenerator()).generate(query, retrieval)
     else:
         generation = GenerationResult(answer="", model="none")
 
     runtime_eval = None
     diagnosis = None
     if judge is not None:
-        runtime_eval = judge.judge(
-            question=query,
-            answer=generation.answer,
-            retrieval=retrieval,
-        )
-        diagnosis = diagnose_runtime(runtime_eval)
+        with progress.stage("judge"):
+            runtime_eval = judge.judge(
+                question=query,
+                answer=generation.answer,
+                retrieval=retrieval,
+            )
+        with progress.stage("diagnose"):
+            diagnosis = diagnose_runtime(runtime_eval)
 
     return QueryState(
         query=query,
@@ -225,6 +230,7 @@ def write_run(
             initial=dict(initial) if initial else None,
             usage=usage_for_trace(),
             recovery_policy=recovery_policy,
+            stage_timings=progress.snapshot(),
         ),
         output_dir,
     )

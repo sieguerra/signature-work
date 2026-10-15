@@ -78,6 +78,7 @@
       retrievalWarning: signal,
       phases: phasesFor(list, beforeChunks, beforeAnswer, beforeEval, attempts, verification, applied),
       runMode: explicitMode(list),
+      timings: stageTimings(list),
       recoveryPolicy: explicitPolicy(list),
     };
   }
@@ -729,6 +730,91 @@
     evidence_insufficiency: "Evidence insufficiency",
   };
 
+  // Stage timings across the traces of one logical run. Each trace's offsets
+  // start at its own run, so a confirmed child is placed after its parent.
+  // Returns null when no trace recorded timings (older runs).
+  function stageTimings(list) {
+    let offset = 0;
+    const rows = [];
+    let seen = false;
+    for (const trace of list) {
+      const items = Array.isArray(trace.stage_timings) ? trace.stage_timings : null;
+      if (items) {
+        seen = true;
+        items.forEach((item) => {
+          const start = Number(item.started_ms);
+          const duration = Number(item.duration_ms);
+          if (!Number.isFinite(start) || !Number.isFinite(duration)) return;
+          rows.push({
+            stage: String(item.stage || ""),
+            attempt: item.attempt == null ? null : Number(item.attempt),
+            action: item.action ? String(item.action) : null,
+            status: item.status === "error" ? "error" : "ok",
+            startMs: offset + start,
+            durationMs: duration,
+          });
+        });
+      }
+      const latency = Number(trace.latency_ms);
+      if (Number.isFinite(latency)) offset += latency;
+    }
+    if (!seen) return null;
+    return rows.sort((a, b) => a.startMs - b.startMs);
+  }
+
+  // Waterfall rows for the timeline: label, depth (recovery work nests under
+  // its attempt), and left / width as percentages of the whole run.
+  function timelineRows(flight) {
+    const rows = (flight && flight.timings) || null;
+    if (!rows || !rows.length) return null;
+    const total = Math.max(
+      Number(flight.latencyMs) || 0,
+      ...rows.map((row) => row.startMs + row.durationMs),
+      1
+    );
+    const label = (row) => {
+      const base = { retrieve: "Retrieve", generate: "Generate", judge: "Judge", diagnose: "Diagnose", recover: "Recover", verify: "Verify" }[row.stage] || row.stage;
+      if (row.stage === "recover" && row.action) return `${base} · ${labelAction(row.action)}`;
+      return base;
+    };
+    return {
+      totalMs: total,
+      rows: rows.map((row) => ({
+        stage: row.stage,
+        label: label(row),
+        depth: row.attempt != null && row.stage !== "recover" ? 1 : 0,
+        attempt: row.attempt,
+        status: row.status,
+        startMs: row.startMs,
+        durationMs: row.durationMs,
+        left: (100 * row.startMs) / total,
+        width: Math.max(0.6, (100 * row.durationMs) / total),
+      })),
+    };
+  }
+
+  // Live progress from streamed stage events: the state of each loop stage
+  // while the run is still going.
+  function liveStages(events) {
+    const states = Object.fromEntries(LOOP_STAGES.map(([key]) => [key, { state: "idle", ms: null, note: "" }]));
+    for (const event of events || []) {
+      const key = event && event.stage;
+      if (!states[key]) continue;
+      if (event.type === "stage_start") {
+        states[key] = { state: "running", ms: null, note: key === "recover" && event.action ? labelAction(event.action) : "" };
+      } else if (event.type === "stage_end") {
+        const prior = states[key];
+        const ms = Number(event.duration_ms);
+        states[key] = {
+          state: event.status === "error" ? "fail" : "done",
+          ms: Number.isFinite(ms) ? (prior.ms || 0) + ms : prior.ms,
+          note: key === "recover" && event.action ? labelAction(event.action) : prior.note,
+        };
+      }
+    }
+    return LOOP_STAGES.map(([key, label]) => ({ key, label, ...states[key] }));
+  }
+
   const SAFE_STOP_NOTE = "Bounded recovery stopped because sufficient support was not found.";
 
   // How one flight step reads on screen. Inside a safe stop the heading is the
@@ -762,6 +848,8 @@
     presentStep,
     loopStages,
     LOOP_STAGES,
+    timelineRows,
+    liveStages,
     SAFE_STOP_NOTE,
     sourceLabel,
   };

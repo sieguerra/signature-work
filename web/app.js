@@ -560,6 +560,49 @@ async function api(path, options) {
   return payload;
 }
 
+// POST /api/runs/stream: Server-Sent Events, one per stage start and end, then
+// "done" with the same payload POST /api/runs returns. Falls back to the plain
+// endpoint when the browser cannot read a streamed body.
+async function streamRun(body, onEvent) {
+  const init = { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) };
+  if (!window.ReadableStream || !window.TextDecoder) return api("/api/runs", init);
+  const response = await fetch("/api/runs/stream", init);
+  if (!response.ok || !response.body) {
+    let detail = `HTTP ${response.status}`;
+    try {
+      const payload = await response.json();
+      if (payload && payload.detail) detail = typeof payload.detail === "string" ? payload.detail : JSON.stringify(payload.detail);
+    } catch {
+      /* keep the status text */
+    }
+    throw new Error(detail);
+  }
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  for (;;) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    let cut;
+    while ((cut = buffer.indexOf("\n\n")) >= 0) {
+      const block = buffer.slice(0, cut);
+      buffer = buffer.slice(cut + 2);
+      const data = block
+        .split("\n")
+        .filter((line) => line.startsWith("data: "))
+        .map((line) => line.slice(6))
+        .join("\n");
+      if (!data) continue;
+      const event = JSON.parse(data);
+      if (event.type === "done") return event.run;
+      if (event.type === "error") throw new Error(typeof event.detail === "string" ? event.detail : JSON.stringify(event.detail));
+      onEvent(event);
+    }
+  }
+  throw new Error("The run stream ended before the run finished.");
+}
+
 async function loadMeta() {
   state.meta = await api("/api/meta");
   renderEnvStatus();
@@ -593,9 +636,10 @@ async function loadCorpora() {
       return `<option value="${escapeHtml(item.id)}"${selected}>${escapeHtml(item.label)}</option>`;
     })
     .join("");
-  if (!activeIsWorkspace && !state.keepReadOnly) {
-    await switchCorpus(workspaces[0].id);
-  }
+  // Open on the server's active system, read-only or not. Switching here
+  // changed the active system for every open tab and any run in flight, and
+  // hid the built-in corpora's runs on every page load.
+  void activeIsWorkspace;
 }
 
 function renderExamples() {
@@ -1352,21 +1396,28 @@ async function runQuestion(fromPlayground) {
       state.messages.push({ role: "user", text: question });
     }
   state.loading = true;
+  state.liveEvents = [];
+  state.liveStarted = performance.now();
   runButtons.forEach((button) => {
     button.disabled = true;
   });
   render();
+  const liveTimer = window.setInterval(renderLiveElapsed, 100);
   try {
-    const payload = await api("/api/runs", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    const payload = await streamRun(
+      {
         question,
         mode: modeEl.value,
         top_k: topK,
         recovery_policy: selectedRecoveryPolicy(),
-      }),
-    });
+      },
+      (event) => {
+        state.liveEvents.push(event);
+        renderFlight();
+      }
+    );
+    window.clearInterval(liveTimer);
+    state.liveEvents = [];
     state.loading = false;
     state.selectedId = payload.run_id;
     state.trace = payload.trace;
@@ -1384,6 +1435,8 @@ async function runQuestion(fromPlayground) {
     await loadTraces();
     render();
   } catch (error) {
+    window.clearInterval(liveTimer);
+    state.liveEvents = [];
     state.loading = false;
     if (fromPlayground) {
       state.messages.push({ role: "assistant", text: error.message || String(error), error: true });
@@ -4349,18 +4402,17 @@ function renderRelSummary(view) {
     labelDiagnosis: (name) => name,
     labelAction: (name) => name,
   };
-  root.innerHTML = `<p class="rel-note">All recorded runs for this system. There is no date filter. This is the historical pattern, not the live attention snapshot on Overview.</p>
+  root.innerHTML = `
     <div class="rel-summary">
       <section>
-        <h2>Reliability volume</h2>
+        <h2>Reliability volume${infoTip("All recorded runs for this system. There is no date filter. This is the historical pattern, not the live attention snapshot on Overview.")}</h2>
         ${relStat("Judged logical runs", String(data.judged_runs || 0))}
         ${relStat("Runs requiring recovery", relFraction(data.recovery_required))}
         ${relStat("Applied recoveries", String((outcomes.applied) || 0))}
         ${relStat("Pending recoveries", String(pending))}
       </section>
       <section>
-        <h2>Verification outcomes</h2>
-        <p class="rel-note">Unchanged means a recovery was applied and the runtime judge flags did not change. It is not treated as improved, and it is not automatically unresolved.</p>
+        <h2>Verification outcomes${infoTip("Unchanged means a recovery was applied and the runtime judge flags did not change. It is not treated as improved, and it is not automatically unresolved.")}</h2>
         ${relOutcomeRows(outcomes)}
         ${relStat("Pending, not in the verified denominator", String(pending))}
         <button type="button" class="ghost rel-preset-link" data-rel-preset="verification" data-rel-value="needs">Show runs that need investigation →</button>
@@ -4377,13 +4429,12 @@ function renderRelSummary(view) {
         ${!(data.applied_actions || []).length ? `<p class="rel-empty">No recovery actions applied yet.</p>` : ""}
       </section>
       <section>
-        <h2>Runtime judge state</h2>
-        <p class="rel-note">${escapeHtml((data.signals && data.signals.note) || "")}</p>
+        <h2>Runtime judge state${infoTip((data.signals && data.signals.note) || "")}</h2>
         ${relStat("Evidence sufficient, initial → final", `${relSignal(data.signals && data.signals.evidence_sufficient && data.signals.evidence_sufficient.initial)} → ${relSignal(data.signals && data.signals.evidence_sufficient && data.signals.evidence_sufficient.final)}`)}
         ${relStat("Answer supported, initial → final", `${relSignal(data.signals && data.signals.answer_supported && data.signals.answer_supported.initial)} → ${relSignal(data.signals && data.signals.answer_supported && data.signals.answer_supported.final)}`)}
       </section>
       <section>
-        <h2>Latency</h2>
+        <h2>Latency${infoTip("A run's latency is the sum of its trace and any recovery child.")}</h2>
         ${relLatency(data.latency)}
       </section>
     </div>`;
@@ -4459,7 +4510,7 @@ function relLatency(latency) {
     .join("");
   return `<p class="lat-median"><b>${escapeHtml(formatFlightLatency(latency.median_ms))}</b> median across ${latency.runs} timed run${latency.runs === 1 ? "" : "s"}</p>
     <div class="lat-bars">${bars}</div>
-    <p class="rel-note">A run's latency is the sum of its trace and any recovery child.</p>`;
+`;
 }
 
 function renderRelRuns(view) {
@@ -4711,6 +4762,11 @@ function renderFlight() {
   renderFlightHistory();
   const root = $("tc-flight");
   if (!root || !window.FlightRecorder) return;
+  if (state.loading && state.view === "test" && (state.liveEvents || []).length) {
+    root.innerHTML = liveFlightHtml();
+    state.lastFlightKey = null;
+    return;
+  }
   if (state.loading && state.view === "test") {
     if (!root.querySelector(".loop-map.is-running")) {
       root.innerHTML = `<div class="tc-running">
@@ -4769,6 +4825,14 @@ function renderFlightHistory() {
       </button>`;
     })
     .join("");
+}
+
+// Caveats live behind an info icon next to the heading they qualify. The text
+// is the same; it is the button's accessible name and its tooltip, so it is
+// one hover or one Tab away instead of a paragraph on every card.
+function infoTip(text) {
+  if (!text) return "";
+  return `<button type="button" class="info-tip" data-tip="${escapeHtml(text)}" data-tip-wrap aria-label="${escapeHtml(text)}">${icon("info", 13)}</button>`;
 }
 
 // ---------- Motion ----------
@@ -4855,6 +4919,67 @@ function loopMapHtml(flight) {
     .join("")}</ol>`;
 }
 
+// The loop while a run streams: each stage pulses while it runs and fills in
+// with its measured time when it ends.
+function liveFlightHtml() {
+  const stages = window.FlightRecorder.liveStages(state.liveEvents);
+  const current = stages.find((stage) => stage.state === "running");
+  const map = `<ol class="loop-map is-live" aria-label="Agent loop, live">${stages
+    .map((stage) => {
+      const note =
+        stage.state === "running"
+          ? `${stage.note ? `${stage.note} · ` : ""}running`
+          : stage.ms != null
+            ? `${stage.note ? `${stage.note} · ` : ""}${formatFlightLatency(stage.ms)}`
+            : stage.state === "fail"
+              ? "failed"
+              : "";
+      const cls = stage.state === "idle" ? "is-idle-stage" : stage.state === "running" ? "is-live-running" : `is-${stage.state}`;
+      return `<li class="loop-stage is-${escapeHtml(stage.key)} ${cls}">
+        <span class="loop-node">${icon(STAGE_ICONS[stage.key], 15)}</span>
+        <span class="loop-text">
+          <span class="loop-label">${escapeHtml(stage.label)}</span>
+          <span class="loop-note">${escapeHtml(note)}</span>
+        </span>
+      </li>`;
+    })
+    .join("")}</ol>`;
+  const label = current ? `${current.label}${current.note ? ` · ${current.note}` : ""}` : "Writing the trace";
+  return `<div class="tc-running is-live">
+    <div class="tc-live-head"><span class="pulse" aria-hidden="true"></span><b>${escapeHtml(label)}</b><span class="tc-live-elapsed" id="tc-live-elapsed">${escapeHtml(liveElapsedText())}</span></div>
+    ${map}
+  </div>`;
+}
+
+function liveElapsedText() {
+  if (!state.liveStarted) return "";
+  return `${((performance.now() - state.liveStarted) / 1000).toFixed(1)}s`;
+}
+
+function renderLiveElapsed() {
+  const el = $("tc-live-elapsed");
+  if (el) el.textContent = liveElapsedText();
+}
+
+// Waterfall of the stages of a finished run, from its recorded stage timings.
+function timelineHtml(flight) {
+  const line = window.FlightRecorder.timelineRows(flight);
+  if (!line) return "";
+  const rows = line.rows
+    .map(
+      (row) => `<div class="tl-row is-${escapeHtml(row.stage)}${row.depth ? " is-nested" : ""}${row.status === "error" ? " is-error" : ""}">
+        <span class="tl-name">${icon(STAGE_ICONS[row.stage] || "info", 12)}<span>${escapeHtml(row.label)}</span></span>
+        <span class="tl-track"><span class="tl-bar" style="left:${row.left}%;width:${row.width}%"></span></span>
+        <span class="tl-ms">${escapeHtml(formatFlightLatency(row.durationMs))}</span>
+      </div>`
+    )
+    .join("");
+  return `<section class="tc-phase tc-timeline">
+    <h2>Timeline <span class="tl-total">${escapeHtml(formatFlightLatency(line.totalMs))} total</span>${infoTip("Measured by the core for each stage of this run. Recovery work is indented under its attempt.")}</h2>
+    <div class="tl-rows">${rows}</div>
+  </section>`;
+}
+
 function flightIdleHtml() {
   return `<div class="tc-idle">
     <p class="tc-idle-kicker">Agent loop</p>
@@ -4866,7 +4991,7 @@ function flightIdleHtml() {
 
 function flightHtml(flight, options) {
   const proposal = options && options.propose === false ? "" : flightProposal(flight);
-  return `${loopMapHtml(flight)}${flightSummary(flight)}${proposal}${flightWarning(flight)}${flight.phases.map((phase) => phaseHtml(phase, flight)).join("")}${answerCompare(flight)}${evidenceCompare(flight)}`;
+  return `${loopMapHtml(flight)}${flightSummary(flight)}${timelineHtml(flight)}${proposal}${flightWarning(flight)}${flight.phases.map((phase) => phaseHtml(phase, flight)).join("")}${answerCompare(flight)}${evidenceCompare(flight)}`;
 }
 
 function flightSummary(flight) {
@@ -5078,8 +5203,7 @@ function renderFlightInspector(flight) {
     ? `<p class="status-pill is-safe_stop">Safe stop</p><p class="tc-safe-note">Bounded recovery stopped because sufficient support was not found.</p><p class="tc-step-detail">Verifier recorded: ${escapeHtml(outcome || "—")}. That stored result stays on the trace and is not a second status.</p>`
     : `<p class="status-pill is-${escapeHtml(flight.status || "neutral")}">${escapeHtml(headline)}</p>`;
   inspect.innerHTML = `<section class="tc-phase${stopped ? " is-safe" : ""}">
-    <h2>${judged ? "Runtime verification" : "Run detail"}</h2>
-    ${judged ? `<p class="tc-step-detail">Compares runtime judge flags. Not ground-truth correctness.</p>` : ""}
+    <h2>${judged ? `Runtime verification${infoTip("Compares runtime judge flags from the first pass to the final state. Not ground-truth correctness.")}` : "Run detail"}</h2>
     <p><span class="tc-k">Initial</span> ${escapeHtml(before || "Not judged")}</p>
     <p><span class="tc-k">Final</span> ${escapeHtml(after || before || "Not judged")}</p>
     ${safeNote}
@@ -5251,17 +5375,17 @@ function renderOverviewBody() {
         ${overviewOutcomes(data)}
       </section>
       <section class="ov-panel">
-        <h2>Runtime signals <span class="ov-kicker">Initial → final</span></h2>
+        <h2>Runtime signals <span class="ov-kicker">Initial → final</span>${infoTip("Runtime judge signals, not ground-truth accuracy. A null answer-supported flag is omitted, not treated as false.")}</h2>
         ${overviewSignals(data)}
       </section>
     </div>
     <div class="ov-grid">
       <section class="ov-panel">
-        <h2>Failure diagnoses</h2>
+        <h2>Failure diagnoses${infoTip("Observed failure classes. Retrieval miss and evidence insufficiency can be assigned after a rewrite.")}</h2>
         ${overviewDiagnoses(data)}
       </section>
       <section class="ov-panel">
-        <h2>Applied recovery actions</h2>
+        <h2>Applied recovery actions${infoTip("Applied actions only. A final improvement is not credited separately to each action in a chain.")}</h2>
         ${overviewActions(data)}
       </section>
     </div>
@@ -5409,7 +5533,7 @@ function overviewSignals(data) {
   const signals = data.signals || {};
   return `${signalRow("Evidence sufficient", signals.evidence_sufficient)}
     ${signalRow("Answer supported", signals.answer_supported)}
-    <p class="ov-sub">Runtime judge signals, not ground-truth accuracy. A null answer-supported flag is omitted, not treated as false.</p>`;
+`;
 }
 
 function signalRow(label, pair) {
@@ -5442,8 +5566,7 @@ function overviewDiagnoses(data) {
   if (!rows.length && !unattributed) return `<p class="ov-empty">No failure diagnoses yet.</p>`;
   const max = Math.max(...rows.map((row) => row.count || 0), unattributed, 1);
   const unattributedRow = unattributed ? barRow("Not attributed", unattributed, max, "diagnosis") : "";
-  return `${rows.map((row) => barRow(labelDiagnosis(row.name), row.count || 0, max, "diagnosis")).join("")}${unattributedRow}
-    <p class="ov-sub">Observed failure classes. Retrieval miss and evidence insufficiency can be assigned after a rewrite.</p>`;
+  return `${rows.map((row) => barRow(labelDiagnosis(row.name), row.count || 0, max, "diagnosis")).join("")}${unattributedRow}`;
 }
 
 function overviewActions(data) {
@@ -5457,7 +5580,7 @@ function overviewActions(data) {
   const pendingLine = pending.length
     ? `<p class="ov-sub">Pending, not applied: ${escapeHtml(pending.map((row) => `${labelAction(row.name)} ${row.count}`).join(" · "))}</p>`
     : "";
-  return `${bars}${pendingLine}<p class="ov-sub">Applied actions only. A final improvement is not credited separately to each action in a chain.</p>`;
+  return `${bars}${pendingLine}`;
 }
 
 function overviewActivity(data) {

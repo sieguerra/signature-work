@@ -675,3 +675,67 @@ test("loop map with no run is the idle outline", () => {
   const { loopStages } = require("./flight-recorder.js");
   assert.ok(loopStages(null).every((stage) => stage.state === "idle"));
 });
+
+test("timeline places a confirmed child after its parent and nests recovery work", () => {
+  const { timelineRows } = require("./flight-recorder.js");
+  const flight = buildFlight([
+    {
+      run_id: "t1",
+      query: "q",
+      run_mode: "loop",
+      latency_ms: 1000,
+      retrieved_chunks: [chunk("a", 0.5)],
+      first_pass_evaluation: { evidence_sufficient: true, answer_supported: false },
+      runtime_evaluation: { evidence_sufficient: true, answer_supported: true },
+      recovery: { action: "regenerate" },
+      recovery_status: "applied",
+      verification: { outcome: "improved" },
+      recovery_attempts: [{ action: "regenerate", executed: true, answer_relation: "generated", answer: "a" }],
+      stage_timings: [
+        { stage: "retrieve", attempt: null, started_ms: 0, duration_ms: 100 },
+        { stage: "generate", attempt: null, started_ms: 100, duration_ms: 400 },
+        { stage: "judge", attempt: null, started_ms: 500, duration_ms: 200 },
+        { stage: "recover", attempt: 0, action: "regenerate", started_ms: 700, duration_ms: 290 },
+        { stage: "judge", attempt: 0, started_ms: 760, duration_ms: 200 },
+        { stage: "verify", attempt: null, started_ms: 990, duration_ms: 1 },
+      ],
+    },
+  ]);
+  const line = timelineRows(flight);
+  assert.equal(line.totalMs, 1000);
+  assert.deepEqual(line.rows.map((row) => row.label), ["Retrieve", "Generate", "Judge", "Recover · Regenerate", "Judge", "Verify"]);
+  assert.equal(line.rows[3].depth, 0);
+  assert.equal(line.rows[4].depth, 1);
+  assert.equal(line.rows[1].left, 10);
+  assert.equal(line.rows[1].width, 40);
+});
+
+test("timeline is absent on runs recorded before stage timings existed", () => {
+  const { timelineRows } = require("./flight-recorder.js");
+  const flight = buildFlight([{ run_id: "old", query: "q", run_mode: "retrieve_only", retrieved_chunks: [chunk("a", 0.5)] }]);
+  assert.equal(flight.timings, null);
+  assert.equal(timelineRows(flight), null);
+});
+
+test("live stages follow streamed start and end events", () => {
+  const { liveStages } = require("./flight-recorder.js");
+  const events = [
+    { type: "stage_start", stage: "retrieve" },
+    { type: "stage_end", stage: "retrieve", duration_ms: 120 },
+    { type: "stage_start", stage: "generate" },
+  ];
+  const stages = Object.fromEntries(liveStages(events).map((stage) => [stage.key, stage]));
+  assert.equal(stages.retrieve.state, "done");
+  assert.equal(stages.retrieve.ms, 120);
+  assert.equal(stages.generate.state, "running");
+  assert.equal(stages.judge.state, "idle");
+  const later = liveStages([
+    ...events,
+    { type: "stage_end", stage: "generate", duration_ms: 300 },
+    { type: "stage_start", stage: "recover", action: "regenerate" },
+    { type: "stage_end", stage: "recover", action: "regenerate", duration_ms: 50, status: "error" },
+  ]);
+  const recover = later.find((stage) => stage.key === "recover");
+  assert.equal(recover.state, "fail");
+  assert.equal(recover.note, "Regenerate");
+});

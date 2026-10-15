@@ -766,3 +766,44 @@ def test_apply_recovery_refuses_a_second_apply_and_unknown_actions(tmp_path: Pat
             action=ACCEPT,
             embedder=FakeEmbedder(),
         )
+
+
+def test_loop_records_stage_timings_for_first_pass_recovery_and_verify(tmp_path: Path) -> None:
+    from swrag.tracing import progress
+
+    with progress.recording():
+        result = run_with_recovery(
+            "When is the Harbor Institute Library open on Saturday?",
+            corpus_dir=CORPUS,
+            output_dir=tmp_path,
+            embedder=FakeEmbedder(),
+            generator=_CannedGenerator(),  # type: ignore[arg-type]
+            regenerator=_CannedRegenerator(),
+            judge=_SequenceJudge(
+                _eval(sufficient=True, supported=False),
+                _eval(sufficient=True, supported=True),
+            ),
+        )
+    timings = json.loads(result.trace_path.read_text(encoding="utf-8"))["stage_timings"]
+    first_pass = [item["stage"] for item in timings if item["attempt"] is None]
+    assert first_pass[:4] == ["retrieve", "generate", "judge", "diagnose"]
+    recover = [item for item in timings if item["stage"] == "recover"]
+    assert len(recover) == 1 and recover[0]["action"] == REGENERATE and recover[0]["attempt"] == 0
+    assert timings[-1]["stage"] == "verify"
+    assert all(item["duration_ms"] >= 0 for item in timings)
+
+
+def test_loop_outside_a_recording_writes_no_stage_timings(tmp_path: Path) -> None:
+    result = run_with_recovery(
+        "When is the Harbor Institute Library open on Saturday?",
+        corpus_dir=CORPUS,
+        output_dir=tmp_path,
+        embedder=FakeEmbedder(),
+        generator=_CannedGenerator(),  # type: ignore[arg-type]
+        regenerator=_CannedRegenerator(),
+        judge=_SequenceJudge(
+            _eval(sufficient=True, supported=False),
+            _eval(sufficient=True, supported=True),
+        ),
+    )
+    assert json.loads(result.trace_path.read_text(encoding="utf-8"))["stage_timings"] is None
