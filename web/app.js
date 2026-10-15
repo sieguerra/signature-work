@@ -118,6 +118,7 @@ function applyView() {
   state.view = view;
   if (view === "reliability" && state.evalTab !== route.tab) {
     state.evalTab = route.tab;
+    state.relAutoFocus = false;
     applyEvalTab();
   }
   const app = document.getElementById("app");
@@ -128,6 +129,13 @@ function applyView() {
   if (changed) {
     const panel = document.getElementById(`view-${VIEW_PANELS[view]}`);
     if (panel) panel.scrollTop = 0;
+    playEnter(panel);
+    if (view === "overview") state.overviewCountUp = true;
+    if (view === "reliability") {
+      state.relAutoFocus = false;
+      placeTabIndicator(document.querySelector("#view-evaluation .eval-tabs"));
+      renderReliability();
+    }
   }
   app.classList.toggle("inspect-collapsed", state.inspectCollapsed);
   app.classList.toggle("library-collapsed", state.libraryCollapsed);
@@ -446,7 +454,21 @@ function renderThemeToggle() {
 function bindShell() {
   const themeButton = $("theme-toggle");
   if (themeButton) {
-    themeButton.addEventListener("click", () => window.Theme.apply(window.Theme.toggled(window.Theme.current())));
+    themeButton.addEventListener("click", () => {
+      const next = window.Theme.toggled(window.Theme.current());
+      // Circular reveal from the button, where the browser supports view transitions.
+      if (!document.startViewTransition || prefersReducedMotion()) {
+        window.Theme.apply(next);
+        return;
+      }
+      const box = themeButton.getBoundingClientRect();
+      const root = document.documentElement;
+      root.style.setProperty("--reveal-x", `${box.left + box.width / 2}px`);
+      root.style.setProperty("--reveal-y", `${box.top + box.height / 2}px`);
+      root.classList.add("theme-reveal");
+      const transition = document.startViewTransition(() => window.Theme.apply(next));
+      transition.finished.finally(() => root.classList.remove("theme-reveal"));
+    });
   }
   document.addEventListener("themechange", () => {
     renderThemeToggle();
@@ -455,6 +477,9 @@ function bindShell() {
   });
   window.Theme.watchSystem();
   renderThemeToggle();
+  const replaceIndicator = () => placeTabIndicator(document.querySelector("#view-evaluation .eval-tabs"));
+  window.addEventListener("resize", replaceIndicator);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(replaceIndicator);
   ["open-cmdk", "topbar-cmdk"].forEach((id) => {
     const button = $(id);
     if (button) button.addEventListener("click", openCmdk);
@@ -1045,6 +1070,7 @@ async function loadTraces() {
 }
 
 function setEvalTab(tab) {
+  if (tab !== state.evalTab) state.relAutoFocus = false;
   state.evalTab = tab;
   applyEvalTab();
   // The URL records the tab so reload, sharing, and Back restore it.
@@ -1062,6 +1088,17 @@ function applyEvalTab() {
     button.setAttribute("aria-selected", on ? "true" : "false");
     button.tabIndex = on ? 0 : -1;
   });
+  placeTabIndicator(view.querySelector(".eval-tabs"));
+}
+
+// The active tab's highlight is one element that slides between tabs.
+function placeTabIndicator(tabs) {
+  if (!tabs) return;
+  const active = tabs.querySelector("button.active");
+  if (!active || !active.offsetWidth) return;
+  tabs.style.setProperty("--ind-x", `${active.offsetLeft}px`);
+  tabs.style.setProperty("--ind-w", `${active.offsetWidth}px`);
+  tabs.classList.add("has-indicator");
 }
 
 function renderRunView() {
@@ -1612,6 +1649,18 @@ function uploadStatusLabel(item) {
 }
 
 function renderKnowledge() {
+  renderKnowledgePage();
+  // Show the first source's text instead of an empty reader column. Once per
+  // system, and never over a source the user opened or closed.
+  const docs = state.documents || [];
+  const corpus = state.meta && state.meta.corpus_id;
+  if (docs.length && !state.openDocument && corpus && state.knowledgeAutoOpened !== corpus) {
+    state.knowledgeAutoOpened = corpus;
+    openDocument(docs[0].name).catch(() => {});
+  }
+}
+
+function renderKnowledgePage() {
   const knowledge = $("pg-knowledge");
   if (!knowledge) return;
   const writable = Boolean(state.meta && state.meta.writable);
@@ -1708,11 +1757,11 @@ function renderKnowledge() {
       <section class="kn-sources" aria-label="Sources">
         <h2>Sources</h2>
         ${sources}
+        ${docs.length && dropzone ? dropzone : ""}
       </section>
       ${
         docs.length
           ? `<aside class="kn-side" aria-label="Source text">
-              ${dropzone ? `<h2>Add source</h2>${dropzone}` : ""}
               <h2>Source text</h2>
               ${reader}
             </aside>`
@@ -2142,9 +2191,8 @@ function renderAgent() {
       <header class="agent-head">
         <div class="agent-head-row">
           <div>
-            <div class="agent-kicker"><span class="agent-swatch is-generation"></span> Configuration</div>
-            <h1>How this system responds</h1>
-            <p>Response behavior, grounding, retrieval defaults, and the model. Recovery policy is an explicit choice. The default is current v1.</p>
+            <h1>Configuration</h1>
+            <p>How this system responds: response behavior, grounding, retrieval defaults, and the model. Recovery policy is an explicit choice. The default is current v1.</p>
           </div>
           <div class="agent-save">
             <span class="agent-state is-clean" id="agent-save-state"></span>
@@ -4397,7 +4445,21 @@ function relLatency(latency) {
   if (!latency || !latency.runs || latency.median_ms == null) {
     return `<p class="rel-empty">No timed runs yet.</p>`;
   }
-  return `<p class="rel-note">Median ${escapeHtml(formatFlightLatency(latency.median_ms))} across ${latency.runs} timed run${latency.runs === 1 ? "" : "s"}. A run's latency is the sum of its trace and any recovery child.</p>`;
+  // One bar per timed run, newest first, scaled to the slowest.
+  const timed = (state.logicalRuns || []).filter((run) => run.latency_ms != null).slice(0, 8);
+  const max = Math.max(1, ...timed.map((run) => run.latency_ms));
+  const bars = timed
+    .map(
+      (run) => `<div class="lat-row" title="${escapeHtml(run.query || "")}">
+        <span class="lat-q">${escapeHtml(clipFlight(run.query || "(empty question)"))}</span>
+        <span class="lat-track"><span class="lat-fill" style="width:${Math.max(4, (100 * run.latency_ms) / max)}%"></span></span>
+        <span class="lat-v">${escapeHtml(formatFlightLatency(run.latency_ms))}</span>
+      </div>`
+    )
+    .join("");
+  return `<p class="lat-median"><b>${escapeHtml(formatFlightLatency(latency.median_ms))}</b> median across ${latency.runs} timed run${latency.runs === 1 ? "" : "s"}</p>
+    <div class="lat-bars">${bars}</div>
+    <p class="rel-note">A run's latency is the sum of its trace and any recovery child.</p>`;
 }
 
 function renderRelRuns(view) {
@@ -4422,22 +4484,29 @@ function renderRelRuns(view) {
         ? "Not judged"
         : (run.diagnoses || []).map(view.labelDiagnosis).join(", ") || "Not attributed";
       const latency = run.latency_ms == null ? "—" : formatFlightLatency(run.latency_ms);
-      return `<tr>
-        <td>${escapeHtml(run.query || "(empty question)")}</td>
-        <td>${escapeHtml(view.labelInitialState(run.initial_state))}</td>
-        <td>${pathChips(view.labelRecovery(run))}</td>
-        <td>${escapeHtml(diagnosis)}</td>
-        <td>${relStatus(run, view)}</td>
-        <td>${escapeHtml(latency)}</td>
-        <td>${escapeHtml(relWhen(run.timestamp))}</td>
-        <td><button type="button" class="ghost" data-rel-open="${escapeHtml(run.logical_run_id)}">Inspect</button></td>
+      const focused = state.relFocus && state.relFocus.logical_run_id === run.logical_run_id;
+      return `<tr class="rel-row${focused ? " is-focus" : ""}" data-rel-open="${escapeHtml(run.logical_run_id)}" aria-selected="${focused ? "true" : "false"}">
+        <td class="c-q">${escapeHtml(run.query || "(empty question)")}<small class="c-sub">${escapeHtml(relWhen(run.timestamp))}</small></td>
+        <td class="c-init">${escapeHtml(view.labelInitialState(run.initial_state))}</td>
+        <td class="c-rec">${pathChips(view.labelRecovery(run))}</td>
+        <td class="c-diag">${escapeHtml(diagnosis)}</td>
+        <td class="c-ver">${relStatus(run, view)}</td>
+        <td class="c-lat">${escapeHtml(latency)}</td>
+        <td class="c-act"><button type="button" class="ghost" data-rel-open="${escapeHtml(run.logical_run_id)}" aria-label="Inspect ${escapeHtml(run.query || "run")}">${icon("chevron-right", 14)}</button></td>
       </tr>`;
     })
     .join("");
-  root.innerHTML = `<div class="rel-scroll"><table class="rel-table">
-    <thead><tr><th>Question</th><th>Initial state</th><th>Recovery</th><th>Diagnosis</th><th>Verification</th><th>Latency</th><th>When</th><th></th></tr></thead>
+  root.innerHTML = `<div class="rel-scroll"><table class="rel-table rel-runs-table">
+    <thead><tr><th class="c-q">Question</th><th class="c-init">Initial state</th><th class="c-rec">Recovery</th><th class="c-diag">Diagnosis</th><th class="c-ver">Verification</th><th class="c-lat">Latency</th><th class="c-act"></th></tr></thead>
     <tbody>${body}</tbody>
   </table></div>`;
+  // Master-detail: with nothing selected, open the newest matching run so the
+  // detail pane is never blank. Once per visit to the tab.
+  if (!state.relFocus && state.view === "reliability" && state.evalTab === "runs" && !state.relAutoFocus) {
+    state.relAutoFocus = true;
+    const first = filtered[0];
+    inspectOverviewRun(first.inspect_run_id || first.logical_run_id).catch((error) => showError(error.message));
+  }
 }
 
 function renderRelRecoveries(view) {
@@ -4467,7 +4536,28 @@ function renderRelRecoveries(view) {
       </tr>`;
     })
     .join("");
+  // Compact tallies above the table: which paths ran, what triggered them, how they ended.
+  const tally = (key) => {
+    const counts = new Map();
+    cases.forEach((run) => {
+      const name = key(run);
+      if (name) counts.set(name, (counts.get(name) || 0) + 1);
+    });
+    return [...counts.entries()].sort((a, b) => b[1] - a[1]);
+  };
+  const statCard = (title, entries) => `<section class="rec-stat">
+      <h3>${escapeHtml(title)}</h3>
+      ${entries.length
+        ? entries.map(([name, count]) => `<p><span>${escapeHtml(name)}</span><b>${count}</b></p>`).join("")
+        : `<p class="rel-note">None yet.</p>`}
+    </section>`;
+  const stats = `<div class="rec-stats">
+      ${statCard("Recovery path", tally((run) => (run.recovery_pending && !(run.recovery || []).length ? "Proposed" : view.labelRecovery(run))))}
+      ${statCard("Trigger", tally((run) => view.labelTrigger(run.trigger) || "Not recorded"))}
+      ${statCard("Result", tally((run) => view.presentVerification(run)))}
+    </div>`;
   root.innerHTML = `<p class="rel-note">How runtime recovery behaved across runs. Pending proposals stay visible here.</p>
+    ${stats}
     <div class="rel-scroll"><table class="rel-table">
       <thead><tr><th>Question</th><th>Trigger</th><th>Diagnosis</th><th>Recovery path</th><th>Source</th><th>Verification</th><th>When</th><th></th></tr></thead>
       <tbody>${body}</tbody>
@@ -4480,7 +4570,13 @@ function renderRelDetail(view) {
   if (!root) return;
   const row = state.relFocus;
   if (!row || !view) {
-    root.innerHTML = "";
+    root.innerHTML = (state.logicalRuns || []).length
+      ? `<div class="rel-detail-empty">
+          ${icon("activity", 18)}
+          <h2>Select a run</h2>
+          <p>Its agent loop, answers, and evidence open here.</p>
+        </div>`
+      : "";
     if (workspace) workspace.classList.remove("is-open");
     return;
   }
@@ -4518,6 +4614,9 @@ function renderRelDetail(view) {
   const safeNote = row.safe_stop
     ? `<p class="tc-safe-note">Safe stop. Bounded recovery stopped because sufficient support was not found. The stored verifier result stays in the trace below and is not a second status.</p>`
     : "";
+  const detailKey = `${row.logical_run_id}:${flight ? "ready" : "loading"}`;
+  const freshDetail = detailKey !== state.lastRelDetailKey;
+  state.lastRelDetailKey = detailKey;
   root.innerHTML = `<article class="rel-detail">
     <div class="rel-detail-head">
       <div>
@@ -4535,6 +4634,7 @@ function renderRelDetail(view) {
     ${config}
   </article>`;
   if (workspace) workspace.classList.toggle("is-open", aligned && state.steps.length > 0);
+  if (freshDetail && flight) playEnter(root);
 }
 
 async function loadOverview() {
@@ -4612,7 +4712,13 @@ function renderFlight() {
   const root = $("tc-flight");
   if (!root || !window.FlightRecorder) return;
   if (state.loading && state.view === "test") {
-    root.innerHTML = `<p class="tc-empty">Running the test…</p>`;
+    if (!root.querySelector(".loop-map.is-running")) {
+      root.innerHTML = `<div class="tc-running">
+        ${loopMapHtml(null).replace('class="loop-map is-idle"', 'class="loop-map is-idle is-running"')}
+        <p class="tc-running-note"><span class="pulse" aria-hidden="true"></span>Running the loop. The core returns the whole trace when it finishes, so the stages fill in together.</p>
+      </div>`;
+    }
+    state.lastFlightKey = null;
     return;
   }
   const flight = FlightRecorder.buildFlight(state.flightTraces);
@@ -4628,6 +4734,11 @@ function renderFlight() {
   }
   root.innerHTML = flightHtml(flight);
   renderFlightInspector(flight);
+  const key = (flight.traceIds || []).join(",");
+  if (key !== state.lastFlightKey) {
+    state.lastFlightKey = key;
+    playEnter(root);
+  }
 }
 
 function renderFlightHistory() {
@@ -4658,6 +4769,46 @@ function renderFlightHistory() {
       </button>`;
     })
     .join("");
+}
+
+// ---------- Motion ----------
+// Animations are triggered by events (a page opens, a new run is shown), not
+// by every re-render, so nothing replays while the user works.
+function prefersReducedMotion() {
+  try {
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  } catch {
+    return false;
+  }
+}
+
+function playEnter(el) {
+  if (!el || prefersReducedMotion()) return;
+  el.classList.remove("is-entering");
+  void el.offsetWidth;
+  el.classList.add("is-entering");
+  window.clearTimeout(el._enterTimer);
+  el._enterTimer = window.setTimeout(() => el.classList.remove("is-entering"), 900);
+}
+
+// Tween every number in an element's text from 0 ("2/2" counts both parts).
+function countUp(root) {
+  if (!root || prefersReducedMotion()) return;
+  root.querySelectorAll("[data-count]").forEach((el) => {
+    const target = el.textContent;
+    const parts = target.split(/(\d+)/);
+    if (parts.length < 2) return;
+    const start = performance.now();
+    const duration = 520;
+    const frame = (now) => {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      el.textContent = parts.map((part) => (/^\d+$/.test(part) ? String(Math.round(Number(part) * eased)) : part)).join("");
+      if (t < 1) window.requestAnimationFrame(frame);
+      else el.textContent = target;
+    };
+    window.requestAnimationFrame(frame);
+  });
 }
 
 // Icon per agent stage and per flight step kind. One icon language for the
@@ -4933,6 +5084,51 @@ function renderFlightInspector(flight) {
     <p><span class="tc-k">Final</span> ${escapeHtml(after || before || "Not judged")}</p>
     ${safeNote}
     ${technicalFlags(flight)}
+  </section>
+  ${inspectorFacts(flight)}
+  ${inspectorPassages(flight)}`;
+}
+
+// Run facts and the passages the final answer used, so the detail column
+// carries the evidence instead of trailing off into empty space.
+function inspectorFacts(flight) {
+  const rows = [
+    ["Mode", inferredFlightMode(flight) || "—"],
+    ["Policy", flight.recoveryPolicy === "v2c_gap_aware" ? "Gap-aware (Guarded)" : "Current v1"],
+    ["Top K", flight.topK != null ? String(flight.topK) : "—"],
+    ["Attempts", String(flight.attemptCount || 0)],
+    ["Latency", flight.latencyMs != null ? formatFlightLatency(flight.latencyMs) : "—"],
+    ["Model", (state.trace && state.trace.model) || "—"],
+  ];
+  return `<section class="tc-phase tc-facts">
+    <h2>Run</h2>
+    <dl>${rows.map(([k, v]) => `<div><dt>${escapeHtml(k)}</dt><dd>${escapeHtml(v)}</dd></div>`).join("")}</dl>
+  </section>`;
+}
+
+function inspectorPassages(flight) {
+  const chunks = (flight.after && flight.after.chunks && flight.after.chunks.length ? flight.after.chunks : flight.before.chunks) || [];
+  if (!chunks.length) return "";
+  const scores = chunks.map((chunk) => Number(chunk.score)).filter(Number.isFinite);
+  const max = Math.max(1e-9, ...scores);
+  const items = chunks
+    .slice(0, 6)
+    .map((chunk) => {
+      const score = Number(chunk.score);
+      const width = Number.isFinite(score) ? Math.max(4, (100 * score) / max) : 0;
+      return `<li class="tc-passage">
+        <div class="tc-passage-head">
+          <span class="tc-passage-title">${escapeHtml(chunk.title || chunk.doc_id || "Passage")}</span>
+          <span class="tc-passage-score">${Number.isFinite(score) ? escapeHtml(formatScore(score)) : "—"}</span>
+        </div>
+        <span class="tc-passage-bar"><span style="width:${width}%"></span></span>
+        <p>${escapeHtml(clipFlight(chunk.text || ""))}</p>
+      </li>`;
+    })
+    .join("");
+  return `<section class="tc-phase tc-passages">
+    <h2>Passages <span class="tc-count">${chunks.length}</span></h2>
+    <ol>${items}</ol>
   </section>`;
 }
 
@@ -5017,6 +5213,14 @@ async function inspectOverviewRun(runId) {
 }
 
 function renderOverview() {
+  renderOverviewBody();
+  if (state.overviewCountUp && state.overview) {
+    state.overviewCountUp = false;
+    countUp($("overview-body"));
+  }
+}
+
+function renderOverviewBody() {
   const root = $("overview-body");
   const lead = $("overview-lead");
   if (!root) return;
@@ -5106,7 +5310,7 @@ function overviewMetrics(data) {
       return `<li class="loop-stage is-${stage.key} is-${state}">
         <span class="loop-node">${icon(STAGE_ICONS[stage.key], 15)}</span>
         <span class="loop-text">
-          <span class="loop-value">${escapeHtml(String(stage.value))}</span>
+          <span class="loop-value" data-count>${escapeHtml(String(stage.value))}</span>
           <span class="loop-label">${escapeHtml(stage.label)}</span>
           <span class="loop-note">${escapeHtml(stage.note)}</span>
         </span>
@@ -5137,7 +5341,7 @@ function overviewMetrics(data) {
 function metric(label, value, sub, tone = "") {
   return `<div class="ov-metric ${tone}">
     <div class="ov-metric-k">${escapeHtml(label)}</div>
-    <div class="ov-metric-v">${escapeHtml(value)}</div>
+    <div class="ov-metric-v" data-count>${escapeHtml(value)}</div>
     <div class="ov-metric-s">${escapeHtml(sub)}</div>
   </div>`;
 }

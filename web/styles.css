@@ -6866,7 +6866,7 @@ button.flow-port:hover,
   background: var(--border-subtle);
 }
 
-.tc-flight .tc-step .tc-rail {
+:is(.tc-flight, .rel-detail) .tc-step .tc-rail {
   --stage: var(--brand);
   --stage-soft: var(--brand-soft);
   display: grid;
@@ -6880,18 +6880,18 @@ button.flow-port:hover,
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--stage) 30%, transparent);
 }
 
-.tc-flight .tc-step.is-query .tc-rail { --stage: var(--text-secondary); --stage-soft: var(--surface-3); }
-.tc-flight .tc-step.is-retrieve .tc-rail { --stage: var(--retrieval); --stage-soft: var(--retrieval-soft); }
-.tc-flight .tc-step.is-generate .tc-rail { --stage: var(--generation); --stage-soft: var(--generation-soft); }
-.tc-flight .tc-step.is-judge .tc-rail { --stage: var(--judge); --stage-soft: var(--judge-soft); }
-.tc-flight .tc-step.is-diagnose .tc-rail { --stage: var(--text-secondary); --stage-soft: var(--surface-3); }
-.tc-flight .tc-step.is-recover .tc-rail,
-.tc-flight .tc-step.is-why .tc-rail,
-.tc-flight .tc-step.is-source .tc-rail,
-.tc-flight .tc-step.is-trigger .tc-rail { --stage: var(--recovery); --stage-soft: var(--recovery-soft); }
-.tc-flight .tc-step.is-abstain .tc-rail { --stage: var(--abstain); --stage-soft: var(--abstain-soft); }
-.tc-flight .tc-step.is-verify .tc-rail { --stage: var(--success); --stage-soft: var(--success-soft); }
-.tc-flight .tc-phase.is-safe .tc-rail { --stage: var(--info); --stage-soft: var(--info-soft); }
+:is(.tc-flight, .rel-detail) .tc-step.is-query .tc-rail { --stage: var(--text-secondary); --stage-soft: var(--surface-3); }
+:is(.tc-flight, .rel-detail) .tc-step.is-retrieve .tc-rail { --stage: var(--retrieval); --stage-soft: var(--retrieval-soft); }
+:is(.tc-flight, .rel-detail) .tc-step.is-generate .tc-rail { --stage: var(--generation); --stage-soft: var(--generation-soft); }
+:is(.tc-flight, .rel-detail) .tc-step.is-judge .tc-rail { --stage: var(--judge); --stage-soft: var(--judge-soft); }
+:is(.tc-flight, .rel-detail) .tc-step.is-diagnose .tc-rail { --stage: var(--text-secondary); --stage-soft: var(--surface-3); }
+:is(.tc-flight, .rel-detail) .tc-step.is-recover .tc-rail,
+:is(.tc-flight, .rel-detail) .tc-step.is-why .tc-rail,
+:is(.tc-flight, .rel-detail) .tc-step.is-source .tc-rail,
+:is(.tc-flight, .rel-detail) .tc-step.is-trigger .tc-rail { --stage: var(--recovery); --stage-soft: var(--recovery-soft); }
+:is(.tc-flight, .rel-detail) .tc-step.is-abstain .tc-rail { --stage: var(--abstain); --stage-soft: var(--abstain-soft); }
+:is(.tc-flight, .rel-detail) .tc-step.is-verify .tc-rail { --stage: var(--success); --stage-soft: var(--success-soft); }
+:is(.tc-flight, .rel-detail) .tc-phase.is-safe .tc-rail { --stage: var(--info); --stage-soft: var(--info-soft); }
 
 .tc-step-title {
   padding-top: 2px;
@@ -6995,3 +6995,497 @@ button.flow-port:hover,
   flex: 1 1 auto;
   align-content: center;
 }
+
+/* ==========================================================================
+   Consistency layer. One page frame, one heading scale, one card surface
+   across Overview, Reliability, Data, Configuration, and Integrations.
+   ========================================================================== */
+:root {
+  --page-x: 32px;
+  --page-top: 28px;
+  --card-r: var(--r-xl);
+  --card-pad: 16px;
+  --card-bg: var(--bg-surface);
+  --card-ring: inset 0 0 0 1px var(--border-subtle);
+}
+
+/* Page frame: same left edge and top on every page. */
+.page-head,
+#view-evaluation .page-head {
+  padding: var(--page-top) var(--page-x) 12px;
+}
+#view-evaluation .rel-panel { padding: 8px var(--page-x) 48px; }
+.overview-body { padding-left: var(--page-x); padding-right: var(--page-x); }
+.kn-page,
+.api-page,
+.pg-config.agent-main {
+  padding: var(--page-top) var(--page-x) 40px;
+}
+.agent-head {
+  padding: var(--page-top) var(--page-x) 16px;
+  margin: calc(-1 * var(--page-top)) calc(-1 * var(--page-x)) 0;
+}
+
+/* One heading scale. */
+.page-head h1,
+.kn-head h1,
+.agent-head h1 {
+  margin: 0;
+  color: var(--text);
+  font-size: 24px;
+  font-weight: 650;
+  letter-spacing: -0.022em;
+  line-height: 1.2;
+}
+.page-head p,
+.kn-head p,
+.agent-head p {
+  max-width: 72ch;
+  margin: 6px 0 0;
+  color: var(--text-2);
+  font-size: var(--fs-md);
+  line-height: 1.5;
+}
+.kn-head,
+.agent-head,
+.page-head {
+  align-items: flex-end;
+}
+
+/* One card surface. */
+.ov-panel,
+.ov-loop,
+.ov-metric,
+.rel-summary > section,
+.chart-card,
+.kn-sources,
+.kn-side,
+.kn-settings,
+.api-quick,
+.api-side,
+.api-keys,
+.agent-section,
+.tc-phase,
+.rel-detail,
+.rel-detail-empty {
+  border: 0;
+  border-radius: var(--card-r);
+  background: var(--card-bg);
+  box-shadow: var(--card-ring), var(--inset-top);
+}
+.kn-sources,
+.kn-side,
+.kn-settings,
+.api-quick,
+.api-side,
+.api-keys {
+  padding: var(--card-pad);
+}
+.kn-sources h2,
+.kn-side h2,
+.kn-settings h2,
+.api-quick h2,
+.api-side h2,
+.api-keys h2,
+.agent-section h2,
+.rel-summary > section h2,
+.ov-panel h2 {
+  margin: 0 0 10px;
+  color: var(--text);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  text-transform: none;
+}
+.kn-side h2 + .dropzone,
+.kn-side .dropzone { margin-bottom: 14px; }
+.kn-danger { border-radius: var(--card-r); }
+
+/* Equal-height card rows instead of ragged grids with gaps under short cards. */
+.rel-summary,
+.ov-grid,
+.kn-grid,
+.api-grid {
+  align-items: stretch;
+}
+
+/* Interactive cards and rows respond to the pointer. */
+.ov-panel,
+.rel-summary > section,
+.kn-sources,
+.kn-side,
+.ov-metric,
+.ov-loop {
+  transition: box-shadow var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+.ov-metric:hover,
+.ov-loop:hover {
+  box-shadow: inset 0 0 0 1px var(--border-default), var(--shadow-sm);
+}
+button:active:not(:disabled) {
+  transform: translateY(0.5px) scale(0.985);
+}
+
+/* ---------- Reliability Runs: master-detail ---------- */
+#view-evaluation[data-tab="runs"] .rel-panel[data-rel-panel="runs"] {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.25fr);
+  grid-template-areas:
+    "toolbar toolbar"
+    "list detail";
+  gap: 14px 16px;
+  align-items: start;
+}
+#rel-panel-runs > .rel-toolbar { grid-area: toolbar; margin-bottom: 0; }
+#rel-panel-runs > #rel-runs {
+  grid-area: list;
+  min-width: 0;
+  border-radius: var(--card-r);
+  background: var(--card-bg);
+  box-shadow: var(--card-ring);
+  overflow: hidden;
+}
+#rel-panel-runs > #rel-detail {
+  grid-area: detail;
+  position: sticky;
+  top: 12px;
+  min-width: 0;
+  max-height: calc(100vh - var(--topbar-h) - 40px);
+  overflow: auto;
+  border-radius: var(--card-r);
+}
+#rel-panel-runs .rel-scroll { overflow-x: auto; }
+.rel-runs-table { min-width: 0; }
+.rel-runs-table th,
+.rel-runs-table td { padding: 10px 12px; }
+.rel-runs-table .c-init,
+.rel-runs-table .c-diag,
+.rel-runs-table .c-lat { display: none; }
+.rel-runs-table .c-act { width: 36px; text-align: right; }
+.rel-runs-table .c-act button { width: 28px; height: 28px; padding: 0; justify-content: center; }
+.rel-runs-table .c-sub {
+  display: block;
+  margin-top: 3px;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+.rel-row { cursor: pointer; }
+.rel-row td:first-child { box-shadow: inset 2px 0 0 transparent; transition: box-shadow var(--dur) var(--ease); }
+.rel-row.is-focus { background: var(--bg-active); }
+.rel-row.is-focus td:first-child { box-shadow: inset 2px 0 0 var(--brand); }
+.rel-row:last-child td { border-bottom: 0; }
+
+.rel-detail {
+  margin: 0;
+  padding: 16px 18px 18px;
+  border-top: 0;
+}
+.rel-detail .loop-map { margin-top: 12px; }
+.rel-detail .tc-phase { box-shadow: var(--card-ring); background: var(--bg-app); }
+.rel-detail-empty {
+  display: grid;
+  place-items: center;
+  gap: 6px;
+  min-height: 320px;
+  padding: 32px;
+  color: var(--text-muted);
+  text-align: center;
+}
+.rel-detail-empty h2 { margin: 6px 0 0; color: var(--text); font-size: var(--fs-md); }
+.rel-detail-empty p { margin: 0; font-size: var(--fs-sm); }
+
+@media (min-width: 1700px) {
+  .rel-runs-table .c-init,
+  .rel-runs-table .c-lat { display: table-cell; }
+}
+
+@media (max-width: 1100px) {
+  #view-evaluation[data-tab="runs"] .rel-panel[data-rel-panel="runs"] {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "toolbar" "list" "detail";
+  }
+  #rel-panel-runs > #rel-detail { position: static; max-height: none; }
+}
+
+/* Recoveries and Quality tables sit in a card too, so a short table is a
+   compact card rather than lines floating on the canvas. */
+#rel-recoveries > .rel-scroll,
+#rel-recoveries > table,
+#rel-panel-quality .rel-scroll {
+  border-radius: var(--card-r);
+  background: var(--card-bg);
+  box-shadow: var(--card-ring);
+}
+
+/* ---------- Sliding tab indicator ---------- */
+.eval-tabs.has-indicator::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 0;
+  width: var(--ind-w, 0);
+  border-radius: var(--r-sm);
+  background: var(--surface-3);
+  box-shadow: var(--shadow-sm), inset 0 0 0 1px var(--border);
+  transform: translateX(var(--ind-x, 0));
+  transition: transform 260ms var(--ease-out), width 260ms var(--ease-out);
+}
+.eval-tabs.has-indicator button { position: relative; z-index: 1; }
+.eval-tabs.has-indicator button.active { background: transparent; box-shadow: none; }
+
+/* ---------- Motion ---------- */
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes node-in {
+  from { opacity: 0; transform: scale(0.6); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes draw-x {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes grow-x {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+/* Page enter: header, then cards in a short stagger. */
+.view.is-entering .page-head,
+.view.is-entering .kn-head,
+.view.is-entering .agent-head {
+  animation: rise-in 260ms var(--ease-out) both;
+}
+.view.is-entering .ov-hero,
+.view.is-entering .overview-body > section,
+.view.is-entering .ov-grid > *,
+.view.is-entering .rel-summary > section,
+.view.is-entering .kn-summary,
+.view.is-entering .kn-grid > *,
+.view.is-entering .kn-settings,
+.view.is-entering .api-grid > *,
+.view.is-entering .api-keys,
+.view.is-entering .agent-section,
+.view.is-entering .rel-toolbar,
+.view.is-entering #rel-runs,
+.view.is-entering .tc-idle {
+  animation: rise-in 320ms var(--ease-out) both;
+}
+.view.is-entering .overview-body > :nth-child(2),
+.view.is-entering .ov-grid > :nth-child(2),
+.view.is-entering .rel-summary > :nth-child(2),
+.view.is-entering .kn-grid > :nth-child(2),
+.view.is-entering .api-grid > :nth-child(2) { animation-delay: 40ms; }
+.view.is-entering .overview-body > :nth-child(3),
+.view.is-entering .ov-grid > :nth-child(3),
+.view.is-entering .rel-summary > :nth-child(3) { animation-delay: 80ms; }
+.view.is-entering .overview-body > :nth-child(n + 4),
+.view.is-entering .ov-grid > :nth-child(n + 4),
+.view.is-entering .rel-summary > :nth-child(n + 4) { animation-delay: 120ms; }
+
+/* Bars grow from zero when a page opens. */
+.view.is-entering .ov-bar-fill,
+.view.is-entering .hbar-fill,
+.view.is-entering .rel-bar > span {
+  transform-origin: left center;
+  animation: grow-x 520ms var(--ease-out) 120ms both;
+}
+
+/* The loop lights up stage by stage when a page opens or a new run arrives. */
+.is-entering .loop-stage .loop-node {
+  animation: node-in 300ms var(--ease-out) both;
+}
+.is-entering .loop-stage::after {
+  transform-origin: left center;
+  animation: draw-x 260ms var(--ease-out) both;
+}
+.is-entering .loop-stage .loop-text { animation: rise-in 260ms var(--ease-out) both; }
+.is-entering .loop-stage:nth-child(1) > * { animation-delay: 0ms; }
+.is-entering .loop-stage:nth-child(1)::after { animation-delay: 140ms; }
+.is-entering .loop-stage:nth-child(2) > * { animation-delay: 180ms; }
+.is-entering .loop-stage:nth-child(2)::after { animation-delay: 320ms; }
+.is-entering .loop-stage:nth-child(3) > * { animation-delay: 360ms; }
+.is-entering .loop-stage:nth-child(3)::after { animation-delay: 500ms; }
+.is-entering .loop-stage:nth-child(4) > * { animation-delay: 540ms; }
+.is-entering .loop-stage:nth-child(4)::after { animation-delay: 680ms; }
+.is-entering .loop-stage:nth-child(5) > * { animation-delay: 720ms; }
+.is-entering .loop-stage:nth-child(5)::after { animation-delay: 860ms; }
+.is-entering .loop-stage:nth-child(6) > * { animation-delay: 900ms; }
+
+/* Steps and phases of a fresh run cascade in under the loop map. */
+.tc-flight.is-entering .tc-phase,
+#rel-detail.is-entering .tc-phase,
+.tc-flight.is-entering .tc-summary {
+  animation: rise-in 320ms var(--ease-out) both;
+  animation-delay: 300ms;
+}
+
+/* Running: an indeterminate sweep across the outline. It does not claim
+   which stage the core is on, because the core reports the run at the end. */
+.tc-running {
+  margin: 18px 0 8px;
+  padding: 20px;
+  border-radius: var(--card-r);
+  background: var(--card-bg);
+  box-shadow: var(--card-ring);
+}
+.tc-running .loop-map { margin: 0; padding: 6px 0 0; background: transparent; box-shadow: none; }
+@keyframes stage-sweep {
+  0%, 100% { box-shadow: inset 0 0 0 1.5px var(--border-strong); transform: none; }
+  15% { box-shadow: inset 0 0 0 1.5px var(--stage), 0 0 0 6px var(--brand-soft); transform: scale(1.08); }
+  35% { box-shadow: inset 0 0 0 1.5px var(--border-strong); transform: none; }
+}
+.loop-map.is-running .loop-node { animation: stage-sweep 2.4s var(--ease) infinite; }
+.loop-map.is-running .loop-stage:nth-child(2) .loop-node { animation-delay: 0.4s; }
+.loop-map.is-running .loop-stage:nth-child(3) .loop-node { animation-delay: 0.8s; }
+.loop-map.is-running .loop-stage:nth-child(4) .loop-node { animation-delay: 1.2s; }
+.loop-map.is-running .loop-stage:nth-child(5) .loop-node { animation-delay: 1.6s; }
+.loop-map.is-running .loop-stage:nth-child(6) .loop-node { animation-delay: 2s; }
+.tc-running-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0 0;
+  color: var(--text-2);
+  font-size: var(--fs-sm);
+}
+
+/* Theme switch: circular reveal from the toggle (View Transitions API). */
+:root.theme-reveal::view-transition-old(root),
+:root.theme-reveal::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+:root.theme-reveal::view-transition-new(root) {
+  animation: theme-reveal 520ms var(--ease-out);
+}
+@keyframes theme-reveal {
+  from { clip-path: circle(0 at var(--reveal-x, 100%) var(--reveal-y, 0)); }
+  to { clip-path: circle(150vmax at var(--reveal-x, 100%) var(--reveal-y, 0)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .is-entering *,
+  .is-entering *::after,
+  .loop-map.is-running .loop-node {
+    animation: none !important;
+  }
+  .eval-tabs.has-indicator::before { transition: none; }
+}
+
+/* Data: the three facts as small stat cards, like Overview. */
+.kn-page > .kn-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 16px 0;
+}
+.kn-page > .kn-summary > div {
+  padding: 12px 14px;
+  border-radius: var(--card-r);
+  background: var(--card-bg);
+  box-shadow: var(--card-ring), var(--inset-top);
+}
+.kn-page > .kn-summary dt {
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.kn-page > .kn-summary dd {
+  margin: 6px 0 0;
+  color: var(--text);
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* Data: sources and upload on the left, the reader fills the right card. */
+.kn-sources .dropzone { margin-top: 14px; }
+.kn-side { display: flex; flex-direction: column; }
+.kn-side .kn-reader { display: flex; flex: 1 1 auto; flex-direction: column; min-height: 0; }
+.kn-side .doc-text { flex: 1 1 auto; min-height: 140px; margin: 8px 0 0; }
+.kn-side .kn-aside-note { margin: 0; color: var(--text-muted); font-size: var(--fs-sm); }
+
+.kn-sources .dropzone { width: 100%; }
+
+/* Recoveries: tallies above the table. */
+.rec-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 10px 0 12px;
+}
+.rec-stat {
+  padding: 12px 14px;
+  border-radius: var(--card-r);
+  background: var(--card-bg);
+  box-shadow: var(--card-ring), var(--inset-top);
+}
+.rec-stat h3 {
+  margin: 0 0 8px;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.rec-stat p {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 4px 0 0;
+  color: var(--text-2);
+  font-size: var(--fs-sm);
+}
+.rec-stat b { color: var(--text); font-variant-numeric: tabular-nums; }
+@media (max-width: 800px) { .rec-stats { grid-template-columns: minmax(0, 1fr); } }
+
+/* Reliability Summary: latency per run. */
+.lat-median { margin: 0 0 10px; color: var(--text-2); font-size: var(--fs-sm); }
+.lat-median b { color: var(--text); font-size: 18px; font-weight: 600; letter-spacing: -0.01em; margin-right: 4px; }
+.lat-bars { display: grid; gap: 6px; margin-bottom: 8px; }
+.lat-row { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) 48px; align-items: center; gap: 10px; }
+.lat-q { overflow: hidden; color: var(--text-2); font-size: var(--fs-xs); text-overflow: ellipsis; white-space: nowrap; }
+.lat-track { height: 6px; border-radius: 3px; background: var(--c-track); overflow: hidden; }
+.lat-fill { display: block; height: 100%; border-radius: 3px; background: var(--brand); }
+.lat-v { color: var(--text-2); font-size: var(--fs-xs); font-variant-numeric: tabular-nums; text-align: right; }
+.view.is-entering .lat-fill { transform-origin: left center; animation: grow-x 520ms var(--ease-out) 120ms both; }
+
+/* Configuration header now matches the other pages. */
+.agent-head .agent-kicker { display: none; }
+
+/* Test Console run detail: facts and passages under the verification card. */
+#pg-inspect > .tc-phase + .tc-phase { margin-top: 10px; }
+.tc-facts dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 12px;
+  margin: 0;
+}
+.tc-facts dt { color: var(--text-muted); font-size: 11px; }
+.tc-facts dd { margin: 2px 0 0; color: var(--text); font-size: var(--fs-sm); font-weight: 550; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tc-passages ol { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.tc-passage-head { display: flex; justify-content: space-between; gap: 8px; }
+.tc-passage-title { overflow: hidden; color: var(--text); font-size: var(--fs-xs); font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.tc-passage-score { color: var(--text-muted); font-size: 11px; font-variant-numeric: tabular-nums; font-family: var(--mono); }
+.tc-passage-bar { display: block; height: 4px; margin: 6px 0; border-radius: 2px; background: var(--c-track); overflow: hidden; }
+.tc-passage-bar > span { display: block; height: 100%; border-radius: 2px; background: var(--retrieval); }
+.tc-passage p { margin: 0; color: var(--text-2); font-size: var(--fs-xs); line-height: 1.45; }
+.tc-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  margin-left: 4px;
+  padding: 0 5px;
+  border-radius: var(--r-full);
+  background: var(--surface-3);
+  color: var(--text-2);
+  font-size: 11px;
+}
+
+.rel-detail-empty { align-content: center; }
