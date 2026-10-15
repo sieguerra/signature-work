@@ -232,6 +232,7 @@ def test_index_page_and_assets_are_served(tmp_path: Path) -> None:
     with _client(tmp_path) as client:
         page = client.get("/")
         assert page.status_code == 200
+        assert page.headers["cache-control"] == "no-cache"
         assert "Trace explorer" in page.text
         assert "delete-all-runs" in page.text
         assert "Test Console" in page.text
@@ -317,8 +318,11 @@ def test_index_page_and_assets_are_served(tmp_path: Path) -> None:
         assert "child-run" in css.text
         assert "its recovered child" in js.text
         assert "First-pass evidence is insufficient" in js.text
-        assert "proposed=" in js.text
-        assert "mean latency" in js.text
+        # The Quality header labels its tallies (qualityTally in reliability.js).
+        rel_js = client.get("/static/reliability.js").text
+        assert "qualityTally" in js.text
+        assert "Pending proposals" in rel_js
+        assert "Mean latency" in rel_js
         assert "no class claimed" not in js.text
         assert "Generate (first pass)" not in page.text
 

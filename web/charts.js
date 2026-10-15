@@ -312,7 +312,7 @@ function runTable(runs) {
     .map((run) => {
       const result = resultKey(run);
       const steps = run.path.length ? run.path.join(" → ") : run.status === "proposed" ? `proposed: ${run.proposed_action}` : "no fix";
-      const when = run.timestamp ? run.timestamp.replace("T", " ").slice(0, 16) : "";
+      const when = run.timestamp ? window.ReliabilityView.formatWhen(run.timestamp) : "";
       return `<tr>
         <td class="rt-q" title="${chartEsc(run.query)}">${chartEsc(run.query)}</td>
         <td><span class="swatch" style="background:${chartColor(firstPassKey(run))}"></span>${firstPassKey(run) === "passed" ? "looked fine" : firstPassKey(run) === "flagged" ? "flagged" : "not judged"}</td>
@@ -557,7 +557,7 @@ function metricsCard(entry, { recovered, abstained, finalChunks, hasAnswer }) {
       emptyNote: emptyFor(metric.key),
     }),
   ).join("");
-  const when = saved.scored_at ? saved.scored_at.replace("T", " ").slice(0, 16) : "";
+  const when = saved.scored_at ? window.ReliabilityView.formatWhen(saved.scored_at) : "";
   return `<section class="chart-card metrics-card">
     ${head}
     <div class="mts">${tiles}</div>

@@ -528,7 +528,9 @@ def create_app(
     if static.is_dir():
         @application.get("/")
         def index() -> FileResponse:
-            return FileResponse(static / "index.html")
+            # Revalidate the page on every load. Scripts are cache-busted with
+            # ?v= in index.html, which only works if index.html itself is fresh.
+            return FileResponse(static / "index.html", headers={"Cache-Control": "no-cache"})
 
         application.mount("/static", StaticFiles(directory=static), name="static")
 

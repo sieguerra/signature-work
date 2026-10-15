@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>swrag · Reliability</title>
     <meta name="color-scheme" content="dark" />
-    <link rel="stylesheet" href="/static/styles.css?v=61" />
+    <link rel="stylesheet" href="/static/styles.css?v=71" />
   </head>
   <body>
     <div id="app" data-view="overview">
@@ -88,7 +88,7 @@
           </nav>
           <div class="topbar-actions" id="topbar-actions">
             <span class="run-state" id="run-state" role="status" aria-live="polite"></span>
-            <button type="button" class="btn btn-ghost btn-sm" id="topbar-cmdk" aria-label="Open command palette" data-tip="Command palette">
+            <button type="button" class="btn btn-ghost btn-sm" id="topbar-cmdk" aria-label="Open command palette" data-tip="Command palette" data-tip-align="end">
               <span data-icon="command" data-icon-size="13"></span><span>K</span>
             </button>
           </div>
@@ -208,15 +208,15 @@
               <p>What failure and recovery patterns exist across runs, and which runs should be investigated.</p>
             </div>
             <div class="eval-tabs" role="tablist" aria-label="Reliability views">
-              <button type="button" role="tab" data-eval-tab="overview">Summary</button>
-              <button type="button" role="tab" data-eval-tab="runs">Runs</button>
-              <button type="button" role="tab" data-eval-tab="recoveries">Recoveries</button>
-              <button type="button" role="tab" data-eval-tab="quality">Quality</button>
+              <button type="button" role="tab" id="rel-tab-overview" aria-controls="rel-summary" data-eval-tab="overview">Summary</button>
+              <button type="button" role="tab" id="rel-tab-runs" aria-controls="rel-panel-runs" data-eval-tab="runs">Runs</button>
+              <button type="button" role="tab" id="rel-tab-recoveries" aria-controls="rel-recoveries" data-eval-tab="recoveries">Recoveries</button>
+              <button type="button" role="tab" id="rel-tab-quality" aria-controls="rel-panel-quality" data-eval-tab="quality">Quality</button>
             </div>
           </header>
           <div class="banner hidden" id="error-banner" role="alert"></div>
-          <section class="rel-panel" data-rel-panel="overview" id="rel-summary"></section>
-          <section class="rel-panel" data-rel-panel="runs">
+          <section class="rel-panel" data-rel-panel="overview" id="rel-summary" role="tabpanel" aria-labelledby="rel-tab-overview"></section>
+          <section class="rel-panel" data-rel-panel="runs" id="rel-panel-runs" role="tabpanel" aria-labelledby="rel-tab-runs">
             <div class="rel-toolbar">
               <div class="rel-filters" id="rel-filters">
                 <input id="rel-search" type="search" placeholder="Search questions" aria-label="Search questions" />
@@ -285,9 +285,9 @@
               </div>
             </section>
           </section>
-          <section class="rel-panel" data-rel-panel="recoveries" id="rel-recoveries"></section>
-          <section class="rel-panel" data-rel-panel="quality">
-            <div class="eval-strip" id="eval-strip">n=0</div>
+          <section class="rel-panel" data-rel-panel="recoveries" id="rel-recoveries" role="tabpanel" aria-labelledby="rel-tab-recoveries"></section>
+          <section class="rel-panel" data-rel-panel="quality" id="rel-panel-quality" role="tabpanel" aria-labelledby="rel-tab-quality">
+            <div class="eval-strip" id="eval-strip"></div>
             <div class="eval-overview" id="eval-overview"></div>
           </section>
         </div>
@@ -308,10 +308,10 @@
       <div class="toasts" id="toasts" aria-live="polite"></div>
     </div>
     <script src="/static/icons.js?v=43"></script>
-    <script src="/static/charts.js?v=46"></script>
-    <script src="/static/flight-recorder.js?v=4"></script>
-    <script src="/static/reliability.js?v=3"></script>
+    <script src="/static/charts.js?v=47"></script>
+    <script src="/static/flight-recorder.js?v=5"></script>
+    <script src="/static/reliability.js?v=5"></script>
     <script src="/static/agent-config.js?v=46"></script>
-    <script src="/static/app.js?v=63"></script>
+    <script src="/static/app.js?v=68"></script>
   </body>
 </html>

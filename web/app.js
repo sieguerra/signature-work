@@ -97,11 +97,12 @@ const VIEW_PANELS = {
   integrations: "api",
 };
 
+function parseRoute(raw) {
+  return window.ReliabilityView.parseRoute(raw, VIEWS, VIEW_ALIASES);
+}
+
 function canonicalView(raw) {
-  const hash = String(raw || "").replace(/^#/, "");
-  if (VIEW_ALIASES[hash]) return VIEW_ALIASES[hash];
-  if (VIEWS.includes(hash)) return hash;
-  return "overview";
+  return parseRoute(raw).view;
 }
 
 function currentView() {
@@ -109,12 +110,25 @@ function currentView() {
 }
 
 function applyView() {
-  const raw = location.hash.replace(/^#/, "");
-  const view = canonicalView(raw);
-  if (raw !== view) history.replaceState(null, "", `#${view}`);
+  const route = parseRoute(location.hash);
+  const view = route.view;
+  const canonical = window.ReliabilityView.routeHash(view, route.tab);
+  if (location.hash !== canonical) history.replaceState(null, "", canonical);
+  const changed = state.view !== view;
   state.view = view;
+  if (view === "reliability" && state.evalTab !== route.tab) {
+    state.evalTab = route.tab;
+    applyEvalTab();
+  }
   const app = document.getElementById("app");
   app.dataset.view = VIEW_PANELS[view];
+  // Each view scrolls inside its own panel, which kept its old offset while
+  // hidden. Opening a different page starts at the top. This runs after the
+  // panel is shown, because a hidden panel ignores scrollTop.
+  if (changed) {
+    const panel = document.getElementById(`view-${VIEW_PANELS[view]}`);
+    if (panel) panel.scrollTop = 0;
+  }
   app.classList.toggle("inspect-collapsed", state.inspectCollapsed);
   app.classList.toggle("library-collapsed", state.libraryCollapsed);
   app.classList.toggle("nav-collapsed", state.navCollapsed);
@@ -215,16 +229,21 @@ function renderEnvStatus() {
   const dot = $("env-dot");
   const summary = $("top-meta");
   const pop = $("env-pop");
+  const btn = $("env-btn");
+  // The button's accessible name carries the same sentence as #top-meta.
+  const announce = (text) => {
+    if (summary) summary.textContent = text;
+    if (btn) btn.setAttribute("aria-label", `Environment: ${text}`);
+  };
   if (!meta) {
     if (dot) dot.className = "env-dot is-error";
-    if (summary) summary.textContent = "Backend unreachable";
+    announce("Backend unreachable");
     return;
   }
   const keyOn = Boolean(meta.api_key_present);
   const provider = meta.official_openai ? "OpenAI" : "custom backend";
   if (dot) dot.className = `env-dot ${keyOn ? "is-ok" : "is-warn"}`;
-  if (summary) summary.textContent = keyOn ? meta.configured_chat_model || "Connected" : "No API key";
-  const btn = $("env-btn");
+  announce(keyOn ? meta.configured_chat_model || "Connected" : "No API key");
   if (btn) btn.dataset.tip = keyOn ? `${meta.configured_chat_model} · ${provider}` : "No API key: retrieve only";
   if (!pop) return;
   const row = (iconName, key, value, tone = "") =>
@@ -589,7 +608,7 @@ function renderRunList() {
     .map((item) => {
       const active = item.run_id === state.selectedId ? " active" : "";
       const child = item.parent_run_id ? " child-run" : "";
-      const when = (item.timestamp || "").replace("T", " ").slice(0, 19);
+      const when = item.timestamp ? window.ReliabilityView.formatWhen(item.timestamp) : "";
       return `<div class="run-item${active}${child}" data-id="${escapeHtml(item.run_id)}">
         <button type="button" class="run-select">
           <div class="q">${escapeHtml(item.query || "(no query)")}</div>
@@ -999,6 +1018,9 @@ async function loadTraces() {
 function setEvalTab(tab) {
   state.evalTab = tab;
   applyEvalTab();
+  // The URL records the tab so reload, sharing, and Back restore it.
+  const hash = window.ReliabilityView.routeHash("reliability", tab);
+  if (location.hash !== hash) location.hash = hash;
 }
 
 function applyEvalTab() {
@@ -1009,6 +1031,7 @@ function applyEvalTab() {
     const on = button.dataset.evalTab === state.evalTab;
     button.classList.toggle("active", on);
     button.setAttribute("aria-selected", on ? "true" : "false");
+    button.tabIndex = on ? 0 : -1;
   });
 }
 
@@ -1128,16 +1151,9 @@ async function loadEval() {
   renderEvalCharts();
   const strip = $("eval-strip");
   if (!strip) return;
-  const actions = Object.entries(payload.by_action || {})
-    .map(([name, count]) => `${name}=${count}`)
-    .join(" · ");
-  const verifies = Object.entries(payload.by_verification || {})
-    .map(([name, count]) => `${name}=${count}`)
-    .join(" · ");
-  const proposed = payload.proposed ? ` · proposed=${payload.proposed}` : "";
-  const latency =
-    payload.mean_latency_ms == null ? "" : ` · mean latency ${Math.round(payload.mean_latency_ms)}ms`;
-  strip.textContent = `n=${payload.n} · abstain=${payload.abstain}${proposed}${actions ? ` · ${actions}` : ""}${verifies ? ` · ${verifies}` : ""}${latency}`;
+  strip.innerHTML = `<span class="eval-strip-title">Runtime tallies</span>${window.ReliabilityView.qualityTally(payload)
+    .map((item) => `<span class="eval-stat"><b>${escapeHtml(item.value)}</b> ${escapeHtml(item.label)}</span>`)
+    .join("")}`;
 }
 
 async function selectRun(runId) {
@@ -1640,7 +1656,6 @@ function renderKnowledge() {
   knowledge.innerHTML = `<div class="kn-page">
     <header class="kn-head">
       <div>
-        <div class="kn-kicker"><span class="agent-swatch is-retrieval"></span> Data</div>
         <h1>Data</h1>
         <p>What this RAG system can retrieve from.</p>
       </div>
@@ -2243,13 +2258,6 @@ print(urllib.request.urlopen(request).read().decode())`;
   -d '${body}'`;
 }
 
-function formatStamp(value) {
-  if (!value) return "—";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return String(value);
-  return date.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
-}
-
 function renderApiPanel() {
   const root = $("pg-api");
   if (!root) return;
@@ -2258,7 +2266,6 @@ function renderApiPanel() {
     root.innerHTML = `<div class="api-page">
       <header class="kn-head">
         <div>
-          <div class="kn-kicker"><span class="agent-swatch is-generation"></span> Integrations</div>
           <h1>Integrations</h1>
           <p>Evaluate responses from an external RAG application.</p>
         </div>
@@ -2320,7 +2327,6 @@ function renderProjectKeys() {
     ${revealed}
     <header class="kn-head">
       <div>
-        <div class="kn-kicker"><span class="agent-swatch is-generation"></span> Integrations</div>
         <h1>Integrations</h1>
         <p>Evaluate responses from an external RAG application. This endpoint judges the answer and contexts you send. It does not retrieve from this system, and it does not apply rewrite or expand.</p>
       </div>
@@ -3626,6 +3632,20 @@ function bind() {
       renderReliability();
     });
   });
+  $("view-evaluation").querySelector(".eval-tabs").addEventListener("keydown", (event) => {
+    const tabs = window.ReliabilityView.RELIABILITY_TABS;
+    if (!event.target.closest("[data-eval-tab]")) return;
+    const index = tabs.indexOf(state.evalTab);
+    let next = null;
+    if (event.key === "ArrowRight") next = tabs[(index + 1) % tabs.length];
+    else if (event.key === "ArrowLeft") next = tabs[(index - 1 + tabs.length) % tabs.length];
+    else if (event.key === "Home") next = tabs[0];
+    else if (event.key === "End") next = tabs[tabs.length - 1];
+    if (!next) return;
+    event.preventDefault();
+    setEvalTab(next);
+    $("view-evaluation").querySelector(`[data-eval-tab="${next}"]`)?.focus();
+  });
   $("view-evaluation").addEventListener("click", (event) => {
     const tab = event.target.closest("[data-eval-tab]");
     if (tab) {
@@ -4210,9 +4230,7 @@ function applyRelPreset(key, value) {
 }
 
 function relWhen(value) {
-  const text = String(value || "").trim();
-  if (!text) return "—";
-  return text.replace("T", " ").slice(0, 16);
+  return window.ReliabilityView.formatWhen(value);
 }
 
 function relFraction(part) {
@@ -4248,7 +4266,7 @@ function renderRelSummary(view) {
     return;
   }
   const pending = (state.logicalRuns || []).filter((run) => run.recovery_pending).length;
-  const unattributed = (state.logicalRuns || []).filter((run) => run.judged && !(run.diagnoses || []).length).length;
+  const unattributed = data.unattributed || 0;
   const outcomes = data.outcomes || {};
   const labels = view || {
     labelDiagnosis: (name) => name,
@@ -4268,7 +4286,7 @@ function renderRelSummary(view) {
         <p class="rel-note">Unchanged means a recovery was applied and the runtime judge flags did not change. It is not treated as improved, and it is not automatically unresolved.</p>
         ${relOutcomeRows(outcomes)}
         ${relStat("Pending, not in the verified denominator", String(pending))}
-        <button type="button" class="ghost" data-rel-preset="verification" data-rel-value="needs">Needs investigation</button>
+        <button type="button" class="ghost rel-preset-link" data-rel-preset="verification" data-rel-value="needs">Show runs that need investigation →</button>
       </section>
       <section>
         <h2>Failure diagnoses</h2>
@@ -4749,13 +4767,11 @@ function flightWarning(flight) {
 
 function phaseHtml(phase, flight) {
   const safePhase = String(phase.title || "") === "Recovery · Safe stop";
-  const safeVerify = Boolean(flight && flight.status === "safe_stop" && phase.key === "verification");
   const steps = (phase.steps || [])
     .map((step) => {
-      const title = safeVerify ? "Verifier recorded" : step.title || "";
-      const detail = safeVerify
-        ? `${step.title || "Verifier result"}. Bounded recovery stopped because sufficient support was not found. This stored result stays in the trace and is not a second status.`
-        : diagnosisText(step.detail || "");
+      const shown = window.FlightRecorder.presentStep(phase, step, flight && flight.status);
+      const title = shown.title;
+      const detail = diagnosisText(shown.detail);
       return `<div class="tc-step is-${escapeHtml(step.kind || "step")}${step.kind === "verify" ? " is-verify" : ""}">
         <span class="tc-rail" aria-hidden="true"></span>
         <div>
@@ -4884,7 +4900,15 @@ function technicalFlags(flight) {
 function diagnosisText(value) {
   if (!value) return "";
   if (value === "Diagnosis not yet attributed.") return value;
-  return OV_DIAGNOSES[value] || value;
+  if (OV_DIAGNOSES[value]) return OV_DIAGNOSES[value];
+  // Recovery reasons arrive as "unsupported_generation: regenerate ...".
+  // Show the class label, not the code name. Other text (answers included)
+  // passes through untouched.
+  const pattern = /\b(unsupported_generation|retrieval_miss|evidence_insufficiency)\b/g;
+  const text = String(value);
+  if (!pattern.test(text)) return text;
+  const labeled = text.replace(pattern, (name) => OV_DIAGNOSES[name].toLowerCase());
+  return labeled.charAt(0).toUpperCase() + labeled.slice(1);
 }
 
 function clipFlight(value) {
@@ -4907,7 +4931,6 @@ function formatFlightLatency(ms) {
 async function inspectOverviewRun(runId) {
   if (!runId) return;
   setEvalTab("runs");
-  if (location.hash !== "#reliability") location.hash = "#reliability";
   applyView();
   const row = (state.logicalRuns || []).find(
     (run) =>
@@ -5100,9 +5123,11 @@ function signalCount(bucket) {
 
 function overviewDiagnoses(data) {
   const rows = data.diagnoses || [];
-  if (!rows.length) return `<p class="ov-empty">No failure diagnoses yet.</p>`;
-  const max = Math.max(...rows.map((row) => row.count || 0), 1);
-  return `${rows.map((row) => barRow(labelDiagnosis(row.name), row.count || 0, max, "diagnosis")).join("")}
+  const unattributed = data.unattributed || 0;
+  if (!rows.length && !unattributed) return `<p class="ov-empty">No failure diagnoses yet.</p>`;
+  const max = Math.max(...rows.map((row) => row.count || 0), unattributed, 1);
+  const unattributedRow = unattributed ? barRow("Not attributed", unattributed, max, "diagnosis") : "";
+  return `${rows.map((row) => barRow(labelDiagnosis(row.name), row.count || 0, max, "diagnosis")).join("")}${unattributedRow}
     <p class="ov-sub">Observed failure classes. Retrieval miss and evidence insufficiency can be assigned after a rewrite.</p>`;
 }
 
@@ -5208,10 +5233,7 @@ function formatLatency(ms) {
 }
 
 function formatStamp(value) {
-  if (!value) return "";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return String(value);
-  return date.toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+  return window.ReliabilityView.formatWhen(value);
 }
 
 async function boot() {

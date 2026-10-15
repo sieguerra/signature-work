@@ -246,6 +246,9 @@ def aggregate_overview(runs: list[LogicalRun]) -> dict[str, Any]:
             ),
         },
         "diagnoses": _ordered_counts(diagnoses, _DIAGNOSIS_ORDER),
+        # Runs that needed recovery but carry no failure class. Overview and
+        # Reliability both read this so they cannot disagree.
+        "unattributed": sum(1 for run in required if not _diagnosis_classes(run)),
         "applied_actions": _ordered_counts(
             applied_actions, ("rewrite", "expand", "regenerate", "abstain")
         ),

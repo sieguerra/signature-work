@@ -418,7 +418,7 @@ button.ghost:disabled {
 }
 
 /* Form controls */
-:where(textarea, select, input[type="number"], input[type="text"], input:not([type])) {
+:where(textarea, select, input[type="number"], input[type="text"], input[type="search"], input:not([type])) {
   background: var(--surface-0);
   color: var(--text);
   border: 1px solid var(--border);
@@ -429,7 +429,7 @@ button.ghost:disabled {
     background-color var(--dur) var(--ease);
 }
 
-:where(select, input[type="number"], input[type="text"], input:not([type])) {
+:where(select, input[type="number"], input[type="text"], input[type="search"], input:not([type])) {
   height: 32px;
   padding: 0 10px;
   font-size: var(--fs-sm);
@@ -704,6 +704,19 @@ details > summary:hover {
   transform: translate(0, -50%);
 }
 
+/* End-aligned tooltips for controls at the right edge. A centered tip there
+   stuck out of .app-main and let it scroll sideways by ~16px. */
+[data-tip][data-tip-align="end"]::after {
+  left: auto;
+  right: 0;
+  transform: translate(0, -2px);
+}
+
+[data-tip][data-tip-align="end"]:hover::after,
+[data-tip][data-tip-align="end"]:focus-visible::after {
+  transform: translate(0, 0);
+}
+
 /* Right-side tooltips only matter when the sidebar is collapsed */
 #app:not(.nav-collapsed) .app-nav [data-tip-side="right"]::after {
   display: none;
@@ -846,6 +859,7 @@ details > summary:hover {
   min-height: 0;
   height: 100%;
   overflow: hidden;
+  overflow: clip;
   display: grid;
   grid-template-rows: var(--topbar-h) minmax(0, 1fr);
   background: var(--bg);
@@ -1644,7 +1658,6 @@ details > summary:hover {
   .nav-group,
   .nav-workspace-label,
   .nav-cmdk,
-  .env-summary,
   .env-chev {
     display: none;
   }
@@ -1699,8 +1712,23 @@ details > summary:hover {
     width: auto !important;
   }
 
-  .env-btn {
-    width: 32px;
+  /* Keep the status sentence on screen (#119): the dot alone said nothing
+     about "No API key" or "Backend unreachable". */
+  #app .env-btn,
+  #app.nav-collapsed .env-btn {
+    width: auto;
+    max-width: 200px;
+    padding: 0 10px;
+    gap: 8px;
+  }
+
+  #app .env-btn .env-summary,
+  #app.nav-collapsed .env-btn .env-summary {
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .env-pop,
@@ -2504,11 +2532,27 @@ button.doc-open {
 }
 
 .eval-strip {
-  padding: 8px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 18px;
+  padding: 8px 0 12px;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.4;
-  white-space: normal;
+}
+
+.eval-strip-title {
+  color: var(--text-3);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.eval-stat b {
+  color: var(--text);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 .sidebar-actions {
@@ -2635,14 +2679,6 @@ button.doc-open {
 
 select {
   font: inherit;
-}
-
-select {
-  background: var(--bg-elev);
-  color: var(--text);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 8px 10px;
 }
 
 .answer-bar {
@@ -5438,7 +5474,6 @@ button.flow-port:hover,
     border-right: 0;
     border-bottom: 1px solid var(--border-subtle);
   }
-  .tc-shell .pg-inspect { display: none; }
 }
 
 /* Test Console flight recorder */
@@ -6374,4 +6409,125 @@ button.flow-port:hover,
   .ov-metrics {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+
+/* Test Console layout. The inspector used to be a fixed 300px pane inside a
+   220-320px grid column, so it was clipped at laptop widths and left a blank
+   column when collapsed. It now sizes its own column. Below 1100px the three
+   panes stack and the inspector stays on screen (#116); the collapse control
+   still hides it at every width. */
+@media (min-width: 1101px) {
+  #app[data-view="playground"] #view-playground {
+    grid-template-columns: 220px minmax(0, 1fr) auto;
+  }
+  #app[data-view="playground"] #view-playground > #pg-inspect-pane {
+    width: clamp(260px, 24vw, 340px);
+    flex: none;
+  }
+  #app.inspect-collapsed[data-view="playground"] #view-playground > #pg-inspect-pane {
+    width: 28px;
+  }
+}
+
+@media (min-width: 1101px) and (max-width: 1280px) {
+  #app[data-view="playground"] #view-playground {
+    grid-template-columns: 200px minmax(0, 1fr) auto;
+  }
+}
+
+@media (max-width: 1100px) {
+  /* Stacked: history, flight, inspector, each at its natural height, and the
+     view scrolls as one page instead of squeezing the flight between them. */
+  #app[data-view="playground"] #view-playground {
+    grid-template-rows: max-content max-content max-content;
+    align-content: start;
+  }
+  #app[data-view="playground"] #view-playground > .tc-main {
+    overflow: visible;
+  }
+  #app[data-view="playground"] #view-playground > #pg-inspect-pane {
+    width: 100%;
+    flex: none;
+    max-height: none;
+    border-left: 0;
+    border-top: 1px solid var(--border-subtle);
+  }
+  #app.inspect-collapsed[data-view="playground"] #view-playground > #pg-inspect-pane {
+    width: 100%;
+    max-height: 36px;
+    overflow: hidden;
+  }
+}
+
+/* The inspector sheet was a fixed 300px inside a narrower pane. */
+#app:not(.inspect-collapsed)[data-view="playground"] #pg-inspect-pane .drawer-sheet {
+  width: 100%;
+}
+
+/* Narrow top strip with the sidebar "collapsed": the picker padding belongs to
+   the select only (it was also on the wrapper, which pushed the select off the
+   avatar), and the caret and add-system button stay visible. */
+@media (max-width: 960px) {
+  #app.nav-collapsed .workspace-picker {
+    padding: 0;
+  }
+  #app.nav-collapsed .ws-avatar {
+    left: 7px;
+  }
+  #app.nav-collapsed .ws-caret {
+    display: block;
+  }
+  #app.nav-collapsed .ws-add {
+    display: inline-flex;
+  }
+}
+
+/* Destructive action reads as one before hover, and sits apart from Refresh. */
+.rel-toolbar-actions #delete-all-runs {
+  margin-left: 8px;
+  color: var(--danger);
+}
+
+/* "Show runs that need investigation" is a link into the Runs tab. */
+.rel-preset-link {
+  justify-self: start;
+  align-self: flex-start;
+  margin-top: 6px;
+  padding-left: 0;
+  color: var(--accent);
+}
+
+/* Overview has exactly five metric cards. A 3-column grid left an empty slot
+   beside Safe stops at laptop widths. Keep one row down to 1101px, then an
+   even 3 + 2 (six-column grid, the last two spanning half each). */
+@media (min-width: 1101px) and (max-width: 1280px) {
+  .ov-metrics {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 961px) and (max-width: 1100px) {
+  .ov-metrics {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+  .ov-metrics > .ov-metric {
+    grid-column: span 2;
+  }
+  .ov-metrics > .ov-metric:nth-child(n + 4) {
+    grid-column: span 3;
+  }
+}
+
+/* Runs filters: one even row that wraps as a grid, instead of a flex row
+   whose last filter dropped onto its own line. */
+.rel-filters {
+  flex: 1 1 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+}
+
+.rel-filters select,
+.rel-filters input {
+  width: 100%;
+  min-width: 0;
 }

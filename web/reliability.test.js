@@ -10,6 +10,10 @@ const {
   labelVerification,
   presentVerification,
   qualityStatus,
+  formatWhen,
+  qualityTally,
+  parseRoute,
+  routeHash,
 } = require("./reliability.js");
 
 function run(overrides) {
@@ -135,4 +139,106 @@ test("gap-aware runs can be filtered without treating a safe stop as a rewrite",
   assert.equal(presentVerification(rows[0]), "Safe stop");
   assert.equal(labelVerification(rows[0]), "Still failing");
   assert.equal(filterLogicalRuns(rows, { policy: "all" }).length, 2);
+});
+
+test("a safe stop stays out of the failure filters but a real still-failing run does not (#117)", () => {
+  const rows = [
+    run({
+      logical_run_id: "gap",
+      recovery: ["expand", "abstain"],
+      safe_stop: true,
+      recovery_required: true,
+      recovery_applied: true,
+      verification: "still_failing",
+    }),
+    run({
+      logical_run_id: "failing",
+      recovery: ["rewrite"],
+      safe_stop: false,
+      recovery_required: true,
+      recovery_applied: true,
+      verification: "still_failing",
+    }),
+    run({
+      logical_run_id: "abstained",
+      recovery: ["abstain"],
+      safe_stop: false,
+      recovery_required: true,
+      recovery_applied: true,
+      verification: "unchanged",
+    }),
+  ];
+  const ids = (filters) => filterLogicalRuns(rows, filters).map((row) => row.logical_run_id);
+  assert.deepEqual(ids({ verification: "still_failing" }), ["failing"]);
+  assert.deepEqual(ids({ verification: "needs" }), ["failing"]);
+  assert.deepEqual(ids({ verification: "degraded" }), []);
+  assert.deepEqual(ids({ action: "abstain" }), ["abstained"]);
+  assert.deepEqual(ids({ action: "safe_stop" }), ["gap"]);
+  assert.deepEqual(ids({ action: "expand" }), ["gap"]);
+  assert.deepEqual(ids({ verification: "all" }), ["gap", "failing", "abstained"]);
+  assert.equal(labelVerification(rows[0]), "Still failing");
+});
+
+test("formatWhen shows a UTC trace time in the viewer's zone, not the raw UTC string", () => {
+  const stamp = "2026-10-05T17:35:09.785652+00:00";
+  const opts = { locale: "en-US", now: "2026-10-15T00:00:00Z" };
+  assert.equal(formatWhen(stamp, { ...opts, timeZone: "Asia/Manila" }), "Oct 6, 01:35 AM");
+  assert.equal(formatWhen(stamp, { ...opts, timeZone: "UTC" }), "Oct 5, 05:35 PM");
+});
+
+test("formatWhen adds the year only when it is not the current year", () => {
+  const out = formatWhen("2025-03-01T12:00:00Z", { locale: "en-US", timeZone: "UTC", now: "2026-10-15T00:00:00Z" });
+  assert.equal(out, "Mar 1, 2025, 12:00 PM");
+});
+
+test("formatWhen keeps an empty placeholder and passes unparseable text through", () => {
+  assert.equal(formatWhen(""), "—");
+  assert.equal(formatWhen(null, { empty: "" }), "");
+  assert.equal(formatWhen("not a date"), "not a date");
+});
+
+const VIEWS = ["overview", "test", "reliability", "data", "configuration", "integrations"];
+const ALIASES = { evaluation: "reliability", playground: "test" };
+
+test("parseRoute reads the Reliability tab from the hash", () => {
+  assert.deepEqual(parseRoute("#reliability/quality", VIEWS, ALIASES), { view: "reliability", tab: "quality" });
+  assert.deepEqual(parseRoute("#reliability", VIEWS, ALIASES), { view: "reliability", tab: "overview" });
+  assert.deepEqual(parseRoute("#evaluation", VIEWS, ALIASES), { view: "reliability", tab: "overview" });
+  assert.deepEqual(parseRoute("#overview", VIEWS, ALIASES), { view: "overview", tab: "overview" });
+});
+
+test("parseRoute keeps an unknown Reliability suffix on Reliability Summary", () => {
+  assert.deepEqual(parseRoute("#reliability/nope", VIEWS, ALIASES), { view: "reliability", tab: "overview" });
+  assert.deepEqual(parseRoute("#nowhere", VIEWS, ALIASES), { view: "overview", tab: "overview" });
+});
+
+test("routeHash gives Summary no suffix and other tabs one", () => {
+  assert.equal(routeHash("reliability", "overview"), "#reliability");
+  assert.equal(routeHash("reliability", "runs"), "#reliability/runs");
+  assert.equal(routeHash("data", "runs"), "#data");
+});
+
+test("qualityTally turns the /api/eval counts into labeled items (#115)", () => {
+  const items = qualityTally({
+    n: 2,
+    abstain: 1,
+    proposed: 0,
+    by_action: { regenerate: 2, abstain: 1 },
+    by_verification: { improved: 1, still_failing: 1 },
+    mean_latency_ms: 11403.1,
+  });
+  assert.deepEqual(items, [
+    { label: "Runs", value: "2" },
+    { label: "Abstentions", value: "1" },
+    { label: "Regenerate", value: "2" },
+    { label: "Safe abstention", value: "1" },
+    { label: "Improved", value: "1" },
+    { label: "Still failing", value: "1" },
+    { label: "Mean latency", value: "11.4s" },
+  ]);
+});
+
+test("qualityTally leaves out latency when the payload has none and shows pending proposals", () => {
+  const labels = qualityTally({ n: 1, abstain: 0, proposed: 1, mean_latency_ms: null }).map((item) => item.label);
+  assert.deepEqual(labels, ["Runs", "Abstentions", "Pending proposals"]);
 });
