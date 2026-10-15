@@ -418,7 +418,7 @@ button.ghost:disabled {
 }
 
 /* Form controls */
-:where(textarea, select, input[type="number"], input[type="text"], input:not([type])) {
+:where(textarea, select, input[type="number"], input[type="text"], input[type="search"], input:not([type])) {
   background: var(--surface-0);
   color: var(--text);
   border: 1px solid var(--border);
@@ -429,7 +429,7 @@ button.ghost:disabled {
     background-color var(--dur) var(--ease);
 }
 
-:where(select, input[type="number"], input[type="text"], input:not([type])) {
+:where(select, input[type="number"], input[type="text"], input[type="search"], input:not([type])) {
   height: 32px;
   padding: 0 10px;
   font-size: var(--fs-sm);
@@ -6480,4 +6480,54 @@ button.flow-port:hover,
   #app.nav-collapsed .ws-add {
     display: inline-flex;
   }
+}
+
+/* Destructive action reads as one before hover, and sits apart from Refresh. */
+.rel-toolbar-actions #delete-all-runs {
+  margin-left: 8px;
+  color: var(--danger);
+}
+
+/* "Show runs that need investigation" is a link into the Runs tab. */
+.rel-preset-link {
+  justify-self: start;
+  align-self: flex-start;
+  margin-top: 6px;
+  padding-left: 0;
+  color: var(--accent);
+}
+
+/* Overview has exactly five metric cards. A 3-column grid left an empty slot
+   beside Safe stops at laptop widths. Keep one row down to 1101px, then an
+   even 3 + 2 (six-column grid, the last two spanning half each). */
+@media (min-width: 1101px) and (max-width: 1280px) {
+  .ov-metrics {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 961px) and (max-width: 1100px) {
+  .ov-metrics {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+  .ov-metrics > .ov-metric {
+    grid-column: span 2;
+  }
+  .ov-metrics > .ov-metric:nth-child(n + 4) {
+    grid-column: span 3;
+  }
+}
+
+/* Runs filters: one even row that wraps as a grid, instead of a flex row
+   whose last filter dropped onto its own line. */
+.rel-filters {
+  flex: 1 1 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+}
+
+.rel-filters select,
+.rel-filters input {
+  width: 100%;
+  min-width: 0;
 }

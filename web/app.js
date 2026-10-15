@@ -1656,7 +1656,6 @@ function renderKnowledge() {
   knowledge.innerHTML = `<div class="kn-page">
     <header class="kn-head">
       <div>
-        <div class="kn-kicker"><span class="agent-swatch is-retrieval"></span> Data</div>
         <h1>Data</h1>
         <p>What this RAG system can retrieve from.</p>
       </div>
@@ -2267,7 +2266,6 @@ function renderApiPanel() {
     root.innerHTML = `<div class="api-page">
       <header class="kn-head">
         <div>
-          <div class="kn-kicker"><span class="agent-swatch is-generation"></span> Integrations</div>
           <h1>Integrations</h1>
           <p>Evaluate responses from an external RAG application.</p>
         </div>
@@ -2329,7 +2327,6 @@ function renderProjectKeys() {
     ${revealed}
     <header class="kn-head">
       <div>
-        <div class="kn-kicker"><span class="agent-swatch is-generation"></span> Integrations</div>
         <h1>Integrations</h1>
         <p>Evaluate responses from an external RAG application. This endpoint judges the answer and contexts you send. It does not retrieve from this system, and it does not apply rewrite or expand.</p>
       </div>
@@ -4289,7 +4286,7 @@ function renderRelSummary(view) {
         <p class="rel-note">Unchanged means a recovery was applied and the runtime judge flags did not change. It is not treated as improved, and it is not automatically unresolved.</p>
         ${relOutcomeRows(outcomes)}
         ${relStat("Pending, not in the verified denominator", String(pending))}
-        <button type="button" class="ghost" data-rel-preset="verification" data-rel-value="needs">Needs investigation</button>
+        <button type="button" class="ghost rel-preset-link" data-rel-preset="verification" data-rel-value="needs">Show runs that need investigation →</button>
       </section>
       <section>
         <h2>Failure diagnoses</h2>
@@ -4903,7 +4900,15 @@ function technicalFlags(flight) {
 function diagnosisText(value) {
   if (!value) return "";
   if (value === "Diagnosis not yet attributed.") return value;
-  return OV_DIAGNOSES[value] || value;
+  if (OV_DIAGNOSES[value]) return OV_DIAGNOSES[value];
+  // Recovery reasons arrive as "unsupported_generation: regenerate ...".
+  // Show the class label, not the code name. Other text (answers included)
+  // passes through untouched.
+  const pattern = /\b(unsupported_generation|retrieval_miss|evidence_insufficiency)\b/g;
+  const text = String(value);
+  if (!pattern.test(text)) return text;
+  const labeled = text.replace(pattern, (name) => OV_DIAGNOSES[name].toLowerCase());
+  return labeled.charAt(0).toUpperCase() + labeled.slice(1);
 }
 
 function clipFlight(value) {
