@@ -80,7 +80,7 @@ Later snapshots, cited by folder name only:
 Each `comparison.json` records the backend that produced it. Harbor remains the historical full-set run.
 
 ```bash
-python scripts/run_benchmark.py --retrieve-only   # harness check, no API key
+python scripts/run_benchmark.py --retrieve-only   # harness check, no API key; writes to experiments/output/retrieve-only-checks
 python scripts/run_benchmark.py                   # needs OPENAI_API_KEY
 ```
 

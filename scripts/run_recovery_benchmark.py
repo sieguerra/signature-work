@@ -21,6 +21,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+from swrag.experiments.guard import refuse_committed
 from swrag.corpus_registry import load_registry
 from swrag.recovery_benchmark.inventory import load_questions, questions_to_generate
 from swrag.recovery_benchmark.protocol import (
@@ -62,6 +63,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--call-model", action="store_true")
     parser.add_argument("--run-id", default=RUN_ID)
     parser.add_argument("--force", action="store_true")
+    parser.add_argument(
+        "--overwrite-committed",
+        action="store_true",
+        help="Allow writing into a run folder that holds committed results.",
+    )
     return parser
 
 
@@ -76,6 +82,7 @@ def main(argv: list[str] | None = None) -> int:
     run_dir = root / "experiments" / "recovery-benchmark" / "runs" / args.run_id
     traces_root = root / "experiments" / "recovery-benchmark" / "traces"
     split_path = run_dir / "question_split.json"
+    refuse_committed(run_dir, overwrite=args.overwrite_committed)
     run_dir.mkdir(parents=True, exist_ok=True)
 
     if split_path.exists() and not args.force and args.generate:
