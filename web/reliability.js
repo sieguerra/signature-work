@@ -23,11 +23,15 @@
     return true;
   }
 
+  // Verification filters follow the status the console presents. A safe stop
+  // keeps its stored verifier words but is not a failure, which matches the
+  // Overview unresolved count (_attention_kind in api/overview.py).
   function verificationMatches(run, filter) {
     if (filter === "all") return true;
-    if (filter === "needs") return run.verification === "still_failing" || run.verification === "degraded";
     if (filter === "pending") return Boolean(run.recovery_pending);
     if (filter === "not_applicable") return !run.verification && !run.recovery_pending;
+    if (run.safe_stop) return false;
+    if (filter === "needs") return run.verification === "still_failing" || run.verification === "degraded";
     return run.verification === filter;
   }
 
@@ -46,6 +50,7 @@
   function actionMatches(run, filter) {
     if (filter === "all") return true;
     if (filter === "safe_stop") return Boolean(run.safe_stop);
+    if (filter === "abstain" && run.safe_stop) return false;
     const actions = run.recovery || [];
     return actions.includes(filter) || run.recovery_pending === filter;
   }

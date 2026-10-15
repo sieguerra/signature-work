@@ -140,6 +140,44 @@ test("gap-aware runs can be filtered without treating a safe stop as a rewrite",
   assert.equal(filterLogicalRuns(rows, { policy: "all" }).length, 2);
 });
 
+test("a safe stop stays out of the failure filters but a real still-failing run does not (#117)", () => {
+  const rows = [
+    run({
+      logical_run_id: "gap",
+      recovery: ["expand", "abstain"],
+      safe_stop: true,
+      recovery_required: true,
+      recovery_applied: true,
+      verification: "still_failing",
+    }),
+    run({
+      logical_run_id: "failing",
+      recovery: ["rewrite"],
+      safe_stop: false,
+      recovery_required: true,
+      recovery_applied: true,
+      verification: "still_failing",
+    }),
+    run({
+      logical_run_id: "abstained",
+      recovery: ["abstain"],
+      safe_stop: false,
+      recovery_required: true,
+      recovery_applied: true,
+      verification: "unchanged",
+    }),
+  ];
+  const ids = (filters) => filterLogicalRuns(rows, filters).map((row) => row.logical_run_id);
+  assert.deepEqual(ids({ verification: "still_failing" }), ["failing"]);
+  assert.deepEqual(ids({ verification: "needs" }), ["failing"]);
+  assert.deepEqual(ids({ verification: "degraded" }), []);
+  assert.deepEqual(ids({ action: "abstain" }), ["abstained"]);
+  assert.deepEqual(ids({ action: "safe_stop" }), ["gap"]);
+  assert.deepEqual(ids({ action: "expand" }), ["gap"]);
+  assert.deepEqual(ids({ verification: "all" }), ["gap", "failing", "abstained"]);
+  assert.equal(labelVerification(rows[0]), "Still failing");
+});
+
 test("formatWhen shows a UTC trace time in the viewer's zone, not the raw UTC string", () => {
   const stamp = "2026-10-05T17:35:09.785652+00:00";
   const opts = { locale: "en-US", now: "2026-10-15T00:00:00Z" };
