@@ -17,7 +17,7 @@ Open `tools/recovery-review/index.html` from a local server started in that dire
 
 The page does not pre-select a label. Export `human_labels_<reviewer>.jsonl` and copy it to `experiments/recovery-benchmark/runs/phase75-20261006/human_labels.jsonl`. A second file can be saved as `human_labels_reviewer2.jsonl`. Then run `scripts/score_recovery_gate.py`.
 
-No human file is in the repository. The rates that depend on it are not filled in.
+One reviewer's labels are in the repository: `human_labels.jsonl` (all 60 triggered runs) and `human_labels_nontrigger.jsonl` (the 40-run non-trigger sample). `scripts/score_recovery_gate.py` scores them into `human_gate_report.json`, which records `reviewer_count: 1`. No second reviewer has labeled the packets yet, so no inter-rater agreement is reported (issue #107). The scorer adds Cohen's kappa once `human_labels_reviewer2.jsonl` exists.
 
 ## What the traces show, without a human label
 
