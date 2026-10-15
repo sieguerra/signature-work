@@ -63,3 +63,24 @@ def load_provider_config() -> ProviderConfig:
         base_url=os.environ.get("OPENAI_BASE_URL") or OPENAI_BASE_URL,
         api_key_present=bool(os.environ.get("OPENAI_API_KEY")),
     )
+
+
+# A stalled provider call used to wait the SDK default of about 10 minutes
+# (one rerun of v4_kestrel spent 618 s on a single question, #133).
+DEFAULT_REQUEST_TIMEOUT_S = 60.0
+DEFAULT_MAX_RETRIES = 2
+
+
+def openai_client(base_url: str | None = None):
+    """OpenAI client with an explicit timeout and retry count.
+
+    ``SWRAG_OPENAI_TIMEOUT`` (seconds) overrides the timeout.
+    """
+    from openai import OpenAI
+
+    raw = os.environ.get("SWRAG_OPENAI_TIMEOUT", "").strip()
+    try:
+        timeout = float(raw) if raw else DEFAULT_REQUEST_TIMEOUT_S
+    except ValueError:
+        timeout = DEFAULT_REQUEST_TIMEOUT_S
+    return OpenAI(base_url=base_url, timeout=timeout, max_retries=DEFAULT_MAX_RETRIES)

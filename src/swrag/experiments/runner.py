@@ -116,6 +116,11 @@ class ExperimentSummary:
     total_completion_tokens: int = 0
     total_embedding_tokens: int = 0
     outcomes: tuple[QuestionOutcome, ...] = field(default_factory=tuple)
+    # Questions whose run raised (for example malformed judge JSON). They are
+    # left out of every score and listed here instead (#140).
+    errors: tuple[dict[str, str], ...] = field(default_factory=tuple)
+    # Robust to a single stalled provider call, unlike the mean (#133).
+    median_latency_ms: float | None = None
 
 
 def run_experiment(
@@ -158,6 +163,7 @@ def run_experiment(
     traces_dir.mkdir(parents=True)
 
     outcomes: list[QuestionOutcome] = []
+    errors: list[dict[str, str]] = []
     for question in questions:
         if answer_fn is not None:
             answer, run_id, retrieved_doc_ids, trace_path = answer_fn(question)
@@ -177,25 +183,35 @@ def run_experiment(
             )
             continue
 
-        with capture_usage() as usage:
-            started = time.perf_counter()
-            result = _run_one(
-                question.question,
-                corpus_dir=corpus_dir,
-                traces_dir=traces_dir,
-                top_k=top_k,
-                embedder=embedder,
-                generate=generate,
-                question_id=question.question_id,
-                judge=judge,
-                mode=mode,
-                index=index,
-                generator=generator,
-                regenerator=regenerator,
-                rewriter=rewriter,
-                max_recoveries=max_recoveries,
+        try:
+            with capture_usage() as usage:
+                started = time.perf_counter()
+                result = _run_one(
+                    question.question,
+                    corpus_dir=corpus_dir,
+                    traces_dir=traces_dir,
+                    top_k=top_k,
+                    embedder=embedder,
+                    generate=generate,
+                    question_id=question.question_id,
+                    judge=judge,
+                    mode=mode,
+                    index=index,
+                    generator=generator,
+                    regenerator=regenerator,
+                    rewriter=rewriter,
+                    max_recoveries=max_recoveries,
+                )
+                latency_ms = (time.perf_counter() - started) * 1000.0
+        except Exception as error:  # one bad response must not end the batch
+            errors.append(
+                {
+                    "question_id": question.question_id,
+                    "error_type": type(error).__name__,
+                    "message": str(error)[:500],
+                }
             )
-            latency_ms = (time.perf_counter() - started) * 1000.0
+            continue
 
         previous_answer = result.previous_answer
         previous_score = (
@@ -232,8 +248,15 @@ def run_experiment(
             )
         )
 
+    if questions and not outcomes and errors:
+        first = errors[0]
+        raise RuntimeError(
+            f"Every question failed; first error on {first['question_id']}: "
+            f"{first['error_type']}: {first['message']}"
+        )
     summary = _summarize(
         outcomes,
+        errors=errors,
         run_label=label,
         gold_path=str(gold_path),
         corpus_dir=str(corpus_dir),
@@ -306,6 +329,7 @@ def _summarize(
     output_dir: str,
     top_k: int,
     condition: str = MODE_BASELINE,
+    errors: list[dict[str, str]] | tuple[dict[str, str], ...] = (),
 ) -> ExperimentSummary:
     answerable = [item for item in outcomes if item.answerable]
     unanswerable = [item for item in outcomes if not item.answerable]
@@ -340,7 +364,19 @@ def _summarize(
         total_completion_tokens=_sum_usage(usages, "completion_tokens"),
         total_embedding_tokens=_sum_usage(usages, "embedding_tokens"),
         outcomes=tuple(outcomes),
+        errors=tuple(errors),
+        median_latency_ms=_median([item.latency_ms for item in outcomes if item.latency_ms]),
     )
+
+
+def _median(values: list[float]) -> float | None:
+    if not values:
+        return None
+    ordered = sorted(values)
+    middle = len(ordered) // 2
+    if len(ordered) % 2:
+        return ordered[middle]
+    return (ordered[middle - 1] + ordered[middle]) / 2
 
 
 def _mean(values: list[bool] | list[float]) -> float:

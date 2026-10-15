@@ -6,7 +6,7 @@ import re
 
 from openai import OpenAI
 
-from swrag.config import ProviderConfig, load_provider_config
+from swrag.config import ProviderConfig, load_provider_config, openai_client
 from swrag.generation.openai_generator import _format_evidence
 from swrag.types import RetrievalResult
 from swrag.usage import record_chat
@@ -53,7 +53,7 @@ class LLMQueryRewriter:
     ) -> None:
         resolved = config or load_provider_config()
         self.model_name = model or resolved.chat_model
-        self._client = client or OpenAI(base_url=resolved.base_url)
+        self._client = client or openai_client(resolved.base_url)
 
     def rewrite(self, *, question: str, retrieval: RetrievalResult) -> str:
         response = self._client.chat.completions.create(

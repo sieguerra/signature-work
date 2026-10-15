@@ -6,7 +6,7 @@ from typing import Sequence
 
 from openai import OpenAI
 
-from swrag.config import ProviderConfig, load_provider_config
+from swrag.config import ProviderConfig, load_provider_config, openai_client
 from swrag.usage import record_embedding
 
 # One embeddings request stays under the provider's input-array limit.
@@ -25,8 +25,12 @@ class OpenAIEmbedder:
         resolved = config or load_provider_config()
         self.model_name = model or resolved.embedding_model
         self.base_url = resolved.base_url
-        self._client = client or OpenAI(base_url=resolved.base_url)
+        self._client = client or openai_client(resolved.base_url)
         self._cache: dict[str, list[float]] = {}
+
+    def clear_cache(self) -> None:
+        """Forget cached vectors so the next condition pays for its own queries."""
+        self._cache.clear()
 
     def embed(self, texts: Sequence[str]) -> list[list[float]]:
         if not texts:

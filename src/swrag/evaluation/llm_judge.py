@@ -18,7 +18,7 @@ from typing import Any
 
 from openai import OpenAI
 
-from swrag.config import ProviderConfig, load_provider_config
+from swrag.config import ProviderConfig, load_provider_config, openai_client
 from swrag.types import RetrievalResult, RuntimeEvaluation, ScoredChunk
 from swrag.usage import record_chat
 
@@ -36,7 +36,6 @@ _EMAIL = re.compile(r"\b[\w.+-]+@[\w.-]+\.\w+\b", re.IGNORECASE)
 _ORDINAL = re.compile(r"\b\d+(?:st|nd|rd|th)\b", re.IGNORECASE)
 _SPEC = re.compile(r"\b(?:AMS\s*)?\d{4}[A-Z]\b", re.IGNORECASE)
 _LONG_NUMBER = re.compile(r"\b\d{3,}\b")
-_ABSTAIN_PREFIX = "i do not know"
 
 _SYSTEM_PROMPT = """You are a grounding judge for retrieval-augmented generation.
 You will see a question, retrieved evidence, and optionally a generated answer.
@@ -79,7 +78,7 @@ class LLMJudge:
         resolved = config or load_provider_config()
         self.model_name = model or resolved.chat_model
         self.base_url = resolved.base_url
-        self._client = client or OpenAI(base_url=resolved.base_url)
+        self._client = client or openai_client(resolved.base_url)
 
     def judge(
         self,
@@ -157,13 +156,14 @@ def constrain_support_to_evidence(
 ) -> RuntimeEvaluation:
     """Force unsupported when a checkable fact is absent from chunk text.
 
-    Abstentions and empty answers are left unchanged. The LLM flag still
-    stands when every extracted fact is present in the evidence.
+    Empty answers are left unchanged. A pure abstention has no checkable
+    facts, so it is never rejected. The check runs even when the judge left
+    support null, and on hedged answers such as "I do not know for certain,
+    but it ends at 20:00": both used to skip it (#136, #137). The LLM flag
+    still stands when every extracted fact is present in the evidence.
     """
-    if evaluation.answer_supported is None:
-        return evaluation
     stripped = answer.strip()
-    if not stripped or stripped.lower().startswith(_ABSTAIN_PREFIX):
+    if not stripped:
         return evaluation
     missing = facts_missing_from_evidence(stripped, retrieval)
     if not missing:

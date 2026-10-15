@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from openai import OpenAI
 
-from swrag.config import ProviderConfig, load_provider_config
+from swrag.config import ProviderConfig, load_provider_config, openai_client
 from swrag.types import GenerationResult, RetrievalResult
 from swrag.usage import record_chat
 
@@ -40,7 +40,7 @@ class OpenAIGenerator:
         self.model_name = model or resolved.chat_model
         self.base_url = resolved.base_url
         self.instructions = instructions
-        self._client = client or OpenAI(base_url=resolved.base_url)
+        self._client = client or openai_client(resolved.base_url)
 
     def generate(self, query: str, retrieval: RetrievalResult) -> GenerationResult:
         evidence = _format_evidence(retrieval)
