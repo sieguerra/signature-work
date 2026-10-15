@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import json
 import os
+import queue
 import threading
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -10,7 +12,7 @@ from typing import Any
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, HTTPException, UploadFile
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -28,6 +30,7 @@ from swrag.api.store import (
 )
 from swrag.api.v1 import build_v1_router
 from swrag.config import load_provider_config
+from swrag.tracing import progress
 from swrag.usage import capture_usage
 from swrag.evaluation.quality_metrics import score_trace
 from swrag.corpus_registry import (
@@ -437,8 +440,7 @@ def create_app(
             "also_deleted": [item for item in deleted if item != run_id],
         }
 
-    @application.post("/api/runs")
-    def create_run(body: RunRequest) -> dict[str, Any]:
+    def _checked_question(body: RunRequest) -> str:
         question = body.question.strip()
         if not question:
             raise HTTPException(status_code=400, detail="question is required")
@@ -451,8 +453,12 @@ def create_app(
                 status_code=400,
                 detail="OPENAI_API_KEY is not set. Use retrieve-only mode, or add a key to .env.",
             )
+        return question
+
+    def _run_and_load(body: RunRequest, question: str, listener=None) -> dict[str, Any]:
+        """Execute one run under a progress recording and return its public payload."""
         try:
-            with application.state.index_lock, capture_usage():
+            with application.state.index_lock, capture_usage(), progress.recording(listener):
                 result = _execute_run(
                     application,
                     question,
@@ -475,6 +481,48 @@ def create_app(
             "answer": result.answer,
             **_public_run(application.state.traces_dir, payload),
         }
+
+    @application.post("/api/runs")
+    def create_run(body: RunRequest) -> dict[str, Any]:
+        return _run_and_load(body, _checked_question(body))
+
+    @application.post("/api/runs/stream")
+    def create_run_stream(body: RunRequest) -> StreamingResponse:
+        """Same run as POST /api/runs, reported as Server-Sent Events.
+
+        Each stage sends ``stage_start`` and ``stage_end`` as it happens (with
+        offsets and durations in ms). The last event is ``done`` with the same
+        payload POST /api/runs returns, or ``error`` with a status and detail.
+        """
+        question = _checked_question(body)
+        events: queue.Queue = queue.Queue()
+
+        def worker() -> None:
+            try:
+                result = _run_and_load(body, question, listener=events.put)
+                events.put({"type": "done", "run": result})
+            except HTTPException as error:
+                events.put({"type": "error", "status": error.status_code, "detail": error.detail})
+            except Exception as error:  # pragma: no cover - defensive
+                events.put({"type": "error", "status": 500, "detail": str(error)})
+            finally:
+                events.put(None)
+
+        threading.Thread(target=worker, name="swrag-run-stream", daemon=True).start()
+
+        def stream():
+            yield ": run started\n\n"
+            while True:
+                item = events.get()
+                if item is None:
+                    break
+                yield f"data: {json.dumps(item, ensure_ascii=False, default=str)}\n\n"
+
+        return StreamingResponse(
+            stream(),
+            media_type="text/event-stream",
+            headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+        )
 
     @application.post("/api/runs/{run_id}/recover")
     def recover_run(run_id: str, body: RecoverRequest | None = None) -> dict[str, Any]:

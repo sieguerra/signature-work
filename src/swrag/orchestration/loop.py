@@ -34,6 +34,7 @@ from swrag.pipeline.baseline import (
     execute_query,
     write_run,
 )
+from swrag.tracing import progress
 from swrag.tracing.schema import (
     ANSWER_ABSTAINED,
     ANSWER_GENERATED,
@@ -227,21 +228,22 @@ def run_with_recovery(
             break
         usage_before = usage_checkpoint()
         attempt_started = time.perf_counter()
-        applied = _apply_action(
-            state,
-            current_decision,
-            query=query,
-            corpus_dir=corpus_dir,
-            top_k=current_k,
-            embedder=embedder,
-            generate=generate,
-            generator=generator,
-            judge=judge,
-            regenerator=regenerator,
-            rewriter=rewriter,
-            index=resolved_index,
-            search_query=search_query,
-        )
+        with progress.attempt(len(attempts)):
+            applied = _apply_action(
+                state,
+                current_decision,
+                query=query,
+                corpus_dir=corpus_dir,
+                top_k=current_k,
+                embedder=embedder,
+                generate=generate,
+                generator=generator,
+                judge=judge,
+                regenerator=regenerator,
+                rewriter=rewriter,
+                index=resolved_index,
+                search_query=search_query,
+            )
         attempt_latency = _elapsed_ms(attempt_started)
         attempt_usage = usage_delta(usage_before, usage_checkpoint())
         last_applied = applied
@@ -273,7 +275,8 @@ def run_with_recovery(
             if blocked is not None:
                 usage_before = usage_checkpoint()
                 attempt_started = time.perf_counter()
-                applied = _policy_stop(state, blocked)
+                with progress.attempt(len(attempts)), progress.stage("recover", action=ABSTAIN):
+                    applied = _policy_stop(state, blocked)
                 attempt_latency = _elapsed_ms(attempt_started)
                 attempt_usage = usage_delta(usage_before, usage_checkpoint())
                 last_applied = applied
@@ -316,7 +319,8 @@ def run_with_recovery(
     if last_applied is not None and _needs_terminal_abstain(last_applied.decision, state):
         usage_before = usage_checkpoint()
         attempt_started = time.perf_counter()
-        applied = _terminal_abstain(state, last_applied.decision)
+        with progress.attempt(len(attempts)), progress.stage("recover", action=ABSTAIN):
+            applied = _terminal_abstain(state, last_applied.decision)
         attempt_latency = _elapsed_ms(attempt_started)
         attempt_usage = usage_delta(usage_before, usage_checkpoint())
         last_applied = applied
@@ -345,14 +349,15 @@ def run_with_recovery(
         )
 
     overall_verification = last_applied.verification
-    if first_eval is not None and state.runtime_evaluation is not None:
-        if is_abstention(state.generation.answer) and (
-            not state.runtime_evaluation.evidence_sufficient
-            or state.runtime_evaluation.span_rejections
-        ):
-            overall_verification = Verification(outcome=STILL_FAILING, rationale=_ABSTAIN_RATIONALE)
-        else:
-            overall_verification = verify_runtime(first_eval, state.runtime_evaluation)
+    with progress.stage("verify"):
+        if first_eval is not None and state.runtime_evaluation is not None:
+            if is_abstention(state.generation.answer) and (
+                not state.runtime_evaluation.evidence_sufficient
+                or state.runtime_evaluation.span_rejections
+            ):
+                overall_verification = Verification(outcome=STILL_FAILING, rationale=_ABSTAIN_RATIONALE)
+            else:
+                overall_verification = verify_runtime(first_eval, state.runtime_evaluation)
 
     return write_run(
         last_applied.state,
@@ -822,7 +827,13 @@ def _decision_to_apply(proposed: RecoveryDecision, chosen: str) -> RecoveryDecis
     )
 
 
-def _apply_action(
+def _apply_action(state: QueryState, decision: RecoveryDecision, **kwargs: Any) -> _Applied:
+    """Apply one recovery action, timed as a ``recover`` stage."""
+    with progress.stage("recover", action=decision.action):
+        return _apply_action_untimed(state, decision, **kwargs)
+
+
+def _apply_action_untimed(
     state: QueryState,
     decision: RecoveryDecision,
     *,

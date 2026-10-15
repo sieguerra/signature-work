@@ -104,14 +104,20 @@ python scripts/run_ui.py
 ```
 
 **Test Console** runs one question. The server starts on Duke Kunshan
-University. The **System** picker says **No system yet** until you create a
-writable system, because the built-in corpora are read-only and are not listed
-in that picker. One system is active at a time, so a DKU note is never mixed
-with a water-utility note. Run mode is Retrieve only, Baseline, Confirm
+University. The **System** picker lists your writable systems first, then
+the built-in read-only corpora, and the page opens on whichever system the
+server has active. One system is active at a time, so a DKU note is never
+mixed with a water-utility note. Run mode is Retrieve only, Baseline, Confirm
 recovery, or Auto recovery. Recovery policy is **Current v1** by default.
 **Gap-aware (Guarded)** is optional and is not selected unless you choose it.
 Retrieval depth is 1–20 and defaults to 4; that value is sent with the current
 run only.
+
+A run streams its progress: the agent loop lights up stage by stage as the
+core reports each one (`POST /api/runs/stream`, Server-Sent Events). Every run
+records per-stage offsets and durations in the trace as `stage_timings`
+(`swrag.tracing.progress`), shown as a timeline under the loop. Runs recorded
+before this field existed have no timeline.
 
 Saved runs show up under **Reliability**. **Delete all** clears traces for the
 active system only. Auto recovery, Confirm recovery, and Baseline need
