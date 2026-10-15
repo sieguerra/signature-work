@@ -14,7 +14,7 @@ Protocol version: `verification-v2-2026-10-06`. Seed: `20261006`.
 4. If the after-state has `answer_supported is False`, or evidence is still insufficient, the outcome is `still_failing`.
 5. Otherwise the outcome is `unchanged`.
 
-The loop then overrides the run-level verdict. If the final answer abstains and the final evidence is not sufficient, `run_with_recovery` stores `still_failing` even when the flag comparison would say something else. Attempt verification is the step comparison and does not get that override. A top-level verdict compares the first pass with the final state. It does not say which attempt caused the change.
+The loop then overrides the run-level verdict, reading the final answer text and `span_rejections` as well as the two flags. If the final answer abstains and the final evidence is not sufficient, or the span check rejected a fact, `run_with_recovery` stores `still_failing` even when the flag comparison would say something else. Since #138 it also stores `still_failing` when the loop itself abstained on a first answer that was not an abstention. Attempt verification is the step comparison and does not get that override. A top-level verdict compares the first pass with the final state. It does not say which attempt caused the change.
 
 Abstention text is `I do not know based on the retrieved documents.` The controller's `is_abstention` is a prefix check. A model can generate that sentence with `answer_relation: generated`. That is not an `abstained` action. A probe evaluation has `answer_supported: null` and is not an answer judgment. A carried evaluation is the previous judgment, not a new one. `executed: false` means the action was selected and not applied.
 

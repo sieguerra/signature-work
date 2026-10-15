@@ -49,13 +49,13 @@ immediately.
 
 | Function | File | Behavior |
 |---|---|---|
-| `run_with_recovery` | `orchestration/loop.py:96` | Evaluates, selects, and **applies** in one call. Used by the benchmark harness. |
-| `run_first_pass` | `orchestration/loop.py:162` | Evaluates and selects, writes the proposal, **does not apply**. |
-| `apply_recovery` | `orchestration/loop.py:199` | Applies a proposed action to an existing trace, writing a **new child trace**. |
+| `run_with_recovery` | `orchestration/loop.py` | Evaluates, selects, and **applies** in one call. Used by the benchmark harness. |
+| `run_first_pass` | `orchestration/loop.py` | Evaluates and selects, writes the proposal, **does not apply**. |
+| `apply_recovery` | `orchestration/loop.py` | Applies a proposed action to an existing trace, writing a **new child trace**. |
 
 `run_first_pass` + `apply_recovery` is the confirm-recovery path the explorer
 uses by default. Both paths converge on the same `_apply_action`
-(`orchestration/loop.py:295`), so the repair logic is shared.
+(`orchestration/loop.py`), so the repair logic is shared.
 
 `run_with_recovery` applies `regenerate`, `rewrite`, and `expand` while budget
 remains. An `accept` selection is written without a second pass. First-pass
@@ -64,7 +64,7 @@ failed attempt is applied as a stop.
 
 ## Inputs
 
-`_first_pass_state` (`orchestration/loop.py:261`) calls `execute_query` in
+`_first_pass_state` (`orchestration/loop.py`) calls `execute_query` in
 `pipeline/baseline.py`, which produces a `QueryState`:
 
 - `query` — the original question, always what the judge and generator see
@@ -85,7 +85,7 @@ engine.
 
 ## Evaluation
 
-`LLMJudge.judge` (`evaluation/llm_judge.py:77`) makes **one** chat completion
+`LLMJudge.judge` (`evaluation/llm_judge.py`) makes **one** chat completion
 with `response_format={"type": "json_object"}` and `temperature=0`, returning:
 
 - `evidence_sufficient` (bool) — judged from question and evidence alone
@@ -96,11 +96,15 @@ The prompt forbids outside knowledge and states that a fluent answer is not
 support. Gold answers are never included.
 
 A deterministic post-check then runs: `constrain_support_to_evidence`
-(`evaluation/llm_judge.py:145`) extracts checkable facts from the answer —
+(`evaluation/llm_judge.py`) extracts checkable facts from the answer:
 clock times, emails, ordinals, spec letters like `AMS 4911N`, and numbers of
 three or more digits — and forces `answer_supported=False` when any of them is
 absent from the retrieved chunk text. Citations are stripped first so chunk ids
-are not mistaken for facts, and explicit abstentions are exempt.
+are not mistaken for facts. The check runs whenever there is an answer, even if
+the judge left support null and even if the answer opens with "I do not know"
+(#136, #137). A pure abstention contains no checkable facts, so it is never
+rejected; a hedge such as "I do not know for certain, but it ends at 20:00" is
+checked like any other answer.
 
 The judge is swappable behind the `GroundingJudge` protocol
 (`evaluation/judge.py`); `ScriptedJudge` is the test implementation and never
@@ -108,13 +112,20 @@ calls a model.
 
 ## Failure detection
 
-There is exactly one detector: the two judge booleans. A run is a candidate for
-repair only when `evidence_sufficient` is false or `answer_supported` is false.
-No retrieval score, no confidence margin, and no other signal participates.
+The main detector is the two judge booleans (after the span check above). A run
+is a candidate for repair when `evidence_sufficient` is false or
+`answer_supported` is false. Two other signals also participate:
+
+- `retrieval_signal` (`evaluation/retrieval_signal.py`): when the judge raised
+  no failure but the top retrieval score is weak or ambiguous, the policy
+  proposes `expand` (#64).
+- `gap_signal` (`recovery/gap_signal.py`), only under the optional gap-aware
+  policy: a conflict between retrieved values can stop a run with a safe
+  abstention.
 
 ## Diagnosis
 
-`diagnose_runtime` (`diagnosis/diagnose.py:31`) handles the first pass:
+`diagnose_runtime` (`diagnosis/diagnose.py`) handles the first pass:
 
 | Judge state | Failure class |
 |---|---|
@@ -127,7 +138,7 @@ The deferral is intentional per ADR 007: `retrieval_miss` and
 `evidence_insufficiency` are indistinguishable before a rewrite, so the first
 pass refuses to guess.
 
-`diagnose_after_rewrite` (`diagnosis/diagnose.py:41`) resolves the split once a
+`diagnose_after_rewrite` (`diagnosis/diagnose.py`) resolves the split once a
 second retrieve exists: evidence that became sufficient is `retrieval_miss`,
 evidence still insufficient is `evidence_insufficiency`.
 
@@ -135,8 +146,8 @@ evidence still insufficient is `evidence_insufficiency`.
 
 ## Healing
 
-`select_recovery` (`recovery/policy.py:16`) maps diagnosis to action. It is a
-four-branch chain, evaluated in order:
+`select_recovery` (`recovery/policy.py`) maps diagnosis to action. It is a
+five-branch chain, evaluated in order:
 
 1. `unsupported_generation` → `regenerate`
 2. `evidence_insufficiency` → `abstain`
@@ -144,8 +155,11 @@ four-branch chain, evaluated in order:
 4. judge accepted but retrieval looks weak → `expand`
 5. otherwise → `accept`
 
-`select_next_recovery` runs after an applied action that did not improve the
-first-pass flags. It never repeats an action already used. Rewrite or
+`select_next_recovery` runs after an applied action that did not repair the
+run. "Improved" alone does not end the loop: when evidence became sufficient
+but the answer on it is still unsupported or span-rejected
+(`still_unsupported`), the next recovery is chosen as if the step had failed
+(#134). It never repeats an action already used. Rewrite or
 regenerate that still fails prefers `expand`; expand that still fails
 regenerates if the new evidence is sufficient but unsupported, otherwise
 abstains.
@@ -180,7 +194,7 @@ change.
 
 ## Validation
 
-`verify_runtime` (`verification/runtime.py:19`) compares the before and after
+`verify_runtime` (`verification/runtime.py`) compares the before and after
 `RuntimeEvaluation` and returns one of four outcomes:
 
 | Condition | Outcome |
@@ -192,8 +206,17 @@ change.
 | still unsupported or insufficient | `still_failing` |
 | no flag changed | `unchanged` |
 
-Verification reads **only** those two booleans, and both sides come from the
-same judge. Gold labels are never consulted at runtime; they are used offline
+`verify_runtime` reads only those two booleans, and both sides come from the
+same judge. At the run level the loop then applies two overrides that also read
+the final answer: an abstention on still-insufficient or span-rejected evidence
+is `still_failing`, and so is a run where the loop gave up (controller
+abstention) on a first answer that was not itself an abstention (#138).
+
+Attribution follows the retrieval outcome: a failed rewrite is
+`evidence_insufficiency`, but if a later `expand` finds sufficient evidence the
+run is re-attributed `retrieval_miss` (ADR 005, #135). An empty answer after
+recovery, and a rewrite answer with a span rejection, are replaced by the
+abstention like expand and regenerate answers. Gold labels are never consulted at runtime; they are used offline
 in `experiments/` to score whether the verdict itself was right (ADR 002).
 
 ## Persistence
