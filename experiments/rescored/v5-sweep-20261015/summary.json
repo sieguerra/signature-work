@@ -1,0 +1,1421 @@
+{
+  "dku": {
+    "folders": [
+      "20261015-v5-dku-r1",
+      "20261015-v5-dku-r2",
+      "20261015-v5-dku-r3"
+    ],
+    "repeats": 3,
+    "questions_per_run": [
+      40,
+      40,
+      39
+    ],
+    "excluded_per_run": {
+      "20261015-v5-dku-r1": [],
+      "20261015-v5-dku-r2": [],
+      "20261015-v5-dku-r3": [
+        "dku-020"
+      ]
+    },
+    "conditions": {
+      "baseline_k1": {
+        "top_k": 1,
+        "answerable_n": [
+          30,
+          30,
+          29
+        ],
+        "unanswerable_n": [
+          10,
+          10,
+          10
+        ],
+        "contains_answer_rate": {
+          "mean": 0.8091954022988506,
+          "min": 0.8,
+          "max": 0.8275862068965517
+        },
+        "unanswerable_abstention_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "chat_calls": {
+          "mean": 39.666666666666664,
+          "min": 39,
+          "max": 40
+        },
+        "median_latency_ms": {
+          "mean": 5032.393180503277,
+          "min": 4687.405166012468,
+          "max": 5337.637854507193
+        },
+        "retrieval_hit_rate": {
+          "mean": 0.8766283524904215,
+          "min": 0.8666666666666667,
+          "max": 0.896551724137931
+        },
+        "estimated_list_usd": {
+          "mean": 0.0022401533333333335,
+          "min": 0.0022068,
+          "max": 0.0022610300000000002
+        }
+      },
+      "loop_k1": {
+        "top_k": 1,
+        "answerable_n": [
+          30,
+          30,
+          29
+        ],
+        "unanswerable_n": [
+          10,
+          10,
+          10
+        ],
+        "contains_answer_rate": {
+          "mean": 0.9662835249042145,
+          "min": 0.9655172413793104,
+          "max": 0.9666666666666667
+        },
+        "unanswerable_abstention_rate": {
+          "mean": 0.9666666666666667,
+          "min": 0.9,
+          "max": 1.0
+        },
+        "chat_calls": {
+          "mean": 140.0,
+          "min": 136,
+          "max": 142
+        },
+        "median_latency_ms": {
+          "mean": 12977.234694500416,
+          "min": 10398.95866700681,
+          "max": 15010.188583502895
+        },
+        "retrieval_hit_rate": {
+          "mean": 0.9662835249042145,
+          "min": 0.9655172413793104,
+          "max": 0.9666666666666667
+        },
+        "estimated_list_usd": {
+          "mean": 0.0169774,
+          "min": 0.016424229999999998,
+          "max": 0.017264190000000002
+        }
+      },
+      "baseline_k2": {
+        "top_k": 2,
+        "answerable_n": [
+          30,
+          30,
+          29
+        ],
+        "unanswerable_n": [
+          10,
+          10,
+          10
+        ],
+        "contains_answer_rate": {
+          "mean": 0.9325670498084291,
+          "min": 0.9310344827586207,
+          "max": 0.9333333333333333
+        },
+        "unanswerable_abstention_rate": {
+          "mean": 0.9666666666666667,
+          "min": 0.9,
+          "max": 1.0
+        },
+        "chat_calls": {
+          "mean": 39.666666666666664,
+          "min": 39,
+          "max": 40
+        },
+        "median_latency_ms": {
+          "mean": 4594.234145668452,
+          "min": 3320.2001249883324,
+          "max": 5904.49852051097
+        },
+        "retrieval_hit_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "estimated_list_usd": {
+          "mean": 0.003078753333333333,
+          "min": 0.0030237,
+          "max": 0.00311078
+        }
+      },
+      "loop_k2": {
+        "top_k": 2,
+        "answerable_n": [
+          30,
+          30,
+          29
+        ],
+        "unanswerable_n": [
+          10,
+          10,
+          10
+        ],
+        "contains_answer_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "unanswerable_abstention_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "chat_calls": {
+          "mean": 129.33333333333334,
+          "min": 128,
+          "max": 130
+        },
+        "median_latency_ms": {
+          "mean": 9310.672326493659,
+          "min": 6427.150249975966,
+          "max": 11477.23227100505
+        },
+        "retrieval_hit_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "estimated_list_usd": {
+          "mean": 0.01782275,
+          "min": 0.017657029999999997,
+          "max": 0.017910899999999997
+        }
+      },
+      "baseline_k4": {
+        "top_k": 4,
+        "answerable_n": [
+          30,
+          30,
+          29
+        ],
+        "unanswerable_n": [
+          10,
+          10,
+          10
+        ],
+        "contains_answer_rate": {
+          "mean": 0.9662835249042145,
+          "min": 0.9655172413793104,
+          "max": 0.9666666666666667
+        },
+        "unanswerable_abstention_rate": {
+          "mean": 0.9666666666666667,
+          "min": 0.9,
+          "max": 1.0
+        },
+        "chat_calls": {
+          "mean": 39.666666666666664,
+          "min": 39,
+          "max": 40
+        },
+        "median_latency_ms": {
+          "mean": 4339.743514006841,
+          "min": 3306.997500010766,
+          "max": 5069.729458511574
+        },
+        "retrieval_hit_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "estimated_list_usd": {
+          "mean": 0.004472053333333332,
+          "min": 0.0043932,
+          "max": 0.004511479999999999
+        }
+      },
+      "loop_k4": {
+        "top_k": 4,
+        "answerable_n": [
+          30,
+          30,
+          29
+        ],
+        "unanswerable_n": [
+          10,
+          10,
+          10
+        ],
+        "contains_answer_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "unanswerable_abstention_rate": {
+          "mean": 0.9333333333333332,
+          "min": 0.9,
+          "max": 1.0
+        },
+        "chat_calls": {
+          "mean": 129.33333333333334,
+          "min": 128,
+          "max": 130
+        },
+        "median_latency_ms": {
+          "mean": 10202.173493167114,
+          "min": 8746.100500022294,
+          "max": 12390.736729488708
+        },
+        "retrieval_hit_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "estimated_list_usd": {
+          "mean": 0.02354463,
+          "min": 0.02340914,
+          "max": 0.023625350000000003
+        }
+      },
+      "baseline_k8": {
+        "top_k": 8,
+        "answerable_n": [
+          30,
+          30,
+          29
+        ],
+        "unanswerable_n": [
+          10,
+          10,
+          10
+        ],
+        "contains_answer_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "unanswerable_abstention_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "chat_calls": {
+          "mean": 39.666666666666664,
+          "min": 39,
+          "max": 40
+        },
+        "median_latency_ms": {
+          "mean": 3730.9210624953266,
+          "min": 3186.463707999792,
+          "max": 4293.223249987932
+        },
+        "retrieval_hit_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "estimated_list_usd": {
+          "mean": 0.007343153333333332,
+          "min": 0.0072219,
+          "max": 0.0074217799999999985
+        }
+      }
+    },
+    "loop_vs_baseline": {
+      "loop_k1": {
+        "vs": "baseline_k1",
+        "fixed": [
+          5,
+          5,
+          4
+        ],
+        "broke": [
+          0,
+          1,
+          0
+        ]
+      },
+      "loop_k2": {
+        "vs": "baseline_k2",
+        "fixed": [
+          3,
+          2,
+          2
+        ],
+        "broke": [
+          0,
+          0,
+          0
+        ]
+      },
+      "loop_k4": {
+        "vs": "baseline_k4",
+        "fixed": [
+          1,
+          1,
+          2
+        ],
+        "broke": [
+          1,
+          0,
+          1
+        ]
+      }
+    },
+    "verification": {
+      "loop_condition": "loop_k1",
+      "runs": [
+        {
+          "folder": "20261015-v5-dku-r1",
+          "n_verified": 16,
+          "f1_sign_agrees": 16,
+          "f1_sign_disagrees": 0,
+          "rank_answerable": {
+            "n": 6,
+            "agrees": 5,
+            "disagrees": 1
+          },
+          "rank_unanswerable": {
+            "n": 10,
+            "agrees": 0,
+            "disagrees": 10
+          },
+          "outcomes": {
+            "improved": 6,
+            "still_failing": 10
+          }
+        },
+        {
+          "folder": "20261015-v5-dku-r2",
+          "n_verified": 16,
+          "f1_sign_agrees": 16,
+          "f1_sign_disagrees": 0,
+          "rank_answerable": {
+            "n": 6,
+            "agrees": 5,
+            "disagrees": 1
+          },
+          "rank_unanswerable": {
+            "n": 10,
+            "agrees": 0,
+            "disagrees": 10
+          },
+          "outcomes": {
+            "improved": 6,
+            "still_failing": 10
+          }
+        },
+        {
+          "folder": "20261015-v5-dku-r3",
+          "n_verified": 15,
+          "f1_sign_agrees": 15,
+          "f1_sign_disagrees": 0,
+          "rank_answerable": {
+            "n": 5,
+            "agrees": 4,
+            "disagrees": 1
+          },
+          "rank_unanswerable": {
+            "n": 10,
+            "agrees": 0,
+            "disagrees": 10
+          },
+          "outcomes": {
+            "improved": 5,
+            "still_failing": 10
+          }
+        }
+      ]
+    },
+    "rank_rule_by_loop": {
+      "loop_k1": {
+        "answerable": {
+          "n": 17,
+          "agrees": 14
+        },
+        "unanswerable": {
+          "n": 30,
+          "agrees": 0
+        },
+        "runtime_verdicts": {
+          "improved": 17,
+          "still_failing": 30
+        }
+      },
+      "loop_k2": {
+        "answerable": {
+          "n": 12,
+          "agrees": 9
+        },
+        "unanswerable": {
+          "n": 30,
+          "agrees": 0
+        },
+        "runtime_verdicts": {
+          "unchanged": 9,
+          "improved": 4,
+          "still_failing": 29
+        }
+      },
+      "loop_k4": {
+        "answerable": {
+          "n": 12,
+          "agrees": 12
+        },
+        "unanswerable": {
+          "n": 30,
+          "agrees": 0
+        },
+        "runtime_verdicts": {
+          "unchanged": 9,
+          "improved": 3,
+          "still_failing": 30
+        }
+      }
+    }
+  },
+  "harbor": {
+    "folders": [
+      "20261015-v5-harbor-r1",
+      "20261015-v5-harbor-r2",
+      "20261015-v5-harbor-r3"
+    ],
+    "repeats": 3,
+    "questions_per_run": [
+      32,
+      32,
+      32
+    ],
+    "excluded_per_run": {
+      "20261015-v5-harbor-r1": [],
+      "20261015-v5-harbor-r2": [],
+      "20261015-v5-harbor-r3": []
+    },
+    "conditions": {
+      "baseline_k1": {
+        "top_k": 1,
+        "answerable_n": [
+          23,
+          23,
+          23
+        ],
+        "unanswerable_n": [
+          9,
+          9,
+          9
+        ],
+        "contains_answer_rate": {
+          "mean": 0.8695652173913043,
+          "min": 0.8695652173913043,
+          "max": 0.8695652173913043
+        },
+        "unanswerable_abstention_rate": {
+          "mean": 0.7777777777777778,
+          "min": 0.7777777777777778,
+          "max": 0.7777777777777778
+        },
+        "chat_calls": {
+          "mean": 32.0,
+          "min": 32,
+          "max": 32
+        },
+        "median_latency_ms": {
+          "mean": 4595.26018066875,
+          "min": 4073.193791991798,
+          "max": 4960.686312508187
+        },
+        "retrieval_hit_rate": {
+          "mean": 0.9565217391304349,
+          "min": 0.9565217391304348,
+          "max": 0.9565217391304348
+        },
+        "estimated_list_usd": {
+          "mean": 0.0017751600000000002,
+          "min": 0.00177196,
+          "max": 0.0017773600000000002
+        }
+      },
+      "loop_k1": {
+        "top_k": 1,
+        "answerable_n": [
+          23,
+          23,
+          23
+        ],
+        "unanswerable_n": [
+          9,
+          9,
+          9
+        ],
+        "contains_answer_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "unanswerable_abstention_rate": {
+          "mean": 0.7407407407407408,
+          "min": 0.6666666666666666,
+          "max": 0.7777777777777778
+        },
+        "chat_calls": {
+          "mean": 106.66666666666667,
+          "min": 104,
+          "max": 108
+        },
+        "median_latency_ms": {
+          "mean": 10853.325347163869,
+          "min": 9320.621916485834,
+          "max": 12248.605271015549
+        },
+        "retrieval_hit_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "estimated_list_usd": {
+          "mean": 0.01273116,
+          "min": 0.01218937,
+          "max": 0.01319099
+        }
+      },
+      "baseline_k2": {
+        "top_k": 2,
+        "answerable_n": [
+          23,
+          23,
+          23
+        ],
+        "unanswerable_n": [
+          9,
+          9,
+          9
+        ],
+        "contains_answer_rate": {
+          "mean": 0.9130434782608695,
+          "min": 0.9130434782608695,
+          "max": 0.9130434782608695
+        },
+        "unanswerable_abstention_rate": {
+          "mean": 0.6666666666666666,
+          "min": 0.6666666666666666,
+          "max": 0.6666666666666666
+        },
+        "chat_calls": {
+          "mean": 32.0,
+          "min": 32,
+          "max": 32
+        },
+        "median_latency_ms": {
+          "mean": 4897.982423169499,
+          "min": 3473.957666006754,
+          "max": 5769.7310204966925
+        },
+        "retrieval_hit_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "estimated_list_usd": {
+          "mean": 0.0025090099999999995,
+          "min": 0.0025008099999999996,
+          "max": 0.0025134099999999998
+        }
+      },
+      "loop_k2": {
+        "top_k": 2,
+        "answerable_n": [
+          23,
+          23,
+          23
+        ],
+        "unanswerable_n": [
+          9,
+          9,
+          9
+        ],
+        "contains_answer_rate": {
+          "mean": 0.9855072463768115,
+          "min": 0.9565217391304348,
+          "max": 1.0
+        },
+        "unanswerable_abstention_rate": {
+          "mean": 0.7407407407407408,
+          "min": 0.6666666666666666,
+          "max": 0.7777777777777778
+        },
+        "chat_calls": {
+          "mean": 111.33333333333333,
+          "min": 108,
+          "max": 114
+        },
+        "median_latency_ms": {
+          "mean": 10865.569298669774,
+          "min": 6571.664604503894,
+          "max": 13824.866353999823
+        },
+        "retrieval_hit_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "estimated_list_usd": {
+          "mean": 0.015345196666666666,
+          "min": 0.01477543,
+          "max": 0.015778709999999998
+        }
+      },
+      "baseline_k4": {
+        "top_k": 4,
+        "answerable_n": [
+          23,
+          23,
+          23
+        ],
+        "unanswerable_n": [
+          9,
+          9,
+          9
+        ],
+        "contains_answer_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "unanswerable_abstention_rate": {
+          "mean": 0.7777777777777778,
+          "min": 0.7777777777777778,
+          "max": 0.7777777777777778
+        },
+        "chat_calls": {
+          "mean": 32.0,
+          "min": 32,
+          "max": 32
+        },
+        "median_latency_ms": {
+          "mean": 4769.17081232629,
+          "min": 3325.871395485592,
+          "max": 5779.752166490653
+        },
+        "retrieval_hit_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "estimated_list_usd": {
+          "mean": 0.00360826,
+          "min": 0.00360166,
+          "max": 0.00361366
+        }
+      },
+      "loop_k4": {
+        "top_k": 4,
+        "answerable_n": [
+          23,
+          23,
+          23
+        ],
+        "unanswerable_n": [
+          9,
+          9,
+          9
+        ],
+        "contains_answer_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "unanswerable_abstention_rate": {
+          "mean": 0.8888888888888888,
+          "min": 0.8888888888888888,
+          "max": 0.8888888888888888
+        },
+        "chat_calls": {
+          "mean": 107.33333333333333,
+          "min": 106,
+          "max": 108
+        },
+        "median_latency_ms": {
+          "mean": 9332.145208327953,
+          "min": 6132.459645494237,
+          "max": 11511.8797920004
+        },
+        "retrieval_hit_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "estimated_list_usd": {
+          "mean": 0.019013496666666668,
+          "min": 0.01854809,
+          "max": 0.019269469999999997
+        }
+      },
+      "baseline_k8": {
+        "top_k": 8,
+        "answerable_n": [
+          23,
+          23,
+          23
+        ],
+        "unanswerable_n": [
+          9,
+          9,
+          9
+        ],
+        "contains_answer_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "unanswerable_abstention_rate": {
+          "mean": 0.8518518518518517,
+          "min": 0.7777777777777778,
+          "max": 0.8888888888888888
+        },
+        "chat_calls": {
+          "mean": 32.0,
+          "min": 32,
+          "max": 32
+        },
+        "median_latency_ms": {
+          "mean": 4614.082409835343,
+          "min": 3327.6655204972485,
+          "max": 5344.989208999323
+        },
+        "retrieval_hit_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "estimated_list_usd": {
+          "mean": 0.0060223099999999995,
+          "min": 0.006015309999999999,
+          "max": 0.00603391
+        }
+      }
+    },
+    "loop_vs_baseline": {
+      "loop_k1": {
+        "vs": "baseline_k1",
+        "fixed": [
+          3,
+          3,
+          3
+        ],
+        "broke": [
+          0,
+          1,
+          0
+        ]
+      },
+      "loop_k2": {
+        "vs": "baseline_k2",
+        "fixed": [
+          3,
+          3,
+          3
+        ],
+        "broke": [
+          1,
+          1,
+          0
+        ]
+      },
+      "loop_k4": {
+        "vs": "baseline_k4",
+        "fixed": [
+          1,
+          1,
+          1
+        ],
+        "broke": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    "verification": {
+      "loop_condition": "loop_k1",
+      "runs": [
+        {
+          "folder": "20261015-v5-harbor-r1",
+          "n_verified": 10,
+          "f1_sign_agrees": 10,
+          "f1_sign_disagrees": 0,
+          "rank_answerable": {
+            "n": 3,
+            "agrees": 3,
+            "disagrees": 0
+          },
+          "rank_unanswerable": {
+            "n": 7,
+            "agrees": 0,
+            "disagrees": 7
+          },
+          "outcomes": {
+            "improved": 3,
+            "still_failing": 7
+          }
+        },
+        {
+          "folder": "20261015-v5-harbor-r2",
+          "n_verified": 11,
+          "f1_sign_agrees": 9,
+          "f1_sign_disagrees": 2,
+          "rank_answerable": {
+            "n": 4,
+            "agrees": 3,
+            "disagrees": 1
+          },
+          "rank_unanswerable": {
+            "n": 7,
+            "agrees": 0,
+            "disagrees": 7
+          },
+          "outcomes": {
+            "improved": 4,
+            "degraded": 1,
+            "still_failing": 6
+          }
+        },
+        {
+          "folder": "20261015-v5-harbor-r3",
+          "n_verified": 11,
+          "f1_sign_agrees": 10,
+          "f1_sign_disagrees": 1,
+          "rank_answerable": {
+            "n": 4,
+            "agrees": 3,
+            "disagrees": 1
+          },
+          "rank_unanswerable": {
+            "n": 7,
+            "agrees": 0,
+            "disagrees": 7
+          },
+          "outcomes": {
+            "improved": 4,
+            "still_failing": 7
+          }
+        }
+      ]
+    },
+    "rank_rule_by_loop": {
+      "loop_k1": {
+        "answerable": {
+          "n": 11,
+          "agrees": 9
+        },
+        "unanswerable": {
+          "n": 21,
+          "agrees": 0
+        },
+        "runtime_verdicts": {
+          "improved": 11,
+          "still_failing": 20,
+          "degraded": 1
+        }
+      },
+      "loop_k2": {
+        "answerable": {
+          "n": 12,
+          "agrees": 9
+        },
+        "unanswerable": {
+          "n": 24,
+          "agrees": 0
+        },
+        "runtime_verdicts": {
+          "improved": 12,
+          "unchanged": 3,
+          "still_failing": 21
+        }
+      },
+      "loop_k4": {
+        "answerable": {
+          "n": 6,
+          "agrees": 3
+        },
+        "unanswerable": {
+          "n": 26,
+          "agrees": 1
+        },
+        "runtime_verdicts": {
+          "unchanged": 3,
+          "improved": 10,
+          "still_failing": 19
+        }
+      }
+    }
+  },
+  "kestrel": {
+    "folders": [
+      "20261015-v5-kestrel-r1",
+      "20261015-v5-kestrel-r2",
+      "20261015-v5-kestrel-r3"
+    ],
+    "repeats": 3,
+    "questions_per_run": [
+      16,
+      16,
+      16
+    ],
+    "excluded_per_run": {
+      "20261015-v5-kestrel-r1": [],
+      "20261015-v5-kestrel-r2": [],
+      "20261015-v5-kestrel-r3": []
+    },
+    "conditions": {
+      "baseline_k1": {
+        "top_k": 1,
+        "answerable_n": [
+          12,
+          12,
+          12
+        ],
+        "unanswerable_n": [
+          4,
+          4,
+          4
+        ],
+        "contains_answer_rate": {
+          "mean": 0.9166666666666666,
+          "min": 0.9166666666666666,
+          "max": 0.9166666666666666
+        },
+        "unanswerable_abstention_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "chat_calls": {
+          "mean": 16.0,
+          "min": 16,
+          "max": 16
+        },
+        "median_latency_ms": {
+          "mean": 4828.729999838591,
+          "min": 4344.670979000512,
+          "max": 5222.606479001115
+        },
+        "retrieval_hit_rate": {
+          "mean": 0.9166666666666666,
+          "min": 0.9166666666666666,
+          "max": 0.9166666666666666
+        },
+        "estimated_list_usd": {
+          "mean": 0.00071674,
+          "min": 0.00071554,
+          "max": 0.0007179399999999999
+        }
+      },
+      "loop_k1": {
+        "top_k": 1,
+        "answerable_n": [
+          12,
+          12,
+          12
+        ],
+        "unanswerable_n": [
+          4,
+          4,
+          4
+        ],
+        "contains_answer_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "unanswerable_abstention_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "chat_calls": {
+          "mean": 52.0,
+          "min": 52,
+          "max": 52
+        },
+        "median_latency_ms": {
+          "mean": 11358.314104159945,
+          "min": 10953.951249990496,
+          "max": 11933.966416487237
+        },
+        "retrieval_hit_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "estimated_list_usd": {
+          "mean": 0.005084183333333333,
+          "min": 0.0050485700000000005,
+          "max": 0.00512839
+        }
+      },
+      "baseline_k2": {
+        "top_k": 2,
+        "answerable_n": [
+          12,
+          12,
+          12
+        ],
+        "unanswerable_n": [
+          4,
+          4,
+          4
+        ],
+        "contains_answer_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "unanswerable_abstention_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "chat_calls": {
+          "mean": 16.0,
+          "min": 16,
+          "max": 16
+        },
+        "median_latency_ms": {
+          "mean": 5483.951354001571,
+          "min": 3946.281396012637,
+          "max": 7159.277104001376
+        },
+        "retrieval_hit_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "estimated_list_usd": {
+          "mean": 0.0009199899999999999,
+          "min": 0.0009091899999999999,
+          "max": 0.0009259899999999999
+        }
+      },
+      "loop_k2": {
+        "top_k": 2,
+        "answerable_n": [
+          12,
+          12,
+          12
+        ],
+        "unanswerable_n": [
+          4,
+          4,
+          4
+        ],
+        "contains_answer_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "unanswerable_abstention_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "chat_calls": {
+          "mean": 48.0,
+          "min": 48,
+          "max": 48
+        },
+        "median_latency_ms": {
+          "mean": 10287.205361169375,
+          "min": 9473.032833499019,
+          "max": 11397.271250010817
+        },
+        "retrieval_hit_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "estimated_list_usd": {
+          "mean": 0.0051324,
+          "min": 0.0051244,
+          "max": 0.0051442
+        }
+      },
+      "baseline_k4": {
+        "top_k": 4,
+        "answerable_n": [
+          12,
+          12,
+          12
+        ],
+        "unanswerable_n": [
+          4,
+          4,
+          4
+        ],
+        "contains_answer_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "unanswerable_abstention_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "chat_calls": {
+          "mean": 16.0,
+          "min": 16,
+          "max": 16
+        },
+        "median_latency_ms": {
+          "mean": 5529.275694503061,
+          "min": 4730.525500010117,
+          "max": 6653.937312497874
+        },
+        "retrieval_hit_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "estimated_list_usd": {
+          "mean": 0.00129309,
+          "min": 0.0012844900000000001,
+          "max": 0.00129829
+        }
+      },
+      "loop_k4": {
+        "top_k": 4,
+        "answerable_n": [
+          12,
+          12,
+          12
+        ],
+        "unanswerable_n": [
+          4,
+          4,
+          4
+        ],
+        "contains_answer_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "unanswerable_abstention_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "chat_calls": {
+          "mean": 48.0,
+          "min": 48,
+          "max": 48
+        },
+        "median_latency_ms": {
+          "mean": 11020.907347163302,
+          "min": 9889.72216649563,
+          "max": 11692.709103997913
+        },
+        "retrieval_hit_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "estimated_list_usd": {
+          "mean": 0.0063594133333333335,
+          "min": 0.0063505,
+          "max": 0.0063715199999999994
+        }
+      },
+      "baseline_k8": {
+        "top_k": 8,
+        "answerable_n": [
+          12,
+          12,
+          12
+        ],
+        "unanswerable_n": [
+          4,
+          4,
+          4
+        ],
+        "contains_answer_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "unanswerable_abstention_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "chat_calls": {
+          "mean": 16.0,
+          "min": 16,
+          "max": 16
+        },
+        "median_latency_ms": {
+          "mean": 4923.418583328991,
+          "min": 4222.00143749069,
+          "max": 5820.872917000088
+        },
+        "retrieval_hit_rate": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "estimated_list_usd": {
+          "mean": 0.00199424,
+          "min": 0.00198964,
+          "max": 0.00200284
+        }
+      }
+    },
+    "loop_vs_baseline": {
+      "loop_k1": {
+        "vs": "baseline_k1",
+        "fixed": [
+          1,
+          1,
+          1
+        ],
+        "broke": [
+          0,
+          0,
+          0
+        ]
+      },
+      "loop_k2": {
+        "vs": "baseline_k2",
+        "fixed": [
+          0,
+          0,
+          0
+        ],
+        "broke": [
+          0,
+          0,
+          0
+        ]
+      },
+      "loop_k4": {
+        "vs": "baseline_k4",
+        "fixed": [
+          0,
+          0,
+          0
+        ],
+        "broke": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    "verification": {
+      "loop_condition": "loop_k1",
+      "runs": [
+        {
+          "folder": "20261015-v5-kestrel-r1",
+          "n_verified": 5,
+          "f1_sign_agrees": 5,
+          "f1_sign_disagrees": 0,
+          "rank_answerable": {
+            "n": 1,
+            "agrees": 1,
+            "disagrees": 0
+          },
+          "rank_unanswerable": {
+            "n": 4,
+            "agrees": 0,
+            "disagrees": 4
+          },
+          "outcomes": {
+            "improved": 1,
+            "still_failing": 4
+          }
+        },
+        {
+          "folder": "20261015-v5-kestrel-r2",
+          "n_verified": 5,
+          "f1_sign_agrees": 5,
+          "f1_sign_disagrees": 0,
+          "rank_answerable": {
+            "n": 1,
+            "agrees": 1,
+            "disagrees": 0
+          },
+          "rank_unanswerable": {
+            "n": 4,
+            "agrees": 0,
+            "disagrees": 4
+          },
+          "outcomes": {
+            "improved": 1,
+            "still_failing": 4
+          }
+        },
+        {
+          "folder": "20261015-v5-kestrel-r3",
+          "n_verified": 5,
+          "f1_sign_agrees": 5,
+          "f1_sign_disagrees": 0,
+          "rank_answerable": {
+            "n": 1,
+            "agrees": 1,
+            "disagrees": 0
+          },
+          "rank_unanswerable": {
+            "n": 4,
+            "agrees": 0,
+            "disagrees": 4
+          },
+          "outcomes": {
+            "improved": 1,
+            "still_failing": 4
+          }
+        }
+      ]
+    },
+    "rank_rule_by_loop": {
+      "loop_k1": {
+        "answerable": {
+          "n": 3,
+          "agrees": 3
+        },
+        "unanswerable": {
+          "n": 12,
+          "agrees": 0
+        },
+        "runtime_verdicts": {
+          "improved": 3,
+          "still_failing": 12
+        }
+      },
+      "loop_k2": {
+        "answerable": {
+          "n": 0,
+          "agrees": 0
+        },
+        "unanswerable": {
+          "n": 12,
+          "agrees": 0
+        },
+        "runtime_verdicts": {
+          "still_failing": 12
+        }
+      },
+      "loop_k4": {
+        "answerable": {
+          "n": 0,
+          "agrees": 0
+        },
+        "unanswerable": {
+          "n": 12,
+          "agrees": 0
+        },
+        "runtime_verdicts": {
+          "still_failing": 12
+        }
+      }
+    }
+  }
+}

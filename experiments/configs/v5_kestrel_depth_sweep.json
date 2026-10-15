@@ -1,6 +1,6 @@
 {
   "name": "v5_kestrel_depth_sweep",
-  "description": "Depth sweep (top_k 1, 2, 4) for baseline and loop, plus a plain baseline at top_k 8 as a cost-matched comparison. Added 2026-10-16.",
+  "description": "Depth sweep (top_k 1, 2, 4) for baseline and loop, plus a plain baseline at top_k 8 as a cost-matched comparison. Added 2026-10-15.",
   "gold_path": "datasets/kestrel-aero/gold/questions.jsonl",
   "corpus_dir": "datasets/kestrel-aero/corpus",
   "top_k": 4,
