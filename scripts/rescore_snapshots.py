@@ -134,6 +134,12 @@ def main(argv: list[str] | None = None) -> int:
     if out.exists():
         raise SystemExit(f"{out} already exists; pick a new label (reports are never overwritten)")
     snapshots = sorted(path.parent for path in Path(args.results_root).glob("*/comparison.json"))
+    # Two-condition snapshots only; multi-condition sweeps have their own
+    # summary (scripts/summarize_sweep.py).
+    snapshots = [
+        path for path in snapshots
+        if set(CONDITIONS) <= set(json.loads((path / "comparison.json").read_text(encoding="utf-8")).get("condition_ids") or CONDITIONS)
+    ]
     reports = [rescore(path) for path in snapshots]
     out.mkdir(parents=True)
     (out / "rescored.json").write_text(json.dumps(reports, indent=2) + "\n", encoding="utf-8")
