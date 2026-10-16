@@ -268,7 +268,7 @@ component and use a language model to answer from the
 passages~\cite{lewis2020rag}. Errors are silent: wrong passage, missing
 fact, fluent answer with unsupported claims. An agentic RAG system does not
 settle for the first pass answer. It acts, evaluates the answer, diagnoses
-why it failed, then recovers by rewriting the answer, retrieving more
+why it failed, then recovers by rewriting the question, retrieving more
 passages, or abstaining from answering, and verifies whether the correction
 was effective:
 
@@ -365,7 +365,7 @@ GroundLoop. It lets a person build a question-answering system over their
 own documents, watch every answer go through the evaluation-guided loop,
 and see why each recovery happened and whether it helped. This chapter
 describes what the software does, how it is built, and the decisions behind
-it; Appendix~\ref{sec:availability} gives where to find and run it. Chapters~\ref{material-and-methods} and~\ref{results} then use the same
+it; Appendix~\ref{sec:availability} gives where to find it. Chapters~\ref{material-and-methods} and~\ref{results} then use the same
 software as an instrument to measure the loop.
 
 \section{Design Goals}
@@ -610,10 +610,10 @@ The grounding judge takes question, the retrieved chunks, and the answer,
 and outputs two signals indicating whether the evidence would answer the
 question, and whether each fact mentioned in the answer appears in the
 evidence. The model does not have access to outside knowledge, does not
-receive fluency support, and never sees gold. These two checks can override
+count fluency as support, and never sees gold. These two checks can override
 the supported label:
 \begin{itemize}
-\item \textbf{Span check:} The model extracts clock times, emails, ordinals,
+\item \textbf{Span check:} The check extracts clock times, emails, ordinals,
   specification tokens, and numbers of three or more digits. If any of these spans
   are missing in the retrieved text, the answer is rejected.
 \item \textbf{Source check:} If a question is of the form ``what does [source] say
@@ -656,8 +656,8 @@ No failure & Accept & Answer kept. \\
 \label{tbl:actions}
 \end{table}
 
-The verifier compares the same and new flags, and returns \emph{improved},
-\emph{degraded}, \emph{failing}, or \emph{unchanged}. Offline scoring, which
+The verifier compares the old and new flags, and returns \emph{improved},
+\emph{degraded}, \emph{still failing}, or \emph{unchanged}. Offline scoring, which
 the running system does not see, reports contains-answer for answerable
 questions and abstention for unanswerable questions, following SQuAD~2.0 in
 treating an abstention for an unanswerable question as
@@ -778,7 +778,7 @@ Kestrel & fixed & 1, 1, 1 & 0, 0, 0 & 0, 0, 0 \\
 \end{table}
 
 Fixed and broke counts over 27 loop runs (three depths, three collections,
-three repeats) are loop 49, broke 6. I've read all six. Five are
+three repeats) are fixed 49, broke 6. I've read all six. Five are
 unanswerable questions that the loop correctly rejected without the
 rejection list containing the rejection's words (e.g.\ ``breakfast is not
 served there'' for \code{dku-032}). One is a genuine regression: Harbor
@@ -819,8 +819,8 @@ diagnosis. All 12 such cases are four questions (\code{dku-012},
 \code{dku-013}, \code{gold-015}, \code{gold-024}) and three repeats. In each
 repeat the baseline abstained although a supporting document had been
 retrieved, the loop diagnosed it as a retrieval miss, expanded retrieval and
-answered correctly. When $k=1$, the gold rule counts a document as found if
-not the passage with the answer, so these disagreements can be said to
+answered correctly. When $k=1$, the gold rule counts a document as found even
+when the passage with the answer was not, so these disagreements can be said to
 arise as much from the gold rule as from the loop.
 
 Because the action follows from the diagnosis (Table~\ref{tbl:actions}),
@@ -904,7 +904,7 @@ source cited; out of 1{,}164 answers stored it triggers only in this answer.
 
 The 40 judge calls were audited separately. For the sufficiency flags the
 judge agreed with the human ratings on 39 answers; for the support flags on
-39. The ratings are not independent blind ratings; these were two cases
+39. The ratings are not independent blind ratings; the two disagreements were cases
 where the answer used a figure from another archive (the judge agreed) and
 a correct ``the collection does not say'' answer (the judge said
 unsupported).
@@ -942,7 +942,7 @@ flip; these runs are not indicative of that.
 
 \section{Verification and the Judge}
 
-For answerable questions, the verdict's runtime agreed with the gold's rank
+For answerable questions, the runtime verdict agreed with the gold's rank
 transition in 59 out of 73 runs recovered. This is a stronger test than the
 previous F1-sign figure since the sweep actually made repairs that the
 verdict could see. The unanswerable cell is just a naming issue and should
@@ -1011,7 +1011,7 @@ model, and sends each question, answer, and passages to our evaluation API,
 and receives a diagnosis, recovery, verdict, and each run is traced and can
 be viewed by the developer. Three things that this project didn't have that
 I need to get here are testing with external users to shape the console and
-API not built by developers, evaluation on larger question sets written by
+API by people who did not build them, evaluation on larger question sets written by
 others, with more than one model and including multi-hop questions, and an
 ablation to show whether diagnosis is necessary, or just broadening
 retrieval when the judge complains. The $k=8$ result is as much a product
