@@ -184,12 +184,12 @@ Co-Mentor: \comentor, \comentoracademicunit
 % Abstract in English
 
 GroundLoop is a functional implementation of a question answering system
-that operates on its own documents and checks its own answers. It asks
+that operates on its own documents and checks its own answers. It takes
 questions, retrieves passages and answers, scores the answer with a
 language model judge and deterministic tests, diagnoses why it failed,
 recovers by rewriting the question, widening retrieval, regenerating the
 answer, or abstaining, verifies the result, and reports everything through
-a web console. Runs are traced forever. The paper then explores how much
+a web console. Every run is saved as a trace. The paper then explores how much
 trust we can place in this self-check. GroundLoop was compared to a
 retrieve-once baseline with 1, 2, and 4 passages and a plain 8 passage
 baseline on three small collections (88 questions in total), three times. It
@@ -197,7 +197,7 @@ improved correct answers from 0.81 to 0.97 on one collection and to 1.00 on
 the other two, with just one actual regression in 27 runs of the loop. The
 8-passage baseline matched it for less than half the cost. The diagnosis
 matched a gold class offline most of the time, and the verdict matched gold
-on 59 out of 73 times when an answer could be recovered. The loop reported a
+on 59 out of 73 recoveries on answerable questions. The loop reported a
 repair after changing the source an answer named.
 
 \textbf{Keywords:} GroundLoop; retrieval-augmented generation; agentic
@@ -372,7 +372,7 @@ software as an instrument to measure the loop.
 
 Three things came out of the ChatDKU work that inspired this project:
 \begin{itemize}
-\item \textbf{Explain, don't score.} The score only told how often the
+\item \textbf{Explain, don't only score.} The score only told how often the
   assistant was correct, nothing about what could go wrong. Each answer
   should have a log about what was retrieved, what the judge thought, which
   failure was diagnosed, what was done to fix it, and how it changed.
@@ -470,7 +470,7 @@ their scores.}
 
 Each run is saved and can be reviewed later on the Reliability page;
 Figure~\ref{fig:answers} shows an example. The first answer is ``I do not
-know'' because the required passage could not be retrieved. The judge found
+know'' because the required passage was not retrieved. The judge found
 the evidence insufficient, and so the loop expanded retrieval from 4 to 12
 passages. The answer now shows the email address of the library, with a
 citation to the passage it used. The verification box states what the
@@ -661,7 +661,7 @@ The verifier compares the old and new flags, and returns \emph{improved},
 the running system does not see, reports contains-answer for answerable
 questions and abstention for unanswerable questions, following SQuAD~2.0 in
 treating an abstention for an unanswerable question as
-correct~\cite{rajpurkar2018squad}. It also predicts a gold failure class for
+correct~\cite{rajpurkar2018squad}. It also assigns a gold failure class for
 the baseline's answer to each question, \emph{no failure} if it was correct,
 \emph{evidence insufficiency} if the question is unanswerable,
 \emph{retrieval miss} if no document was retrieved that supported the
@@ -948,7 +948,7 @@ previous F1-sign figure since the sweep actually made repairs that the
 verdict could see. The unanswerable cell is just a naming issue and should
 be reported separately.
 
-The relabeling of \code{gold-029} is the most egregious issue in this
+The source switch in \code{gold-029} is the most egregious issue in this
 project. The loop responded to a rejection by changing the source it named, the judge
 accepted the outcome, and the verifier reported a repair. This is the risk
 of loops which can game their own feedback to satisfy it without answering
