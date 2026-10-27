@@ -6,7 +6,7 @@
 
 ## Context
 
-A literature pass in GitHub issue #15 found that the monitor → diagnose → recover → verify loop described in `AGENTS.md` is no longer unexplored. Two 2026 preprints are close neighbours:
+A literature pass in GitHub issue #15 found that the monitor → diagnose → recover → verify loop is no longer unexplored. Two 2026 preprints are close neighbours:
 
 - **Self-Healing Agentic Orchestrators** (arXiv:2606.01416, June 2026) implements a monitor–detect–diagnose–recover–verify loop with explicit recovery budgets, and reports 98.8% task success against 94.5% for retry-only.
 - **AgentDebugX** (arXiv:2607.18754, July 2026) organises agent debugging as Detect → Attribute → Recover → Rerun.

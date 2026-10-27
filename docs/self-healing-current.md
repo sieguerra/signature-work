@@ -2,7 +2,7 @@
 
 This describes what the code **actually does** today, not what the ADRs intend.
 Every claim cites the file and function that implements it. Where the
-implementation falls short of `AGENTS.md`, that is recorded in
+implementation falls short of the intended workflow, that is recorded in
 [Actual weaknesses](#actual-weaknesses) rather than smoothed over.
 
 Written for issue #63. Snapshot of `main` at the time of writing.
