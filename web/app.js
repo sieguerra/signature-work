@@ -78,7 +78,7 @@ function showError(message) {
   });
 }
 
-const VIEWS = ["overview", "test", "reliability", "data", "configuration", "integrations"];
+const VIEWS = ["overview", "test", "reliability", "data", "configuration", "integrations", "docs"];
 
 const VIEW_ALIASES = {
   playground: "test",
@@ -95,6 +95,7 @@ const VIEW_PANELS = {
   data: "knowledge",
   configuration: "agent",
   integrations: "api",
+  docs: "docs",
 };
 
 function parseRoute(raw) {
@@ -183,6 +184,7 @@ const VIEW_TITLES = {
   data: "Data",
   configuration: "Configuration",
   integrations: "Integrations",
+  docs: "Documentation",
 };
 
 const VIEW_ICONS = {
@@ -192,7 +194,26 @@ const VIEW_ICONS = {
   data: "database",
   configuration: "sliders",
   integrations: "code",
+  docs: "book-open",
 };
+
+function showDoc(id) {
+  const root = document.getElementById("view-docs");
+  if (!root || !root.querySelector(`[data-doc-panel="${id}"]`)) return;
+  root.querySelectorAll("[data-doc]").forEach((button) => {
+    const on = button.dataset.doc === id;
+    button.classList.toggle("is-on", on);
+    if (on) button.setAttribute("aria-current", "true");
+    else button.removeAttribute("aria-current");
+  });
+  root.querySelectorAll("[data-doc-panel]").forEach((panel) => {
+    const on = panel.dataset.docPanel === id;
+    panel.hidden = !on;
+    panel.classList.toggle("is-on", on);
+  });
+  const stage = root.querySelector(".docs-stage");
+  if (stage) stage.scrollTop = 0;
+}
 
 function renderShell() {
   const meta = state.meta || {};
@@ -525,6 +546,8 @@ function bindShell() {
   });
   document.addEventListener("click", (event) => {
     if (!event.target.closest("#env")) toggleEnvPop(false);
+    const docLink = event.target.closest("[data-doc]");
+    if (docLink) showDoc(docLink.dataset.doc);
   });
   $("pg-mode").addEventListener("change", () => {
     renderShell();
@@ -1334,7 +1357,7 @@ async function deleteRun(runId) {
     ? `Delete this run and its recovered child from disk?\n${runId}\n${childId}`
     : `Delete this run from disk?\n${runId}`;
   const ok = window.confirm(message);
-  if (!ok) return;
+  if (!ok) return false;
   showError("");
   await api(`/api/traces/${encodeURIComponent(runId)}`, { method: "DELETE" });
   const wasSelected = state.selectedId === runId || state.selectedId === childId;
@@ -1345,6 +1368,7 @@ async function deleteRun(runId) {
   }
   await loadTraces();
   render();
+  return true;
 }
 
 async function deleteAllRuns() {
@@ -4403,6 +4427,13 @@ function bind() {
   const history = $("tc-history");
   if (history) {
     history.addEventListener("click", (event) => {
+      const remove = event.target.closest("[data-flight-delete]");
+      if (remove) {
+        deleteFlightRun(remove.dataset.flightDelete, remove.dataset.flightIds).catch((error) =>
+          showError(error.message)
+        );
+        return;
+      }
       const button = event.target.closest("[data-flight]");
       if (!button) return;
       const ids = (button.dataset.flight || "").split(",").filter(Boolean);
@@ -4911,6 +4942,18 @@ function renderFlight() {
   }
 }
 
+// Deletes one Test Console run (and its recovered child) after a confirm. If
+// that run is open in the console, the console goes back to its empty state.
+async function deleteFlightRun(runId, ids) {
+  const traceIds = (ids || "").split(",").filter(Boolean);
+  const open = (state.flightTraces || []).some((trace) => traceIds.includes(trace.run_id));
+  const deleted = await deleteRun(runId);
+  if (deleted && open) {
+    state.flightTraces = null;
+    render();
+  }
+}
+
 function renderFlightHistory() {
   const root = $("tc-history");
   if (!root) return;
@@ -4933,10 +4976,10 @@ function renderFlightHistory() {
       const path = (run.recovery || []).map((action) =>
         run.safe_stop && action === "abstain" ? "safe stop" : action
       );
-      return `<button type="button" class="tc-run${on ? " is-on" : ""}" data-flight="${escapeHtml(ids)}">
+      return `<div class="tc-run-row"><button type="button" class="tc-run${on ? " is-on" : ""}" data-flight="${escapeHtml(ids)}">
         <strong>${escapeHtml(clipFlight(run.query || "(empty)"))}</strong>
         <small>${escapeHtml([outcome, path.length ? path.join(" → ") : ""].filter(Boolean).join(" · "))}</small>
-      </button>`;
+      </button><button type="button" class="tc-run-delete" data-flight-delete="${escapeHtml(run.logical_run_id)}" data-flight-ids="${escapeHtml(ids)}" aria-label="Delete run" title="Delete run">${icon("trash", 14)}</button></div>`;
     })
     .join("");
 }

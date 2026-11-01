@@ -251,6 +251,9 @@ def test_index_page_and_assets_are_served(tmp_path: Path) -> None:
         assert 'id="view-agent"' in page.text
         assert 'id="nav-api"' in page.text
         assert 'id="view-api"' in page.text
+        assert 'id="nav-docs"' in page.text
+        assert 'href="#docs"' in page.text
+        assert 'id="view-docs"' in page.text
         css = client.get("/static/styles.css")
         assert css.status_code == 200
         assert "--bg:" in css.text
