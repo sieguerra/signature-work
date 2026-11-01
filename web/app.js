@@ -1357,7 +1357,7 @@ async function deleteRun(runId) {
     ? `Delete this run and its recovered child from disk?\n${runId}\n${childId}`
     : `Delete this run from disk?\n${runId}`;
   const ok = window.confirm(message);
-  if (!ok) return;
+  if (!ok) return false;
   showError("");
   await api(`/api/traces/${encodeURIComponent(runId)}`, { method: "DELETE" });
   const wasSelected = state.selectedId === runId || state.selectedId === childId;
@@ -1368,6 +1368,7 @@ async function deleteRun(runId) {
   }
   await loadTraces();
   render();
+  return true;
 }
 
 async function deleteAllRuns() {
@@ -4398,6 +4399,13 @@ function bind() {
   const history = $("tc-history");
   if (history) {
     history.addEventListener("click", (event) => {
+      const remove = event.target.closest("[data-flight-delete]");
+      if (remove) {
+        deleteFlightRun(remove.dataset.flightDelete, remove.dataset.flightIds).catch((error) =>
+          showError(error.message)
+        );
+        return;
+      }
       const button = event.target.closest("[data-flight]");
       if (!button) return;
       const ids = (button.dataset.flight || "").split(",").filter(Boolean);
@@ -4905,6 +4913,18 @@ function renderFlight() {
   }
 }
 
+// Deletes one Test Console run (and its recovered child) after a confirm. If
+// that run is open in the console, the console goes back to its empty state.
+async function deleteFlightRun(runId, ids) {
+  const traceIds = (ids || "").split(",").filter(Boolean);
+  const open = (state.flightTraces || []).some((trace) => traceIds.includes(trace.run_id));
+  const deleted = await deleteRun(runId);
+  if (deleted && open) {
+    state.flightTraces = null;
+    render();
+  }
+}
+
 function renderFlightHistory() {
   const root = $("tc-history");
   if (!root) return;
@@ -4927,10 +4947,10 @@ function renderFlightHistory() {
       const path = (run.recovery || []).map((action) =>
         run.safe_stop && action === "abstain" ? "safe stop" : action
       );
-      return `<button type="button" class="tc-run${on ? " is-on" : ""}" data-flight="${escapeHtml(ids)}">
+      return `<div class="tc-run-row"><button type="button" class="tc-run${on ? " is-on" : ""}" data-flight="${escapeHtml(ids)}">
         <strong>${escapeHtml(clipFlight(run.query || "(empty)"))}</strong>
         <small>${escapeHtml([outcome, path.length ? path.join(" → ") : ""].filter(Boolean).join(" · "))}</small>
-      </button>`;
+      </button><button type="button" class="tc-run-delete" data-flight-delete="${escapeHtml(run.logical_run_id)}" data-flight-ids="${escapeHtml(ids)}" aria-label="Delete run" title="Delete run">${icon("trash", 14)}</button></div>`;
     })
     .join("");
 }

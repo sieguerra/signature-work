@@ -6089,6 +6089,35 @@ button.flow-port:hover,
   color: var(--text-secondary);
 }
 
+.tc-run-row { position: relative; }
+.tc-run-row .tc-run { padding-right: 36px; }
+.tc-run-delete {
+  position: absolute;
+  top: 7px;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--text-3);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease), background-color var(--dur) var(--ease);
+}
+.tc-run-row:hover .tc-run-delete,
+.tc-run-delete:focus-visible { opacity: 1; }
+.tc-run-delete:hover {
+  background: var(--err-dim);
+  color: var(--err);
+}
+@media (hover: none) {
+  .tc-run-delete { opacity: 1; }
+}
+
 .tc-idle {
   display: flex;
   flex-direction: column;
@@ -7670,6 +7699,7 @@ h2 .info-tip { font-size: inherit; }
 /* Public demo and snapshot: hide anything that would change data. */
 .is-demo #delete-all-runs,
 .is-demo [data-rel-delete],
+.is-demo .tc-run-delete,
 .is-demo [data-doc-del],
 .is-demo #kn-add-source,
 .is-demo #new-workspace,
