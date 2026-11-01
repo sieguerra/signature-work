@@ -1,4 +1,0 @@
-# LaTeX build output: keep only the compiled PDF
-build/*
-!build/signature-work.pdf
-.DS_Store

@@ -47,3 +47,5 @@ datasets/generated/
 *.key
 credentials.json
 secrets.json
+# The paper stays on this computer. The GitHub repo is the software only.
+/paper/
