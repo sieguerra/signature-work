@@ -2686,7 +2686,35 @@ function resetPlaygroundChat() {
   render();
 }
 
+// Puts an opened run's question and settings into the Test Console form, so
+// what the form shows is what Rerun sends.
+function fillRunControls(settings) {
+  if (!settings) return;
+  const question = $("pg-question");
+  if (question) question.value = settings.question;
+  const mode = $("pg-mode");
+  if (mode && settings.mode && mode.value !== settings.mode && [...mode.options].some((o) => o.value === settings.mode)) {
+    mode.value = settings.mode;
+    mode.dispatchEvent(new Event("change"));
+  }
+  const topK = $("pg-top-k");
+  if (topK && Number.isInteger(settings.topK)) topK.value = String(settings.topK);
+  const policy = $("pg-recovery-policy");
+  if (policy && settings.policy && policy.value !== settings.policy && [...policy.options].some((o) => o.value === settings.policy)) {
+    policy.value = settings.policy;
+    policy.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+}
+
 function rerunLastPlayground() {
+  // Rerun repeats the run that is open, not the last question typed in this
+  // session, which could be a different run.
+  const open = window.FlightRecorder ? FlightRecorder.rerunSettings(state.flightTraces) : null;
+  if (open) {
+    fillRunControls(open);
+    runQuestion(true).catch((error) => showError(error.message));
+    return;
+  }
   const last = [...state.messages].reverse().find((item) => item.role === "user");
   if (!last) {
     showError("Nothing to rerun.");
@@ -4806,6 +4834,7 @@ async function openFlight(ids, options) {
     if (payload.trace) traces.push(payload.trace);
   }
   state.flightTraces = traces;
+  if (!stay && window.FlightRecorder) fillRunControls(FlightRecorder.rerunSettings(traces));
   const flight = window.FlightRecorder ? FlightRecorder.buildFlight(traces) : null;
   const focusId = (flight && flight.pending && flight.pending.runId) || (traces[traces.length - 1] && traces[traces.length - 1].run_id);
   const focus = traces.find((trace) => trace.run_id === focusId) || traces[traces.length - 1] || null;
