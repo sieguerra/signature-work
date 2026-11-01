@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Build the static snapshot and publish it to GitHub Pages from a public repo
-# that holds only the built site (this research repo can stay private).
+# Build the static snapshot and publish it to GitHub Pages from a repository
+# that holds only the built site, not this code base.
 #
 #   scripts/publish_snapshot.sh <owner>/<repo>      e.g. sieguerra/groundloop
 #

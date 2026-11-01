@@ -11,18 +11,24 @@ time you want the first one.
 | Accounts needed | GitHub (you have it) | Render (free, no credit card) |
 | OpenAI key online | No | Only if you set one |
 
-Both run in public demo mode: one pinned system, nothing can be created,
-uploaded, edited, or deleted, and no local paths or provider endpoint appear in
-any response.
+Both run in public demo mode: nothing can be created, uploaded, edited, or
+deleted, and no local paths or provider endpoint appear in any response. The
+live demo stays on one system. The snapshot includes every built-in system
+and lets a visitor switch among the saved copies.
 
 ## 1. Snapshot on GitHub Pages
 
-A snapshot is the console plus saved copies of the API responses for one
-system. It needs no server and no key.
+A snapshot is the console plus saved copies of the API responses. By default
+it includes every built-in system. `--system` chooses which one opens first
+(Duke Kunshan, if you leave it unset). `--systems dku,kestrel` limits the
+set. It needs no server and no key.
 
-GitHub Pages is free only for public repositories, and this research repo is
-private. So the snapshot goes to a separate public repo that contains only the
-built site and the system's public notes and recorded runs, not this code base.
+The snapshot is published to its own repository. That repository contains
+only the built site and those systems' public notes and recorded runs, not
+this code base. GitHub Pages serves it. In the built site, the System menu
+lists every included system, and choosing one loads that system's saved
+pages. Creating, uploading, deleting, and anything that calls the model stay
+refused.
 
 ```bash
 scripts/publish_snapshot.sh <your-github-name>/groundloop
