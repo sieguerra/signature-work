@@ -178,9 +178,10 @@
     return items;
   }
 
-  // Hash routing for the console: "#view" or "#reliability/<tab>".
-  // Summary is the internal "overview" tab and has no suffix in the URL.
+  // Hash routing for the console: "#view", "#reliability/<tab>", or "#docs/<section>".
+  // Summary and the Documentation overview have no suffix in the URL.
   const RELIABILITY_TABS = ["overview", "runs", "recoveries", "quality"];
+  const DOC_SECTIONS = ["overview", "loop", "console", "verdicts", "design", "results", "limits"];
 
   function parseRoute(hash, views, aliases) {
     const raw = String(hash || "").replace(/^#/, "");
@@ -190,12 +191,16 @@
     const view = alias || (known.includes(head) ? head : known[0] || "overview");
     let tab = "overview";
     if (view === "reliability" && RELIABILITY_TABS.includes(suffix)) tab = suffix;
+    if (view === "docs" && DOC_SECTIONS.includes(suffix)) tab = suffix;
     return { view, tab };
   }
 
   function routeHash(view, tab) {
     if (view === "reliability" && tab && tab !== "overview" && RELIABILITY_TABS.includes(tab)) {
       return `#reliability/${tab}`;
+    }
+    if (view === "docs" && tab && tab !== "overview" && DOC_SECTIONS.includes(tab)) {
+      return `#docs/${tab}`;
     }
     return `#${view}`;
   }
@@ -235,5 +240,6 @@
     parseRoute,
     routeHash,
     RELIABILITY_TABS,
+    DOC_SECTIONS,
   };
 });
