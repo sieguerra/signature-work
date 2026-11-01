@@ -23,7 +23,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
-    <link rel="stylesheet" href="/static/styles.css?v=89" />
+    <link rel="stylesheet" href="/static/styles.css?v=92" />
   </head>
   <body>
     <div id="app" data-view="overview">
@@ -78,6 +78,9 @@
             </a>
             <a href="#integrations" id="nav-api" class="view-link" data-tip="Integrations" data-tip-side="right">
               <span class="view-ico" data-icon="code"></span><span class="view-label">Integrations</span>
+            </a>
+            <a href="#docs" id="nav-docs" class="view-link" data-tip="Documentation" data-tip-side="right">
+              <span class="view-ico" data-icon="book-open"></span><span class="view-label">Documentation</span>
             </a>
           </nav>
 
@@ -222,6 +225,110 @@
           <div class="page-body" id="pg-api"></div>
         </div>
 
+        <div id="view-docs" class="view">
+          <header class="page-head">
+            <div>
+              <h1>Documentation</h1>
+              <p>The software, and the study that measured it.</p>
+            </div>
+          </header>
+          <div class="docs-shell">
+            <nav class="docs-nav" aria-label="Documentation sections">
+              <p class="docs-nav-label">Software</p>
+              <button type="button" class="docs-link is-on" data-doc="overview" aria-current="true">Overview</button>
+              <button type="button" class="docs-link" data-doc="loop">The loop</button>
+              <button type="button" class="docs-link" data-doc="console">The console</button>
+              <button type="button" class="docs-link" data-doc="verdicts">Verdicts</button>
+              <p class="docs-nav-label">Study</p>
+              <button type="button" class="docs-link" data-doc="design">Design</button>
+              <button type="button" class="docs-link" data-doc="results">Results</button>
+              <button type="button" class="docs-link" data-doc="limits">Limits</button>
+            </nav>
+            <div class="docs-stage">
+              <section class="docs-panel is-on" data-doc-panel="overview">
+                <p class="docs-kicker">Software</p>
+                <h2>Overview</h2>
+                <p class="docs-lead">GroundLoop answers a question from its own documents, checks that answer, and tries to repair it when the check fails. Every step is saved, so the result can be inspected rather than trusted on its own.</p>
+                <p>It is a standalone system. The question came from evaluation work on a campus assistant, and GroundLoop has not been built into that assistant. The Duke Kunshan collection used in the study is a benchmark made from public Duke Kunshan pages, not a deployed chatbot.</p>
+                <div class="docs-layers">
+                  <div><span>1</span><strong>Core library</strong><p>Python. Retrieves, generates, evaluates, diagnoses, recovers, and verifies. It also runs the benchmark.</p></div>
+                  <div><span>2</span><strong>HTTP adapter</strong><p>Exposes the library. The core never imports the adapter.</p></div>
+                  <div><span>3</span><strong>This console</strong><p>Renders only what the adapter returns. One query writes one trace, and Reliability is computed from those files.</p></div>
+                </div>
+              </section>
+              <section class="docs-panel" data-doc-panel="loop" hidden>
+                <p class="docs-kicker">Software</p>
+                <h2>The loop</h2>
+                <p class="docs-lead">One question goes through six stages. A retry happens only while the recovery budget remains.</p>
+                <ol class="docs-steps">
+                  <li><strong>Retrieve</strong><span>The closest passages.</span></li>
+                  <li><strong>Generate</strong><span>An answer from those passages.</span></li>
+                  <li><strong>Evaluate</strong><span>A language-model judge, plus checks for spans and sources.</span></li>
+                  <li><strong>Diagnose</strong><span>Why the answer failed, when it did.</span></li>
+                  <li><strong>Recover</strong><span>Rewrite the question, widen retrieval, regenerate, or abstain.</span></li>
+                  <li><strong>Verify</strong><span>Accept, retry, or abstain.</span></li>
+                </ol>
+              </section>
+              <section class="docs-panel" data-doc-panel="console" hidden>
+                <p class="docs-kicker">Software</p>
+                <h2>The console</h2>
+                <p class="docs-lead">Build a system on Configuration, then ask in Test Console. A saved run opens on Reliability.</p>
+                <div class="docs-modes">
+                  <div><strong>Retrieve only</strong><p>No API key. Shows the passages that would be used.</p></div>
+                  <div><strong>Baseline</strong><p>One answer. No recovery.</p></div>
+                  <div><strong>Confirm recovery</strong><p>Pauses after the diagnosis and waits for approval.</p></div>
+                  <div><strong>Auto recovery</strong><p>The whole loop. Demonstrations use depth 4 and at most two actions.</p></div>
+                </div>
+                <p>Reliability lists every run with the first answer, the action, the passages, and the verdict. Filter by verdict, action, policy, or diagnosis. Data shows the documents the system retrieved from.</p>
+              </section>
+              <section class="docs-panel" data-doc-panel="verdicts" hidden>
+                <p class="docs-kicker">Software</p>
+                <h2>Verdicts</h2>
+                <p class="docs-lead">The judge never sees the answer key. Gold is used only after a run, to score it.</p>
+                <p>A verdict of improved means the system's own check changed in the direction it treats as better. It is evidence you can open. It is not proof that the answer became correct.</p>
+                <p>Still failing means the check did not pass after recovery. That covers a correct refusal, when the documents do not contain the fact, and a failed repair, when recovery ran and the answer still did not clear the check.</p>
+              </section>
+              <section class="docs-panel" data-doc-panel="design" hidden>
+                <p class="docs-kicker">Study</p>
+                <h2>Design</h2>
+                <p class="docs-lead">The same engine as this console, in automatic mode, on three small collections.</p>
+                <div class="docs-stats">
+                  <div><b>88</b><span>questions, three collections, three repeats</span></div>
+                  <div><b>1, 2, 4</b><span>passages for the loop and a retrieve-once baseline</span></div>
+                  <div><b>8</b><span>passages for a plain baseline, the cheaper comparison</span></div>
+                </div>
+                <p>Lower retrieval depth makes the first pass miss more often, so there is something for recovery to fix. The 8-passage baseline tests whether simply fetching more matches the loop at lower cost. The judge, the diagnosis, and the verifier see the question, the passages, and the answer. They do not see gold.</p>
+              </section>
+              <section class="docs-panel" data-doc-panel="results" hidden>
+                <p class="docs-kicker">Study</p>
+                <h2>Results</h2>
+                <p class="docs-lead">With one passage, the loop raised the rate of correct answers. A wider search matched that quality for less than half the cost.</p>
+                <div class="docs-stats">
+                  <div><b>0.81 → 0.97</b><span>Duke Kunshan, one passage</span></div>
+                  <div><b>1.00</b><span>Harbor and Kestrel, one passage</span></div>
+                  <div><b>1 in 27</b><span>loop runs was an actual regression</span></div>
+                  <div><b>76 / 98</b><span>diagnoses matched the gold class</span></div>
+                  <div><b>59 / 73</b><span>verdicts matched gold on answerable recoveries</span></div>
+                  <div><b>&lt; half</b><span>the cost, for the 8-passage baseline</span></div>
+                </div>
+                <p>In one case the loop reported a repair after changing only the source an answer named. What the loop adds, on these collections, is a diagnosis, an action, and a verdict for every answer. The wider baseline is the comparison any claim for the loop has to beat.</p>
+              </section>
+              <section class="docs-panel" data-doc-panel="limits" hidden>
+                <p class="docs-kicker">Study</p>
+                <h2>Limits</h2>
+                <p class="docs-lead">The reading is bounded by the model, the collections, and two open gaps in the software.</p>
+                <ul class="docs-limits">
+                  <li>One model, three repeats, and small single-hop collections.</li>
+                  <li>The judge sample is 40 calls and was not an independent blind rating.</li>
+                  <li>The Duke Kunshan facts are public, so the model may know some answers without retrieving them.</li>
+                  <li>After the recovery budget is used up, an answer can still be recorded as improved when the judge marks it unsupported.</li>
+                  <li>The span check ignores one- and two-digit numbers.</li>
+                </ul>
+              </section>
+            </div>
+          </div>
+        </div>
+
         <div id="view-evaluation" class="view" data-tab="overview">
           <span class="sr-only">Trace explorer</span>
           <header class="page-head">
@@ -335,6 +442,6 @@
     <script src="/static/flight-recorder.js?v=8"></script>
     <script src="/static/reliability.js?v=6"></script>
     <script src="/static/agent-config.js?v=46"></script>
-    <script src="/static/app.js?v=87"></script>
+    <script src="/static/app.js?v=89"></script>
   </body>
 </html>

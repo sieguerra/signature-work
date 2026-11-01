@@ -206,6 +206,7 @@ test("parseRoute reads the Reliability tab from the hash", () => {
   assert.deepEqual(parseRoute("#reliability", VIEWS, ALIASES), { view: "reliability", tab: "overview" });
   assert.deepEqual(parseRoute("#evaluation", VIEWS, ALIASES), { view: "reliability", tab: "overview" });
   assert.deepEqual(parseRoute("#overview", VIEWS, ALIASES), { view: "overview", tab: "overview" });
+  assert.deepEqual(parseRoute("#docs", [...VIEWS, "docs"], ALIASES), { view: "docs", tab: "overview" });
 });
 
 test("parseRoute keeps an unknown Reliability suffix on Reliability Summary", () => {
