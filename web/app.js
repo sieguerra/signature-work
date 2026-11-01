@@ -78,7 +78,7 @@ function showError(message) {
   });
 }
 
-const VIEWS = ["overview", "test", "reliability", "data", "configuration", "integrations"];
+const VIEWS = ["overview", "test", "reliability", "data", "configuration", "integrations", "docs"];
 
 const VIEW_ALIASES = {
   playground: "test",
@@ -95,6 +95,7 @@ const VIEW_PANELS = {
   data: "knowledge",
   configuration: "agent",
   integrations: "api",
+  docs: "docs",
 };
 
 function parseRoute(raw) {
@@ -183,6 +184,7 @@ const VIEW_TITLES = {
   data: "Data",
   configuration: "Configuration",
   integrations: "Integrations",
+  docs: "Documentation",
 };
 
 const VIEW_ICONS = {
@@ -192,7 +194,26 @@ const VIEW_ICONS = {
   data: "database",
   configuration: "sliders",
   integrations: "code",
+  docs: "book-open",
 };
+
+function showDoc(id) {
+  const root = document.getElementById("view-docs");
+  if (!root || !root.querySelector(`[data-doc-panel="${id}"]`)) return;
+  root.querySelectorAll("[data-doc]").forEach((button) => {
+    const on = button.dataset.doc === id;
+    button.classList.toggle("is-on", on);
+    if (on) button.setAttribute("aria-current", "true");
+    else button.removeAttribute("aria-current");
+  });
+  root.querySelectorAll("[data-doc-panel]").forEach((panel) => {
+    const on = panel.dataset.docPanel === id;
+    panel.hidden = !on;
+    panel.classList.toggle("is-on", on);
+  });
+  const stage = root.querySelector(".docs-stage");
+  if (stage) stage.scrollTop = 0;
+}
 
 function renderShell() {
   const meta = state.meta || {};
@@ -525,6 +546,8 @@ function bindShell() {
   });
   document.addEventListener("click", (event) => {
     if (!event.target.closest("#env")) toggleEnvPop(false);
+    const docLink = event.target.closest("[data-doc]");
+    if (docLink) showDoc(docLink.dataset.doc);
   });
   $("pg-mode").addEventListener("change", () => {
     renderShell();
