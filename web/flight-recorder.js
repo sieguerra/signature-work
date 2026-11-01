@@ -845,11 +845,30 @@
     return { title: step.title || "", detail: step.detail || "" };
   }
 
+  // What Rerun should send for an opened run: the root trace's question with
+  // the mode, starting depth, and recovery policy it was first run with. A
+  // recovered trace records its final top_k (for example 12 after an expand),
+  // so the starting depth comes from trace.initial when it is there.
+  function rerunSettings(traces) {
+    const list = (traces || []).filter(Boolean);
+    const root = list.find((trace) => !trace.parent_run_id) || list[0];
+    if (!root || !String(root.query || "").trim()) return null;
+    const initial = root.initial || {};
+    const topK = Number.isInteger(initial.top_k) ? initial.top_k : Number.isInteger(root.top_k) ? root.top_k : null;
+    return {
+      question: String(root.query).trim(),
+      mode: root.run_mode || null,
+      topK,
+      policy: root.recovery_policy || null,
+    };
+  }
+
   return {
     ABSTAIN_ANSWER,
     ACTION_EFFECT,
     MODE_NOTES,
     buildFlight,
+    rerunSettings,
     modeNote,
     labelAction,
     labelOutcome,

@@ -2,7 +2,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");
-const { buildFlight, modeNote } = require("./flight-recorder.js");
+const { buildFlight, modeNote, rerunSettings } = require("./flight-recorder.js");
 
 function chunk(id, score) {
   return { chunk_id: id, title: id, score, text: `text ${id}` };
@@ -751,4 +751,46 @@ test("a stage that runs again keeps its total time and count", () => {
   const retrieve = stages.find((stage) => stage.key === "retrieve");
   assert.equal(retrieve.ms, 150);
   assert.equal(retrieve.count, 2);
+});
+
+test("rerunSettings uses the opened run's question, mode, starting depth, and policy", () => {
+  const settings = rerunSettings([
+    {
+      run_id: "p",
+      query: "What is the clerk desk phone number?",
+      run_mode: "loop",
+      top_k: 12,
+      initial: { top_k: 4 },
+      recovery_policy: "v1",
+    },
+  ]);
+  assert.deepEqual(settings, {
+    question: "What is the clerk desk phone number?",
+    mode: "loop",
+    topK: 4,
+    policy: "v1",
+  });
+});
+
+test("rerunSettings reads the parent of a confirm-mode pair, not the child", () => {
+  const settings = rerunSettings([
+    { run_id: "child", parent_run_id: "parent", query: "rewritten query", run_mode: "loop_confirm", top_k: 12 },
+    { run_id: "parent", query: "original question", run_mode: "loop_confirm", top_k: 2 },
+  ]);
+  assert.equal(settings.question, "original question");
+  assert.equal(settings.topK, 2);
+  assert.equal(settings.mode, "loop_confirm");
+});
+
+test("rerunSettings keeps a baseline run as baseline and falls back to top_k", () => {
+  const settings = rerunSettings([{ run_id: "b", query: "Q", run_mode: "baseline", top_k: 8 }]);
+  assert.equal(settings.mode, "baseline");
+  assert.equal(settings.topK, 8);
+  assert.equal(settings.policy, null);
+});
+
+test("rerunSettings returns null when no run is open", () => {
+  assert.equal(rerunSettings(null), null);
+  assert.equal(rerunSettings([]), null);
+  assert.equal(rerunSettings([{ run_id: "x", query: "  " }]), null);
 });
