@@ -7696,6 +7696,7 @@ h2 .info-tip { font-size: inherit; }
 /* Public demo and snapshot: hide anything that would change data. */
 .is-demo #delete-all-runs,
 .is-demo [data-rel-delete],
+.is-demo .tc-run-delete,
 .is-demo [data-doc-del],
 .is-demo #kn-add-source,
 .is-demo #new-workspace,
