@@ -34,7 +34,7 @@ Explorer recover-confirm ([#48](https://github.com/sieguerra/signature-work/issu
 
 1. `python3 -m venv .venv && source .venv/bin/activate && pip install -e ".[dev]"`
 2. `python scripts/run_ui.py` → http://127.0.0.1:8000
-3. Open **Test Console**. The sidebar lists Overview, Test Console, Reliability, Data, Configuration, and Integrations.
+3. Open **Test Console**. The sidebar lists Overview, Test Console, Reliability, Data, Configuration, Integrations, and Documentation.
 4. **Retrieve only, no key.** The page title is Duke Kunshan University. The System picker lists writable systems first, then the built-in read-only corpora. Run mode **Retrieve only**, recovery policy **Current v1**, ask `What are breakfast hours at University Dining in the Academic Building?` Retrieved passages appear. Generation is skipped. Without `OPENAI_API_KEY`, Baseline, Confirm recovery, and Auto recovery cannot run.
 5. **Confirm recovery (needs a key).** Restart after the key is in `.env`. Stay on Duke Kunshan University, run mode **Confirm recovery**, policy **Current v1**, ask `What time does breakfast end at Halal Dining at the Conference Center?` A diagnosis and a recovery action should appear before rewrite or regenerate runs. **Gap-aware (Guarded)** is a separate policy. Leave it unselected unless you mean to demo that policy.
 6. **Recovery contrast (needs a key).** Pick **Kestrel Aero Components** in the System picker. Retrieval depth **1**, run mode **Confirm recovery**, ask `What AMS specification does the titanium traveler require?` The first pass may retrieve the 2018 sheet (AMS 4911N). Inspect the run under **Reliability**. Verification may still be `still_failing`. Do not treat one demo as the official result.

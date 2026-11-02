@@ -2,11 +2,13 @@
 """Build a static, read-only snapshot of the GroundLoop console.
 
 The snapshot is plain files (HTML, CSS, JS, and JSON copies of the API
-responses for one system), so it can be served by any free static host such
-as GitHub Pages. It needs no server and no OpenAI key, and it changes nothing.
+responses), so it can be served by any free static host such as GitHub
+Pages. By default every built-in system is included and Duke Kunshan opens
+first. It needs no server and no OpenAI key, and it changes nothing.
 
-    python scripts/build_static_demo.py                    # DKU -> dist/site
+    python scripts/build_static_demo.py                         # all built-in systems, DKU first
     python scripts/build_static_demo.py --system dku --out dist/site
+    python scripts/build_static_demo.py --systems dku,kestrel   # only those systems
 
 Responses pass through the same scrubbing as public demo mode, so the
 snapshot carries no absolute paths and no provider endpoint.

@@ -99,7 +99,7 @@ not interpret them.
 
 The UI is a reliability console over the same core (ADR 008). It does not own
 retrieval, judging, or recovery. The sidebar is Overview, Test Console,
-Reliability, Data, Configuration, and Integrations.
+Reliability, Data, Configuration, Integrations, and Documentation.
 
 ```bash
 python scripts/run_ui.py
@@ -122,9 +122,12 @@ records per-stage offsets and durations in the trace as `stage_timings`
 (`swrag.tracing.progress`), shown as a timeline under the loop. Runs recorded
 before this field existed have no timeline.
 
-Saved runs show up under **Reliability**. **Delete all** clears traces for the
-active system only. Auto recovery, Confirm recovery, and Baseline need
-`OPENAI_API_KEY`. Retrieve only does not.
+Saved runs show up under **Reliability**. **Rerun** repeats the run that is
+open, using that run's question, mode, starting retrieval depth, and recovery
+policy. With no run open, it repeats the last question typed in this tab.
+Each run in the Test Console list can be deleted on its own. **Delete all**
+clears traces for the active system only. Auto recovery, Confirm recovery,
+and Baseline need `OPENAI_API_KEY`. Retrieve only does not.
 
 A writable system can create hashed API keys under **Integrations**. Those
 keys authenticate `POST /api/v1/evaluations`: a customer agent submits a query,
@@ -173,7 +176,7 @@ Tests use the same fake embedder, so chunking, ranking, and tracing do not call 
 | `src/swrag/evaluation/` | Gold-set loader, offline EM/F1, runtime grounding judge |
 | `src/swrag/experiments/` | Batch harness, baseline-vs-loop comparison, per-class aggregation |
 | `src/swrag/api/` | FastAPI adapter; does not own RAG logic |
-| `web/` | Reliability console (Overview, Test Console, Reliability, Data, Configuration, Integrations) |
+| `web/` | Reliability console (Overview, Test Console, Reliability, Data, Configuration, Integrations, Documentation) |
 | `experiments/configs/` | Reproducible experiment JSON |
 | `experiments/results/` | Committed comparison snapshots (never overwritten) |
 | `datasets/registry.json` | Named corpora for the UI toggle (one index at a time) |
