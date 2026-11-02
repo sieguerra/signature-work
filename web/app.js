@@ -11,6 +11,7 @@ const state = {
   loading: false,
   recovering: false,
   view: "overview",
+  docSection: null,
   documents: [],
   openDocument: null,
   messages: [],
@@ -122,6 +123,10 @@ function applyView() {
     state.relAutoFocus = false;
     applyEvalTab();
   }
+  if (view === "docs" && state.docSection !== route.tab) {
+    state.docSection = route.tab;
+    showDoc(route.tab);
+  }
   const app = document.getElementById("app");
   app.dataset.view = VIEW_PANELS[view];
   // Each view scrolls inside its own panel, which kept its old offset while
@@ -185,6 +190,16 @@ const VIEW_TITLES = {
   configuration: "Configuration",
   integrations: "Integrations",
   docs: "Documentation",
+};
+
+const DOC_LABELS = {
+  overview: "Overview",
+  loop: "The loop",
+  console: "The console",
+  verdicts: "Verdicts",
+  design: "Design",
+  results: "Results",
+  limits: "Limits",
 };
 
 const VIEW_ICONS = {
@@ -348,6 +363,18 @@ function commandList() {
       location.hash = `#${view}`;
     },
   }));
+  const docRoute = parseRoute(location.hash);
+  window.ReliabilityView.DOC_SECTIONS.forEach((id) => {
+    items.push({
+      group: "Documentation",
+      label: DOC_LABELS[id],
+      icon: "book-open",
+      hint: docRoute.view === "docs" && docRoute.tab === id ? "Current" : "",
+      run: () => {
+        location.hash = window.ReliabilityView.routeHash("docs", id);
+      },
+    });
+  });
   items.push(
     {
       group: "Actions",
@@ -546,8 +573,11 @@ function bindShell() {
   });
   document.addEventListener("click", (event) => {
     if (!event.target.closest("#env")) toggleEnvPop(false);
-    const docLink = event.target.closest("[data-doc]");
-    if (docLink) showDoc(docLink.dataset.doc);
+    const docLink = event.target.closest("#view-docs [data-doc]");
+    if (docLink) {
+      const next = window.ReliabilityView.routeHash("docs", docLink.dataset.doc);
+      if (location.hash !== next) location.hash = next;
+    }
   });
   $("pg-mode").addEventListener("change", () => {
     renderShell();

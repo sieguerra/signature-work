@@ -220,6 +220,18 @@ test("routeHash gives Summary no suffix and other tabs one", () => {
   assert.equal(routeHash("data", "runs"), "#data");
 });
 
+test("parseRoute reads a Documentation section from the hash", () => {
+  assert.deepEqual(parseRoute("#docs/loop", [...VIEWS, "docs"], ALIASES), { view: "docs", tab: "loop" });
+  assert.deepEqual(parseRoute("#docs", [...VIEWS, "docs"], ALIASES), { view: "docs", tab: "overview" });
+  assert.deepEqual(parseRoute("#docs/nope", [...VIEWS, "docs"], ALIASES), { view: "docs", tab: "overview" });
+});
+
+test("routeHash gives the Documentation overview no suffix", () => {
+  assert.equal(routeHash("docs", "overview"), "#docs");
+  assert.equal(routeHash("docs", "limits"), "#docs/limits");
+  assert.equal(routeHash("docs", "nope"), "#docs");
+});
+
 test("qualityTally turns the /api/eval counts into labeled items (#115)", () => {
   const items = qualityTally({
     n: 2,
